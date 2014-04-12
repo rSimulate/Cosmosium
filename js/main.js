@@ -10,6 +10,7 @@ function RSimulate(opts) {
     var jed_delta = 1;  // how many days per second to elapse
     
     var SUN_SIZE = 5;
+    var PLANET_SIZE = 3;
     var ASTEROID_SIZE = 1;
 
     var particle_system_geometry = null;
@@ -71,12 +72,6 @@ function RSimulate(opts) {
         var geometry = new THREE.SphereGeometry( ASTEROID_SIZE, 16, 16 );
         var material =  new THREE.MeshLambertMaterial( { color:0xffffff, shading: THREE.FlatShading } );
 
-        for ( var i = 0; i < 500; i ++ ) {
-
-            
-
-        }
-
         /*
         var asteroidsData;
         $.getJSON ('localHost:8080/getObjects',function(json){
@@ -117,7 +112,6 @@ function RSimulate(opts) {
             //scene.add(asteroidOrbit.getEllipse());
 
             var asteroidMesh = new THREE.Mesh( geometry, material );
-            asteroidMesh.matrixAutoUpdate = false;
             scene.add( asteroidMesh );
 
             asteroidMeshes.push(asteroidMesh);
@@ -132,6 +126,10 @@ function RSimulate(opts) {
     }
 
     function initPlanets() {
+
+        var planetGeometry = new THREE.SphereGeometry( PLANET_SIZE, 32, 32 );
+        var planetMaterial = new THREE.MeshLambertMaterial( {color: 0x0000ff} );
+
         var mercury = new Orbit3D(Ephemeris.mercury,
             {
               color: 0x913CEE, width: 1, jed: jed, object_size: 1.7,
@@ -143,6 +141,9 @@ function RSimulate(opts) {
         scene.add(mercury.getEllipse());
         if (!using_webgl)
           scene.add(mercury.getParticle());
+
+        var mercuryMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+
         var venus = new Orbit3D(Ephemeris.venus,
             {
               color: 0xFF7733, width: 1, jed: jed, object_size: 1.7,
@@ -154,6 +155,9 @@ function RSimulate(opts) {
         scene.add(venus.getEllipse());
         if (!using_webgl)
           scene.add(venus.getParticle());
+
+        var venusMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+
         var earth = new Orbit3D(Ephemeris.earth,
             {
               color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
@@ -171,6 +175,9 @@ function RSimulate(opts) {
           idx: 2
         };
         */
+
+        var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+
         var mars = new Orbit3D(Ephemeris.mars,
             {
               color: 0xA63A3A, width: 1, jed: jed, object_size: 1.7,
@@ -182,6 +189,9 @@ function RSimulate(opts) {
         scene.add(mars.getEllipse());
         if (!using_webgl)
           scene.add(mars.getParticle());
+
+        var marsMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+
         var jupiter = new Orbit3D(Ephemeris.jupiter,
             {
               color: 0xFF7F50, width: 1, jed: jed, object_size: 1.7,
@@ -194,7 +204,14 @@ function RSimulate(opts) {
         if (!using_webgl)
           scene.add(jupiter.getParticle());
 
+        var jupiterMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+
         planetOrbits = [mercury, venus, earth, mars, jupiter];
+        planetMeshes = [mercuryMesh, venusMesh, earthMesh, marsMesh, jupiterMesh];
+ 
+        for (var i = 0; i < planetMeshes.length; i++) {
+            scene.add(planetMeshes[i]);
+        }
     }
 
     function initCamera() {
@@ -209,16 +226,6 @@ function RSimulate(opts) {
         light = new THREE.PointLight( 0xffffff, 2, 1000);
         light.position.set(0,0,0);  // sun
         scene.add(light);
-
-        /*
-        light = new THREE.DirectionalLight( 0xffffff );
-        light.position.set( 1, 1, 1 );
-        scene.add( light );
-
-        light = new THREE.DirectionalLight( 0x002288 );
-        light.position.set( -1, -1, -1 );
-        scene.add( light );
-        */
 
         light = new THREE.AmbientLight( 0x222222 );
         scene.add( light );
@@ -252,14 +259,19 @@ function RSimulate(opts) {
     function update(deltaSeconds) {
         jed += jed_delta*deltaSeconds;
 
-        for (var i = 0; i < asteroidOrbits.length; i++) {
-            var asteroidOrbit = asteroidOrbits[i];
+        updateBodies(asteroidOrbits, asteroidMeshes);
 
-            var helioCoords = asteroidOrbit.getPosAtTime(jed);
+        updateBodies(planetOrbits, planetMeshes);
+    }
 
-            var asteroidMesh = asteroidMeshes[i];
-            asteroidMesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
-            asteroidMesh.updateMatrix();
+    function updateBodies(orbits, meshes) {
+        for (var i = 0; i < orbits.length; i++) {
+            var orbit = orbits[i];
+  
+            var helioCoords = orbit.getPosAtTime(jed);
+  
+            var mesh = meshes[i];
+            mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
         }
     }
 
