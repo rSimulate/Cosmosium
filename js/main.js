@@ -77,12 +77,15 @@ function RSimulate(opts) {
 
         }
 
+        /*
         var asteroidsData;
         $.getJSON ('localHost:8080/getObjects',function(json){
             asteroidsData = json;
         });
+        */
         
         //var asteroidsData = TestAsteroids;
+        var asteroidsData = OOIs;
 
         var numAsteroids = asteroidsData.length;
         console.log("num asteroids: " + numAsteroids);
