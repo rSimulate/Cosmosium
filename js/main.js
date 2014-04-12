@@ -27,6 +27,10 @@ function RSimulate(opts) {
     var projector;
     var clock;
     var plane;
+    var skybox;
+
+    var CAMERA_NEAR = 1;
+    var CAMERA_FAR = 100000;
 
     // orbits and meshes should have same length
     var orbits = [];
@@ -182,6 +186,7 @@ function RSimulate(opts) {
 
         initGeometry();
 
+        initSkybox();
 
         // lights
         initLights();
@@ -197,6 +202,31 @@ function RSimulate(opts) {
         clock = new THREE.Clock();
         clock.start();
         
+    }
+
+    function initSkybox() {
+        var geometry = new THREE.SphereGeometry(CAMERA_FAR / 2.0, 60, 40);
+
+        var uniforms = {
+            texture: { 
+                type: 't', 
+                value: THREE.ImageUtils.loadTexture('img/eso_dark.jpg') 
+            }
+        };
+
+        var material = new THREE.ShaderMaterial( {
+          uniforms:       uniforms,
+          vertexShader:   document.getElementById('sky-vertex').textContent,
+          fragmentShader: document.getElementById('sky-fragment').textContent
+        });
+
+        skybox = new THREE.Mesh(geometry, material);
+        skybox.scale.set(-1, 1, 1);
+        skybox.eulerOrder = 'XZY';
+        skybox.rotation.z = Math.PI/2.0;
+        skybox.rotation.x = Math.PI;
+        skybox.renderDepth = 1000.0;
+        scene.add(skybox);
     }
 
     function initGeometry() {
@@ -359,7 +389,8 @@ function RSimulate(opts) {
     }
 
     function initCamera() {
-        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
+        
+        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, CAMERA_NEAR, CAMERA_FAR );
         camera.position.z = 500;
 
         controls = new THREE.OrbitControls( camera );
