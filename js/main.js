@@ -86,6 +86,7 @@ function RSimulate(opts) {
         
         //var asteroidsData = TestAsteroids;
         var asteroidsData = OOIs;
+        console.log(asteroidsData);
 
         var numAsteroids = asteroidsData.length;
         console.log("num asteroids: " + numAsteroids);
