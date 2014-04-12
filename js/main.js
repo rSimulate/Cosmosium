@@ -1,10 +1,6 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 
-
-
-
-function RSimulate(opts) {
     var jed = toJED(new Date());    // julian date
 
     var jed_delta = 1;  // how many days per second to elapse
@@ -20,12 +16,140 @@ function RSimulate(opts) {
     var container, stats;
 
     var camera, controls, scene, renderer;
+    var mouse = new THREE.Vector2();
+    var offset = new THREE.Vector3();
+    var SELECTED;
+    var INTERSECTED;
+    var projector;
     var clock;
+    var plane;
 
-    var planetOrbits = [];
-    var planetMeshes = [];
-    var asteroidOrbits = [];
-    var asteroidMeshes = [];
+    // orbits and meshes should have same length
+    var orbits = [];
+    var meshes = [];
+
+    // for each type of object, there is a list of indexes of orbits/meshes that match it
+    // example: indexes["asteroid"] --> [2,3,5] and you can get the orbits at orbits[2], orbits[3], orbits[5]
+    var indexes = {
+        "asteroid": [],
+        "planet": []
+    };
+    var nextEntityIndex = 0;
+
+
+function RSimulate(opts) {
+
+
+    function addBody( indexLabel, orbit, mesh ) {
+        orbits.push(orbit);
+        meshes.push(mesh);
+
+        scene.add(mesh);
+
+        if (typeof indexes[indexLabel] !== "object") {
+            indexes[indexLabel] = [];
+        }
+
+        indexes[indexLabel].push(nextEntityIndex);
+
+        nextEntityIndex++;
+    }
+
+    function onDocumentMouseMove( event ) {
+
+        event.preventDefault();
+
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        //
+
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
+        projector.unprojectVector( vector, camera );
+
+        var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+
+
+        if ( SELECTED ) {
+
+            var intersects = raycaster.intersectObject( plane );
+            SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+            return;
+
+        }
+
+
+        var intersects = raycaster.intersectObjects( meshes );
+
+        if ( intersects.length > 0 ) {
+
+            if ( INTERSECTED != intersects[ 0 ].object ) {
+
+                if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+
+                INTERSECTED = intersects[ 0 ].object;
+                INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+
+                plane.position.copy( INTERSECTED.position );
+                plane.lookAt( camera.position );
+
+            }
+
+            container.style.cursor = 'pointer';
+
+        } else {
+
+            if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+
+            INTERSECTED = null;
+
+            container.style.cursor = 'auto';
+
+        }
+
+    }
+
+    function onDocumentMouseDown( event ) {
+        event.preventDefault();
+
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
+        projector.unprojectVector( vector, camera );
+
+        var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+
+        var intersects = raycaster.intersectObjects( meshes );
+
+        if ( intersects.length > 0 ) {
+
+            controls.enabled = false;
+
+            SELECTED = intersects[ 0 ].object;
+            console.log(SELECTED);
+            var intersects = raycaster.intersectObject( plane );
+            offset.copy( intersects[ 0 ].point ).sub( plane.position );
+            console.log(offset);
+        } else {
+            SELECTED = null;
+        }
+    }
+
+    function onDocumentMouseUp( event ) {
+
+        event.preventDefault();
+
+        controls.enabled = true;
+
+        if ( INTERSECTED ) {
+
+            plane.position.copy( INTERSECTED.position );
+
+            SELECTED = null;
+
+        }
+
+        container.style.cursor = 'auto';
+
+    }
 
     function init() {
 
@@ -107,14 +231,14 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry // will add itself to this geometry
             }, useBigParticles);
 
-            asteroidOrbits.push(asteroidOrbit);
-
             //scene.add(asteroidOrbit.getEllipse());
 
             var asteroidMesh = new THREE.Mesh( geometry, material );
-            scene.add( asteroidMesh );
 
-            asteroidMeshes.push(asteroidMesh);
+            addBody("asteroid", asteroidOrbit, asteroidMesh);
+
+
+
         }
     }
 
@@ -206,12 +330,11 @@ function RSimulate(opts) {
 
         var jupiterMesh = new THREE.Mesh(planetGeometry, planetMaterial);
 
-        planetOrbits = [mercury, venus, earth, mars, jupiter];
-        planetMeshes = [mercuryMesh, venusMesh, earthMesh, marsMesh, jupiterMesh];
- 
-        for (var i = 0; i < planetMeshes.length; i++) {
-            scene.add(planetMeshes[i]);
-        }
+        addBody("planet", mercury, mercuryMesh);
+        addBody("planet", venus, venusMesh);
+        addBody("planet", earth, earthMesh);
+        addBody("planet", mars, marsMesh);
+        addBody("planet", jupiter, jupiterMesh);
     }
 
     function initCamera() {
@@ -232,11 +355,21 @@ function RSimulate(opts) {
     }
 
     function initRenderer() {
+        plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true, wireframe: true } ) );
+        plane.visible = false;
+        scene.add( plane );
+
+        projector = new THREE.Projector();
+
         renderer = new THREE.WebGLRenderer( { antialias: false } );
         renderer.setSize( window.innerWidth, window.innerHeight );
 
         container = document.getElementById( 'container' );
         container.appendChild( renderer.domElement );
+
+        renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+        renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+        renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
     }
 
     function initStats() {
@@ -259,9 +392,7 @@ function RSimulate(opts) {
     function update(deltaSeconds) {
         jed += jed_delta*deltaSeconds;
 
-        updateBodies(asteroidOrbits, asteroidMeshes);
-
-        updateBodies(planetOrbits, planetMeshes);
+        updateBodies(orbits, meshes);
     }
 
     function updateBodies(orbits, meshes) {
