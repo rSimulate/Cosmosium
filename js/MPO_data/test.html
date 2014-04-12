@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MPO tests</title>
+
+    <script type="text/javascript" src="../require.js"></script>
+    <script type="text/javascript" src="../jquery-1.11.0.min.js"></script>
+</head>
+
+<body>
+    <script type="text/javascript">
+    require(["./MPO.js"], function(){
+
+        console.log("=MPO TEST=");
+
+        var m = new MPO({name:"Beerfest"});
+        console.log(m.name);
+        console.log(m.getLoc(0));
+    });
+
+    require(["./MPO_req.js"], function(){
+        console.log("=MPO REQ TEST=")
+        var params = {"name":"(138911) 2001 AE2"}
+        var req = new MPO_req(params);
+        req.send();
+    });
+    </script>
+</body>
+
+</html>
+
+
+
