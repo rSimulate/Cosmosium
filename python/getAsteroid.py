@@ -1,6 +1,7 @@
 
 import requests
 from bottle import route, run, request, template
+import json
 
 def asterankAPI(query, limit):
     # queries the asterank API as guided by http://www.asterank.com/mpc
@@ -22,7 +23,10 @@ def addOOI():
     print 'object '+name+' added to OOIs'
     print OOIs
 
-
+@route('/getAsteroids')
+def getOOIs():
+    return json.dumps(OOIs)
+    
 @route('/asteroidReq')
 def processReq():
     q = request.query.query
