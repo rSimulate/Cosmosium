@@ -1,6 +1,10 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 
+
+
+function RSimulate(opts) {
+
     var jed = toJED(new Date());    // julian date
 
     var jed_delta = 1;  // how many days per second to elapse
@@ -34,16 +38,14 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
         "asteroid": [],
         "planet": []
     };
+    var mapFromMeshIdToBodyId = {};   // maps ids of three.js meshes to bodies they represent
     var nextEntityIndex = 0;
-
-
-function RSimulate(opts) {
 
 
     function addBody( indexLabel, orbit, mesh ) {
         orbits.push(orbit);
         meshes.push(mesh);
-
+        mapFromMeshIdToBodyId[mesh.id] = nextEntityIndex;
         scene.add(mesh);
 
         if (typeof indexes[indexLabel] !== "object") {
@@ -109,6 +111,18 @@ function RSimulate(opts) {
 
     }
 
+    function onBodySelected(bodyId) {
+        console.log("onBodySelected(" + bodyId + ")");
+
+        var orbit = orbits[bodyId];
+        var mesh = meshes[bodyId];
+
+        console.log("\torbit: ");
+        console.log(orbit);
+        console.log("\tmesh: ");
+        console.log(mesh);
+    }
+
     function onDocumentMouseDown( event ) {
         event.preventDefault();
 
@@ -124,10 +138,17 @@ function RSimulate(opts) {
             controls.enabled = false;
 
             SELECTED = intersects[ 0 ].object;
-            console.log(SELECTED);
             var intersects = raycaster.intersectObject( plane );
             offset.copy( intersects[ 0 ].point ).sub( plane.position );
-            console.log(offset);
+
+            var meshId = SELECTED.id;
+            var bodyId = mapFromMeshIdToBodyId[meshId];
+            if (bodyId) {
+                onBodySelected(bodyId);
+            } else {
+                console.log("no body id found for meshId = " + meshId);
+            }
+
         } else {
             SELECTED = null;
         }
