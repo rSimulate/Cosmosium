@@ -1,3 +1,9 @@
+# ubuntu backup files
+*~
+
+# definitely don't track the .pem 
+*.pem
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

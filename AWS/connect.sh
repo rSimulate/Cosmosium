@@ -1,0 +1,3 @@
+ssh -i ./spaceapp.pem ubuntu@54.186.92.226
+
+#//i think...
