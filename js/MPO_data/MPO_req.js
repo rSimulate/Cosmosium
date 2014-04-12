@@ -1,4 +1,4 @@
-// MPO request object
+// MPO request for objects
 
 // === helper functions ===
 var strEq = function(str1,str2){

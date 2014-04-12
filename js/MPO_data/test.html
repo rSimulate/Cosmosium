@@ -27,6 +27,16 @@
         var req = new MPO_req(params);
         req.send();
     });
+    
+    require(["./MPO_list.js"], function(){
+        console.log("=MPO LIST TEST=")
+        var list = new MPO_list();
+        console.log("new list:",list);
+        list.add([ new MPO({name:"Bourbon"}), 
+                new MPO({name:"Scotch"}), 
+                new MPO({name:"Beer"}) ]);
+        console.log("populated list:",list);
+    });
     </script>
 </body>
 
