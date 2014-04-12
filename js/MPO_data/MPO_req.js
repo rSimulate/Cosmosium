@@ -77,6 +77,7 @@ var MPO_req = function(params) {
                     // for each object in dat, create an MPO
                     // something like:
                     // this.result.append(new MPO(objectJSON))
+                    // then return resulting MPO list
                 }
             });
         } else if (this.MPO_type){
