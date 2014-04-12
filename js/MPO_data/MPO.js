@@ -7,6 +7,7 @@ var MPO = function(params) {
 
 /*
  === ORBITAL ELEMENTS ===
+ (from http://en.wikipedia.org/wiki/Orbital_elements)
 The main two elements that define the shape and size of the ellipse:
 * Eccentricity (e\,\!) - shape of the ellipse, describing how much it is elongated compared to a circle. (not marked in diagram)
 * Semimajor axis (a\,\!) - the sum of the periapsis and apoapsis distances divided by two. For circular orbits, the semimajor axis is the distance between the centers of the bodies, not the distance of the bodies from the center of mass.
@@ -51,9 +52,35 @@ Finally:
     this.claimedBy = "nobody";
     
     this.getLoc = function(t) {
-        // get x y z at given time
-        throw "NotImplementedError('GetLoc')"; // TODO!!!
+        // get x y z at given time, assuming the sun is at 0,0,0
+        var polar = this.getPolar(t);
+        var xy = this.polar2cartesian(polar.r, polar.theta);
+        this.x = xy.x;
+        this.y = 0;
+        this.z = xy.y;  // NOTE: y & z flipped b/c y is usually "up". we just computed on the 2d solar plane as xy, now solar plane is xz.
+        return {"x":this.x,"y":this.y,"z":this.z};
     };
+    
+    this.getPolar = function(t){
+        // returns location of MPO in polar coordinates at time t (neglecting z axis)
+        
+        // assume orbit is circular, using only semi-major axis and mean anomaly (for now)
+        var radius = this.semi_major_axis;
+        var theta  = this.mean_anomaly;     //TODO: handle the problem of different epoch times (see get_mean_anomaly_at()).
+        theta += (t%this.period)*Math.PI;
+        return {"r":radius,"theta":theta};
+    }
+    
+    this.polar2cartesian = function(R, theta) {
+        x = R * Math.cos(theta);
+        y = R * Math.sin(theta);
+        return {"x":x,"y":y};
+    }
+    
+    this.getMeanAnomalyAt = function(epoch){
+        // returns mean anomaly specific to given epoch time
+        throw "NotImplementedError('getMeanAnomalyAt')"; // TODO!!!
+    }
     
     this.claim = function(playerID){
         // allows player to claim asteroid for themselves

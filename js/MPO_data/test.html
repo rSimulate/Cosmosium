@@ -15,6 +15,9 @@
 
         var m = new MPO({name:"Beerfest"});
         console.log(m.name);
+        m.semi_major_axis = 10000;
+        m.mean_anomaly    = .47;
+        m.period          = 123456;
         console.log(m.getLoc(0));
     });
 
