@@ -145,7 +145,10 @@
     var X = r * (cos(o) * cos(v + p - o) - sin(o) * sin(v + p - o) * cos(i))
     var Y = r * (sin(o) * cos(v + p - o) + cos(o) * sin(v + p - o) * cos(i))
     var Z = r * (sin(v + p - o) * sin(i))
-    var ret = [X, Y, Z];
+ 
+    // NOTE: I've switched Y and Z in the return to work better with three.js
+ 
+    var ret = [X, Z, Y];
     return ret;
   }
 
