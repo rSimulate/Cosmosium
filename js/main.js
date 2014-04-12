@@ -254,8 +254,8 @@ function RSimulate(opts) {
         });
         */
         
-        //var asteroidsData = TestAsteroids;
-        var asteroidsData = OOIs[0];
+        var asteroidsData = TestAsteroids;
+        //var asteroidsData = OOIs[0];
         console.log(asteroidsData);
 
         var numAsteroids = asteroidsData.length;
