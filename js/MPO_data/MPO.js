@@ -1,7 +1,7 @@
 // Minor Planetary Object (MPO) aka asteroid class
 
 var MPO = function(params) {
-    if (params.type="asterank"){
+    if (params.database=="asterank"){
         this.readable_des = params.name;
         this.magnitude = params.H;
 
@@ -35,6 +35,10 @@ Finally:
         this.period = params.period;
         this.mean_motion = params.n;
         this.aphelion_dist = params.Q;
+    } else if (params.database == "NEO_flat_file"){
+    
+    } else {
+        console.warn("MPO declared without database param");
     }
 
 // === LOCATION ELEMENTS === 
