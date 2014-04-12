@@ -15,7 +15,7 @@ def addOOI():
 
 @route('/getAsteroids')
 def getOOIs():
-    return json.dumps(OOIs)
+    return json.dumps(OOIs, ensure_ascii=True)
     
 @route('/asteroidReq')
 def processReq():
@@ -32,7 +32,7 @@ def byName(name):
     
 def writeOOIsToFile(fName=OOI_DATABASE):
     with open(fName,'w') as f:
-        f.write('var OOIs = '+json.dumps(OOIs))
+        f.write('var OOIs = '+json.dumps(OOIs, ensure_ascii=True))
         
 def asterankAPI(query, limit):
     # queries the asterank API as guided by http://www.asterank.com/mpc
@@ -42,10 +42,10 @@ def asterankAPI(query, limit):
     print 'payload:',payload
     r = requests.get("http://asterank.com/api/asterank", params=payload)
     # r = requests.get("http://asterank.com/api/asterank?query="+query+"&limit="+str(limit))
-    resp = str(r.json())
-    print('json='+resp)
-#    print('text='+r.text)
-    return resp
+    #resp = str(r.json())
+    # print('json='+resp) # this actually causes us problems b/c of the u'str' unicode string notation
+    print('text='+r.text)
+    return json.loads(r.text)
 
 if __name__ == "__main__":
 #    resp = asterankAPI('{"e":{"$lt":0.1},"i":{"$lt":4},"a":{"$lt":1.5}}', 2)
