@@ -4,6 +4,10 @@ var MPO_list = function() {
     this.MPO_count = 0;
     this.MPOs=[];
     
+    this.getAsteroids(){
+        return this.MPOs;
+    }
+    
     this.add = function(newMPOs){
         try{
             // adds a list of MPO objects to the list
