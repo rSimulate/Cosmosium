@@ -10,6 +10,7 @@ def assets_static(filename):
     
 # set up external python app routings:
 import python.getAsteroid
+import python.search
 
 
 from python.page_maker.chunks import chunks # global chunks

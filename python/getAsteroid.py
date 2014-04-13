@@ -4,6 +4,7 @@ from bottle import route, run, request, template
 import json
 
 OOI_DATABASE = 'db/OOIs.js'
+OOIs = list()
     
 ### BOTTLE.PY ROUTES ###
 @route('/addAsteroid')
@@ -50,5 +51,4 @@ def asterankAPI(query, limit):
 if __name__ == "__main__":
 #    resp = asterankAPI('{"e":{"$lt":0.1},"i":{"$lt":4},"a":{"$lt":1.5}}', 2)
 #    print resp
-    OOIs = list()
     run(host='localhost', port=8080, debug=True)

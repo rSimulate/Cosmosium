@@ -205,9 +205,9 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="/search/NEOs"><i class="fa fa-angle-double-right"></i> NEO's</a></li>
-                        <li><a href="/search/MainBelt"><i class="fa fa-angle-double-right"></i> Main Belt</a></li>
-                        <li><a href="/search/NewHorizons"><i class="fa fa-angle-double-right"></i> New Horizons</a></li>
+                        <li><a href="/searchNEOs"><i class="fa fa-angle-double-right"></i> NEO's</a></li>
+                        <li><a href="/searchMainBelt"><i class="fa fa-angle-double-right"></i> Main Belt</a></li>
+                        <li><a href="/searchNewHorizons"><i class="fa fa-angle-double-right"></i> New Horizons</a></li>
                     </ul>
                 </li>
                 <li class="treeview">

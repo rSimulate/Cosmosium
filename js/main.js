@@ -270,15 +270,14 @@ function RSimulate(opts) {
         var geometry = new THREE.SphereGeometry( 1, 16, 16 );
         var material =  new THREE.MeshLambertMaterial( { color:0xffffff } );
 
-        /*
         var asteroidsData;
-        $.getJSON ('localHost:8080/getObjects',function(json){
+        $.getJSON ('/getAsteroids',function(json){
             asteroidsData = json;
         });
-        */
+
         
-        var asteroidsData = TestAsteroids;
-        //var asteroidsData = OOIs[0];
+  //      var asteroidsData = TestAsteroids;
+  //      var asteroidsData = OOIs[0];
         console.log(asteroidsData);
 
         var numAsteroids = asteroidsData.length;
