@@ -1,20 +1,11 @@
 
 import requests
 from bottle import route, run, request, template
-import json
 
 ### BOTTLE.PY ROUTES ###
 @route('/systemView')
 def searchTest():
     return template('tpl/systemView',asteroidDB="/getAsteroids")
-
-
-
-@route('/getAsteroids')
-def getOOIs():
-    data = json.dumps(OOIs.MPOs)
-    print data
-    return template('tpl/jsAsteroids',json=data)
     
 @route('/asteroidReq')
 def processReq():

@@ -4,6 +4,8 @@ import os
 from python.bottle import route, run, static_file, template, view, post, request
 import sqlite3 as lite
 import sys
+import json
+
 
 from python.page_maker.chunks import chunks # global chunks
 from python.page_maker.Message import Message
@@ -20,6 +22,20 @@ NOTES = [Note()]
 TASKS = [Task(),Task(),Task(),Task()]
 USER = User()
 
+# Static Routing
+@route('/<filename:path>')
+def assets_static(filename):
+    return static_file(filename, root='./')
+
+@route("/")
+@view("main")
+def hello():
+    return template('tpl/main_body',chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER)
+        
 # set up external python app routings (controllers):
 import python.getAsteroid
 import python.search
@@ -35,20 +51,12 @@ def addOOI():
             note_count=1,notes=NOTES,
             task_count=4,tasks=TASKS,
             user=USER)
-
-# Static Routing
-@route('/<filename:path>')
-def assets_static(filename):
-    return static_file(filename, root='./')
-
-@route("/")
-@view("main")
-def hello():
-    return template('tpl/main_body',chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
-        user=USER)
+            
+@route('/getAsteroids')
+def getOOIs():
+    data = json.dumps(OOIs.MPOs)
+    print data
+    return template('tpl/jsAsteroids',json=data)
 
 
 # SQLite test
