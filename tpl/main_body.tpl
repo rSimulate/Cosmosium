@@ -51,6 +51,12 @@
                 <!-- Main content -->
                 <section class="content">
 
+                    <!-- User tech summary -->
+                    %include('tpl/tile',
+                    %    title='Tech Overview',
+                    %    text='user tech summary here',
+                    %    color='bg-navy')
+                    
                     <!-- Small boxes (Stat box) -->
                     <div class="row">
                         <div class="col-lg-3 col-xs-6">

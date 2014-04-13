@@ -3,7 +3,6 @@
         <h3 class="box-title">{{title}}</h3>
     </div>
     <div class="box-body">
-        Box class: <code>.box.box-solid.bg-navy</code>
         <p>
             {{text}}
         </p>
