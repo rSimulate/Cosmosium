@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-from bottle import route, run, static_file, template, view, post, request
+from python.bottle import route, run, static_file, template, view, post, request
 
 # Static Routing
 @route('/<filename:path>')
@@ -19,7 +19,7 @@ from python.page_maker.Message import Message
 @view("main")
 def hello():
     CHUNKS = chunks()
-    return template('main_body',chunks=CHUNKS,messages=[Message(),Message()])
+    return template('tpl/main_body',chunks=CHUNKS,messages=[Message(),Message()])
 
  #all index.html
 
