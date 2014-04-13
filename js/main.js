@@ -91,10 +91,10 @@ function RSimulate(opts) {
 
             if ( INTERSECTED != intersects[ 0 ].object ) {
 
-                if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+                //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
 
                 INTERSECTED = intersects[ 0 ].object;
-                INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+                //INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
 
                 plane.position.copy( INTERSECTED.position );
                 plane.lookAt( camera.position );
@@ -105,7 +105,7 @@ function RSimulate(opts) {
 
         } else {
 
-            if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+            //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
 
             INTERSECTED = null;
 
@@ -268,15 +268,25 @@ function RSimulate(opts) {
         console.log("initAsteroids");
 
         var geometry = new THREE.SphereGeometry( 1, 16, 16 );
-        var material =  new THREE.MeshLambertMaterial( { color:0xffffff } );
-
-        /*
-        var asteroidsData;
-        $.getJSON ('/getAsteroids',function(json){
-            asteroidsData = json;
-        });
-        */
         
+
+        var lambertShader = THREE.ShaderLib['lambert'];
+
+        //var vertexShaderText = lambertShader.vertexShader;
+        var vertexShaderText = document.getElementById("asteroid-vertex").textContent;
+        var fragmentShaderText = lambertShader.fragmentShader;
+
+        var uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
+
+        var material = new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: vertexShaderText,
+            fragmentShader: fragmentShaderText,
+            lights:true,
+            fog: true
+        });
+
+
         var asteroidsData = TestAsteroids;
         //var asteroidsData += OOIs[0];
         console.log(asteroidsData);
@@ -315,6 +325,7 @@ function RSimulate(opts) {
         }
 
         for (var i = 0; i < numAsteroidOrbitsShown; i++) {
+
             var asteroid = asteroidsData[i];
 
             var baseAsteroidSize = ASTEROID_SIZE;
@@ -324,9 +335,16 @@ function RSimulate(opts) {
 
             if (asteroid.H && asteroid.H !== "") {  // magnitude
                 var percentageDark = (asteroid.H - minH) / (maxH - minH);
-                material =  new THREE.MeshLambertMaterial( { color:0xffffff } );
 
-                material.color = new THREE.Color(percentageDark, percentageDark, percentageDark);
+                uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
+                uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);
+                material = new THREE.ShaderMaterial({
+                    uniforms: uniforms,
+                    vertexShader: vertexShaderText,
+                    fragmentShader: fragmentShaderText,
+                    lights:true,
+                    fog: true
+                });
             }
 
             var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid)
