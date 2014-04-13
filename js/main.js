@@ -250,7 +250,7 @@ function RSimulate(opts) {
         console.log("initAsteroids");
 
         var geometry = new THREE.SphereGeometry( ASTEROID_SIZE, 16, 16 );
-        var material =  new THREE.MeshLambertMaterial( { color:0xffffff, shading: THREE.FlatShading } );
+        var material =  new THREE.MeshLambertMaterial( { color:0xffffff } );
 
         /*
         var asteroidsData;
@@ -305,7 +305,7 @@ function RSimulate(opts) {
 
             if (asteroid.H && asteroid.H !== "") {  // magnitude
                 var percentageDark = (asteroid.H - minH) / (maxH - minH);
-                material =  new THREE.MeshLambertMaterial( { color:0xffffff, shading: THREE.FlatShading } );
+                material =  new THREE.MeshLambertMaterial( { color:0xffffff } );
 
                 material.color = new THREE.Color(percentageDark, percentageDark, percentageDark);
             }
@@ -330,6 +330,12 @@ function RSimulate(opts) {
                 Math.random() + 0.5,
                 Math.random() + 0.5,
                 Math.random() + 0.5);
+
+            // give the asteroids a little random initial rotation so they don't look like eggs standing on end
+            asteroidMesh.rotation.set(
+                Math.random() * 2.0 * Math.PI,
+                Math.random() * 2.0 * Math.PI,
+                Math.random() * 2.0 * Math.PI);
 
             addBody("asteroid", asteroidOrbit, asteroidMesh);
 
