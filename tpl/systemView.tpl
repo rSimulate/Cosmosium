@@ -82,8 +82,6 @@
         <script src="js/vendor/stats.min.js"></script>
 
         <script src={{asteroidDB}}></script> 
-        
-        <script src="db/OOIs.js"></script>
 
         <script src="js/util.js"></script>
         <script src="js/ellipse.js"></script>
