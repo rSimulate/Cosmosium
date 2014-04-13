@@ -36,8 +36,17 @@ class OOIs(object):
 
     def write2JSON(self,fName):
         with open(fName,'w') as f:
-            if len(self.MPOs) > 1:
-                dat = json.dumps(self.MPOs)[2:-2].decode("string-escape")
+            if len(self.MPOs) > 0:
+                dat = '['
+                for mpo in self.MPOs:
+                    dat+=json.dumps(mpo).decode("string-escape")[2:-2]
+                    dat+=','
+                dat = dat[:-1] # slice off last comma
+                dat+='];\n'
+            #    dat = json.dumps(self.MPOs).decode("string-escape")
+            #    for i in range(len(dat)):
+            #        print 'dat['+str(i)+']=',dat[i]
+            #        dat[i] = dat[i][2:-2]
             else :
                 dat = "[]"
             f.write('var TestAsteroids = '+dat+";\n")
