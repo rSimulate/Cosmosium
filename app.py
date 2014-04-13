@@ -81,9 +81,19 @@ import python.search
 
 # these is here to circumvent global variable issues
 @route('/systemView')
-def searchTest():
+def systemView():
     OOIs.write2JSON(OOI_JSON_FILE)
     return template('tpl/systemView',asteroidDB=OOI_JSON_FILE)
+    
+@route('/sysView')
+def sysView():
+    OOIs.write2JSON(OOI_JSON_FILE)
+    return template('tpl/sysView',asteroidDB=OOI_JSON_FILE, 
+            chunks=CHUNKS,
+            messages=MESSAGES,message_count=2,
+            note_count=1,notes=NOTES,
+            task_count=4,tasks=TASKS,
+            user=USER)
 
 @route('/addAsteroid')
 def addOOI():

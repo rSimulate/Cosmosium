@@ -175,7 +175,7 @@
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
                 <li class="active">
-                    <a href="index.html">
+                    <a href="/">
                         <i class="fa fa-dashboard"></i> <span>{{chunks.button1_text}}</span>
                     </a>
                 </li>
