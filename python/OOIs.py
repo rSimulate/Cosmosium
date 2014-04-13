@@ -6,7 +6,8 @@ OOI_FILE = 'db/OOIs.pickle'
 class OOIs(object):
     # objects of interest list class to handle saving/loading
     def __init__(self):
-        self.MPOs = list()
+        self.MPOs  = list() #list of all OoIs
+        self.owners= list() #matched list of user ids for each OoI
         try: 
             self.readOOIs()
         except IOError:
