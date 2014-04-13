@@ -27,3 +27,4 @@ class chunks(object):
         self.button1_text = 'Dashboard'
         self.button2_text = 'Solar System'
         self.button2_num  = 1
+        

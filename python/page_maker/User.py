@@ -48,3 +48,12 @@ class User(object):
         self.thing3_link = "#"
         
         self.resources = Resources()
+        self.research  = Research()
+        self.telescopes = list()
+        self.miners    = list()
+        
+    def addTele(self):
+        self.telescopes.append(Telescope())
+        
+    def addMiner(self):
+        self.miners.append(Miner())

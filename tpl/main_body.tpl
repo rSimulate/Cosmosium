@@ -1,3 +1,13 @@
+<!-- PARAMS:            
+    chunks
+    messages
+    note_count
+    task_count
+    user
+    resources
+    pageTitle
+        -->
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -32,8 +42,7 @@
     </head>
     <body class="skin-blue">
 
-            % include('tpl/game_frame',chunks=chunks,messages=messages)
-    
+            % include('tpl/game_frame') # implicitly passed: chunks,messages,note_count,task_count,user,resources
             <!-- Right side column. Contains the navbar and content of the page -->
             <aside class="right-side">
                 <!-- Content Header (Page header) -->
@@ -52,10 +61,7 @@
                 <section class="content">
 
                     <!-- User tech summary -->
-                    %include('tpl/tile',
-                    %    title='Tech Overview',
-                    %    text='user tech summary here',
-                    %    color='bg-navy')
+                    %include('tpl/tech_overview_tile') # passed implicitly: user 
                     
                     <!-- Small boxes (Stat box) -->
                     <div class="row">
