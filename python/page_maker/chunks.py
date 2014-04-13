@@ -3,7 +3,9 @@
 class chunks(object):
     def __init__(self):
 
-        self.dependencies = []
+        self.dependencies = []  # as in... javascript dependencies to be included in the header... (not implemented)
+        self.appName = "Cosmosium"
+        self.appVers = "v0.1.alpha"
         
         self.messages_title = "game progress messages"
         self.all_messages_text = "see all"

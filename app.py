@@ -69,7 +69,8 @@ def hello():
         note_count=1,notes=NOTES,
         task_count=4,tasks=TASKS,
         user=USER,
-        resources=USER.resources)
+        resources=USER.resources,
+        pageTitle="Main Control Panel")
 
 
 #=====================================#
