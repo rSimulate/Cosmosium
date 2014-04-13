@@ -122,22 +122,22 @@
                         <!-- Menu Body -->
                         <li class="user-body">
                             <div class="col-xs-4 text-center">
-                                <a href="#">Followers</a>
+                                <a href={{user.history_link}}>{{user.history_text}}</a>
                             </div>
                             <div class="col-xs-4 text-center">
-                                <a href="#">Sales</a>
+                                <a href={{user.stats_link}}>{{user.stats_text}}</a>
                             </div>
                             <div class="col-xs-4 text-center">
-                                <a href="#">Friends</a>
+                                <a href={{user.thing3_link}}>{{user.thing3_text}}</a>
                             </div>
                         </li>
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <div class="pull-left">
-                                <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                <a href={{user.profile_link}} class="btn btn-default btn-flat">{{chunks.profile_link_text}}</a>
                             </div>
                             <div class="pull-right">
-                                <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                                <a href={{chunks.signout_link}} class="btn btn-default btn-flat">{{chunks.signout_link_text}}</a>
                             </div>
                         </li>
                     </ul>
@@ -157,7 +157,7 @@
                     <img src="img/avatar3.png" class="img-circle" alt="User Image" />
                 </div>
                 <div class="pull-left info">
-                    <p>Hello, Jane</p>
+                    <p>{{chunks.salutation}}, {{user.name}}</p>
 
                     <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
                 </div>
@@ -176,13 +176,13 @@
             <ul class="sidebar-menu">
                 <li class="active">
                     <a href="index.html">
-                        <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                        <i class="fa fa-dashboard"></i> <span>{{chunks.button1_text}}</span>
                     </a>
                 </li>
                 <li>
                     <a href="sysView.html">
-                        <i class="ion ion-ionic"></i> <span>Solar System</span> 
-                        <small class="badge pull-right bg-red">3</small>
+                        <i class="ion ion-ionic"></i> <span>{{chunks.button2_text}}</span> 
+                        <small class="badge pull-right bg-red">{{chunks.button2_num}}</small>
                     </a>
                 </li>
                 <li class="treeview">
@@ -205,9 +205,9 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="pages/tables/simple.html"><i class="fa fa-angle-double-right"></i> NEO's</a></li>
-                        <li><a href="pages/tables/data.html"><i class="fa fa-angle-double-right"></i> Main Belt</a></li>
-                        <li><a href="pages/tables/data.html"><i class="fa fa-angle-double-right"></i> New Horizons</a></li>
+                        <li><a href="/search/NEOs"><i class="fa fa-angle-double-right"></i> NEO's</a></li>
+                        <li><a href="/search/MainBelt"><i class="fa fa-angle-double-right"></i> Main Belt</a></li>
+                        <li><a href="/search/NewHorizons"><i class="fa fa-angle-double-right"></i> New Horizons</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
