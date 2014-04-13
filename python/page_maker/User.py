@@ -1,4 +1,12 @@
 
+class Resources(object):
+    def __init__(self):
+        self.science = 1234
+        self.wealth = 56
+        self.energy = 7
+        self.metals = 0
+        self.life   = 7
+
 class User(object):
     def __init__(self):
         self.name = 'Johannes Kepler'
@@ -13,3 +21,5 @@ class User(object):
         self.stats_link = "#"
         self.thing3_text = "More"
         self.thing3_link = "#"
+        
+        self.resources = Resources()

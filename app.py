@@ -51,7 +51,6 @@ TASKS = [Task(),Task(),Task(),Task()]
 USER = User()
 OOI_JSON_FILE = 'db/OOIs.js'
 
-
 #=====================================#
 #            Static Routing           #
 #=====================================#
@@ -68,7 +67,8 @@ def hello():
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
         task_count=4,tasks=TASKS,
-        user=USER)
+        user=USER,
+        resources=USER.resources)
 
 
 #=====================================#
@@ -93,7 +93,8 @@ def sysView():
             messages=MESSAGES,message_count=2,
             note_count=1,notes=NOTES,
             task_count=4,tasks=TASKS,
-            user=USER)
+            user=USER,
+            resources=USER.resources)
 
 @route('/addAsteroid')
 def addOOI():
@@ -104,7 +105,8 @@ def addOOI():
             messages=MESSAGES,message_count=2,
             note_count=1,notes=NOTES,
             task_count=4,tasks=TASKS,
-            user=USER)
+            user=USER,
+            resources=USER.resources)
     
   
 @route('/getAsteroids')
