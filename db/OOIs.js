@@ -1,1 +1,1 @@
-var TestAsteroids = [];
+var TestAsteroids = []

@@ -83,7 +83,7 @@ import python.search
 # these is here to circumvent global variable issues
 @route('/systemView')
 def systemView():
-    OOIs.write2JSON(OOI_JSON_FILE)
+    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
     return template('tpl/systemView',
         asteroidDB=OOI_JSON_FILE,
         ownersDB=OWNERS_JSON_FILE)
@@ -96,7 +96,7 @@ def systemView():
     
 @route('/sysView')
 def sysView():
-    OOIs.write2JSON(OOI_JSON_FILE)
+    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
     return template('tpl/sysView',
             asteroidDB=OOI_JSON_FILE,
             ownersDB=OWNERS_JSON_FILE,

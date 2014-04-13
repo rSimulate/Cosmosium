@@ -34,8 +34,24 @@ class OOIs(object):
         
     #with open(OOI_JSON_FILE,'r') as f:
     #    OOIs = json.loads(f.read().split('=')[1])
+    def write2JSON(self,OOIfile,OwnerFile):
+        self.__OOI2JSON(OOIfile)
+        self.__owners2JSON(OwnerFile)
+        
+    def __owners2JSON(self,fName):
+        with open(fName,'w') as f:
+            if len(self.owners) > 0:
+                dat = '['
+                for owner in self.owners:
+                    dat+=owner
+                    dat+=','
+                dat = dat[:-1] # slice off last comma
+                dat+='];\n'
+            else :
+                dat = "[]"
+            f.write('var owners = '+dat)
 
-    def write2JSON(self,fName):
+    def __OOI2JSON(self,fName):
         with open(fName,'w') as f:
             if len(self.MPOs) > 0:
                 dat = '['
@@ -50,4 +66,4 @@ class OOIs(object):
             #        dat[i] = dat[i][2:-2]
             else :
                 dat = "[]"
-            f.write('var TestAsteroids = '+dat+";\n")
+            f.write('var TestAsteroids = '+dat)
