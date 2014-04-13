@@ -4,7 +4,6 @@ from bottle import route, run, request, template
 import json
 
 OOI_DATABASE = 'db/OOIs.js'
-OOIs = list()
     
 ### BOTTLE.PY ROUTES ###
 @route('/addAsteroid')
@@ -16,6 +15,8 @@ def addOOI():
 
 @route('/getAsteroids')
 def getOOIs():
+    readOOIs()
+    print OOIs
     return json.dumps(OOIs, ensure_ascii=True)
     
 @route('/asteroidReq')
@@ -26,6 +27,10 @@ def processReq():
     return template('type: {{datatype}} (response {{res}})', datatype="asterank", res=asterankAPI(q,lim))
 
 ###    ###     ###
+
+def readOOIs():
+    with open(OOI_DATABASE,'r') as f:
+        OOIs = json.loads(f.read().split('=')[1])
 
 def byName(name):
     q = '{"full_name":'+name+'}'
@@ -47,6 +52,12 @@ def asterankAPI(query, limit):
     # print('json='+resp) # this actually causes us problems b/c of the u'str' unicode string notation
     print('text='+r.text)
     return json.loads(r.text)
+    
+    
+    
+OOIs = list()
+readOOIs()
+    
 
 if __name__ == "__main__":
 #    resp = asterankAPI('{"e":{"$lt":0.1},"i":{"$lt":4},"a":{"$lt":1.5}}', 2)
