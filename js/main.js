@@ -137,7 +137,10 @@ function RSimulate(opts) {
         }
 
         $("#body-info").html(infoHTML);
-        $("#body-info").show();
+
+        $("#claim-asteroid-button").attr("href", ":7099/addAsteroid?{\"query\"}=\"" + bodyName + "\"&limit=1");
+
+        $("#body-info-container").show();
 
         console.log("\t" + bodyName);
         console.log("\tmesh: ");
@@ -194,11 +197,10 @@ function RSimulate(opts) {
     }
 
     function onBodyDeselected() {
-        $("#body-info").hide();
+        $("#body-info-container").hide();
     }
 
     function init() {
-        $("#body-info").hide();
         initCamera();
 
         scene = new THREE.Scene();
@@ -553,5 +555,24 @@ function RSimulate(opts) {
 };
 
 
+// the following is needed to have relative URLs to different ports
+// delegate event for performance, and save attaching a million events to each anchor
+document.addEventListener('click', function(event) {
+  var target = event.target;
+  if (target.tagName.toLowerCase() == 'a')
+  {
+      var port = target.getAttribute('href').match(/^:(\d+)(.*)/);
+      if (port)
+      {
+         target.href = port[2];
+         target.port = port[1];
+      }
+  }
+}, false);
+
+$(document).ready(function(){
+    $("#body-info-container").hide();
+});
 
 var rSimulate = new RSimulate({});
+

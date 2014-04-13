@@ -30,7 +30,7 @@
                 color: red;
             }
 
-            #body-info {
+            #body-info-container {
                 background-color: gray;
                 color: white;
                 position: absolute;
@@ -38,6 +38,10 @@
                 right: 0px;
                 width: 200px;
                 padding: 5px;
+            }
+
+            #body-info {
+                
 
             }
         </style>
@@ -86,7 +90,10 @@
         <script src="js/ephemeris.js"></script>
         <script src="js/main.js"></script>
 
-        <div id="body-info">foo</div>
+        <div id="body-info-container">
+            <a id="claim-asteroid-button" href="#">Claim this asteroid</a>
+            <div id="body-info">foo</div>
+        </div>
 
     </body>
 </html>
