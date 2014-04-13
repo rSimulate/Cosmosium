@@ -24,7 +24,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var plane;
     var skybox;
 
-    var SHOWING_ASTEROID_OWNERSHIP = true;
+    var SHOWING_ASTEROID_OWNERSHIP = (typeof owners === "object");
 
     var CAMERA_NEAR = 1;
     var CAMERA_FAR = 100000;
@@ -42,7 +42,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var mapFromMeshIdToBodyId = {};   // maps ids of three.js meshes to bodies they represent
     var nextEntityIndex = 0;
 
-
+    var mapFromOwnerNameToColor = {};
 
 function RSimulate(opts) {
 
@@ -115,6 +115,27 @@ function RSimulate(opts) {
 
         }
 
+    }
+
+    function rainbow(numOfSteps, step) {
+        // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
+        // Adam Cole, 2011-Sept-14
+        // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+        var r, g, b;
+        var h = step / numOfSteps;
+        var i = ~~(h * 6);
+        var f = h * 6 - i;
+        var q = 1 - f;
+        switch(i % 6){
+            case 0: r = 1, g = f, b = 0; break;
+            case 1: r = q, g = 1, b = 0; break;
+            case 2: r = 0, g = 1, b = f; break;
+            case 3: r = 0, g = q, b = 1; break;
+            case 4: r = f, g = 0, b = 1; break;
+            case 5: r = 1, g = 0, b = q; break;
+        }
+
+        return new THREE.Color(r,g,b);
     }
 
     function onBodySelected(bodyId) {
@@ -209,6 +230,10 @@ function RSimulate(opts) {
 
         // world
 
+        if (SHOWING_ASTEROID_OWNERSHIP) {
+            initOwners();
+        }
+
         initGeometry();
 
         initSkybox();
@@ -227,6 +252,26 @@ function RSimulate(opts) {
         clock = new THREE.Clock();
         clock.start();
         
+    }
+
+    function initOwners() {
+        if (owners) { 
+
+            var uniqueOwners = owners.filter(onlyUnique);
+            var numUniqueOwners = uniqueOwners.length;
+
+
+            for (var i = 0; i < numUniqueOwners; i++) {
+                if (!mapFromOwnerNameToColor[uniqueOwners[i]]) {
+                    mapFromOwnerNameToColor[uniqueOwners[i]] = rainbow(numUniqueOwners, i);
+                }
+            }
+        }
+        
+    }
+
+    function onlyUnique(value, index, self) { 
+        return self.indexOf(value) === index;
     }
 
     function initSkybox() {
@@ -333,10 +378,16 @@ function RSimulate(opts) {
                 uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);                
             }
 
-            if (SHOWING_ASTEROID_OWNERSHIP && asteroidIsOwned(asteroid)) {
-                fragmentShaderText = basicShader.fragmentShader;
+            if (SHOWING_ASTEROID_OWNERSHIP) {
 
-                uniforms.diffuse.value = new THREE.Color(0, 1, 0);                
+                var ownerName = owners[i]; // asteroid[i] is owned by owner[i]
+                if (ownerName) {
+                    var ownerColor = mapFromOwnerNameToColor[ownerName];
+
+                    fragmentShaderText = basicShader.fragmentShader;
+
+                    uniforms.diffuse.value = ownerColor;              
+                }  
             }
 
             var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid)
