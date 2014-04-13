@@ -180,7 +180,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="sysView.html">
+                    <a href="/systemView">
                         <i class="ion ion-ionic"></i> <span>{{chunks.button2_text}}</span> 
                         <small class="badge pull-right bg-red">{{chunks.button2_num}}</small>
                     </a>
@@ -207,7 +207,7 @@
                     <ul class="treeview-menu">
                         <li><a href="/searchNEOs"><i class="fa fa-angle-double-right"></i> NEO's</a></li>
                         <li><a href="/searchMainBelt"><i class="fa fa-angle-double-right"></i> Main Belt</a></li>
-                        <li><a href="/searchNewHorizons"><i class="fa fa-angle-double-right"></i> New Horizons</a></li>
+                        <li><a href="/searchKuiperBelt"><i class="fa fa-angle-double-right"></i> Kuiper Belt</a></li>
                     </ul>
                 </li>
                 <li class="treeview">

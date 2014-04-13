@@ -2,22 +2,24 @@
 import requests
 from bottle import route, run, request, template
 import json
+from OOIs import OOIs
 
-OOI_DATABASE = 'db/OOIs.js'
-    
+OOIs = OOIs()
+
 ### BOTTLE.PY ROUTES ###
+@route('/systemView')
+def searchTest():
+    return template('tpl/systemView',asteroidDB="/getAsteroids")
+
 @route('/addAsteroid')
 def addOOI():
     name = request.query.name
-    OOIs.append(byName(name))
+    OOIs.addObject(byName(name))
     print 'object '+name+' added to OOIs'
-    writeOOIsToFile()
 
 @route('/getAsteroids')
 def getOOIs():
-    readOOIs()
-    print OOIs
-    return json.dumps(OOIs, ensure_ascii=True)
+    return template('tpl/jsAsteroids',json=json.dumps(OOIs.MPOs, ensure_ascii=True))
     
 @route('/asteroidReq')
 def processReq():
@@ -28,17 +30,9 @@ def processReq():
 
 ###    ###     ###
 
-def readOOIs():
-    with open(OOI_DATABASE,'r') as f:
-        OOIs = json.loads(f.read().split('=')[1])
-
 def byName(name):
-    q = '{"full_name":'+name+'}'
+    q = '{"full_name":"'+name+'"}'
     return asterankAPI(q,1)
-    
-def writeOOIsToFile(fName=OOI_DATABASE):
-    with open(fName,'w') as f:
-        f.write('var OOIs = '+json.dumps(OOIs, ensure_ascii=True))
         
 def asterankAPI(query, limit):
     # queries the asterank API as guided by http://www.asterank.com/mpc
@@ -48,16 +42,12 @@ def asterankAPI(query, limit):
     print 'payload:',payload
     r = requests.get("http://asterank.com/api/asterank", params=payload)
     # r = requests.get("http://asterank.com/api/asterank?query="+query+"&limit="+str(limit))
-    #resp = str(r.json())
-    # print('json='+resp) # this actually causes us problems b/c of the u'str' unicode string notation
+#    resp = str(r.json())
+#    print('json='+resp) # this actually causes us problems b/c of the u'str' unicode string notation
+#   return resp
     print('text='+r.text)
-    return json.loads(r.text)
-    
-    
-    
-OOIs = list()
-readOOIs()
-    
+    return r.text.replace("&quote;",'"')
+
 
 if __name__ == "__main__":
 #    resp = asterankAPI('{"e":{"$lt":0.1},"i":{"$lt":4},"a":{"$lt":1.5}}', 2)

@@ -9,9 +9,13 @@ def searchTest():
 def searchNEOs():
     return template('tpl/systemView',asteroidDB="db/NEOs.js")
     
-@route('/searchNEOs')
+@route('/searchMainBelt')
 def searchNEOs():
-    return template('tpl/systemView',asteroidDB="db/NEOs.js")
+    return template('tpl/systemView',asteroidDB="db/MainBelt.js")
+    
+@route('/searchKuiperBelt')
+def searchNEOs():
+    return template('tpl/systemView',asteroidDB="db/KuiperBelt.js")
 
 if __name__ == "__main__":
     run(host='localhost', port=8080, debug=True)
