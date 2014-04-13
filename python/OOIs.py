@@ -22,9 +22,11 @@ class OOIs(object):
 
     def readOOIs(self):
         print 'loading OOIs...'
-        with open(OOI_FILE, 'rb') as f:
-            self.MPOs = pickle.load(f)
-            
+        try:
+            with open(OOI_FILE, 'rb') as f:
+                self.MPOs = pickle.load(f)
+        except EOFError:
+            print 'WARN: OOI.pickle is empty! Starting from scratch.'
     def addObject(self,object):
         self.MPOs.append(object)
         print 'MPO added.'
