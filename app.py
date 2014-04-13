@@ -12,11 +12,14 @@ def assets_static(filename):
 import python.getAsteroid
 
 
+from python.page_maker.chunks import chunks # global chunks
+from python.page_maker.Message import Message
 
 @route("/")
 @view("main")
 def hello():
-        return template('{{text}}',text='This is index page!')
+    CHUNKS = chunks()
+    return template('main_body',chunks=CHUNKS,messages=[Message(),Message()])
 
  #all index.html
 
