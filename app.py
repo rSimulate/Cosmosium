@@ -7,6 +7,10 @@ from bottle import route, run, static_file, template, view, post, request
 @route('/<filename:path>')
 def assets_static(filename):
     return static_file(filename, root='./')
+    
+# set up external python app routings:
+import python.getAsteroid
+
 
 
 @route("/")
