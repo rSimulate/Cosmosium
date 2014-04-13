@@ -7,7 +7,7 @@ function RSimulate(opts) {
 
     var jed = toJED(new Date());    // julian date
 
-    var jed_delta = 1;  // how many days per second to elapse
+    var jed_delta = 5;  // how many days per second to elapse
     
     var SUN_SIZE = 5;
     var PLANET_SIZE = 3;
@@ -123,6 +123,11 @@ function RSimulate(opts) {
 
         console.log("\torbit: ");
         console.log(orbit);
+        if (orbit && orbit.eph && orbit.eph.full_name) {
+            console.log("\t" + orbit.eph.full_name);
+        } else if (orbit && orbit.name) {
+            console.log("\t" + orbit.name);
+        }
         console.log("\tmesh: ");
         console.log(mesh);
     }
@@ -223,7 +228,7 @@ function RSimulate(opts) {
         skybox = new THREE.Mesh(geometry, material);
         skybox.scale.set(-1, 1, 1);
         skybox.eulerOrder = 'XZY';
-        skybox.rotation.z = Math.PI/2.0;
+        //skybox.rotation.z = Math.PI/2.0;
         skybox.rotation.x = Math.PI;
         skybox.renderDepth = 1000.0;
         scene.add(skybox);
@@ -271,6 +276,11 @@ function RSimulate(opts) {
 
         for (var i = 0; i < numAsteroidOrbitsShown; i++) {
             var asteroid = asteroidsData[i];
+
+            if (asteroid.diameter && asteroid.diameter !== "") {
+                geometry = new THREE.SphereGeometry( ASTEROID_SIZE * (asteroid.diameter/100.0), 16, 16 );
+            }
+
             var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid)
             
             var asteroidOrbit = new Orbit3D(asteroid, {
