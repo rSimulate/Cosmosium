@@ -121,13 +121,25 @@ function RSimulate(opts) {
         var orbit = orbits[bodyId];
         var mesh = meshes[bodyId];
 
+        var bodyName = "";
+
         console.log("\torbit: ");
         console.log(orbit);
         if (orbit && orbit.eph && orbit.eph.full_name) {
-            console.log("\t" + orbit.eph.full_name);
+            bodyName = orbit.eph.full_name;
         } else if (orbit && orbit.name) {
-            console.log("\t" + orbit.name);
+            bodyName = orbit.name;
         }
+
+        var infoHTML = "<h3>" + bodyName + "</h3>";
+        for (var key in orbit.eph) {
+            infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
+        }
+
+        $("#body-info").html(infoHTML);
+        $("#body-info").show();
+
+        console.log("\t" + bodyName);
         console.log("\tmesh: ");
         console.log(mesh);
     }
@@ -160,6 +172,7 @@ function RSimulate(opts) {
 
         } else {
             SELECTED = null;
+            onBodyDeselected();
         }
     }
 
@@ -174,15 +187,18 @@ function RSimulate(opts) {
             plane.position.copy( INTERSECTED.position );
 
             SELECTED = null;
-
         }
 
         container.style.cursor = 'auto';
 
     }
 
-    function init() {
+    function onBodyDeselected() {
+        $("#body-info").hide();
+    }
 
+    function init() {
+        $("#body-info").hide();
         initCamera();
 
         scene = new THREE.Scene();
@@ -249,7 +265,7 @@ function RSimulate(opts) {
     function initAsteroids() {
         console.log("initAsteroids");
 
-        var geometry = new THREE.SphereGeometry( ASTEROID_SIZE, 16, 16 );
+        var geometry = new THREE.SphereGeometry( 1, 16, 16 );
         var material =  new THREE.MeshLambertMaterial( { color:0xffffff } );
 
         /*
@@ -299,8 +315,9 @@ function RSimulate(opts) {
         for (var i = 0; i < numAsteroidOrbitsShown; i++) {
             var asteroid = asteroidsData[i];
 
+            var baseAsteroidSize = ASTEROID_SIZE;
             if (asteroid.diameter && asteroid.diameter !== "") {
-                geometry = new THREE.SphereGeometry( ASTEROID_SIZE * (asteroid.diameter/100.0), 16, 16 );
+                baseAsteroidSize *= (asteroid.diameter/100.0);
             }
 
             if (asteroid.H && asteroid.H !== "") {  // magnitude
@@ -327,9 +344,9 @@ function RSimulate(opts) {
 
             // randomize the shape a tiny bit
             asteroidMesh.scale.set(
-                Math.random() + 0.5,
-                Math.random() + 0.5,
-                Math.random() + 0.5);
+                baseAsteroidSize * (Math.random() + 0.5),
+                baseAsteroidSize * (Math.random() + 0.5),
+                baseAsteroidSize * (Math.random() + 0.5));
 
             // give the asteroids a little random initial rotation so they don't look like eggs standing on end
             asteroidMesh.rotation.set(

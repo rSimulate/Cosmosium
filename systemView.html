@@ -29,6 +29,17 @@
             a {
                 color: red;
             }
+
+            #body-info {
+                background-color: gray;
+                color: white;
+                position: absolute;
+                top: 0px; 
+                right: 0px;
+                width: 200px;
+                padding: 5px;
+
+            }
         </style>
     </head>
 
@@ -55,9 +66,7 @@
         </script>
 
         <div id="container"></div>
-        <div id="info">
-            <a href="http://threejs.org" target="_blank">three.js</a> - orbit controls example
-        </div>
+
         <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
 
         <script type="text/javascript" src="js/vendor/ces-browser.min.js"></script>
@@ -76,6 +85,8 @@
         <script src="js/ellipse.js"></script>
         <script src="js/ephemeris.js"></script>
         <script src="js/main.js"></script>
+
+        <div id="body-info">foo</div>
 
     </body>
 </html>
