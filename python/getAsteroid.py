@@ -3,6 +3,9 @@ import requests
 from bottle import route, run, request, template
 import json
 
+global OOIs
+global CHUNKS
+
 ### BOTTLE.PY ROUTES ###
 @route('/systemView')
 def searchTest():
@@ -10,6 +13,8 @@ def searchTest():
 
 @route('/addAsteroid')
 def addOOI():
+    global OOIs
+    global CHUNKS
     name = request.query.name
     OOIs.addObject(byName(name))
     print 'object '+name+' added to OOIs'
@@ -17,6 +22,7 @@ def addOOI():
 
 @route('/getAsteroids')
 def getOOIs():
+    global OOIs
     data = json.dumps(OOIs.MPOs)
     print data
     return template('tpl/jsAsteroids',json=data)

@@ -23,7 +23,7 @@ class OOIs(object):
     def readOOIs(self):
         print 'loading OOIs...'
         with open(OOI_FILE, 'rb') as f:
-            self.MPOs = pickle.load()
+            self.MPOs = pickle.load(f)
             
     def addObject(self,object):
         self.MPOs.append(object)
