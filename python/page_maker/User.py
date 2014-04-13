@@ -6,6 +6,31 @@ class Resources(object):
         self.energy = 7
         self.metals = 0
         self.life   = 7
+        
+class miner(object):
+    def __init__(self):
+        self.techLevel=0
+        self.busy=false
+        self.ttc=0 #time to completion
+        
+class telescope(object):
+    def __init__(self):
+        self.techLevel=0
+        self.busy=false
+        self.ttc=0 #time to completion
+        
+class Research(object):
+    def __init__(self):
+        # for modulating task values
+        self.telescopeLevel=0
+        self.minerLevel=0
+        
+        # coeffs
+        self.EnergyScienceLevel=0   # energy output
+        self.manufactureLevel=0     # build efficiency
+        self.lifeScienceLevel=0     # life growth
+        self.propultionTechLevel=0  # fuel use & generation abilities
+
 
 class User(object):
     def __init__(self):
