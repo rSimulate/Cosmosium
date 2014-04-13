@@ -1,3 +1,13 @@
+<!-- PARAMS:            
+    chunks
+    messages
+    note_count
+    task_count
+    user
+    resources
+    pageTitle
+        -->
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -32,15 +42,14 @@
     </head>
     <body class="skin-blue">
 
-            % include('tpl/game_frame',chunks=chunks,messages=messages)
-    
+            % include('tpl/game_frame') # implicitly passed: chunks,messages,note_count,task_count,user,resources
             <!-- Right side column. Contains the navbar and content of the page -->
             <aside class="right-side">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
                     <h1>
-                        Dashboard
-                        <small>Control panel</small>
+                        {{chunks.appName}}
+                        <small>{{pageTitle}}</small>
                     </h1>
                     <ol class="breadcrumb">
                         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -51,6 +60,9 @@
                 <!-- Main content -->
                 <section class="content">
 
+                    <!-- User tech summary -->
+                    %include('tpl/tech_overview_tile') # passed implicitly: user 
+                    
                     <!-- Small boxes (Stat box) -->
                     <div class="row">
                         <div class="col-lg-3 col-xs-6">

@@ -50,7 +50,7 @@ NOTES = [Note()]
 TASKS = [Task(),Task(),Task(),Task()]
 USER = User()
 OOI_JSON_FILE = 'db/OOIs.js'
-
+OWNERS_JSON_FILE = 'db/owners.js'
 
 #=====================================#
 #            Static Routing           #
@@ -68,7 +68,9 @@ def hello():
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
         task_count=4,tasks=TASKS,
-        user=USER)
+        user=USER,
+        resources=USER.resources,
+        pageTitle="Main Control Panel")
 
 
 #=====================================#
@@ -81,9 +83,30 @@ import python.search
 
 # these is here to circumvent global variable issues
 @route('/systemView')
-def searchTest():
-    OOIs.write2JSON(OOI_JSON_FILE)
-    return template('tpl/systemView',asteroidDB=OOI_JSON_FILE)
+def systemView():
+    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
+    return template('tpl/systemView',
+        asteroidDB=OOI_JSON_FILE,
+        ownersDB=OWNERS_JSON_FILE)
+        
+@route('/viewTest')
+def systemView():
+    return template('tpl/systemView',
+        asteroidDB='db/test_asteroids.js',
+        ownersDB='db/test_owners.js')
+    
+@route('/sysView')
+def sysView():
+    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
+    return template('tpl/sysView',
+            asteroidDB=OOI_JSON_FILE,
+            ownersDB=OWNERS_JSON_FILE,
+            chunks=CHUNKS,
+            messages=MESSAGES,message_count=2,
+            note_count=1,notes=NOTES,
+            task_count=4,tasks=TASKS,
+            user=USER,
+            resources=USER.resources)
 
 @route('/addAsteroid')
 def addOOI():
@@ -94,7 +117,8 @@ def addOOI():
             messages=MESSAGES,message_count=2,
             note_count=1,notes=NOTES,
             task_count=4,tasks=TASKS,
-            user=USER)
+            user=USER,
+            resources=USER.resources)
     
   
 @route('/getAsteroids')

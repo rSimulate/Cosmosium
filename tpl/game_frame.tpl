@@ -14,6 +14,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </a>
+       
+        <i class="fa fa-flask"></i> <span>Science: {{resources.science}}</span>
+        <i class="fa fa-btc"></i> <span>Wealth: {{resources.wealth}}</span>
+        <i class="fa fa-flash"></i> <span>Energy: {{resources.energy}}</span>
+        <i class="fa fa-cog"></i> <span>Metals: {{resources.metals}}</span>
+        <i class="fa fa-leaf"></i> <span>Life: {{resources.life}}</span>
+
+        
         <div class="navbar-right">
             <ul class="nav navbar-nav">
                 <!-- Messages: style can be found in dropdown.less-->                
@@ -175,7 +183,7 @@
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
                 <li class="active">
-                    <a href="index.html">
+                    <a href="/">
                         <i class="fa fa-dashboard"></i> <span>{{chunks.button1_text}}</span>
                     </a>
                 </li>

@@ -612,7 +612,6 @@
         <script src="js/vendor/Detector.js"></script>
         <script src="js/vendor/stats.min.js"></script>
 
-        <script src={{ownersDB}}></script> 
         <script src={{asteroidDB}}></script> 
 
         <script src="js/util.js"></script>
