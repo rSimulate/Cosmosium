@@ -1,2 +1,0 @@
-# site
-### a Sails application
