@@ -32,6 +32,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     // orbits and meshes should have same length
     var orbits = [];
     var meshes = [];
+    var ellipses = [];
 
     // for each type of object, there is a list of indexes of orbits/meshes that match it
     // example: indexes["asteroid"] --> [2,3,5] and you can get the orbits at orbits[2], orbits[3], orbits[5]
@@ -48,11 +49,19 @@ function RSimulate(opts) {
 
   
 
-    function addBody( indexLabel, orbit, mesh ) {
+    function addBody( indexLabel, orbit, mesh, shouldAlwaysShowEllipse ) {
+        shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
+
         orbits.push(orbit);
         meshes.push(mesh);
         mapFromMeshIdToBodyId[mesh.id] = nextEntityIndex;
         scene.add(mesh);
+
+        var ellipse = orbit.getEllipse();
+
+        ellipses.push(ellipse);
+        scene.add(ellipse);
+        ellipse.visible = shouldAlwaysShowEllipse;
 
         if (typeof indexes[indexLabel] !== "object") {
             indexes[indexLabel] = [];
@@ -138,11 +147,21 @@ function RSimulate(opts) {
         return new THREE.Color(r,g,b);
     }
 
+    function hideAllAsteroidEllipses() {
+        for (var i = 0; i < indexes["asteroid"].length; i++) {
+            ellipses[indexes["asteroid"][i]].visible = false;
+        }
+    }
+
     function onBodySelected(bodyId) {
         console.log("onBodySelected(" + bodyId + ")");
 
+        hideAllAsteroidEllipses();
+        
         var orbit = orbits[bodyId];
         var mesh = meshes[bodyId];
+        var ellipse = ellipses[bodyId];
+        ellipse.visible = true;
 
         var bodyName = "";
 
@@ -197,6 +216,9 @@ function RSimulate(opts) {
             }
 
         } else {
+
+            hideAllAsteroidEllipses();
+
             SELECTED = null;
             onBodyDeselected();
         }
@@ -401,8 +423,6 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry // will add itself to this geometry
             }, useBigParticles);
 
-            //scene.add(asteroidOrbit.getEllipse());
-
             var material = new THREE.ShaderMaterial({
                 uniforms: uniforms,
                 vertexShader: vertexShaderText,
@@ -425,7 +445,7 @@ function RSimulate(opts) {
                 Math.random() * 2.0 * Math.PI,
                 Math.random() * 2.0 * Math.PI);
 
-            addBody("asteroid", asteroidOrbit, asteroidMesh);
+            addBody("asteroid", asteroidOrbit, asteroidMesh, false);
 
 
 
