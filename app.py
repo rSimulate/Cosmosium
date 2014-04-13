@@ -2,6 +2,8 @@
 
 import os
 from python.bottle import route, run, static_file, template, view, post, request
+import sqlite3 as lite
+import sys
 
 from python.OOIs import OOIs
 
@@ -10,7 +12,7 @@ from python.OOIs import OOIs
 @route('/<filename:path>')
 def assets_static(filename):
     return static_file(filename, root='./')
-    
+
 # set up external python app routings:
 import python.getAsteroid
 import python.search
@@ -34,7 +36,20 @@ def hello():
         task_count=4,tasks=[Task(),Task(),Task(),Task()],
         user=User())
 
- #all index.html
+
+# SQLite test
+
+@route('/data')
+def database():
+    con = lite.connect('test.db')
+    with con:
+        cur = con.cursor()
+        cur.execute('SELECT SQLITE_VERSION()')
+        data = cur.fetchone()
+        return "SQLite version: %s" % data
+
+
+# all index.html
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7099))
