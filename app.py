@@ -62,9 +62,6 @@ def database():
         return "SQLite version: %s" % data
 
 
-# all index.html
->>>>>>> 0c312e11366fcc30e95b09d1fd052b93e9d46478
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7099))
     run(host='0.0.0.0', port=port)
