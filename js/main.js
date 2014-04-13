@@ -1,11 +1,6 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-
-
-
-function RSimulate(opts) {
-
-    var jed = toJED(new Date());    // julian date
+  var jed = toJED(new Date());    // julian date
 
     var jed_delta = 5;  // how many days per second to elapse
     
@@ -45,6 +40,11 @@ function RSimulate(opts) {
     var mapFromMeshIdToBodyId = {};   // maps ids of three.js meshes to bodies they represent
     var nextEntityIndex = 0;
 
+
+
+function RSimulate(opts) {
+
+  
 
     function addBody( indexLabel, orbit, mesh ) {
         orbits.push(orbit);
@@ -325,6 +325,12 @@ function RSimulate(opts) {
 
             var asteroidMesh = new THREE.Mesh( geometry, material );
 
+            // randomize the shape a tiny bit
+            asteroidMesh.scale.set(
+                Math.random() + 0.5,
+                Math.random() + 0.5,
+                Math.random() + 0.5);
+
             addBody("asteroid", asteroidOrbit, asteroidMesh);
 
 
@@ -481,12 +487,14 @@ function RSimulate(opts) {
     }
 
     function update(deltaSeconds) {
+        var timeAdvanced = jed_delta*deltaSeconds;
+
         jed += jed_delta*deltaSeconds;
 
-        updateBodies(orbits, meshes);
+        updateBodies(timeAdvanced, orbits, meshes);
     }
 
-    function updateBodies(orbits, meshes) {
+    function updateBodies(timeAdvanced, orbits, meshes) {
         for (var i = 0; i < orbits.length; i++) {
             var orbit = orbits[i];
   
@@ -494,6 +502,13 @@ function RSimulate(opts) {
   
             var mesh = meshes[i];
             mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
+
+            if (orbit.eph && orbit.eph.rot_per) {
+                // we have an orbital period (in hours)
+                var rotationalPeriodInSeconds = orbit.eph.rot_per * 60 * 60;
+                var percentageRotated = timeAdvanced / rotationalPeriodInSeconds;
+                mesh.rotation.y += (percentageRotated * 2.0 * Math.PI);
+            }
         }
     }
 
