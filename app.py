@@ -87,6 +87,12 @@ def systemView():
     return template('tpl/systemView',
         asteroidDB=OOI_JSON_FILE,
         ownersDB=OWNERS_JSON_FILE)
+        
+@route('/viewTest')
+def systemView():
+    return template('tpl/systemView',
+        asteroidDB='db/test_asteroids.js',
+        ownersDB='db/test_owners.js')
     
 @route('/sysView')
 def sysView():
