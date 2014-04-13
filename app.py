@@ -3,6 +3,9 @@
 import os
 from python.bottle import route, run, static_file, template, view, post, request
 
+from python.OOIs import OOIs
+
+
 # Static Routing
 @route('/<filename:path>')
 def assets_static(filename):
@@ -19,10 +22,12 @@ from python.page_maker.Note import Note
 from python.page_maker.Task import Task
 from python.page_maker.User import User
 
+CHUNKS = chunks()
+OOIs = OOIs()
+
 @route("/")
 @view("main")
 def hello():
-    CHUNKS = chunks()
     return template('tpl/main_body',chunks=CHUNKS,
         messages=[Message(),Message()],message_count=2,
         note_count=1,notes=[Note()],

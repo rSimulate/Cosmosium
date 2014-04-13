@@ -2,9 +2,6 @@
 import requests
 from bottle import route, run, request, template
 import json
-from OOIs import OOIs
-
-OOIs = OOIs()
 
 ### BOTTLE.PY ROUTES ###
 @route('/systemView')
@@ -16,10 +13,13 @@ def addOOI():
     name = request.query.name
     OOIs.addObject(byName(name))
     print 'object '+name+' added to OOIs'
+    return template('tpl/asteroidAdd',objectName=name,chunks=CHUNKS)
 
 @route('/getAsteroids')
 def getOOIs():
-    return template('tpl/jsAsteroids',json=json.dumps(OOIs.MPOs, ensure_ascii=True))
+    data = json.dumps(OOIs.MPOs)
+    print data
+    return template('tpl/jsAsteroids',json=data)
     
 @route('/asteroidReq')
 def processReq():

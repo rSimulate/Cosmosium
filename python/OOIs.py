@@ -16,15 +16,18 @@ class OOIs(object):
         self.saveOOIs()
         
     def saveOOIs(self):
+        print 'saving OOIs...'
         with open(OOI_FILE, 'wb') as f:
             pickle.dump(self.MPOs, f)
 
     def readOOIs(self):
+        print 'loading OOIs...'
         with open(OOI_FILE, 'rb') as f:
             self.MPOs = pickle.load()
             
     def addObject(self,object):
         self.MPOs.append(object)
+        print 'MPO added.'
         
     #with open(OOI_JSON_FILE,'r') as f:
     #    OOIs = json.loads(f.read().split('=')[1])
