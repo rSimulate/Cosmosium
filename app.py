@@ -2,6 +2,8 @@
 
 import os
 from python.bottle import route, run, static_file, template, view, post, request
+import sqlite3 as lite
+import sys
 
 from python.page_maker.chunks import chunks # global chunks
 from python.page_maker.Message import Message
@@ -47,6 +49,21 @@ def hello():
         note_count=1,notes=NOTES,
         task_count=4,tasks=TASKS,
         user=USER)
+
+
+# SQLite test
+@route('/data')
+def database():
+    con = lite.connect('test.db')
+    with con:
+        cur = con.cursor()
+        cur.execute('SELECT SQLITE_VERSION()')
+        data = cur.fetchone()
+        return "SQLite version: %s" % data
+
+
+# all index.html
+>>>>>>> 0c312e11366fcc30e95b09d1fd052b93e9d46478
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7099))
