@@ -274,11 +274,40 @@ function RSimulate(opts) {
             numAsteroidOrbitsShown = numAsteroids;
         }
 
+        // first iterate and find the range of values for magnitude (H)
+        var minH;
+        var maxH;
+        var sumH = 0;
+        var countH = 0;
+
+        for (var i = 0; i < numAsteroidOrbitsShown; i++) {
+            var asteroid = asteroidsData[i];
+            if (asteroid.H && asteroid.diameter != "") {
+                if (minH && maxH) {
+                    if (minH > asteroid.H) { minH = asteroid.H };
+                    if (maxH < asteroid.H) { maxH = asteroid.H };
+                } else {
+                    minH = asteroid.H;
+                    maxH = asteroid.H;
+                }
+
+                sumH += asteroid.H;
+                countH ++;
+            }
+        }
+
         for (var i = 0; i < numAsteroidOrbitsShown; i++) {
             var asteroid = asteroidsData[i];
 
             if (asteroid.diameter && asteroid.diameter !== "") {
                 geometry = new THREE.SphereGeometry( ASTEROID_SIZE * (asteroid.diameter/100.0), 16, 16 );
+            }
+
+            if (asteroid.H && asteroid.H !== "") {  // magnitude
+                var percentageDark = (asteroid.H - minH) / (maxH - minH);
+                material =  new THREE.MeshLambertMaterial( { color:0xffffff, shading: THREE.FlatShading } );
+
+                material.color = new THREE.Color(percentageDark, percentageDark, percentageDark);
             }
 
             var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid)
