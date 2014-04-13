@@ -1,6 +1,6 @@
 import pickle
+import json
 
-OOI_JSON_FILE = 'db/OOIs.js'
 OOI_FILE = 'db/OOIs.pickle'
 
 class OOIs(object):
@@ -25,7 +25,7 @@ class OOIs(object):
         try:
             with open(OOI_FILE, 'rb') as f:
                 self.MPOs = pickle.load(f)
-        except EOFError:
+        except EOFError:    
             print 'WARN: OOI.pickle is empty! Starting from scratch.'
     def addObject(self,object):
         self.MPOs.append(object)
@@ -34,6 +34,10 @@ class OOIs(object):
     #with open(OOI_JSON_FILE,'r') as f:
     #    OOIs = json.loads(f.read().split('=')[1])
 
-    def writeOOIsToJSON(self,fName=OOI_JSON_FILE):
+    def write2JSON(self,fName):
         with open(fName,'w') as f:
-            f.write('var OOIs = '+json.dumps(self.MPOs, ensure_ascii=True))
+            if len(self.MPOs) > 1:
+                dat = json.dumps(self.MPOs)[2:-2].decode("string-escape")
+            else :
+                dat = "[]"
+            f.write('var TestAsteroids = '+dat+";\n")

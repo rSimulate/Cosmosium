@@ -3,9 +3,6 @@ import requests
 from bottle import route, run, request, template
 
 ### BOTTLE.PY ROUTES ###
-@route('/systemView')
-def searchTest():
-    return template('tpl/systemView',asteroidDB="/getAsteroids")
     
 @route('/asteroidReq')
 def processReq():

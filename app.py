@@ -21,6 +21,7 @@ MESSAGES = [Message(),Message()]
 NOTES = [Note()]
 TASKS = [Task(),Task(),Task(),Task()]
 USER = User()
+OOI_JSON_FILE = 'db/OOIs.js'
 
 # Static Routing
 @route('/<filename:path>')
@@ -40,7 +41,12 @@ def hello():
 import python.getAsteroid
 import python.search
 
-# this is here to circumvent global variable issues
+# these is here to circumvent global variable issues
+@route('/systemView')
+def searchTest():
+    OOIs.write2JSON(OOI_JSON_FILE)
+    return template('tpl/systemView',asteroidDB=OOI_JSON_FILE)
+
 @route('/addAsteroid')
 def addOOI():
     name = request.query.name
@@ -51,12 +57,25 @@ def addOOI():
             note_count=1,notes=NOTES,
             task_count=4,tasks=TASKS,
             user=USER)
-            
+    
+# NOTE: THIS IS NOT USED. I wasted an hour trying to get it to work though
+#   and we may need it later.    
 @route('/getAsteroids')
-def getOOIs():
-    data = json.dumps(OOIs.MPOs)
-    print data
-    return template('tpl/jsAsteroids',json=data)
+def getOOIs(): 
+    OOIs.write2JSON(OOI_JSON_FILE)
+#    with open(OOI_JSON_FILE,'w') as f:
+#        json.dump(OOIs.MPOs,f)
+#    data = json.dumps(OOIs.MPOs)
+#    if len(data) > 2: # if not empty
+#        data = data[2:-2] # remove the weird encapsulation of the string
+#        data = repr(data)
+   #     data = tuple(data,)
+   #     print '==datacheck1== \n',data
+   # print 'datacheck2\n',data
+    # data.decode("string-escape")
+    # json=data.replace(r"\"",r")
+#    return template('tpl/jsAsteroids',json=data)
+    return OOI_JSON_FILE
 
 
 # SQLite test
