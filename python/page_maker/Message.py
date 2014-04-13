@@ -5,3 +5,4 @@ class Message(object):
         self.title = "TITLE!!!"
         self.text = 'this is text'
         self.time = '1903'
+        self.link = '#'

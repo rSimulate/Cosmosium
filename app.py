@@ -14,12 +14,19 @@ import python.getAsteroid
 
 from python.page_maker.chunks import chunks # global chunks
 from python.page_maker.Message import Message
+from python.page_maker.Note import Note
+from python.page_maker.Task import Task
+from python.page_maker.User import User
 
 @route("/")
 @view("main")
 def hello():
     CHUNKS = chunks()
-    return template('tpl/main_body',chunks=CHUNKS,messages=[Message(),Message()])
+    return template('tpl/main_body',chunks=CHUNKS,
+        messages=[Message(),Message()],message_count=2,
+        note_count=1,notes=[Note()],
+        task_count=4,tasks=[Task(),Task(),Task(),Task()],
+        user=User())
 
  #all index.html
 

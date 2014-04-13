@@ -16,24 +16,22 @@
         </a>
         <div class="navbar-right">
             <ul class="nav navbar-nav">
-                <!-- Messages: style can be found in dropdown.less-->
+                <!-- Messages: style can be found in dropdown.less-->                
                 <li class="dropdown messages-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-envelope"></i>
-                        <span class="label label-success">4</span>
+                        <span class="label label-success">{{message_count}}</span>
                     </a>
                     <ul class="dropdown-menu">
                         <li class="header">
-                        %# TODO: notification title ("you have x notifications")
-                            {{chunks.note_title}}
+                            {{chunks.messages_title}}
                         </li>
                         <li>
                             <!-- inner menu: contains the actual data -->
                             <ul class="menu">
-                            
                                 % for message in messages:
                                 <li><!-- start message -->
-                                    <a href="#">
+                                    <a href={{message.link}}>
                                         <div class="pull-left">
                                             <img src={{message.icon}} class="img-circle" alt={{message.icon_alt}}/>
                                         </div>
@@ -45,121 +43,64 @@
                                     </a>
                                 </li><!-- end message -->
                                 % end
-                                
                             </ul>
                         </li>
-                        <li class="footer"><a href={{chunks.all_notes_link}}>{{chunks.all_notes_text}}</a></li>
+                        <li class="footer"><a href={{chunks.all_messages_link}}>{{chunks.all_messages_text}}</a></li>
                     </ul>
                 </li>
                 <!-- Notifications: style can be found in dropdown.less -->
                 <li class="dropdown notifications-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-warning"></i>
-                        <span class="label label-warning">10</span>
+                        <span class="label label-warning">{{note_count}}</span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li class="header">You have 10 notifications</li>
+                        <li class="header">{{chunks.notes_title}}</li>
                         <li>
                             <!-- inner menu: contains the actual data -->
                             <ul class="menu">
+                                % for note in notes:
                                 <li>
-                                    <a href="#">
-                                        <i class="ion ion-ios7-people info"></i> 5 new members joined today
+                                    <a href={{note.link}}>
+                                        <i class="fa fa-warning danger"}></i> {{note.text}}
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="fa fa-warning danger"></i> Very long description here that may not fit into the page and may cause design problems
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="fa fa-users warning"></i> 5 new members joined
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a href="#">
-                                        <i class="ion ion-ios7-cart success"></i> 25 sales made
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="ion ion-ios7-person danger"></i> You changed your username
-                                    </a>
-                                </li>
+                                % end
                             </ul>
                         </li>
-                        <li class="footer"><a href="#">View all</a></li>
+                        <li class="footer"><a href={{chunks.all_notes_link}}>{{chunks.all_notes_text}}</a></li>
                     </ul>
                 </li>
                 <!-- Tasks: style can be found in dropdown.less -->
                 <li class="dropdown tasks-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-tasks"></i>
-                        <span class="label label-danger">9</span>
+                        <span class="label label-danger">{{task_count}}</span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li class="header">You have 9 tasks</li>
+                        <li class="header">{{chunks.tasks_title}}</li>
                         <li>
                             <!-- inner menu: contains the actual data -->
                             <ul class="menu">
+                            % for task in tasks:
                                 <li><!-- Task item -->
                                     <a href="#">
                                         <h3>
-                                            Design some buttons
-                                            <small class="pull-right">20%</small>
+                                            {{task.text}}
+                                            <small class="pull-right">{{task.percent}}%</small>
                                         </h3>
                                         <div class="progress xs">
-                                            <div class="progress-bar progress-bar-aqua" style="width: 20%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
-                                                <span class="sr-only">20% Complete</span>
+                                            <div class="progress-bar progress-bar-aqua" style="width: {{task.percent}}%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                                                <span class="sr-only">{{task.percent}}% Complete</span>
                                             </div>
                                         </div>
                                     </a>
                                 </li><!-- end task item -->
-                                <li><!-- Task item -->
-                                    <a href="#">
-                                        <h3>
-                                            Create a nice theme
-                                            <small class="pull-right">40%</small>
-                                        </h3>
-                                        <div class="progress xs">
-                                            <div class="progress-bar progress-bar-green" style="width: 40%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
-                                                <span class="sr-only">40% Complete</span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li><!-- end task item -->
-                                <li><!-- Task item -->
-                                    <a href="#">
-                                        <h3>
-                                            Some task I need to do
-                                            <small class="pull-right">60%</small>
-                                        </h3>
-                                        <div class="progress xs">
-                                            <div class="progress-bar progress-bar-red" style="width: 60%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
-                                                <span class="sr-only">60% Complete</span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li><!-- end task item -->
-                                <li><!-- Task item -->
-                                    <a href="#">
-                                        <h3>
-                                            Make beautiful transitions
-                                            <small class="pull-right">80%</small>
-                                        </h3>
-                                        <div class="progress xs">
-                                            <div class="progress-bar progress-bar-yellow" style="width: 80%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
-                                                <span class="sr-only">80% Complete</span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li><!-- end task item -->
+                            % end
                             </ul>
                         </li>
                         <li class="footer">
-                            <a href="#">View all tasks</a>
+                            <a href={{chunks.all_tasks_link}}>{{chunks.all_tasks_text}}</a>
                         </li>
                     </ul>
                 </li>
@@ -167,15 +108,15 @@
                 <li class="dropdown user user-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="glyphicon glyphicon-user"></i>
-                        <span>Jane Doe <i class="caret"></i></span>
+                        <span>{{user.name}} <i class="caret"></i></span>
                     </a>
                     <ul class="dropdown-menu">
                         <!-- User image -->
                         <li class="user-header bg-light-blue">
-                            <img src="img/avatar3.png" class="img-circle" alt="User Image" />
+                            <img src={{user.icon}} class="img-circle" alt="User Image" />
                             <p>
-                                Jane Doe - Web Developer
-                                <small>Member since Nov. 2012</small>
+                                {{user.name}} - {{user.agency}}
+                                <small>{{user.subtext}}</small>
                             </p>
                         </li>
                         <!-- Menu Body -->
