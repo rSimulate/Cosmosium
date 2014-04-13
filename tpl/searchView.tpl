@@ -617,7 +617,7 @@
         <script src="js/util.js"></script>
         <script src="js/ellipse.js"></script>
         <script src="js/ephemeris.js"></script>
-        <script src="js/main_search.js"></script>
+        <script src="js/main.js"></script>
 
         <div id="body-info-container">
             <a id="claim-asteroid-button" href="#">Claim this asteroid</a>

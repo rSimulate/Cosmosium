@@ -24,6 +24,8 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var plane;
     var skybox;
 
+    var SHOWING_ASTEROID_OWNERSHIP = true;
+
     var CAMERA_NEAR = 1;
     var CAMERA_FAR = 100000;
 
@@ -271,21 +273,11 @@ function RSimulate(opts) {
         
 
         var lambertShader = THREE.ShaderLib['lambert'];
+        var basicShader = THREE.ShaderLib['basic'];
 
         //var vertexShaderText = lambertShader.vertexShader;
         var vertexShaderText = document.getElementById("asteroid-vertex").textContent;
-        var fragmentShaderText = lambertShader.fragmentShader;
-
-        var uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
-
-        var material = new THREE.ShaderMaterial({
-            uniforms: uniforms,
-            vertexShader: vertexShaderText,
-            fragmentShader: fragmentShaderText,
-            lights:true,
-            fog: true
-        });
-
+        var fragmentShaderText;
 
         var asteroidsData = TestAsteroids;
         //var asteroidsData += OOIs[0];
@@ -325,6 +317,9 @@ function RSimulate(opts) {
         }
 
         for (var i = 0; i < numAsteroidOrbitsShown; i++) {
+            fragmentShaderText = lambertShader.fragmentShader;
+
+            var uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
 
             var asteroid = asteroidsData[i];
 
@@ -335,16 +330,13 @@ function RSimulate(opts) {
 
             if (asteroid.H && asteroid.H !== "") {  // magnitude
                 var percentageDark = (asteroid.H - minH) / (maxH - minH);
+                uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);                
+            }
 
-                uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
-                uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);
-                material = new THREE.ShaderMaterial({
-                    uniforms: uniforms,
-                    vertexShader: vertexShaderText,
-                    fragmentShader: fragmentShaderText,
-                    lights:true,
-                    fog: true
-                });
+            if (SHOWING_ASTEROID_OWNERSHIP && asteroidIsOwned(asteroid)) {
+                fragmentShaderText = basicShader.fragmentShader;
+
+                uniforms.diffuse.value = new THREE.Color(0, 1, 0);                
             }
 
             var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid)
@@ -359,6 +351,14 @@ function RSimulate(opts) {
             }, useBigParticles);
 
             //scene.add(asteroidOrbit.getEllipse());
+
+            var material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: vertexShaderText,
+                fragmentShader: fragmentShaderText,
+                lights:true,
+                fog: true
+            });
 
             var asteroidMesh = new THREE.Mesh( geometry, material );
 
@@ -379,6 +379,10 @@ function RSimulate(opts) {
 
 
         }
+    }
+
+    function asteroidIsOwned(asteroid) {
+        return (Math.random() > 0.5);
     }
 
     function initSun() {
