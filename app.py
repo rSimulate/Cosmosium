@@ -10,6 +10,7 @@
 #             Tylar Murray            #
 #           Britton Broderick         #
 #               Max Howeth            #
+#             David Gundry            #
 #                                     #
 #=====================================#
 
@@ -88,17 +89,23 @@ def systemView():
     return template('tpl/systemView',
         asteroidDB=OOI_JSON_FILE,
         ownersDB=OWNERS_JSON_FILE)
+<<<<<<< HEAD
   
 @route('/missionControl')
 def  missionControl():
 		return template('tpl/missionControl.tpl')
   
+=======
+
+>>>>>>> b57f92eccd4153d24268120426312a779ff4c485
 @route('/viewTest')
 def systemView():
     return template('tpl/systemView',
         asteroidDB='db/test_asteroids.js',
-        ownersDB='db/test_owners.js')
-    
+        ownersDB='db/test_owners.js',
+        pageTitle="ViewTest"
+        )
+
 @route('/sysView')
 def sysView():
     OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
@@ -110,6 +117,7 @@ def sysView():
             note_count=1,notes=NOTES,
             task_count=4,tasks=TASKS,
             user=USER,
+            pageTitle="Solar System",
             resources=USER.resources)
 
 @route('/addAsteroid')
@@ -123,10 +131,10 @@ def addOOI():
             task_count=4,tasks=TASKS,
             user=USER,
             resources=USER.resources)
-    
-  
+
+
 @route('/getAsteroids')
-def getOOIs(): 
+def getOOIs():
     OOIs.write2JSON(OOI_JSON_FILE)
 #    with open(OOI_JSON_FILE,'w') as f:
 #        json.dump(OOIs.MPOs,f)

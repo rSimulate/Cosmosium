@@ -1,3 +1,5 @@
+var MOON_EXAGGERATION = 20;
+
 window.Ephemeris = {
   asteroid_2012_da14: {
     full_name: '2012 DA14',
@@ -82,7 +84,103 @@ window.Ephemeris = {
     L: 34.39644051,
     om: 100.47390909,
     P: 4332.589
-  }
+  },
+  luna: {
+    full_name: 'Moon',
+    ma: 135.27,
+    epoch: 2451545.0,
+    a: 0.00256955529 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    e: 0.0554,
+    i: 5.16,
+    w_bar: 83.23,
+    w: 318.15,
+    L: 13.176358,
+    om: 125.08,
+    P: 27.322
+  },
+  phobos: {
+    full_name: 'Phobos',
+    ma: 91.059,
+    epoch: 2451545.0,
+    a: 6.26746889e-5 * MOON_EXAGGERATION*15,  // exaggerating distance for visibility
+    e: 0.0151,
+    i: 1.075,
+    w_bar: 357.841,
+    w: 150.057,
+    L: 1128.8447569,
+    om: 207.784,
+    P: 0.3189
+  },
+  deimos: {
+    full_name: 'Deimos',
+    ma: 325.329,
+    epoch: 2451545.0,
+    a: 0.000156807045 * MOON_EXAGGERATION*15,  // exaggerating distance for visibility
+    e: 0.0002,
+    i: 1.788,
+    w_bar: 285.254,
+    w: 260.729,
+    L: 285.1618790,
+    om: 24.525,
+    P: 1.2624
+  },
+
+
+
+
+  ganymede: {
+    full_name: 'Ganymede',
+    ma: 317.540,
+    epoch: 2451545.0,
+    a: 0.00715518206 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    e: 0.0013,
+    i: 0.177,
+    w_bar: 255.969,
+    w: 192.417,
+    L: 50.3176072,
+    om: 63.552,
+    P: 7.155
+  },
+  io: {
+    full_name: 'Io',
+    ma: 342.021,
+    epoch: 2451545.0,
+    a: 0.00281955885 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    e: 0.0041,
+    i: 0.036,
+    w_bar: 128.106,
+    w: 84.129,
+    L: 203.4889583,
+    om: 43.977,
+    P: 1.769
+  },
+  europa: {
+    full_name: 'Europa',
+    ma: 171.016,
+    epoch: 2451545.0,
+    a: 0.00448602642 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    e: 0.0094,
+    i: 0.466,
+    w_bar: 308.076,
+    w: 88.970,
+    L: 101.3747242,
+    om: 219.106,
+    P: 3.551
+  },
+  callisto: {
+    full_name: 'Callisto',
+    ma: 181.408,
+    epoch: 2451545.0,
+    a: 0.0125850722 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    e: 0.0074,
+    i: 0.192,
+    w_bar: 351.491,
+    w: 52.643,
+    L: 21.5710728,
+    om: 298.848,
+    P: 16.69
+  },
+
 };
 
 for (var x in Ephemeris) {

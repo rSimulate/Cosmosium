@@ -3,7 +3,7 @@
     <!-- TODO: new logo -->
     <a href="index.html" class="logo">
         <!-- Add the class icon to your logo image or logo icon to add the margining -->
-        AdminLTE
+        COSMOSIUM
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top" role="navigation">
@@ -14,14 +14,8 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </a>
-       
-        <i class="fa fa-flask"></i> <span>Science: {{resources.science}}</span>
-        <i class="fa fa-btc"></i> <span>Wealth: {{resources.wealth}}</span>
-        <i class="fa fa-flash"></i> <span>Energy: {{resources.energy}}</span>
-        <i class="fa fa-cog"></i> <span>Metals: {{resources.metals}}</span>
-        <i class="fa fa-leaf"></i> <span>Life: {{resources.life}}</span>
 
-        
+		
         <div class="navbar-right">
             <ul class="nav navbar-nav">
                 <!-- Messages: style can be found in dropdown.less-->                
