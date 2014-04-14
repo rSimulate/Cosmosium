@@ -4,7 +4,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
     var jed_delta = 5;  // how many days per second to elapse
     
-    var SUN_SIZE = 5;
+    var SUN_SIZE = 6;
     var PLANET_SIZE = 1.5;
     var MOON_SIZE = PLANET_SIZE/3.0;
     var ASTEROID_SIZE = 1;
@@ -86,8 +86,8 @@ function RSimulate(opts) {
 		var planetMaterial = new THREE.MeshLambertMaterial({ map: planetTexture });
 		
 		//Make the Mesh with Object
-		var mesh = new THREE.Mesh(planetGeometry, planetMaterial);
-		addBody( scene, "planet", orbit, mesh, true );
+		var planetmesh = new THREE.Mesh(planetGeometry, planetMaterial);
+		addBody( scene, "planet", orbit, planetmesh, true );
     }
 
     function addAsteroid(orbit, mesh) {
@@ -501,7 +501,7 @@ function RSimulate(opts) {
         var mercury = new Orbit3D(Ephemeris.mercury,
             {
               color: 0x913CEE, width: 1, jed: jed, object_size: 1.1,
-              texture_path: opts.static_prefix + '/img/mercury_small.jpg',
+              texture_path: opts.static_prefix + '/img/texture-mercury.jpg',
               display_color: new THREE.Color(0x913CEE),
               particle_geometry: particle_system_geometry,
               name: 'Mercury'
