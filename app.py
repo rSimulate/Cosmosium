@@ -92,7 +92,14 @@ def systemView():
   
 @route('/missionControl')
 def  missionControl():
-		return template('tpl/missionControl.tpl')
+		return template('tpl/missionControl.tpl',
+            chunks=CHUNKS,
+            messages=MESSAGES,message_count=2,
+            note_count=1,notes=NOTES,
+            task_count=4,tasks=TASKS,
+            user=USER,
+            pageTitle="Solar System",
+            resources=USER.resources)
   
 
 @route('/viewTest')
