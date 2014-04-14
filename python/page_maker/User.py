@@ -8,6 +8,15 @@ class Resources(object):
         self.metals = 0
         self.life   = 7
         
+    def update(self):
+        # computes updated values for all resources
+        pass
+        
+    def getScience(self):
+        #returns current amout of science
+        self.update()
+        return self.science
+        
 class Miner(object):
     def __init__(self):
         self.techLevel=0
@@ -54,19 +63,10 @@ class User(object):
         
         self.resources = Resources()
         self.research  = Research()
-        self.telescopes = list()
+        self.telescopes = list([Telescope(),Telescope()]) #start w/ 2 telescopes
         self.miners    = [Miner()]  #start w/ 1 miner
         
-    def update(self):
-        # computes updated values for all real-time-dep amounts
-        pass
-
     ### RESEARCHING (science) ###
-    def getScience(self):
-        #returns current amout of science
-        self.update()
-        return self.science
-    
     def getTechImage(self, level=None):
         # returns image file name for given techlevel, else returns for current mine techLevel
         # TODO: check that file exists
@@ -75,7 +75,7 @@ class User(object):
         else:
             return 'img/tech/tech'+str(level)+'.jpg'
             
-    def getDelta(self):
+    def getDeltaScience(self):
         # returns estimated increase/s for the js client
         return int(exp(self.research.age)*10)
             
