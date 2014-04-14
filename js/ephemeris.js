@@ -125,6 +125,62 @@ window.Ephemeris = {
     P: 1.2624
   },
 
+
+
+
+  ganymede: {
+    full_name: 'Ganymede',
+    ma: 317.540,
+    epoch: 2451545.0,
+    a: 0.00715518206 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    e: 0.0013,
+    i: 0.177,
+    w_bar: 255.969,
+    w: 192.417,
+    L: 50.3176072,
+    om: 63.552,
+    P: 7.155
+  },
+  io: {
+    full_name: 'Io',
+    ma: 342.021,
+    epoch: 2451545.0,
+    a: 0.00281955885 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    e: 0.0041,
+    i: 0.036,
+    w_bar: 128.106,
+    w: 84.129,
+    L: 203.4889583,
+    om: 43.977,
+    P: 1.769
+  },
+  europa: {
+    full_name: 'Europa',
+    ma: 171.016,
+    epoch: 2451545.0,
+    a: 0.00448602642 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    e: 0.0094,
+    i: 0.466,
+    w_bar: 308.076,
+    w: 88.970,
+    L: 101.3747242,
+    om: 219.106,
+    P: 3.551
+  },
+  callisto: {
+    full_name: 'Callisto',
+    ma: 181.408,
+    epoch: 2451545.0,
+    a: 0.0125850722 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    e: 0.0074,
+    i: 0.192,
+    w_bar: 351.491,
+    w: 52.643,
+    L: 21.5710728,
+    om: 298.848,
+    P: 16.69
+  },
+
 };
 
 for (var x in Ephemeris) {

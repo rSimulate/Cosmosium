@@ -593,6 +593,64 @@ function RSimulate(opts) {
 
         var jupiterMesh = new THREE.Mesh(planetGeometry, planetMaterial);
 
+
+        var io = new Orbit3D(Ephemeris.io,
+            {
+              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
+              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
+              display_color: new THREE.Color(0x009ACD),
+              particle_geometry: particle_system_geometry,
+              name: 'Io'
+            }, !using_webgl);
+        var ioMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        addMoon(jupiterMesh, io, ioMesh);
+
+        var europa = new Orbit3D(Ephemeris.europa,
+            {
+              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
+              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
+              display_color: new THREE.Color(0x009ACD),
+              particle_geometry: particle_system_geometry,
+              name: 'Europa'
+            }, !using_webgl);
+        var europaMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        addMoon(jupiterMesh, europa, europaMesh);
+
+        var ganymede = new Orbit3D(Ephemeris.ganymede,
+            {
+              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
+              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
+              display_color: new THREE.Color(0x009ACD),
+              particle_geometry: particle_system_geometry,
+              name: 'Ganymede'
+            }, !using_webgl);
+        var ganymedeMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        addMoon(jupiterMesh, ganymede, ganymedeMesh);
+
+        var callisto = new Orbit3D(Ephemeris.callisto,
+            {
+              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
+              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
+              display_color: new THREE.Color(0x009ACD),
+              particle_geometry: particle_system_geometry,
+              name: 'Callisto'
+            }, !using_webgl);
+        var callistoMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        addMoon(jupiterMesh, callisto, callistoMesh);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         addPlanet(jupiter, jupiterMesh);
     }
 
