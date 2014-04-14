@@ -21,6 +21,9 @@ class Telescope(object):
         
 class Research(object):
     def __init__(self):
+        # "age"??? overall summary of state of science... "internet age", "space age"... idk...
+        self.age=0
+        
         # for modulating task values
         self.telescopeLevel=0
         self.minerLevel=0
@@ -51,9 +54,26 @@ class User(object):
         self.research  = Research()
         self.telescopes = list()
         self.miners    = [Miner()]  #start w/ 1 miner
+
+    def getTechImage(self, level=None):
+        # returns image file name for given techlevel, else returns for current mine techLevel
+        # TODO: check that file exists
+        if level==None:
+            return 'img/tech/tech'+str(self.research.minerLevel)+'.jpg'
+        else:
+            return 'img/tech/tech'+str(level)+'.jpg'
+        
+    def getMineImage(self, level=None):
+        # returns image file name for given techlevel, else returns for current mine techLevel
+        # TODO: check that file exists
+        if level==None:
+            return 'img/mining/tech'+str(self.research.minerLevel)+'.jpg'
+        else:
+            return 'img/mining/tech'+str(level)+'.jpg'
+
         
     def getMinersCount(self, level=None):
-    # returns count of miner units in given techlevel
+        # returns count of miner units in given techlevel
         if(level==None):
             return len(self.miners)
         else:

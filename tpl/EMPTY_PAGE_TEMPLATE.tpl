@@ -23,13 +23,11 @@
 
                 <!-- Main content -->
                 <section class="content">
-                    <!-- this row is fixed to the top... -->
-                    <div class="row">
+
                     <!-- User tech summary -->
                     %include('tpl/tech_overview_tile') # passed implicitly: user 
                     %include('tpl/mining_overview_tile') # passed implicitly: user 
-                    </div?
-                </section>
+
                     
                     <!-- Small boxes (Stat box) -->
                     <div class="row">
