@@ -401,7 +401,7 @@ body > .header .logo {
   text-align: center;
   padding: 0 10px;
   width: 220px;
-  font-family: 'Kaushan Script', cursive;
+  font-family: 'Orbitron', 'Source Sans Pro', arial;
   font-weight: 500;
   height: 50px;
   display: block;
@@ -2442,6 +2442,7 @@ Component: timeline
 .skin-blue .logo {
   background-color: #367fa9;
   color: #f9f9f9;
+  
 }
 .skin-blue .logo > a {
   color: #f9f9f9;
@@ -2593,12 +2594,14 @@ Component: timeline
 .skin-black .logo {
   background-color: #333333;
   color: #f9f9f9;
+  background-image:url("gradient2.png");
 }
 .skin-black .logo > a {
   color: #f9f9f9;
 }
 .skin-black .logo:hover {
   background: #303030;
+  text-shadow: 0 0 10px #fffff8;
 }
 /* skin-black content header */
 .skin-black .right-side > .content-header {

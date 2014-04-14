@@ -10,7 +10,7 @@
 
 <!DOCTYPE html>
 <html>
-    <body class="skin-blue">
+    <body class="skin-black">
             % include('tpl/head') # implicitly passed: pageTitle
 			
             % include('tpl/game_frame') # implicitly passed: chunks,messages,note_count,task_count,user,resources
