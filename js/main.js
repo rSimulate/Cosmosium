@@ -5,7 +5,8 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var jed_delta = 5;  // how many days per second to elapse
     
     var SUN_SIZE = 5;
-    var PLANET_SIZE = 3;
+    var PLANET_SIZE = 1.5;
+    var MOON_SIZE = PLANET_SIZE/3.0;
     var ASTEROID_SIZE = 1;
 
     var particle_system_geometry = null;
@@ -38,7 +39,8 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     // example: indexes["asteroid"] --> [2,3,5] and you can get the orbits at orbits[2], orbits[3], orbits[5]
     var indexes = {
         "asteroid": [],
-        "planet": []
+        "planet": [],
+        "moon" : []
     };
     var mapFromMeshIdToBodyId = {};   // maps ids of three.js meshes to bodies they represent
     var nextEntityIndex = 0;
@@ -49,18 +51,18 @@ function RSimulate(opts) {
 
   
 
-    function addBody( indexLabel, orbit, mesh, shouldAlwaysShowEllipse ) {
+    function addBody( parent, indexLabel, orbit, mesh, shouldAlwaysShowEllipse ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
 
         orbits.push(orbit);
         meshes.push(mesh);
         mapFromMeshIdToBodyId[mesh.id] = nextEntityIndex;
-        scene.add(mesh);
+        parent.add(mesh);
 
         var ellipse = orbit.getEllipse();
 
         ellipses.push(ellipse);
-        scene.add(ellipse);
+        parent.add(ellipse);
         ellipse.visible = shouldAlwaysShowEllipse;
 
         if (typeof indexes[indexLabel] !== "object") {
@@ -70,6 +72,18 @@ function RSimulate(opts) {
         indexes[indexLabel].push(nextEntityIndex);
 
         nextEntityIndex++;
+    }
+
+    function addPlanet(orbit, mesh) {
+        addBody( scene, "planet", orbit, mesh, true );
+    }
+
+    function addAsteroid(orbit, mesh) {
+        addBody( scene, "asteroid", orbit, mesh, false );
+    }
+
+    function addMoon(planetMesh, orbit, mesh) {
+        addBody( planetMesh, "moon", orbit, mesh, false );
     }
 
     function onDocumentMouseMove( event ) {
@@ -445,7 +459,7 @@ function RSimulate(opts) {
                 Math.random() * 2.0 * Math.PI,
                 Math.random() * 2.0 * Math.PI);
 
-            addBody("asteroid", asteroidOrbit, asteroidMesh, false);
+            addAsteroid(asteroidOrbit, asteroidMesh);
 
 
 
@@ -468,6 +482,9 @@ function RSimulate(opts) {
         var planetGeometry = new THREE.SphereGeometry( PLANET_SIZE, 32, 32 );
         var planetMaterial = new THREE.MeshLambertMaterial( {color: 0x0000ff} );
 
+        var moonGeometry = new THREE.SphereGeometry( MOON_SIZE, 16, 16 );
+        var moonMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc} );
+
         var mercury = new Orbit3D(Ephemeris.mercury,
             {
               color: 0x913CEE, width: 1, jed: jed, object_size: 1.7,
@@ -476,11 +493,13 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Mercury'
             }, !using_webgl);
-        scene.add(mercury.getEllipse());
         if (!using_webgl)
           scene.add(mercury.getParticle());
 
         var mercuryMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+
+        addPlanet(mercury, mercuryMesh);
+
 
         var venus = new Orbit3D(Ephemeris.venus,
             {
@@ -490,11 +509,11 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Venus'
             }, !using_webgl);
-        scene.add(venus.getEllipse());
-        if (!using_webgl)
-          scene.add(venus.getParticle());
 
         var venusMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+
+        addPlanet(venus, venusMesh);
+
 
         var earth = new Orbit3D(Ephemeris.earth,
             {
@@ -504,17 +523,23 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Earth'
             }, !using_webgl);
-        scene.add(earth.getEllipse());
-        if (!using_webgl)
-          scene.add(earth.getParticle());
-        /*
-        feature_map['earth'] = {
-          orbit: earth,
-          idx: 2
-        };
-        */
 
         var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+
+        addPlanet(earth, earthMesh);
+
+
+        var luna = new Orbit3D(Ephemeris.luna,
+            {
+              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
+              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
+              display_color: new THREE.Color(0x009ACD),
+              particle_geometry: particle_system_geometry,
+              name: 'Moon'
+            }, !using_webgl);
+        var lunaMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        addMoon(earthMesh, luna, lunaMesh);
+
 
         var mars = new Orbit3D(Ephemeris.mars,
             {
@@ -524,11 +549,38 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Mars'
             }, !using_webgl);
-        scene.add(mars.getEllipse());
-        if (!using_webgl)
-          scene.add(mars.getParticle());
 
         var marsMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+
+        addPlanet(mars, marsMesh);
+
+
+
+        var phobos = new Orbit3D(Ephemeris.phobos,
+            {
+              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
+              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
+              display_color: new THREE.Color(0x009ACD),
+              particle_geometry: particle_system_geometry,
+              name: 'Phobos'
+            }, !using_webgl);
+        var phobosMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        addMoon(marsMesh, phobos, phobosMesh);
+
+
+        var deimos = new Orbit3D(Ephemeris.deimos,
+            {
+              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
+              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
+              display_color: new THREE.Color(0x009ACD),
+              particle_geometry: particle_system_geometry,
+              name: 'Phobos'
+            }, !using_webgl);
+        var deimosMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        addMoon(marsMesh, deimos, deimosMesh);
+
+
+
 
         var jupiter = new Orbit3D(Ephemeris.jupiter,
             {
@@ -538,17 +590,10 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Jupiter'
             }, !using_webgl);
-        scene.add(jupiter.getEllipse());
-        if (!using_webgl)
-          scene.add(jupiter.getParticle());
 
         var jupiterMesh = new THREE.Mesh(planetGeometry, planetMaterial);
 
-        addBody("planet", mercury, mercuryMesh);
-        addBody("planet", venus, venusMesh);
-        addBody("planet", earth, earthMesh);
-        addBody("planet", mars, marsMesh);
-        addBody("planet", jupiter, jupiterMesh);
+        addPlanet(jupiter, jupiterMesh);
     }
 
     function initCamera() {
@@ -620,6 +665,15 @@ function RSimulate(opts) {
   
             var mesh = meshes[i];
             mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
+
+            /*
+            if (i != 2) {
+                var centerOfGravityPosition = meshes[2].position;
+
+                meshes[i].position.add(centerOfGravityPosition);
+                ellipses[i].position.copy(centerOfGravityPosition);
+            }
+            */
 
             if (orbit.eph && orbit.eph.rot_per) {
                 // we have an orbital period (in hours)
