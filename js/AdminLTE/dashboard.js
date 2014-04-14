@@ -73,18 +73,10 @@ $(function() {
                 stroke: 'none',
                 "stroke-width": 0,
                 "stroke-opacity": 1
+            },
+            hover: {
+                fill: '#3b8bba'
             }
-        },
-        series: {
-            regions: [{
-                    values: visitorsData,
-                    scale: ["#3c8dbc", "#2D79A6"], //['#3E5E6B', '#A6BAC2'],
-                    normalizeFunction: 'polynomial'
-                }]
-        },
-        onRegionLabelShow: function(e, el, code) {
-            if (typeof visitorsData[code] != "undefined")
-                el.html(el.html() + ': ' + visitorsData[code] + ' new visitors');
         }
     });
 
