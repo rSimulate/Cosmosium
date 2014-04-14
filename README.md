@@ -13,6 +13,6 @@ This 4x-style game aims to inspire and educate the general population about the 
 
 Oh yeah... and we're working on making it multiplayer so we can crowd-source the problem of choosing the right asteroids. Don't underestimate [Galton's ox](http://en.wikipedia.org/wiki/The_Wisdom_of_Crowds).
 
-Help out by reporting any issues, questions, or comments to our [issue tracker](https://github.com/rSimulate/Cosmosium/issues?state=open). Be nice though, we have a lot of work to do... Thanks and enjoy!
+Help out by reporting any issues, questions, or comments to our [issue tracker](https://github.com/rSimulate/Cosmosium/issues?state=open). Be patient though, we still have a lot left to implement... Thanks and enjoy!
 
-Play the app-in-progress [here](http://54.186.92.226:7099/)!
+## Play the app-in-progress [here](http://54.186.92.226:7099/)! ##
