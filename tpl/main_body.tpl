@@ -14,6 +14,7 @@
             % include('tpl/head') # implicitly passed: pageTitle
 			
             % include('tpl/game_frame') # implicitly passed: chunks,messages,note_count,task_count,user,resources
+            
             <!-- Right side column. Contains the navbar and content of the page -->
             <aside class="right-side">
 
@@ -25,6 +26,8 @@
 
                     <!-- User tech summary -->
                     %include('tpl/tech_overview_tile') # passed implicitly: user 
+                    %include('tpl/mining_overview_tile') # passed implicitly: user 
+
                     
                     <!-- Small boxes (Stat box) -->
                     <div class="row">

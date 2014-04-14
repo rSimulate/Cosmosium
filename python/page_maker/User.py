@@ -7,16 +7,16 @@ class Resources(object):
         self.metals = 0
         self.life   = 7
         
-class miner(object):
+class Miner(object):
     def __init__(self):
         self.techLevel=0
-        self.busy=false
+        self.busy=False
         self.ttc=0 #time to completion
         
-class telescope(object):
+class Telescope(object):
     def __init__(self):
         self.techLevel=0
-        self.busy=false
+        self.busy=False
         self.ttc=0 #time to completion
         
 class Research(object):
@@ -50,8 +50,15 @@ class User(object):
         self.resources = Resources()
         self.research  = Research()
         self.telescopes = list()
-        self.miners    = list()
+        self.miners    = [Miner()]  #start w/ 1 miner
         
+    def getMinersCount(self, level=None):
+    # returns count of miner units in given techlevel
+        if(level==None):
+            return len(self.miners)
+        else:
+            return sum(miner.techLevel == level for miner in self.miners)
+    
     def addTele(self):
         self.telescopes.append(Telescope())
         
