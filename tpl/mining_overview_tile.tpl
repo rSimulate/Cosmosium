@@ -19,22 +19,20 @@
                 </div>
                  <div class="col-xs-5 text-right" >
                     <p>
-                    Mining Probes: {{user.getMinersCount(0)}}
+                    Probes: {{user.getMinersCount(0)}}
                     </p>
                     <p>
-                     Miner Tech: {{user.research.minerLevel}}
-                     </p>
-                    <p>
-                     Energy Science Tech: {{user.research.EnergyScienceLevel}}
-                     </p>
-                    <p>
-                    Manufacturing Tech: {{user.research.manufactureLevel}}
+                        %   ##### TODO!!! THESE AREN'T ACTUAL GAME VALUES!!! #####
+                    NEO Redirectors: {{user.research.minerLevel}}
                     </p>
                     <p>
-                     BioEngineering Tech: {{user.research.lifeScienceLevel}}
+                    Main-Belt Haulers: {{user.research.manufactureLevel}}
+                    </p>
+                    <p>
+                    Reprossessing Barges: {{user.research.lifeScienceLevel}}
                      </p>
                     <p>
-                    Propultion Tech: {{user.research.propultionTechLevel}}
+                    Von Neumann Probes: {{user.research.propultionTechLevel}}
                     </p>
                 </div>
             </div> 

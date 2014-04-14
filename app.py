@@ -85,10 +85,16 @@ import python.search
 # these is here to circumvent global variable issues
 @route('/systemView')
 def systemView():
-    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
+    # TEMPORARY CHANGE FOR FANCY LOOKS
+#    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
+#    return template('tpl/systemView',
+#        asteroidDB=OOI_JSON_FILE,
+#        ownersDB=OWNERS_JSON_FILE)
     return template('tpl/systemView',
-        asteroidDB=OOI_JSON_FILE,
-        ownersDB=OWNERS_JSON_FILE)
+        asteroidDB='db/test_asteroids.js',
+        ownersDB='db/test_owners.js',
+        pageTitle="ViewTest"
+        )
   
 @route('/missionControl')
 def  missionControl():
