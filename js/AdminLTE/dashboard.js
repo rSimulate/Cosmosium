@@ -16,7 +16,7 @@ $(function() {
         forcePlaceholderSize: true,
         zIndex: 999999
     }).disableSelection();
-    $(".box-header, .nav-tabs").css("cursor","move");
+    
     //jQuery UI sortable for the todo list
     $(".todo-list").sortable({
         placeholder: "sort-highlight",
@@ -77,7 +77,13 @@ $(function() {
             hover: {
                 fill: '#3b8bba'
             }
-        }
+			},
+		markers: [ 
+      {latLng: [45.80, 63.20], name: 'Baikanur Cosmodrome'},
+      {latLng: [27.30, -80.90], name: 'Cape Canaveral'},
+      {latLng: [31.10, 130.97], name: 'Tanegashama Space Center'},
+      {latLng: [36.59, -111.40], name: 'SpaceXs Spaceport America'}]
+        
     });
 
     //Sparkline charts
