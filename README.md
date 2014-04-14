@@ -13,7 +13,7 @@ This 4x-style browser game aims to inspire and educate the general population ab
 
 Oh yeah... and we're working on making it multiplayer so we can crowd-source the problem of choosing the right asteroids. Don't underestimate [Galton's ox](http://en.wikipedia.org/wiki/The_Wisdom_of_Crowds).
 
-###[Play on our server now](http://54.186.92.226:7099/) 
+###[Play on our server now at http://asteroid.ventures/](http://asteroid.ventures/) 
 ...and help out by reporting any issues, questions, or comments to our [issue tracker](https://github.com/rSimulate/Cosmosium/issues?state=open).
 
 
