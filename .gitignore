@@ -1,3 +1,10 @@
+# the local databases
+*/js/OOIs.js
+*/js/owners.js
+
+# pickle OOI save files
+*.pickle
+
 # ubuntu backup files
 *~
 
