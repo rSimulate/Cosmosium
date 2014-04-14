@@ -1,21 +1,13 @@
 from math import exp
+from time import time
 
 class Resources(object):
     def __init__(self):
-        self.science = 1234
-        self.wealth = 56
-        self.energy = 7
+        self.science= 0 
+        self.wealth = 0
+        self.energy = 0
         self.metals = 0
-        self.life   = 7
-        
-    def update(self):
-        # computes updated values for all resources
-        pass
-        
-    def getScience(self):
-        #returns current amout of science
-        self.update()
-        return self.science
+        self.organic= 0
         
 class Miner(object):
     def __init__(self):
@@ -60,6 +52,8 @@ class User(object):
         self.stats_link = "#"
         self.thing3_text = "More"
         self.thing3_link = "#"
+        
+        self.lastUpdate = int(time())
         
         self.resources = Resources()
         self.research  = Research()
@@ -120,4 +114,41 @@ class User(object):
         # returns estimated increase/s for the js client
         return int(exp(self.research.age)*10)
     
+    ### MORE ###
+    def update(self):
+        # computes updated values for all resources
+        self.resources.science=int(self.getDeltaScience()*self.getTimeElapsed())
+        self.resources.wealth= int(self.getDeltaWealth() *self.getTimeElapsed())
+        self.resources.energy= int(self.getDeltaEnergy() *self.getTimeElapsed())
+        self.resources.metals= int(self.getDeltaMetals() *self.getTimeElapsed())
+        self.resources.organic=int(self.getDeltaOrganic()   *self.getTimeElapsed())
     
+    def getTimeElapsed(self):
+        # returns the number of seconds elapsed since last update
+        print '\n\n',time(),' - ', self.lastUpdate,'\n\n'
+        return time() - self.lastUpdate
+    
+    def getScience(self):
+        #returns current amout of science
+        self.update()
+        return self.resources.science
+        
+    def getWealth(self):
+        #returns current amout of science
+        self.update()
+        return self.resources.wealth
+        
+    def getEnergy(self):
+        #returns current amout of energy
+        self.update()
+        return self.resources.energy   
+        
+    def getMetals(self):
+        #returns current amout of metals
+        self.update()
+        return self.resources.metals         
+
+    def getLife(self):
+        #returns current amout of life
+        self.update()
+        return self.resources.organic   
