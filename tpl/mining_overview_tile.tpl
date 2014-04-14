@@ -7,12 +7,38 @@
     resources
     pageTitle
         -->
-%include('tpl/tile',
-%    title='Mining Operations Overview',
-%    text='Mining Probes: '    +str(user.getMinersCount(0))+'\n'
-%        +'Miner Tech: '         +str(user.research.minerLevel        )+'\n'
-%         +'Energy Science Tech: '+str(user.research.EnergyScienceLevel)+'\n'
-%         +'Manufacturing Tech: ' +str(user.research.manufactureLevel  )+'\n'
-%         +'BioEngineering Tech: '+str(user.research.lifeScienceLevel  )+'\n'
-%         +'Propultion Tech: '    +str(user.research.propultionTechLevel),
-%    color='bg-maroon')
+<div class="col-xs-12 col-xs-6">
+    <div class="box box-solid bg-maroon">
+        <div class="box-header">
+            <h3 class="box-title">Mining Operations Overview</h3>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                 <div class="col-xs-5 text-left" style="border-right: 1px solid #f4f4f4">
+                <img src="{{user.getMineImage()}}" alt="user image" class="offline"/>
+                </div>
+                 <div class="col-xs-5 text-right" >
+                    <p>
+                    Mining Probes: {{user.getMinersCount(0)}}
+                    </p>
+                    <p>
+                     Miner Tech: {{user.research.minerLevel}}
+                     </p>
+                    <p>
+                     Energy Science Tech: {{user.research.EnergyScienceLevel}}
+                     </p>
+                    <p>
+                    Manufacturing Tech: {{user.research.manufactureLevel}}
+                    </p>
+                    <p>
+                     BioEngineering Tech: {{user.research.lifeScienceLevel}}
+                     </p>
+                    <p>
+                    Propultion Tech: {{user.research.propultionTechLevel}}
+                    </p>
+                </div>
+            </div> 
+        </div><!-- /.box-body -->
+    </div><!-- /.box -->
+</div>
+        

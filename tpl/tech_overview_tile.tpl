@@ -7,12 +7,38 @@
     resources
     pageTitle
         -->
-%include('tpl/tile',
-%    title='Tech Overview',
-%    text='Telescopes Tech: '    +str(user.research.telescopeLevel    )+'\n'
-%        +'Miner Tech: '         +str(user.research.minerLevel        )+'\n'
-%         +'Energy Science Tech: '+str(user.research.EnergyScienceLevel)+'\n'
-%         +'Manufacturing Tech: ' +str(user.research.manufactureLevel  )+'\n'
-%         +'BioEngineering Tech: '+str(user.research.lifeScienceLevel  )+'\n'
-%         +'Propultion Tech: '    +str(user.research.propultionTechLevel),
-%    color='bg-navy')
+<div class="col-xs-12 col-xs-6">
+    <div class="box box-solid bg-navy">
+        <div class="box-header">
+            <h3 class="box-title">Tech Overview</h3>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                 <div class="col-xs-5 text-left" style="border-right: 1px solid #f4f4f4">
+                <img src="{{user.getTechImage()}}" alt="user image" class="offline"/>
+                </div>
+                 <div class="col-xs-5 text-right" >
+                    <p>
+                    Telescope Tech: Level {{user.research.telescopeLevel}}
+                    </p>
+                    <p>
+                     Miner Tech: Level {{user.research.minerLevel}}
+                     </p>
+                    <p>
+                     Energy Science Tech: Level {{user.research.EnergyScienceLevel}}
+                     </p>
+                    <p>
+                    Manufacturing Tech: Level {{user.research.manufactureLevel}}
+                    </p>
+                    <p>
+                     BioEngineering Tech: Level {{user.research.lifeScienceLevel}}
+                     </p>
+                    <p>
+                    Propultion Tech: Level {{user.research.propultionTechLevel}}
+                    </p>
+                </div>
+            </div> 
+        </div><!-- /.box-body -->
+    </div><!-- /.box -->
+</div>
+        
