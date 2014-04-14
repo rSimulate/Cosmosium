@@ -84,6 +84,14 @@ class User(object):
         self.telescopes.append(Telescope())
         
     ### MINING ($$$ and metals) ###
+    def getDeltaWealth(self):
+        # returns estimated increase/s for the js client
+        return int(exp(self.research.age)*10)
+        
+    def getDeltaMetals(self):
+        # returns estimated increase/s for the js client
+        return int(exp(self.research.age)*10)
+        
     def getMineImage(self, level=None):
         # returns image file name for given techlevel, else returns for current mine techLevel
         # TODO: check that file exists
@@ -103,7 +111,13 @@ class User(object):
         self.miners.append(Miner())
         
     ### ENERG-IZING (energy) ###
+    def getDeltaEnergy(self):
+        # returns estimated increase/s for the js client
+        return int(exp(self.research.age)*10)
     
     ### COLONIZING (organic/life) ###
+    def getDeltaOrganic(self):
+        # returns estimated increase/s for the js client
+        return int(exp(self.research.age)*10)
     
     
