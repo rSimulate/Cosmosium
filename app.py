@@ -89,15 +89,12 @@ def systemView():
     return template('tpl/systemView',
         asteroidDB=OOI_JSON_FILE,
         ownersDB=OWNERS_JSON_FILE)
-<<<<<<< HEAD
   
 @route('/missionControl')
 def  missionControl():
 		return template('tpl/missionControl.tpl')
   
-=======
 
->>>>>>> b57f92eccd4153d24268120426312a779ff4c485
 @route('/viewTest')
 def systemView():
     return template('tpl/systemView',
