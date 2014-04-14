@@ -19,22 +19,22 @@
                 </div>
                  <div class="col-xs-5 text-right" >
                     <p>
-                    Telescope Tech: {{user.research.telescopeLevel}}
+                    Telescope Tech: Level {{user.research.telescopeLevel}}
                     </p>
                     <p>
-                     Miner Tech: {{user.research.minerLevel}}
+                     Miner Tech: Level {{user.research.minerLevel}}
                      </p>
                     <p>
-                     Energy Science Tech: {{user.research.EnergyScienceLevel}}
+                     Energy Science Tech: Level {{user.research.EnergyScienceLevel}}
                      </p>
                     <p>
-                    Manufacturing Tech: {{user.research.manufactureLevel}}
+                    Manufacturing Tech: Level {{user.research.manufactureLevel}}
                     </p>
                     <p>
-                     BioEngineering Tech: {{user.research.lifeScienceLevel}}
+                     BioEngineering Tech: Level {{user.research.lifeScienceLevel}}
                      </p>
                     <p>
-                    Propultion Tech: {{user.research.propultionTechLevel}}
+                    Propultion Tech: Level {{user.research.propultionTechLevel}}
                     </p>
                 </div>
             </div> 
