@@ -74,8 +74,20 @@ function RSimulate(opts) {
         nextEntityIndex++;
     }
 
-    function addPlanet(orbit, mesh) {
-        addBody( scene, "planet", orbit, mesh, true );
+    function addPlanet(orbit, size, texture) {
+		//Make the Geometry
+		var planetGeometry = new THREE.SphereGeometry( size, 32, 32 );
+        
+		//Old Material
+		//var planetMaterial = new THREE.MeshLambertMaterial( {color: 0x0000ff} );
+		
+		//Add the Texture
+		var planetTexture = THREE.ImageUtils.loadTexture(texture);
+		var planetMaterial = new THREE.MeshLambertMaterial({ map: planetTexture });
+		
+		//Make the Mesh with Object
+		var mesh = new THREE.Mesh(planetGeometry, planetMaterial);
+		addBody( scene, "planet", orbit, mesh, true );
     }
 
     function addAsteroid(orbit, mesh) {
@@ -479,16 +491,17 @@ function RSimulate(opts) {
 
     function initPlanets() {
 
-        var planetGeometry = new THREE.SphereGeometry( PLANET_SIZE, 32, 32 );
-        var planetMaterial = new THREE.MeshLambertMaterial( {color: 0x0000ff} );
-
+        //var planetGeometry = new THREE.SphereGeometry( PLANET_SIZE, 32, 32 );
+        //var planetMaterial = new THREE.MeshLambertMaterial( {color: 0x0000ff} );
+		//var MercuryMaterial = new THREE.MeshLambertMaterial( {color: 0x913CEE} );
+		
         var moonGeometry = new THREE.SphereGeometry( MOON_SIZE, 16, 16 );
         var moonMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc} );
 
         var mercury = new Orbit3D(Ephemeris.mercury,
             {
-              color: 0x913CEE, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-mercury.jpg',
+              color: 0x913CEE, width: 1, jed: jed, object_size: 1.1,
+              texture_path: opts.static_prefix + '/img/mercury_small.jpg',
               display_color: new THREE.Color(0x913CEE),
               particle_geometry: particle_system_geometry,
               name: 'Mercury'
@@ -496,9 +509,9 @@ function RSimulate(opts) {
         if (!using_webgl)
           scene.add(mercury.getParticle());
 
-        var mercuryMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-
-        addPlanet(mercury, mercuryMesh);
+        //var mercuryMesh = new THREE.Mesh(planetGeometry, MercuryMaterial);
+        //addPlanet(mercury, mercuryMesh);
+		addPlanet(mercury, 1, 'img/textures/mercury_small.jpg');
 
 
         var venus = new Orbit3D(Ephemeris.venus,
@@ -510,9 +523,9 @@ function RSimulate(opts) {
               name: 'Venus'
             }, !using_webgl);
 
-        var venusMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-
-        addPlanet(venus, venusMesh);
+        //var venusMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+        //addPlanet(venus, venusMesh);
+		addPlanet(venus, 1, 'img/textures/venus_small.jpg');
 
 
         var earth = new Orbit3D(Ephemeris.earth,
@@ -524,9 +537,9 @@ function RSimulate(opts) {
               name: 'Earth'
             }, !using_webgl);
 
-        var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-
-        addPlanet(earth, earthMesh);
+        //var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+        //addPlanet(earth, earthMesh);
+		addPlanet(earth, 1, 'img/textures/earth_small.jpg');
 
 
         var luna = new Orbit3D(Ephemeris.luna,
@@ -550,10 +563,11 @@ function RSimulate(opts) {
               name: 'Mars'
             }, !using_webgl);
 
-        var marsMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-
-        addPlanet(mars, marsMesh);
-
+        //var marsMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+        //addPlanet(mars, marsMesh);
+		var marsSize = 0.9;
+		//orbit, size, texture
+		addPlanet(mars, 1, 'img/textures/mars_small.jpg');
 
 
         var phobos = new Orbit3D(Ephemeris.phobos,
@@ -591,7 +605,10 @@ function RSimulate(opts) {
               name: 'Jupiter'
             }, !using_webgl);
 
-        var jupiterMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+        //var jupiterMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+		var jupiterSize = 6;
+		//orbit, size, texture
+        addPlanet(jupiter, 5, 'img/textures/jupiter_small.jpg');
 
 
         var io = new Orbit3D(Ephemeris.io,
@@ -638,20 +655,6 @@ function RSimulate(opts) {
         var callistoMesh = new THREE.Mesh(moonGeometry, moonMaterial);
         addMoon(jupiterMesh, callisto, callistoMesh);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-        addPlanet(jupiter, jupiterMesh);
     }
 
     function initCamera() {
