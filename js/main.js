@@ -4,10 +4,24 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
     var jed_delta = 5;  // how many days per second to elapse
     
-    var SUN_SIZE = 6;
+    var SUN_SIZE = EARTH_SIZE * 109;
     var PLANET_SIZE = 1.5;
     var MOON_SIZE = PLANET_SIZE/3.0;
-    var ASTEROID_SIZE = 1;
+    var ASTEROID_SIZE = 0.4;
+	
+	var EARTH_SIZE = 2;
+	var LUNA_SIZE = EARTH_SIZE * 0.28;
+	
+	var MERCURY_SIZE = EARTH_SIZE * 0.3825;
+	var VENUS_SIZE = EARTH_SIZE * 0.95;
+	
+	var MARS_SIZE = EARTH_SIZE * 0.53;
+	var PHOBOS_SIZE = 0.15;
+	var DEIMOS_SIZE = 0.12;
+	
+	var JUPITER_SIZE = EARTH_SIZE * 10;
+	
+	
 
     var particle_system_geometry = null;
     var using_webgl = true;
@@ -85,15 +99,6 @@ function RSimulate(opts) {
 	}
 	
     function addPlanet(orbit, planetmesh) {
-		//Make the Geometry
-		//var planetGeometry = new THREE.SphereGeometry( size, 32, 32 );
-        //Old Material
-		//var planetMaterial = new THREE.MeshLambertMaterial( {color: 0x0000ff} );
-		//Add the Texture
-		//var planetTexture = THREE.ImageUtils.loadTexture(texture);
-		//var planetMaterial = new THREE.MeshLambertMaterial({ map: planetTexture });
-		//Make the Mesh with Object
-		//var planetmesh = new THREE.Mesh(planetGeometry, planetMaterial);
 		addBody( scene, "planet", orbit, planetmesh, true );
     }
 
@@ -490,11 +495,44 @@ function RSimulate(opts) {
         return (Math.random() > 0.5);
     }
 
+	//From http://www.html5rocks.com/en/tutorials/casestudies/100000stars/
+	// 
+	// function addSunFlare(x,y,z, size, overrideImage){
+	  // var flareColor = new THREE.Color( 0xffffff );
+
+	  // lensFlare = new THREE.LensFlare( overrideImage, 700, 0.0, THREE.AdditiveBlending, flareColor );
+
+	  // //	we're going to be using multiple sub-lens-flare artifacts, each with a different size
+	  // lensFlare.add( textureFlare1, 4096, 0.0, THREE.AdditiveBlending );
+	  // lensFlare.add( textureFlare2, 512, 0.0, THREE.AdditiveBlending );
+	  // lensFlare.add( textureFlare2, 512, 0.0, THREE.AdditiveBlending );
+	  // lensFlare.add( textureFlare2, 512, 0.0, THREE.AdditiveBlending );
+
+	  // //	and run each through a function below
+	  // lensFlare.customUpdateCallback = lensFlareUpdateCallback;
+
+	  // lensFlare.position = new THREE.Vector3(x,y,z);
+	  // lensFlare.size = size ? size : 16000 ;
+	  // return lensFlare;
+	// }
+	
     function initSun() {
-        var sphereGeometry = new THREE.SphereGeometry( SUN_SIZE, 32, 32 );
-        var sunMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+        //Create Sun Model
+		var sphereGeometry = new THREE.SphereGeometry( SUN_SIZE, 32, 32 );
+		var sunTexture = THREE.ImageUtils.loadTexture('img/textures/sun_small.jpg');
+        var sunMaterial = new THREE.MeshPhongMaterial( {
+			color: '#FFFFCC',
+			specular: '#FFFF99',
+			emissive: '#FFAD33',
+			map: sunTexture,
+			shininess: 100 
+		});
         var sun = new THREE.Mesh( sphereGeometry, sunMaterial );
-        scene.add(sun);
+		scene.add(sun);
+		
+		//Create SunFlare
+        //var sunflare = lensFlare(0,0,0, SUN_SIZE*1.05, 'img/textures/lensflare0.png');
+		
     }
 
     function initPlanets() {
@@ -519,7 +557,7 @@ function RSimulate(opts) {
 
         //var mercuryMesh = new THREE.Mesh(planetGeometry, MercuryMaterial);
         
-		var mercuryMesh = makeBodyMesh(1, 'img/textures/mercury_small.jpg');
+		var mercuryMesh = makeBodyMesh(MERCURY_SIZE, 'img/textures/mercury_small.jpg');
 		addPlanet(mercury, mercuryMesh);
 
         var venus = new Orbit3D(Ephemeris.venus,
@@ -533,7 +571,7 @@ function RSimulate(opts) {
 
         //var venusMesh = new THREE.Mesh(planetGeometry, planetMaterial);
         
-		var venusMesh = makeBodyMesh(1, 'img/textures/venus_small.jpg');
+		var venusMesh = makeBodyMesh(VENUS_SIZE, 'img/textures/venus_small.jpg');
 		addPlanet(venus, venusMesh);
 
         var earth = new Orbit3D(Ephemeris.earth,
@@ -546,7 +584,7 @@ function RSimulate(opts) {
             }, !using_webgl);
 
         //var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);    
-		var earthMesh = makeBodyMesh(1, 'img/textures/earth_small.jpg');
+		var earthMesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg');
 		addPlanet(earth, earthMesh);
 
         var luna = new Orbit3D(Ephemeris.luna,
@@ -557,8 +595,8 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Moon'
             }, !using_webgl);
-        var lunaMesh = new THREE.Mesh(moonGeometry, moonMaterial);
-        addMoon(earthMesh, luna, lunaMesh);
+        var lunaMesh = makeBodyMesh(LUNA_SIZE, 'img/textures/moon_small.jpg');
+		addMoon(earthMesh, luna, lunaMesh);
 
 
         var mars = new Orbit3D(Ephemeris.mars,
@@ -574,7 +612,7 @@ function RSimulate(opts) {
         //addPlanet(mars, marsMesh);
 		//var marsSize = 0.9;
 		//orbit, size, texture
-		var marsMesh = makeBodyMesh(1, 'img/textures/mars_small.jpg');
+		var marsMesh = makeBodyMesh(MARS_SIZE, 'img/textures/mars_small.jpg');
 		addPlanet(mars, marsMesh);
 
 
@@ -586,7 +624,7 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Phobos'
             }, !using_webgl);
-        var phobosMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        var phobosMesh = makeBodyMesh(PHOBOS_SIZE, 'img/textures/phobos_tiny.jpg');
         addMoon(marsMesh, phobos, phobosMesh);
 
 
@@ -598,7 +636,7 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Phobos'
             }, !using_webgl);
-        var deimosMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        var deimosMesh = makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg');
         addMoon(marsMesh, deimos, deimosMesh);
 
 
@@ -616,7 +654,7 @@ function RSimulate(opts) {
         //var jupiterMesh = new THREE.Mesh(planetGeometry, planetMaterial);
 		//var jupiterSize = 6;
 		//orbit, size, texture
-        var jupiterMesh = makeBodyMesh(4, 'img/textures/jupiter_small.jpg');
+        var jupiterMesh = makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg');
 		addPlanet(jupiter, jupiterMesh);
 
 
@@ -676,7 +714,7 @@ function RSimulate(opts) {
     }
 
     function initLights() {
-        light = new THREE.PointLight( 0xffffff, 2, 1000);
+        light = new THREE.PointLight( 0xffffff, 2, 10000);
         light.position.set(0,0,0);  // sun
         scene.add(light);
 
