@@ -64,7 +64,7 @@ def assets_static(filename):
 #           Dashboard Route           #
 #=====================================#
 @route("/")
-@view("main")
+#@view("main")
 def hello():
     return template('tpl/main_body',chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
@@ -77,15 +77,14 @@ def hello():
 #=====================================#
 #           Research Pages            #
 #=====================================#
-@route('/research/<section>')
-def researchPage(section):
-    return template('research',chunks=CHUNKS,
+@route('/research')
+def researchPage():
+    return template('tpl/research',chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
         task_count=4,tasks=TASKS,
         user=USER,
-        resources=USER.resources,
-        pageTitle=section+" Research")
+        pageTitle=request.query.section+" Research")
 
 #=====================================#
 #        Asteroid Views Routing       #
