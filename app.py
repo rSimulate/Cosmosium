@@ -21,7 +21,7 @@
 
 # Primary Components
 import os
-from python.bottle import route, run, static_file, template, view, post, request
+from python.bottle import route, run, static_file, template, view, post, request, error
 import sqlite3 as lite
 import sys
 import json
@@ -59,6 +59,19 @@ OWNERS_JSON_FILE = 'db/owners.js'
 @route('/<filename:path>')
 def assets_static(filename):
     return static_file(filename, root='./')
+    
+#=====================================#
+#           Custom 404                #
+#=====================================#
+@error(404)
+def error404(error):
+    return template('tpl/404',chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        resources=USER.resources,
+        pageTitle="LOST IN SPACE")
     
 #=====================================#
 #           Dashboard Route           #
