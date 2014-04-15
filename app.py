@@ -145,8 +145,8 @@ def systemView():
 def sysView():
     OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
     return template('tpl/sysView',
-            asteroidDB=OOI_JSON_FILE,
-            ownersDB=OWNERS_JSON_FILE,
+            asteroidDB='db/test_asteroids.js',
+            ownersDB='db/test_owners.js',
             chunks=CHUNKS,
             messages=MESSAGES,message_count=2,
             note_count=1,notes=NOTES,
