@@ -56,12 +56,13 @@ OWNERS_JSON_FILE = 'db/owners.js'
 #=====================================#
 #            Static Routing           #
 #=====================================#
-
-# Static Routing
 @route('/<filename:path>')
 def assets_static(filename):
     return static_file(filename, root='./')
-
+    
+#=====================================#
+#           Dashboard Route           #
+#=====================================#
 @route("/")
 @view("main")
 def hello():
@@ -73,12 +74,23 @@ def hello():
         resources=USER.resources,
         pageTitle="Main Control Panel")
 
+#=====================================#
+#           Research Pages            #
+#=====================================#
+@route('/research/<section>')
+def researchPage(section):
+    return template('research',chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        resources=USER.resources,
+        pageTitle=section+" Research")
 
 #=====================================#
-#        Asteroid App Routing         #
+#        Asteroid Views Routing       #
 #=====================================#
-
-# set up external python app routings (controllers):
+# external python app routings (controllers):
 import python.getAsteroid
 import python.search
 
@@ -160,11 +172,20 @@ def getOOIs():
 #    return template('tpl/jsAsteroids',json=data)
     return OOI_JSON_FILE
 
+#=====================================#
+#           User Actions              #
+#=====================================#
+# @route('/upgradeTech')
+# def upgradeTech():
+    # type = request.query.type
+    # cost = purchases.getCost(type,user)
+    # if user.affords(purchases.techUpgrade, type):
+        # user.upgrade(purchases.techUpgrade, type)
+        # return #???
 
 #=====================================#
 #         DataBase Management         #
 #=====================================#
-
 # SQLite test
 @route('/data')
 def database():
@@ -179,8 +200,6 @@ def database():
 #=====================================#
 #            OAUTH SECTION            #
 #=====================================#
-
-
 # RAUTH Calls to config.py
 oauth2 = rauth.OAuth2Service
 google = oauth2(
@@ -195,7 +214,6 @@ redirect_uri = '{uri}:{port}/success'.format(
     uri=config.GOOGLE_BASE_URI,
     port=config.PORT
 )
-
 
 # Login Routing
 @route('/login<:re:/?>')
