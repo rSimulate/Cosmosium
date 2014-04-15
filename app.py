@@ -85,6 +85,20 @@ def researchPage():
         task_count=4,tasks=TASKS,
         user=USER,
         pageTitle=request.query.section+" Research")
+        
+        
+#=====================================#
+#           Econ Page Routes          #
+#=====================================#
+@route('/funding')
+def fundingPage():
+    return template('tpl/funding',chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        pageTitle="Funding")
+        
 
 #=====================================#
 #        Asteroid Views Routing       #
