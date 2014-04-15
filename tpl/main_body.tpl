@@ -26,8 +26,20 @@
                     <!-- this row is fixed to the top... -->
                     <div class="row">
                     <!-- User tech summary -->
+                    %include('tpl/tile_overview'
+                    %   ,title='Mining Operations Overview'
+                    %   ,imgsrc=user.getMineImage()
+                    %   ,alt_text='Mining Tech Level '+str(user.research.minerLevel)
+                    %   ,data=[dict(val=user.getMinersCount(0),name='Probes')
+                    %       ,dict(val=user.getMinersCount(1),name='NEO Redirectors')
+                    %       ,dict(val=user.getMinersCount(2),name='Main-Belt Haulers')
+                    %       ,dict(val=user.getMinersCount(3),name='Reprossessing Barges')
+                    %       ,dict(val=user.getMinersCount(4),name='Von Neumann Probes')
+                    %   ]
+                    %)
+
                     %include('tpl/tech_overview_tile') # passed implicitly: user 
-                    %include('tpl/mining_overview_tile') # passed implicitly: user 
+                    
                     </div?
                 </section>
                     

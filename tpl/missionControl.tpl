@@ -37,6 +37,11 @@
                     <div class="row">
                         <!-- Left col -->
                       
+					  
+					  <script src="jquery.js"></script>
+					  <script src="jquery-jvectormap-1.0.min.js"></script>
+					  <script src="jquery-jvectormap-world-mill-en.js"></script>
+					  
                          
                         </section><!-- /.Left col -->
                         <!-- right col (We are only adding the ID to make the widgets sortable)-->
@@ -51,11 +56,15 @@
                                     <h3 class="box-title">
                                         Launch Sites
                                     </h3>
-                                </div>
-                                <div class="box-body no-padding">
-                                    <div id="world-map" style="height: 300px"></div>
-                                 
-                                        
+                          <div id="world-map" style="height: 400px"></div>
+							  <script>
+								$(function(){
+								  $('#world-map').vectorMap(({map: 'world_mill_en'});
+								   
+								
+								  
+								});
+							  </script>
                                     </div>
 									
 								<div class="box-footer">

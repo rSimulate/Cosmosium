@@ -21,7 +21,7 @@
 
 # Primary Components
 import os
-from python.bottle import route, run, static_file, template, view, post, request
+from python.bottle import route, run, static_file, template, view, post, request, error
 import sqlite3 as lite
 import sys
 import json
@@ -56,14 +56,28 @@ OWNERS_JSON_FILE = 'db/owners.js'
 #=====================================#
 #            Static Routing           #
 #=====================================#
-
-# Static Routing
 @route('/<filename:path>')
 def assets_static(filename):
     return static_file(filename, root='./')
-
+    
+#=====================================#
+#           Custom 404                #
+#=====================================#
+@error(404)
+def error404(error):
+    return template('tpl/404',chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        resources=USER.resources,
+        pageTitle="LOST IN SPACE")
+    
+#=====================================#
+#           Dashboard Route           #
+#=====================================#
 @route("/")
-@view("main")
+#@view("main")
 def hello():
     return template('tpl/main_body',chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
@@ -73,12 +87,36 @@ def hello():
         resources=USER.resources,
         pageTitle="Main Control Panel")
 
+#=====================================#
+#           Research Pages            #
+#=====================================#
+@route('/research')
+def researchPage():
+    return template('tpl/research',chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        pageTitle=request.query.section+" Research")
+        
+        
+#=====================================#
+#           Econ Page Routes          #
+#=====================================#
+@route('/funding')
+def fundingPage():
+    return template('tpl/funding',chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        pageTitle="Funding")
+        
 
 #=====================================#
-#        Asteroid App Routing         #
+#        Asteroid Views Routing       #
 #=====================================#
-
-# set up external python app routings (controllers):
+# external python app routings (controllers):
 import python.getAsteroid
 import python.search
 
@@ -120,8 +158,8 @@ def systemView():
 def sysView():
     OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
     return template('tpl/sysView',
-            asteroidDB=OOI_JSON_FILE,
-            ownersDB=OWNERS_JSON_FILE,
+            asteroidDB='db/test_asteroids.js',
+            ownersDB='db/test_owners.js',
             chunks=CHUNKS,
             messages=MESSAGES,message_count=2,
             note_count=1,notes=NOTES,
@@ -160,11 +198,20 @@ def getOOIs():
 #    return template('tpl/jsAsteroids',json=data)
     return OOI_JSON_FILE
 
+#=====================================#
+#           User Actions              #
+#=====================================#
+# @route('/upgradeTech')
+# def upgradeTech():
+    # type = request.query.type
+    # cost = purchases.getCost(type,user)
+    # if user.affords(purchases.techUpgrade, type):
+        # user.upgrade(purchases.techUpgrade, type)
+        # return #???
 
 #=====================================#
 #         DataBase Management         #
 #=====================================#
-
 # SQLite test
 @route('/data')
 def database():
@@ -179,8 +226,6 @@ def database():
 #=====================================#
 #            OAUTH SECTION            #
 #=====================================#
-
-
 # RAUTH Calls to config.py
 oauth2 = rauth.OAuth2Service
 google = oauth2(
@@ -195,7 +240,6 @@ redirect_uri = '{uri}:{port}/success'.format(
     uri=config.GOOGLE_BASE_URI,
     port=config.PORT
 )
-
 
 # Login Routing
 @route('/login<:re:/?>')
