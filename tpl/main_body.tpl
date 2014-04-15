@@ -30,11 +30,11 @@
                     %   ,title='Mining Operations Overview'
                     %   ,imgsrc=user.getMineImage()
                     %   ,alt_text='Mining Tech Level '+str(user.research.minerLevel)
-                    %   ,data=[dict(val=user.getMinersCount(0),name='Probes')
-                    %       ,dict(val=user.getMinersCount(1),name='NEO Redirectors')
-                    %       ,dict(val=user.getMinersCount(2),name='Main-Belt Haulers')
-                    %       ,dict(val=user.getMinersCount(3),name='Reprossessing Barges')
-                    %       ,dict(val=user.getMinersCount(4),name='Von Neumann Probes')
+                    %   ,data=[dict(val=user.getMinersCount(0),name='Probe')
+                    %       ,dict(val=user.getMinersCount(1),name='NEO Redirector')
+                    %       ,dict(val=user.getMinersCount(2),name='Main-Belt Hauler')
+                    %       ,dict(val=user.getMinersCount(3),name='Reprossessing Barge')
+                    %       ,dict(val=user.getMinersCount(4),name='Von Neumann Probe')
                     %   ]
                     %)
 
