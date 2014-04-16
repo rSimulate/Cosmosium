@@ -10,6 +10,11 @@
 
 <!DOCTYPE html>
 <html>
+<!-- use the webGL scene as bg -->
+<div style="position: absolute; left: 0px; top: 0px background-color: green;">
+    % include('tpl/webGL_scene',asteroidDB='db/test_asteroids.js')
+</div>
+
     <body class="skin-black">
             % include('tpl/head') # implicitly passed: pageTitle
 			
@@ -123,7 +128,7 @@
                             </div>
                         </div><!-- ./col -->
                     </div><!-- /.row -->
-
+                    
                     <!-- top row -->
                     <div class="row">
                         <div class="col-xs-12 connectedSortable">
