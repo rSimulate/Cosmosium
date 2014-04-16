@@ -46,61 +46,32 @@
                         </section><!-- /.Left col -->
                         <!-- right col (We are only adding the ID to make the widgets sortable)-->
                         <section class="col-lg">
+                        
                             <!-- Map box -->
                             <div class="box box-primary">
                                 <div class="box-header">
-                                   
-                                    
-
-                                    <i class="fa fa-map-marker"></i>
-                                    <h3 class="box-title">
-                                        Launch Sites
-                                    </h3>
-                          <div id="world-map" style="height: 400px"></div>
-							  <script>
-								$(function(){
-								  $('#world-map').vectorMap(({map: 'world_mill_en'});
-								   
-								
-								  
-								});
-							  </script>
-                                    </div>
-									
-								<div class="box-footer">
-                                  <div class="form-group">
-                                            <label>Payloads</label>
-                                            <select class="form-control">
-                                                <option>NEO Detector Satellite</option>
-                                                <option>option 2</option>
-                                                <option>option 3</option>
-                                                <option>option 4</option>
-                                                <option>option 5</option>
-                                            </select>
-                                        </div>
-										
-										<div class="form-group">
-                                            <label>LaunchVehicles</label>
-                                            <select class="form-control">
-                                                <option>ULA Delta II</option>
-                                                <option>SpaceX Falcon Heavy</option>
-                                                <option>Soyuz </option>
-                                                <option>ESA Ariane 5</option>
-                                                <option>JAXA Epsilon</option>
-                                            </select>
-                                        </div>
-										<center> <button class="btn btn-primary btn-lg">Launch!</button> </center>
+                        
+                                    % include('tpl/tile_mapView')
                                 </div>
-									
-									
-                                </div><!-- /.box-body-->
-
-                            </div>
-                            <!-- /.box -->
+                                <div class="box-footer">
+                                    
+                                    <div class="form-group">
+                                        <br>
+                                        <label>Build Observatory</label>
+                                        <select class="form-control">
+                                            <option>NEO Detecting Radar Station</option>
+                                            <option>Global Automated Telescope Array</option>
+                                            <option>Unmanned Moonar Observatory</option>
+                                        </select>
+                                    </div>
+                                    <center> <button class="btn btn-primary btn-lg">
+                                        Begin Construction
+                                    </button> </center>
+                                </div>	
+                            </div><!-- /.box-body-->
+                        </div><!-- /.box -->
 
                            
-                            </div><!-- /.box -->
-
                         </section><!-- right col -->
                     </div><!-- /.row (main row) -->
 

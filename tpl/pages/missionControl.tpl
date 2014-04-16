@@ -46,61 +46,54 @@
                         </section><!-- /.Left col -->
                         <!-- right col (We are only adding the ID to make the widgets sortable)-->
                         <section class="col-lg">
+                        
                             <!-- Map box -->
                             <div class="box box-primary">
-                                <div class="box-header">
-                                   
+                                
                                     
+                                <label>Available Missions</label>
+                                    <div class="form-group">
+                                    
+                                    
+                                    
+                                        <label>Near Earth Asteroid Rendezvous (NEAR)</label>
+                                        <text>
+                                            <p>
+                                            Primary Objective: Return data on the bulk properties, composition, mineralogy, morphology, internal mass distribution and magnetic field of an S-type NEO. 
+                                            </p> <p>
+                                            Secondary objectives: Study regolith properties, interactions with the solar wind, possible current activity as indicated by dust or gas, and the asteroid spin state. This data will be used to help understand the characteristics of asteroids in general, their relationship to meteorites and comets, and the conditions in the early solar system. To accomplish these goals, the spacecraft must be equipped with an X-ray/gamma ray spectrometer, a near-infrared imaging spectrograph, a multi-spectral camera fitted with a CCD imaging detector, a laser rangefinder, and a magnetometer. Additionally, a radio science experiment can also be performed using the NEAR tracking system to estimate the gravity field of the asteroid. 
+                                            </p>
+                                        </text>
+                                        <center> <button class="btn btn-primary btn-lg">
+                                            Accept Mission
+                                        </button> </center>
+                                    
+                                    
+                                    
+                                        <label>NEO Asteroid Redirect</label>
+                                        <text>
+                                            Send an uncrewed robotic mission to "retrieve" a near-Earth asteroid. The asteroid will be moved into a high lunar orbit or orbit around EML2 (halo orbit, Lissajous orbit) for research and exploration purposes. One of the advantages of a lunar orbit compared with an Earth orbit would be the safety: even at the end of the mission the natural perturbations of the trajectory would cause an eventual impact on the Moon, not on Earth. An Efficient means of solar-electric propulsion (such as solar sails or Hall Effect Ion Drive engines) will be needed. The asteroid can be grabbed physically to "directly" move it, or a gravity tractor approach can be used.
+                                        </text>
 
-                                    <i class="fa fa-map-marker"></i>
-                                    <h3 class="box-title">
-                                        Launch Sites
-                                    </h3>
-                          <div id="world-map" style="height: 400px"></div>
-							  <script>
-								$(function(){
-								  $('#world-map').vectorMap(({map: 'world_mill_en'});
-								   
-								
-								  
-								});
-							  </script>
+                                        <center> <button class="btn btn-primary btn-lg">
+                                            Accept Mission
+                                        </button> </center>
+                                        
+                                        <label>Rendezvous with Captured NEO</label>
+                                        <text>
+                                            Once an asteroid is in the desired orbit, at least one crewed mission must rendezvous with it to collect and return samples. 
+                                        </text>
+
+                                        <center> <button class="btn btn-primary btn-lg">
+                                            Accept Mission
+                                        </button> </center>
                                     </div>
-									
-								<div class="box-footer">
-                                  <div class="form-group">
-                                            <label>Payloads</label>
-                                            <select class="form-control">
-                                                <option>NEO Detector Satellite</option>
-                                                <option>option 2</option>
-                                                <option>option 3</option>
-                                                <option>option 4</option>
-                                                <option>option 5</option>
-                                            </select>
-                                        </div>
-										
-										<div class="form-group">
-                                            <label>LaunchVehicles</label>
-                                            <select class="form-control">
-                                                <option>ULA Delta II</option>
-                                                <option>SpaceX Falcon Heavy</option>
-                                                <option>Soyuz </option>
-                                                <option>ESA Ariane 5</option>
-                                                <option>JAXA Epsilon</option>
-                                            </select>
-                                        </div>
-										<center> <button class="btn btn-primary btn-lg">Launch!</button> </center>
-                                </div>
-									
-									
-                                </div><!-- /.box-body-->
 
-                            </div>
-                            <!-- /.box -->
+
+                            </div><!-- /.box-body-->
+                        </div><!-- /.box -->
 
                            
-                            </div><!-- /.box -->
-
                         </section><!-- right col -->
                     </div><!-- /.row (main row) -->
 

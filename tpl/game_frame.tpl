@@ -195,9 +195,9 @@
                     </a>
                     <ul class="treeview-menu">
                         <li><a href="/missionControl"><i class="fa fa-angle-double-right"></i> Mission Control</a></li>
-                        <li><a href="pages/UI/icons.html"><i class="fa fa-angle-double-right"></i>
+                        <li><a href="/launchpad"><i class="fa fa-angle-double-right"></i>
                          Launchpad</a></li>
-                        <li><a href="pages/UI/buttons.html"><i class="fa fa-angle-double-right"></i> Observatories</a></li>
+                        <li><a href="/observatories"><i class="fa fa-angle-double-right"></i> Observatories</a></li>
                         <li><a href="pages/UI/timeline.html"><i class="fa fa-angle-double-right"></i> Timeline</a></li>
                     </ul>
                 </li>

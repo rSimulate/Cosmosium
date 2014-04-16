@@ -79,14 +79,50 @@ def error404(error):
 @route("/")
 #@view("main")
 def hello():
-    return template('tpl/main_body',chunks=CHUNKS,
+    return template('tpl/pages/dash',chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
         task_count=4,tasks=TASKS,
         user=USER,
         resources=USER.resources,
         pageTitle="Main Control Panel")
+        
+#=====================================#
+#           Mission  Pages            #
+#=====================================#     
+@route('/missionControl')
+def  missionControl():
+		return template('tpl/pages/missionControl',
+            chunks=CHUNKS,
+            messages=MESSAGES,message_count=2,
+            note_count=1,notes=NOTES,
+            task_count=4,tasks=TASKS,
+            user=USER,
+            pageTitle="Mission Planning & Control Center",
+            resources=USER.resources)
+            
+@route('/launchpad')
+def launchPad():
+    return template('tpl/pages/launchpad',
+        chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        pageTitle="Launch Facilities",
+        resources=USER.resources)
 
+@route('/observatories')
+def launchPad():
+    return template('tpl/pages/observatories',
+        chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        pageTitle="Main Observational Astronomy Facilities",
+        resources=USER.resources)        
+        
 #=====================================#
 #           Research Pages            #
 #=====================================#
@@ -105,7 +141,7 @@ def researchPage():
     else:
         return error404('404')
 
-    return template('tpl/research', tree_src=treeimg,
+    return template('tpl/pages/research', tree_src=treeimg,
         chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
@@ -147,17 +183,6 @@ def systemView():
         ownersDB='db/test_owners.js',
         pageTitle="ViewTest"
         )
-  
-@route('/missionControl')
-def  missionControl():
-		return template('tpl/missionControl.tpl',
-            chunks=CHUNKS,
-            messages=MESSAGES,message_count=2,
-            note_count=1,notes=NOTES,
-            task_count=4,tasks=TASKS,
-            user=USER,
-            pageTitle="Solar System",
-            resources=USER.resources)
   
 
 @route('/viewTest')
