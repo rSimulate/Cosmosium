@@ -92,12 +92,26 @@ def hello():
 #=====================================#
 @route('/research')
 def researchPage():
-    return template('tpl/research',chunks=CHUNKS,
+    subDir = request.query.section
+    if subDir=='Space Industry':
+        treeimg="img/space_industry_tech_tree_images.svg";
+        
+    elif subDir=='Human Habitation':
+        treeimg="img/space_industry_tech_tree.svg";
+        
+    elif subDir=='Robotics and AI':
+        treeimg="img/space_industry_tech_tree_images.svg";
+        
+    else:
+        return error404('404')
+
+    return template('tpl/research', tree_src=treeimg,
+        chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
         task_count=4,tasks=TASKS,
         user=USER,
-        pageTitle=request.query.section+" Research")
+        pageTitle=subDir+" Research")
         
         
 #=====================================#
