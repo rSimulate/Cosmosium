@@ -178,6 +178,7 @@ img {
 .bg-maroon,
 .bg-black {
   color: #f9f9f9 !important;
+  opacity: 0.8;
 }
 .bg-gray {
   background-color: #eaeaec !important;
@@ -428,7 +429,10 @@ body > .header .logo .icon {
   background: transparent;
   margin-top: 0px;
   margin-bottom: 0;
-  font-size: 12px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0px 0px 7px #0000ff;
   padding: 7px 5px;
   position: absolute;
   top: 15px;
