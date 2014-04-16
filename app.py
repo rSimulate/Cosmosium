@@ -86,7 +86,43 @@ def hello():
         user=USER,
         resources=USER.resources,
         pageTitle="Main Control Panel")
+        
+#=====================================#
+#           Mission  Pages            #
+#=====================================#     
+@route('/missionControl')
+def  missionControl():
+		return template('tpl/pages/missionControl',
+            chunks=CHUNKS,
+            messages=MESSAGES,message_count=2,
+            note_count=1,notes=NOTES,
+            task_count=4,tasks=TASKS,
+            user=USER,
+            pageTitle="Mission Planning & Control Center",
+            resources=USER.resources)
+            
+@route('/launchpad')
+def launchPad():
+    return template('tpl/pages/launchpad',
+        chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        pageTitle="Launch Facilities",
+        resources=USER.resources)
 
+@route('/observatories')
+def launchPad():
+    return template('tpl/pages/observatories',
+        chunks=CHUNKS,
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        pageTitle="Main Observational Astronomy Facilities",
+        resources=USER.resources)        
+        
 #=====================================#
 #           Research Pages            #
 #=====================================#
@@ -147,17 +183,6 @@ def systemView():
         ownersDB='db/test_owners.js',
         pageTitle="ViewTest"
         )
-  
-@route('/missionControl')
-def  missionControl():
-		return template('tpl/missionControl.tpl',
-            chunks=CHUNKS,
-            messages=MESSAGES,message_count=2,
-            note_count=1,notes=NOTES,
-            task_count=4,tasks=TASKS,
-            user=USER,
-            pageTitle="Solar System",
-            resources=USER.resources)
   
 
 @route('/viewTest')
