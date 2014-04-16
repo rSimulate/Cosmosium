@@ -26,15 +26,22 @@
                     <!-- this row is fixed to the top... -->
                     <div class="row">
                     <!-- User tech summary -->
+                    %include('tpl/tile_overview'
+                    %   ,title='Mining Operations Overview'
+                    %   ,imgsrc=user.getMineImage()
+                    %   ,alt_text='Mining Tech Level '+str(user.research.minerLevel)
+                    %   ,data=[dict(val=user.getMinersCount(0),name='Probe')
+                    %       ,dict(val=user.getMinersCount(1),name='NEO Redirector')
+                    %       ,dict(val=user.getMinersCount(2),name='Main-Belt Hauler')
+                    %       ,dict(val=user.getMinersCount(3),name='Reprossessing Barge')
+                    %       ,dict(val=user.getMinersCount(4),name='Von Neumann Probe')
+                    %   ]
+                    %)
+
+                    %include('tpl/tech_overview_tile') # passed implicitly: user 
                     
-
-                    %include('tpl/tile_imageText'
-                    %   ,title=pageTitle+' Level '+str(user.research.age)+' - The Age of Observation'
-                    %   ,imgsrc=user.getTechImage()
-                    %   ,alt_text=user.research.age
-                    %   ,text="Mankind has spent ages gazing at the night sky, but only recently have we reached up and touched the heavens. Optical telescopes have been around for centuries, but advances in electronics and information systems now allow us to observe the sky like never before. Space-based equipment like the Hubble and James Webb telescopes allow us to see from above the soupy atmosphere, rather through it.")
-
-                    </div>
+                    </div?
+                </section>
                     
                     <!-- Small boxes (Stat box) -->
                     <div class="row">
@@ -116,19 +123,14 @@
                             </div>
                         </div><!-- ./col -->
                     </div><!-- /.row -->
-                    
+
                     <!-- top row -->
                     <div class="row">
                         <div class="col-xs-12 connectedSortable">
                             
                         </div><!-- /.col -->
-                    </div><!-- /.row -->
-                    
-                    
-                    
-                    <iframe src="{{tree_src}}"  style="float:center">
-                    
-                    
+                    </div>
+                    <!-- /.row -->
 
                     <!-- Main row -->
                     <div class="row">
@@ -150,6 +152,7 @@
 
                 </section><!-- /.content -->
             </aside><!-- /.right-side -->
+        </div><!-- ./wrapper -->
 
 
         <!-- jQuery 2.0.2 -->

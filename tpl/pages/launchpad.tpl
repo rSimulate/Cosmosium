@@ -33,9 +33,6 @@
                     </div>
                     <!-- /.row -->
 
-                    <center>
-                    <div class="row">
-                        <!-- Left col -->
                       
 					  
 					  <script src="jquery.js"></script>
@@ -43,7 +40,7 @@
 					  <script src="jquery-jvectormap-world-mill-en.js"></script>
 					  
                          
-                        </section><!-- /.Left col -->
+                </section><!-- /.Left col -->
                         <!-- right col (We are only adding the ID to make the widgets sortable)-->
                         <section class="col-lg">
                         
@@ -77,15 +74,12 @@
                                     <center> <button class="btn btn-primary btn-lg">Launch!</button> </center>
                                 </div>	
                             </div><!-- /.box-body-->
-                        </div><!-- /.box -->
 
                            
                         </section><!-- right col -->
                     </div><!-- /.row (main row) -->
-
                 </section><!-- /.content -->
 				
-				</center>
             </aside><!-- /.right-side -->
         </div><!-- ./wrapper -->
 

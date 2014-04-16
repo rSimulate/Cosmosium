@@ -79,7 +79,7 @@ def error404(error):
 @route("/")
 #@view("main")
 def hello():
-    return template('tpl/main_body',chunks=CHUNKS,
+    return template('tpl/pages/dash',chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
         task_count=4,tasks=TASKS,
@@ -141,7 +141,7 @@ def researchPage():
     else:
         return error404('404')
 
-    return template('tpl/research', tree_src=treeimg,
+    return template('tpl/pages/research', tree_src=treeimg,
         chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
