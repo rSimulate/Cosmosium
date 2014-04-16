@@ -2,7 +2,7 @@
   "use strict";
 
   var pi = Math.PI;
-  var PIXELS_PER_AU = 50;
+  var PIXELS_PER_AU = 250;
   var USE_REAL_ELLIPSE = true;
 
   var attributes

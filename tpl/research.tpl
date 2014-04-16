@@ -34,10 +34,7 @@
                     %   ,alt_text=user.research.age
                     %   ,text="Mankind has spent ages gazing at the night sky, but only recently have we reached up and touched the heavens. Optical telescopes have been around for centuries, but advances in electronics and information systems now allow us to observe the sky like never before. Space-based equipment like the Hubble and James Webb telescopes allow us to see from above the soupy atmosphere, rather through it.")
 
-                    
-                    
-                    </div?
-                </section>
+                    </div>
                     
                     <!-- Small boxes (Stat box) -->
                     <div class="row">
@@ -119,14 +116,19 @@
                             </div>
                         </div><!-- ./col -->
                     </div><!-- /.row -->
-
+                    
                     <!-- top row -->
                     <div class="row">
                         <div class="col-xs-12 connectedSortable">
                             
                         </div><!-- /.col -->
-                    </div>
-                    <!-- /.row -->
+                    </div><!-- /.row -->
+                    
+                    
+                    
+                    <iframe src="{{tree_src}}"  style="float:center">
+                    
+                    
 
                     <!-- Main row -->
                     <div class="row">
@@ -148,7 +150,6 @@
 
                 </section><!-- /.content -->
             </aside><!-- /.right-side -->
-        </div><!-- ./wrapper -->
 
 
         <!-- jQuery 2.0.2 -->
