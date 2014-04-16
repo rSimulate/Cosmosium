@@ -4,24 +4,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
     var jed_delta = 5;  // how many days per second to elapse
     
-    var SUN_SIZE = EARTH_SIZE * 109;
-    var PLANET_SIZE = 1.5;
-    var MOON_SIZE = PLANET_SIZE/3.0;
-    var ASTEROID_SIZE = 0.4;
-	
-	var EARTH_SIZE = 2;
-	var LUNA_SIZE = EARTH_SIZE * 0.28;
-	
-	var MERCURY_SIZE = EARTH_SIZE * 0.3825;
-	var VENUS_SIZE = EARTH_SIZE * 0.95;
-	
-	var MARS_SIZE = EARTH_SIZE * 0.53;
-	var PHOBOS_SIZE = 0.15;
-	var DEIMOS_SIZE = 0.12;
-	
-	var JUPITER_SIZE = EARTH_SIZE * 10;
-	
-	
+    // NOTE: relative scale (exaggeration) parameters now in ephemeris.js
 
     var particle_system_geometry = null;
     var using_webgl = true;
@@ -217,6 +200,18 @@ function RSimulate(opts) {
             infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
         }
 
+        // TODO: make this display the owner name...       
+        if (SHOWING_ASTEROID_OWNERSHIP) {
+
+            var ownerName = owners[bodyId]; // asteroid[i] is owned by owner[i]
+            if (ownerName) {
+                var ownerColor = mapFromOwnerNameToColor[ownerName];
+
+                console.log('claimed by "'+ownerName+'", color=('+ownerColor.b+','+ownerColor.g+','+ownerColor.r+')')
+               
+            }  
+        }
+        
         $("#body-info").html(infoHTML);
 
         $("#claim-asteroid-button").attr("href", ":7099/addAsteroid?name=" + bodyName);
@@ -439,6 +434,7 @@ function RSimulate(opts) {
                 uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);                
             }
 
+            // color asteroids based on ownership
             if (SHOWING_ASTEROID_OWNERSHIP) {
 
                 var ownerName = owners[i]; // asteroid[i] is owned by owner[i]
@@ -661,12 +657,12 @@ function RSimulate(opts) {
         var io = new Orbit3D(Ephemeris.io,
             {
               color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
+              texture_path: opts.static_prefix + 'img/textures/moon_small.jpg',
               display_color: new THREE.Color(0x009ACD),
               particle_geometry: particle_system_geometry,
               name: 'Io'
             }, !using_webgl);
-        var ioMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        var ioMesh = makeBodyMesh(IO_SIZE,'img/textures/moon_small.jpg');
         addMoon(jupiterMesh, io, ioMesh);
 
         var europa = new Orbit3D(Ephemeris.europa,
@@ -677,7 +673,7 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Europa'
             }, !using_webgl);
-        var europaMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        var europaMesh = makeBodyMesh(EUROPA_SIZE, 'img/textures/moon_small.jpg');
         addMoon(jupiterMesh, europa, europaMesh);
 
         var ganymede = new Orbit3D(Ephemeris.ganymede,
@@ -688,7 +684,7 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Ganymede'
             }, !using_webgl);
-        var ganymedeMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        var ganymedeMesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg');
         addMoon(jupiterMesh, ganymede, ganymedeMesh);
 
         var callisto = new Orbit3D(Ephemeris.callisto,
@@ -699,7 +695,7 @@ function RSimulate(opts) {
               particle_geometry: particle_system_geometry,
               name: 'Callisto'
             }, !using_webgl);
-        var callistoMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+        var callistoMesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg');
         addMoon(jupiterMesh, callisto, callistoMesh);
 
     }

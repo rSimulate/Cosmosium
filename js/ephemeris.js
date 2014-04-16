@@ -1,4 +1,53 @@
-var MOON_EXAGGERATION = 20;
+// ======= RELATIVE SCALES : ==========
+
+// more realistic view:
+//var SUN_SIZE = EARTH_SIZE * 109;
+// var PLANET_SIZE = 1.5; // more realistic view
+//var ASTEROID_SIZE = 0.4;
+//var MOON_SIZE = PLANET_SIZE/3.0;
+
+
+// scales for adjustment
+var REALNESS    = 0;
+function scale(class_scale,real_scale,ideal_scale){
+    return class_scale*(real_scale*REALNESS + ideal_scale*(1-REALNESS));
+}
+
+var PLANET_SIZE   = scale(.1   ,1    ,250  ); // = earth size in view scene length units
+var EARTH_SIZE    = PLANET_SIZE;
+
+// diameter adjustments by body class:
+var ASTEROID_SIZE = scale(EARTH_SIZE ,.001 ,.5   );
+var MOON_SIZE     = scale(EARTH_SIZE ,1    , 1   );
+var SUN_SIZE      = scale(EARTH_SIZE ,109  ,2    );
+
+// diameter adjustments by specific bodies:
+var MERCURY_SIZE  = scale(EARTH_SIZE ,.383  ,.5   );
+
+var VENUS_SIZE    = scale(EARTH_SIZE ,.95   ,.95  );
+
+var LUNA_SIZE     = scale(EARTH_SIZE ,0.28  ,.28  );
+
+var MARS_SIZE     = scale(EARTH_SIZE ,.53   ,.53  );
+var PHOBOS_SIZE   = scale(MOON_SIZE  ,.15   ,.15  );
+var DEIMOS_SIZE   = scale(MOON_SIZE  ,.12   ,.12  );
+
+var JUPITER_SIZE  = scale(EARTH_SIZE ,11    ,2    );
+var CALLISTO_SIZE = scale(EARTH_SIZE ,.3785,.383  );
+var GANYMEDE_SIZE = scale(EARTH_SIZE ,.4132,.4132 );
+var EUROPA_SIZE   = scale(EARTH_SIZE ,.2451,.2451 );
+var IO_SIZE       = scale(EARTH_SIZE ,.2861,.2861 );
+
+
+// exageration of moonar orbit distances
+var ORBIT_DIST    = scale(EARTH_SIZE ,1     ,.1    );
+// specific moon distance adjustments:
+var EARTH_MOON_EXAGGERATION   = scale(ORBIT_DIST,1,EARTH_SIZE  *1);
+var MARS_MOON_EXAGGERATION    = scale(ORBIT_DIST,1,MARS_SIZE   *15);
+var JUPITER_MOON_EXAGGERATION = scale(ORBIT_DIST,1,JUPITER_SIZE*1);
+
+// ====================================
+
 
 window.Ephemeris = {
   asteroid_2012_da14: {
@@ -89,7 +138,7 @@ window.Ephemeris = {
     full_name: 'Moon',
     ma: 135.27,
     epoch: 2451545.0,
-    a: 0.00256955529 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    a: 0.00256955529 * EARTH_MOON_EXAGGERATION,  // exaggerating distance for visibility
     e: 0.0554,
     i: 5.16,
     w_bar: 83.23,
@@ -102,7 +151,7 @@ window.Ephemeris = {
     full_name: 'Phobos',
     ma: 91.059,
     epoch: 2451545.0,
-    a: 6.26746889e-5 * MOON_EXAGGERATION*15,  // exaggerating distance for visibility
+    a: 6.26746889e-5 * MARS_MOON_EXAGGERATION,  // exaggerating distance for visibility
     e: 0.0151,
     i: 1.075,
     w_bar: 357.841,
@@ -115,7 +164,7 @@ window.Ephemeris = {
     full_name: 'Deimos',
     ma: 325.329,
     epoch: 2451545.0,
-    a: 0.000156807045 * MOON_EXAGGERATION*15,  // exaggerating distance for visibility
+    a: 0.000156807045 * MARS_MOON_EXAGGERATION,  // exaggerating distance for visibility
     e: 0.0002,
     i: 1.788,
     w_bar: 285.254,
@@ -124,15 +173,11 @@ window.Ephemeris = {
     om: 24.525,
     P: 1.2624
   },
-
-
-
-
   ganymede: {
     full_name: 'Ganymede',
     ma: 317.540,
     epoch: 2451545.0,
-    a: 0.00715518206 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    a: 0.00715518206 * JUPITER_MOON_EXAGGERATION,  // exaggerating distance for visibility
     e: 0.0013,
     i: 0.177,
     w_bar: 255.969,
@@ -145,7 +190,7 @@ window.Ephemeris = {
     full_name: 'Io',
     ma: 342.021,
     epoch: 2451545.0,
-    a: 0.00281955885 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    a: 0.00281955885 * JUPITER_MOON_EXAGGERATION,  // exaggerating distance for visibility
     e: 0.0041,
     i: 0.036,
     w_bar: 128.106,
@@ -158,7 +203,7 @@ window.Ephemeris = {
     full_name: 'Europa',
     ma: 171.016,
     epoch: 2451545.0,
-    a: 0.00448602642 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    a: 0.00448602642 * JUPITER_MOON_EXAGGERATION,  // exaggerating distance for visibility
     e: 0.0094,
     i: 0.466,
     w_bar: 308.076,
@@ -171,7 +216,7 @@ window.Ephemeris = {
     full_name: 'Callisto',
     ma: 181.408,
     epoch: 2451545.0,
-    a: 0.0125850722 * MOON_EXAGGERATION,  // exaggerating distance for visibility
+    a: 0.0125850722 * JUPITER_MOON_EXAGGERATION,  // exaggerating distance for visibility
     e: 0.0074,
     i: 0.192,
     w_bar: 351.491,
