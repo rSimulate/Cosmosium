@@ -200,6 +200,18 @@ function RSimulate(opts) {
             infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
         }
 
+        // TODO: make this display the owner name...       
+        if (SHOWING_ASTEROID_OWNERSHIP) {
+
+            var ownerName = owners[bodyId]; // asteroid[i] is owned by owner[i]
+            if (ownerName) {
+                var ownerColor = mapFromOwnerNameToColor[ownerName];
+
+                console.log('claimed by "'+ownerName+'", color=('+ownerColor.b+','+ownerColor.g+','+ownerColor.r+')')
+               
+            }  
+        }
+        
         $("#body-info").html(infoHTML);
 
         $("#claim-asteroid-button").attr("href", ":7099/addAsteroid?name=" + bodyName);
@@ -422,6 +434,7 @@ function RSimulate(opts) {
                 uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);                
             }
 
+            // color asteroids based on ownership
             if (SHOWING_ASTEROID_OWNERSHIP) {
 
                 var ownerName = owners[i]; // asteroid[i] is owned by owner[i]
