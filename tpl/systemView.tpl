@@ -622,6 +622,7 @@
 
         <div id="body-info-container">
             <a id="claim-asteroid-button" href="#">Claim this asteroid</a>
+            <div id="owner-info">Unclaimed</div>
             <div id="body-info">foo</div>
         </div>
 
