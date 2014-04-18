@@ -550,7 +550,6 @@ void main() {
 }
 </script>
 
-<!-- Why Can't we pass globals to sub-template references? This line didn't work.
-% include('tpl/SCENE_components', ownersDB = OWNERS_JSON_FILE, asteroidDB = OOI_JSON_FILE') -->
+% include('tpl/SCENE_components')
 
-% include('tpl/SCENE_components', ownersDB = 'db/owners.js', asteroidDB = 'db/OOIs.js') 
+% include('tpl/SCENE_components') 

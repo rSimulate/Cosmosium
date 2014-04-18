@@ -36,6 +36,7 @@ from python.page_maker.Message import Message
 from python.page_maker.Note import Note
 from python.page_maker.Task import Task
 from python.page_maker.User import User
+from python.page_maker.Settings import Settings
 from python.OOIs import OOIs
 
 
@@ -50,10 +51,7 @@ MESSAGES = [Message(),Message()]
 NOTES = [Note()]
 TASKS = [Task(),Task(),Task(),Task()]
 USER = User()
-OOI_JSON_FILE = 'db/OOIs.js'
-OWNERS_JSON_FILE = 'db/owners.js'
-#ownersDB = ownersDB()
-#asteroidDB = asteroidDB()
+MASTER_CONFIG = 'test' # this is the config keyword for all non-test pages. (see Config.py for more info)
 
 #=====================================#
 #            Static Routing           #
@@ -73,6 +71,7 @@ def error404(error):
         task_count=4,tasks=TASKS,
         user=USER,
         resources=USER.resources,
+        config=Settings(MASTER_CONFIG),
         pageTitle="LOST IN SPACE")
 
 #=====================================#
@@ -87,6 +86,7 @@ def hello():
         task_count=4,tasks=TASKS,
         user=USER,
         resources=USER.resources,
+        config=Settings(MASTER_CONFIG),
         pageTitle="Main Control Panel")
 
 #=====================================#
@@ -95,6 +95,7 @@ def hello():
 @route('/missionControl')
 def  missionControl():
 		return template('tpl/pages/missionControl',
+            config=Settings(MASTER_CONFIG),
             chunks=CHUNKS,
             messages=MESSAGES,message_count=2,
             note_count=1,notes=NOTES,
@@ -106,6 +107,7 @@ def  missionControl():
 @route('/launchpad')
 def launchPad():
     return template('tpl/pages/launchpad',
+        config=Settings(MASTER_CONFIG),
         chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
@@ -117,6 +119,7 @@ def launchPad():
 @route('/observatories')
 def launchPad():
     return template('tpl/pages/observatories',
+        config=Settings(MASTER_CONFIG),
         chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
@@ -144,6 +147,7 @@ def researchPage():
         return error404('404')
 
     return template('tpl/pages/research', tree_src=treeimg,
+        config=Settings(MASTER_CONFIG),
         chunks=CHUNKS,
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
@@ -158,6 +162,7 @@ def researchPage():
 @route('/funding')
 def fundingPage():
     return template('tpl/funding',chunks=CHUNKS,
+        config=Settings(MASTER_CONFIG),
         messages=MESSAGES,message_count=2,
         note_count=1,notes=NOTES,
         task_count=4,tasks=TASKS,
@@ -177,12 +182,9 @@ import python.search
 def systemView():
     # TEMPORARY CHANGE FOR FANCY LOOKS
 #    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
-#    return template('tpl/systemView',
-#        asteroidDB=OOI_JSON_FILE,
-#        ownersDB=OWNERS_JSON_FILE)
+#    return template('tpl/systemView')
     return template('tpl/systemView',
-        asteroidDB='db/test_asteroids.js',
-        ownersDB='db/test_owners.js',
+        config=Settings(MASTER_CONFIG),
         pageTitle="ViewTest"
         )
 
@@ -190,8 +192,7 @@ def systemView():
 @route('/viewTest')
 def systemView():
     return template('tpl/systemView',
-        asteroidDB='db/test_asteroids.js',
-        ownersDB='db/test_owners.js',
+        config=Settings(MASTER_CONFIG),
         pageTitle="ViewTest"
         )
 
@@ -199,8 +200,7 @@ def systemView():
 def sysView():
     OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
     return template('tpl/sysView',
-            asteroidDB='db/test_asteroids.js',
-            ownersDB='db/test_owners.js',
+            config=Settings(MASTER_CONFIG),
             chunks=CHUNKS,
             messages=MESSAGES,message_count=2,
             note_count=1,notes=NOTES,
@@ -215,11 +215,12 @@ def addOOI():
     OOIs.addObject(python.getAsteroid.byName(name))
     print 'object '+name+' added to OOIs'
     return template('tpl/asteroidAdd',objectName=name,chunks=CHUNKS,
-            messages=MESSAGES,message_count=2,
-            note_count=1,notes=NOTES,
-            task_count=4,tasks=TASKS,
-            user=USER,
-            resources=USER.resources)
+        config=Settings(MASTER_CONFIG),
+        messages=MESSAGES,message_count=2,
+        note_count=1,notes=NOTES,
+        task_count=4,tasks=TASKS,
+        user=USER,
+        resources=USER.resources)
 
 
 @route('/getAsteroids')
@@ -237,7 +238,7 @@ def getOOIs():
     # data.decode("string-escape")
     # json=data.replace(r"\"",r")
 #    return template('tpl/jsAsteroids',json=data)
-    return OOI_JSON_FILE
+    return Settings(MASTER_CONFIG).asteroidsDB
 
 #=====================================#
 #           User Actions              #
