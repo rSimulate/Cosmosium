@@ -52,6 +52,8 @@ TASKS = [Task(),Task(),Task(),Task()]
 USER = User()
 OOI_JSON_FILE = 'db/OOIs.js'
 OWNERS_JSON_FILE = 'db/owners.js'
+#ownersDB = ownersDB()
+#asteroidDB = asteroidDB()
 
 #=====================================#
 #            Static Routing           #
@@ -59,7 +61,7 @@ OWNERS_JSON_FILE = 'db/owners.js'
 @route('/<filename:path>')
 def assets_static(filename):
     return static_file(filename, root='./')
-    
+
 #=====================================#
 #           Custom 404                #
 #=====================================#
@@ -72,7 +74,7 @@ def error404(error):
         user=USER,
         resources=USER.resources,
         pageTitle="LOST IN SPACE")
-    
+
 #=====================================#
 #           Dashboard Route           #
 #=====================================#
@@ -86,10 +88,10 @@ def hello():
         user=USER,
         resources=USER.resources,
         pageTitle="Main Control Panel")
-        
+
 #=====================================#
 #           Mission  Pages            #
-#=====================================#     
+#=====================================#
 @route('/missionControl')
 def  missionControl():
 		return template('tpl/pages/missionControl',
@@ -100,7 +102,7 @@ def  missionControl():
             user=USER,
             pageTitle="Mission Planning & Control Center",
             resources=USER.resources)
-            
+
 @route('/launchpad')
 def launchPad():
     return template('tpl/pages/launchpad',
@@ -121,8 +123,8 @@ def launchPad():
         task_count=4,tasks=TASKS,
         user=USER,
         pageTitle="Main Observational Astronomy Facilities",
-        resources=USER.resources)        
-        
+        resources=USER.resources)
+
 #=====================================#
 #           Research Pages            #
 #=====================================#
@@ -131,13 +133,13 @@ def researchPage():
     subDir = request.query.section
     if subDir=='Space Industry':
         treeimg="img/space_industry_tech_tree_images.svg";
-        
+
     elif subDir=='Human Habitation':
         treeimg="img/space_industry_tech_tree.svg";
-        
+
     elif subDir=='Robotics and AI':
         treeimg="img/space_industry_tech_tree_images.svg";
-        
+
     else:
         return error404('404')
 
@@ -148,8 +150,8 @@ def researchPage():
         task_count=4,tasks=TASKS,
         user=USER,
         pageTitle=subDir+" Research")
-        
-        
+
+
 #=====================================#
 #           Econ Page Routes          #
 #=====================================#
@@ -161,7 +163,7 @@ def fundingPage():
         task_count=4,tasks=TASKS,
         user=USER,
         pageTitle="Funding")
-        
+
 
 #=====================================#
 #        Asteroid Views Routing       #
@@ -183,7 +185,7 @@ def systemView():
         ownersDB='db/test_owners.js',
         pageTitle="ViewTest"
         )
-  
+
 
 @route('/viewTest')
 def systemView():
