@@ -45,7 +45,7 @@ from python.OOIs import OOIs
 CHUNKS = chunks()
 OOIs = OOIs()
 USER = User()
-MASTER_CONFIG = 'test' # this is the config keyword for all non-test pages. (see Config.py for more info)
+MASTER_CONFIG = 'default' # this is the config keyword for all non-test pages. (see Config.py for more info)
 
 #=====================================#
 #            Static Routing           #
@@ -149,13 +149,10 @@ import python.search
 # these is here to circumvent global variable issues
 @route('/systemView')
 def systemView():
-    # TEMPORARY CHANGE FOR FANCY LOOKS
-#    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
-#    return template('tpl/systemView')
     return template('tpl/systemView',
         user=USER,
         chunks=CHUNKS,
-        config=Settings(MASTER_CONFIG,showFrame=False,showResources=False,showBG=False),
+        config=Settings('test',showFrame=False,showResources=False,showBG=False),   # this is teporarily set to test so it looks nice.
         pageTitle="ViewTest"
         )
 

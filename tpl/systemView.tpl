@@ -47,6 +47,13 @@
    <body>
 
         % include('tpl/webGL_scene')
+        
+        <!-- html for asteroid detail & claim sidebar -->
+        <div id="body-info-container">
+            <a id="claim-asteroid-button" href="#">Claim this asteroid</a>
+            <div id="owner-info"><b>UNCLAIMED</b></div>
+            <div id="body-info">foo</div>
+        </div>
 
     </body>
 </html>

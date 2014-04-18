@@ -552,10 +552,4 @@ void main() {
 
 <div id="container"></div>
 
-<div id="body-info-container">
-    <a id="claim-asteroid-button" href="#">Claim this asteroid</a>
-    <div id="owner-info"><b>UNCLAIMED</b></div>
-    <div id="body-info">foo</div>
-</div>
-
 % include('tpl/SCENE_components') 
