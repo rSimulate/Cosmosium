@@ -13,7 +13,7 @@
 #             David Gundry            #
 #                                     #
 #=====================================#
-
+__author__ = 'rsimulate'
 
 #=====================================#
 #         Library Imports             #
@@ -25,6 +25,7 @@ from python.bottle import route, run, static_file, template, view, post, request
 import sqlite3 as lite
 import sys
 import json
+import pymongo # import Connection
 
 # OAuth components
 import rauth
@@ -94,7 +95,7 @@ def launchPad():
         chunks=CHUNKS,
         user=USER,
         pageTitle="Launch Facilities")
-        
+
 @route('/observatories')
 def launchPad():
     return template('tpl/pages/observatories',
@@ -102,7 +103,7 @@ def launchPad():
         chunks=CHUNKS,
         user=USER,
         pageTitle="Main Observational Astronomy Facilities")
-        
+
 #=====================================#
 #           Research Pages            #
 #=====================================#
@@ -216,7 +217,7 @@ def getOOIs():
         # return #???
 
 #=====================================#
-#         DataBase Management         #
+#      SQLite for Basic UI Data       #
 #=====================================#
 # SQLite test
 @route('/data')
@@ -227,6 +228,75 @@ def database():
         cur.execute('SELECT SQLITE_VERSION()')
         data = cur.fetchone()
         return "SQLite version: %s" % data
+
+
+#=====================================#
+#     MONGO DB for State Storage      #
+#=====================================#
+
+### Testing Mongo with this Example:
+### https://github.com/mongolab/mongodb-driver-examples/blob/master/python/pymongo_simple_example.py
+
+### DEFAULT Mongo Path & Port
+### MongoDB starting : pid=1160 port=27017 dbpath=/data/db/
+### Change with arguments found here:
+### http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/
+
+SEED_DATA = [
+    {
+        'technology': 'Hydrazine',
+        'tech_type': 'Propulsion',
+        'parts_enabled':'Hydrazine Engine',
+        'research_level': 1,
+        'sci_pts_cost': 10,
+    },
+    {
+        'technology': 'Ionized Propulsion',
+        'tech_type': 'Propulsion',
+        'parts_enabled':'Xenon Thruster',
+        'research_level': 2,
+        'sci_pts_cost': 20,
+    },
+]
+
+### Standard URI format: mongodb://[dbuser:dbpassword@]host:port/dbname
+# db.addUser("spacecaptain", "5P@C3")
+
+MainDB = 'localhost:27020/MainDB'
+MONGODB_URI = 'mongodb://carl:sagan@' + MainDB
+#connection = Connection()
+
+###############################################################################
+# main
+###############################################################################
+
+def main(args):
+
+    client = pymongo.MongoClient(MONGODB_URI)
+    db = client.get_default_database()
+
+    # First we'll add a few songs. Nothing is required to create the songs
+    # collection; it is created automatically when we insert.
+    techtree = db['TechTree']
+
+    # Note that the insert method can take either an array or a single dict.
+    techtree.insert(SEED_DATA)
+    query = {'tech_type': 'Propulsion'}
+    techtree.update(query, {'$set': {'parts_enabled': 'Rocket Engine'}})
+
+    # Running a query
+    techlist = techtree.find({'sci_pts_cost': {'$gte': 10}}).sort('research_level', 1)
+
+    for tech in techlist:
+        print ('You can research %s in the %s category, at research level %s for %d science points.' %
+               (tech['technology'], tech['tech_type'], tech['research_level'], tech['sci_pts_cost']))
+
+
+    ### If you wanted to drop this table
+    #db.drop_collection('TechTree')
+
+    ### Only close the connection when your app is terminating
+    client.close()
 
 
 #=====================================#
@@ -299,3 +369,4 @@ def login_success():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7099))
     run(host='0.0.0.0', port=port)
+    main(sys.argv[1:]) # Invokes Mongo
