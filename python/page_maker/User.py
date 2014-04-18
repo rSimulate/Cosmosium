@@ -1,6 +1,10 @@
 from math import exp
 from time import time
 
+from python.page_maker.Message import Message
+from python.page_maker.Note import Note
+from python.page_maker.Task import Task
+
 class Resources(object):
     def __init__(self):
         self.science= 0 
@@ -40,6 +44,7 @@ class Research(object):
 
 class User(object):
     def __init__(self):
+        ### USER PROFILE DATA ###
         self.name = 'Johannes Kepler'
         self.icon = "img/avatar3.png"
         self.agency = 'NASA'
@@ -53,6 +58,12 @@ class User(object):
         self.thing3_text = "More"
         self.thing3_link = "#"
         
+        self.messages = [Message(),Message()]
+        self.notes = [Note()]
+        self.tasks = [Task(),Task(),Task(),Task()]
+        
+        
+        ### USER GAME LOGIC DATA ###
         self.lastUpdate = int(time())
         
         self.resources = Resources()
@@ -60,6 +71,7 @@ class User(object):
         self.telescopes = list([Telescope(),Telescope()]) #start w/ 2 telescopes
         self.miners    = [Miner()]  #start w/ 1 miner
         
+
     ### RESEARCHING (science) ###
     def getTechImage(self, level=None):
         # returns image file name for given techlevel, else returns for current mine techLevel

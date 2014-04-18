@@ -32,9 +32,6 @@ import config
 
 # Template Components
 from python.page_maker.chunks import chunks # global chunks
-from python.page_maker.Message import Message
-from python.page_maker.Note import Note
-from python.page_maker.Task import Task
 from python.page_maker.User import User
 from python.page_maker.Settings import Settings
 from python.OOIs import OOIs
@@ -47,9 +44,6 @@ from python.OOIs import OOIs
 # Global Variables as Site Chunks
 CHUNKS = chunks()
 OOIs = OOIs()
-MESSAGES = [Message(),Message()]
-NOTES = [Note()]
-TASKS = [Task(),Task(),Task(),Task()]
 USER = User()
 MASTER_CONFIG = 'test' # this is the config keyword for all non-test pages. (see Config.py for more info)
 
@@ -66,11 +60,7 @@ def assets_static(filename):
 @error(404)
 def error404(error):
     return template('tpl/404',chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
         user=USER,
-        resources=USER.resources,
         config=Settings(MASTER_CONFIG),
         pageTitle="LOST IN SPACE")
 
@@ -81,11 +71,7 @@ def error404(error):
 #@view("main")
 def hello():
     return template('tpl/pages/dash',chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
         user=USER,
-        resources=USER.resources,
         config=Settings(MASTER_CONFIG),
         pageTitle="Main Control Panel")
 
@@ -97,9 +83,6 @@ def  missionControl():
 		return template('tpl/pages/missionControl',
             config=Settings(MASTER_CONFIG),
             chunks=CHUNKS,
-            messages=MESSAGES,message_count=2,
-            note_count=1,notes=NOTES,
-            task_count=4,tasks=TASKS,
             user=USER,
             pageTitle="Mission Planning & Control Center",
             resources=USER.resources)
@@ -109,25 +92,17 @@ def launchPad():
     return template('tpl/pages/launchpad',
         config=Settings(MASTER_CONFIG),
         chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
         user=USER,
-        pageTitle="Launch Facilities",
-        resources=USER.resources)
-
+        pageTitle="Launch Facilities")
+        
 @route('/observatories')
 def launchPad():
     return template('tpl/pages/observatories',
         config=Settings(MASTER_CONFIG),
         chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
         user=USER,
-        pageTitle="Main Observational Astronomy Facilities",
-        resources=USER.resources)
-
+        pageTitle="Main Observational Astronomy Facilities")
+        
 #=====================================#
 #           Research Pages            #
 #=====================================#
@@ -149,9 +124,6 @@ def researchPage():
     return template('tpl/pages/research', tree_src=treeimg,
         config=Settings(MASTER_CONFIG),
         chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
         user=USER,
         pageTitle=subDir+" Research")
 
@@ -163,9 +135,6 @@ def researchPage():
 def fundingPage():
     return template('tpl/funding',chunks=CHUNKS,
         config=Settings(MASTER_CONFIG),
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
         user=USER,
         pageTitle="Funding")
 
@@ -184,6 +153,8 @@ def systemView():
 #    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
 #    return template('tpl/systemView')
     return template('tpl/systemView',
+        user=USER,
+        chunks=CHUNKS,
         config=Settings(MASTER_CONFIG),
         pageTitle="ViewTest"
         )
@@ -192,6 +163,8 @@ def systemView():
 @route('/viewTest')
 def systemView():
     return template('tpl/systemView',
+        user=USER,
+        chunks=CHUNKS,
         config=Settings(MASTER_CONFIG),
         pageTitle="ViewTest"
         )
@@ -202,12 +175,8 @@ def sysView():
     return template('tpl/sysView',
             config=Settings(MASTER_CONFIG),
             chunks=CHUNKS,
-            messages=MESSAGES,message_count=2,
-            note_count=1,notes=NOTES,
-            task_count=4,tasks=TASKS,
             user=USER,
-            pageTitle="Solar System",
-            resources=USER.resources)
+            pageTitle="Solar System")
 
 @route('/addAsteroid')
 def addOOI():
@@ -216,12 +185,7 @@ def addOOI():
     print 'object '+name+' added to OOIs'
     return template('tpl/asteroidAdd',objectName=name,chunks=CHUNKS,
         config=Settings(MASTER_CONFIG),
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
-        user=USER,
-        resources=USER.resources)
-
+        user=USER)
 
 @route('/getAsteroids')
 def getOOIs():
