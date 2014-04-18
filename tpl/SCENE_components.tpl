@@ -1,3 +1,4 @@
+
 <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
 
 <script type="text/javascript" src="js/vendor/ces-browser.min.js"></script>
@@ -16,11 +17,3 @@
 <script src="js/ellipse.js"></script>
 <script src="js/ephemeris.js"></script>
 <script src="js/main.js"></script>
-
-<div id="container"></div>
-
-<div id="body-info-container">
-	<a id="claim-asteroid-button" href="#">Claim this asteroid</a>
-    <div id="owner-info"><b>UNCLAIMED</b></div>
-	<div id="body-info">foo</div>
-</div>

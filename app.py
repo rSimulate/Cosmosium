@@ -155,7 +155,7 @@ def systemView():
     return template('tpl/systemView',
         user=USER,
         chunks=CHUNKS,
-        config=Settings(MASTER_CONFIG),
+        config=Settings(MASTER_CONFIG,showFrame=False,showResources=False,showBG=False),
         pageTitle="ViewTest"
         )
 
@@ -183,8 +183,9 @@ def addOOI():
     name = request.query.name
     OOIs.addObject(python.getAsteroid.byName(name))
     print 'object '+name+' added to OOIs'
-    return template('tpl/asteroidAdd',objectName=name,chunks=CHUNKS,
+    return template('tpl/pages/asteroidAdd',objectName=name,chunks=CHUNKS,
         config=Settings(MASTER_CONFIG),
+        pageTitle='Asteroid Add Request Approved',
         user=USER)
 
 @route('/getAsteroids')
