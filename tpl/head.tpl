@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <html>
+
+<!-- use the webGL scene as bg -->
+<div style="position: absolute; left: 0px; top: 0px background-color: green;">
+    % include('tpl/webGL_scene',asteroidDB='db/test_asteroids.js')
+</div>
+
     <head>
         <meta charset="UTF-8">
         <title>Cosmosium | {{pageTitle}}</title>
@@ -31,7 +37,12 @@
         <![endif]-->
     </head>
     <body class="skin-black">
-            <!-- Right side column. Contains the navbar and content of the page -->
-            <aside class="right-side">
-                <!-- Main content -->
-                <section class="content">
+        <!-- navigation bars -->
+        % include('tpl/game_frame') # implicitly passed: chunks,messages,note_count,task_count,user,resources
+    
+        <!-- Right side column. Contains the navbar and content of the page -->
+        <aside class="right-side">
+            <!-- Page Header and Resource Bar -->
+            % include('tpl/resourcebar') # implicitly passed: Chunks.appName, PageTitle
+            <!-- Main content -->
+            <section class="content">
