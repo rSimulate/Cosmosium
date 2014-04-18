@@ -209,7 +209,10 @@ function RSimulate(opts) {
                 console.log('claimed by "'+ownerName+'", color=('+ownerColor.b+','+ownerColor.g+','+ownerColor.r+')')
                 $("#owner-info").html('claimed by <b>"'+ownerName+'"</b>'); 
                 $("#owner-info").attr("color","rgb("+ownerColor.r+','+ownerColor.g+','+ownerColor.b+')')    //NOTE: this doesn't seem to work.
-            }  
+            } else {
+                $("#owner-info").html('<b>UNCLAIMED</b>'); 
+                $("#owner-info").attr("color",'rgb(200,200,200)')    //NOTE: this doesn't seem to work.
+            }
         }
         
         $("#body-info").html(infoHTML);
