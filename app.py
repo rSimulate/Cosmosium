@@ -59,7 +59,7 @@ def assets_static(filename):
 #=====================================#
 @error(404)
 def error404(error):
-    return template('tpl/404',chunks=CHUNKS,
+    return template('tpl/pages/404',chunks=CHUNKS,
         user=USER,
         config=Settings(MASTER_CONFIG),
         pageTitle="LOST IN SPACE")
