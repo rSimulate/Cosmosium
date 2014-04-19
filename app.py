@@ -74,6 +74,7 @@ def error404(error):
 def hello():
     return template('tpl/pages/dash',chunks=CHUNKS,
         user=USER,
+        oois=OOIs,
         config=Settings(MASTER_CONFIG),
         pageTitle="Main Control Panel")
 

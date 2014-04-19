@@ -20,7 +20,8 @@
         %   ,title='Mining Operations Overview'
         %   ,imgsrc=user.getMineImage()
         %   ,alt_text='Mining Tech Level '+str(user.research.minerLevel)
-        %   ,data=[dict(val=user.getMinersCount(0),name='Probe')
+        %   ,data=[dict(val=len(oois),name='Tracked Asteroid')
+        %       ,dict(val=user.getMinersCount(0),name='Probe')
         %       ,dict(val=user.getMinersCount(1),name='NEO Redirector')
         %       ,dict(val=user.getMinersCount(2),name='Main-Belt Hauler')
         %       ,dict(val=user.getMinersCount(3),name='Reprossessing Barge')
