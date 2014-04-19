@@ -176,7 +176,7 @@ class User(object):
     
     def getTimeElapsed(self):
         # returns the number of seconds elapsed since last update
-        print '\n\n',time(),' - ', self.lastUpdate,'\n\n'
+    #    print '\n\n',time(),' - ', self.lastUpdate,'\n\n'
         return time() - self.lastUpdate
     
     def getScience(self):
