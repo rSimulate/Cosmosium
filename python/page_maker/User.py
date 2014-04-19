@@ -4,6 +4,7 @@ from time import time
 from python.page_maker.Message import Message
 from python.page_maker.Note import Note
 from python.page_maker.Task import Task
+from python import purchases
 
 class Resources(object):
     def __init__(self):
@@ -12,6 +13,7 @@ class Resources(object):
         self.energy = 0
         self.metals = 0
         self.organic= 0
+       
         
 class Miner(object):
     def __init__(self):
@@ -67,10 +69,47 @@ class User(object):
         self.lastUpdate = int(time())
         
         self.resources = Resources()
+        
         self.research  = Research()
+        
         self.telescopes = list([Telescope(),Telescope()]) #start w/ 2 telescopes
+        
         self.miners    = [Miner()]  #start w/ 1 miner
         
+        
+        
+    def affords(self,item):
+        # returns true if can afford given item description
+        # itemDesc can be a dict with cost values, or a string descriptor
+        try:
+            return item['science'] < self.getScience()\
+                and item['wealth'] < self.getWealth()\
+                and item['energy'] < self.getEnergy()\
+                and item['metals'] < self.getMetals()\
+                and item['organic']< self.getOrganic()
+        except TypeError: # if not a dict
+            return self.affords(purchases.getCost(item))
+
+                
+    def payFor(self,item):
+        # deducts item cost from resources,
+        # returns true if purchase is sucessful 
+        try:      
+            temp = item['science'] < self.getScience()\
+                and item['wealth'] < self.getWealth()\
+                and item['energy'] < self.getEnergy()\
+                and item['metals'] < self.getMetals()\
+                and item['organic']< self.getOrganic()
+            cost = item
+        except TypeError: # if not a dict
+            cost = purchases.getCost(item)
+            
+        self.resources.science -= cost['science']
+        self.resources.wealth  -= cost['wealth']
+        self.resources.energy  -= cost['energy']
+        self.resources.metals  -= cost['metals']
+        self.resources.organic -= cost['organic']    
+        return True
 
     ### RESEARCHING (science) ###
     def getTechImage(self, level=None):
@@ -160,6 +199,10 @@ class User(object):
         self.update()
         return self.resources.metals         
 
+    def getOrganic(self):
+        # alias for getLife()
+        return self.getLife()
+        
     def getLife(self):
         #returns current amout of life
         self.update()

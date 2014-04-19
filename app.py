@@ -36,6 +36,7 @@ from python.page_maker.chunks import chunks # global chunks
 from python.page_maker.User import User
 from python.page_maker.Settings import Settings
 from python.OOIs import OOIs
+from python import purchases
 
 
 #=====================================#
@@ -176,16 +177,6 @@ def sysView():
             user=USER,
             pageTitle="Solar System")
 
-@route('/addAsteroid')
-def addOOI():
-    name = request.query.name
-    OOIs.addObject(python.getAsteroid.byName(name))
-    print 'object '+name+' added to OOIs'
-    return template('tpl/pages/asteroidAdd',objectName=name,chunks=CHUNKS,
-        config=Settings(MASTER_CONFIG),
-        pageTitle='Asteroid Add Request Approved',
-        user=USER)
-
 @route('/getAsteroids')
 def getOOIs():
     OOIs.write2JSON(OOI_JSON_FILE)
@@ -206,6 +197,31 @@ def getOOIs():
 #=====================================#
 #           User Actions              #
 #=====================================#
+@route('/addAsteroid')
+def addOOI():
+    name = str(request.query.name)
+    print 'request to track '+name
+        
+    if USER.affords('asteroidTrack'):
+        USER.payFor('asteroidTrack')
+        OOIs.addObject(python.getAsteroid.byName(name), 'PLAYER_1')
+        # write the new js file(s)
+        OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
+        print 'object '+name+' added to OOIs'
+        return template('tpl/pages/asteroidAdd',
+            objectName=name,
+            chunks=CHUNKS,
+            config=Settings(MASTER_CONFIG),
+            pageTitle='Asteroid Add Request Approved',
+            user=USER)
+    else:
+        return template('tpl/pages/insufficientFunds',
+            objectName=name,
+            chunks=CHUNKS,
+            config=Settings(MASTER_CONFIG),
+            pageTitle='Asteroid Add Request Denied',
+            user=USER)
+
 # @route('/upgradeTech')
 # def upgradeTech():
     # type = request.query.type

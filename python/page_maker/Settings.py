@@ -1,7 +1,7 @@
 # system settings file for sysadmin and debugger use
 
 class Settings(object):
-    def __init__(self,configName, **kwargs):
+    def __init__(self,configName='default', **kwargs):
         # always start from default setup:
         self.ownersDB    = 'db/owners.js'
         self.asteroidDB = 'db/OOIs.js'

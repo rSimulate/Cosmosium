@@ -28,7 +28,9 @@ class OOIs(object):
                 self.MPOs = pickle.load(f)
         except EOFError:    
             print 'WARN: OOI.pickle is empty! Starting from scratch.'
-    def addObject(self,object):
+    def addObject(self,object,ownerName=None):
+        if ownerName!=None:
+            self.owners.append(ownerName)
         self.MPOs.append(object)
         print 'MPO added.'
         

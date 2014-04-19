@@ -1,1 +1,1 @@
-var owners = []
+var owners = [PLAYER_1];
