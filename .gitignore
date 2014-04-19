@@ -2,8 +2,8 @@
 *cosmos.conf
 
 # the local databases
-*/db/OOIs.js
-*/db/owners.js
+*db/OOIs.js
+*db/owners.js
 
 # pickle OOI save files
 *.pickle
