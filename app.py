@@ -13,7 +13,7 @@
 #             David Gundry            #
 #                                     #
 #=====================================#
-
+__author__ = 'rsimulate'
 
 #=====================================#
 #         Library Imports             #
@@ -25,6 +25,7 @@ from python.bottle import route, run, static_file, template, view, post, request
 import sqlite3 as lite
 import sys
 import json
+import pymongo # import Connection
 
 # OAuth components
 import rauth
@@ -32,11 +33,10 @@ import config
 
 # Template Components
 from python.page_maker.chunks import chunks # global chunks
-from python.page_maker.Message import Message
-from python.page_maker.Note import Note
-from python.page_maker.Task import Task
 from python.page_maker.User import User
+from python.page_maker.Settings import Settings
 from python.OOIs import OOIs
+from python import purchases
 
 
 #=====================================#
@@ -46,12 +46,8 @@ from python.OOIs import OOIs
 # Global Variables as Site Chunks
 CHUNKS = chunks()
 OOIs = OOIs()
-MESSAGES = [Message(),Message()]
-NOTES = [Note()]
-TASKS = [Task(),Task(),Task(),Task()]
 USER = User()
-OOI_JSON_FILE = 'db/OOIs.js'
-OWNERS_JSON_FILE = 'db/owners.js'
+MASTER_CONFIG = 'default' # this is the config keyword for all non-test pages. (see Config.py for more info)
 
 #=====================================#
 #            Static Routing           #
@@ -59,20 +55,17 @@ OWNERS_JSON_FILE = 'db/owners.js'
 @route('/<filename:path>')
 def assets_static(filename):
     return static_file(filename, root='./')
-    
+
 #=====================================#
 #           Custom 404                #
 #=====================================#
 @error(404)
 def error404(error):
-    return template('tpl/404',chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
+    return template('tpl/pages/404',chunks=CHUNKS,
         user=USER,
-        resources=USER.resources,
+        config=Settings(MASTER_CONFIG),
         pageTitle="LOST IN SPACE")
-    
+
 #=====================================#
 #           Dashboard Route           #
 #=====================================#
@@ -80,49 +73,39 @@ def error404(error):
 #@view("main")
 def hello():
     return template('tpl/pages/dash',chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
         user=USER,
-        resources=USER.resources,
+        oois=OOIs,
+        config=Settings(MASTER_CONFIG),
         pageTitle="Main Control Panel")
-        
+
 #=====================================#
 #           Mission  Pages            #
-#=====================================#     
+#=====================================#
 @route('/missionControl')
 def  missionControl():
 		return template('tpl/pages/missionControl',
+            config=Settings(MASTER_CONFIG),
             chunks=CHUNKS,
-            messages=MESSAGES,message_count=2,
-            note_count=1,notes=NOTES,
-            task_count=4,tasks=TASKS,
             user=USER,
             pageTitle="Mission Planning & Control Center",
             resources=USER.resources)
-            
+
 @route('/launchpad')
 def launchPad():
     return template('tpl/pages/launchpad',
+        config=Settings(MASTER_CONFIG),
         chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
         user=USER,
-        pageTitle="Launch Facilities",
-        resources=USER.resources)
+        pageTitle="Launch Facilities")
 
 @route('/observatories')
 def launchPad():
     return template('tpl/pages/observatories',
+        config=Settings(MASTER_CONFIG),
         chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
         user=USER,
-        pageTitle="Main Observational Astronomy Facilities",
-        resources=USER.resources)        
-        
+        pageTitle="Main Observational Astronomy Facilities")
+
 #=====================================#
 #           Research Pages            #
 #=====================================#
@@ -131,37 +114,33 @@ def researchPage():
     subDir = request.query.section
     if subDir=='Space Industry':
         treeimg="img/space_industry_tech_tree_images.svg";
-        
+
     elif subDir=='Human Habitation':
         treeimg="img/space_industry_tech_tree.svg";
-        
+
     elif subDir=='Robotics and AI':
         treeimg="img/space_industry_tech_tree_images.svg";
-        
+
     else:
         return error404('404')
 
     return template('tpl/pages/research', tree_src=treeimg,
+        config=Settings(MASTER_CONFIG),
         chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
         user=USER,
         pageTitle=subDir+" Research")
-        
-        
+
+
 #=====================================#
 #           Econ Page Routes          #
 #=====================================#
 @route('/funding')
 def fundingPage():
     return template('tpl/funding',chunks=CHUNKS,
-        messages=MESSAGES,message_count=2,
-        note_count=1,notes=NOTES,
-        task_count=4,tasks=TASKS,
+        config=Settings(MASTER_CONFIG),
         user=USER,
         pageTitle="Funding")
-        
+
 
 #=====================================#
 #        Asteroid Views Routing       #
@@ -173,23 +152,20 @@ import python.search
 # these is here to circumvent global variable issues
 @route('/systemView')
 def systemView():
-    # TEMPORARY CHANGE FOR FANCY LOOKS
-#    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
-#    return template('tpl/systemView',
-#        asteroidDB=OOI_JSON_FILE,
-#        ownersDB=OWNERS_JSON_FILE)
     return template('tpl/systemView',
-        asteroidDB='db/test_asteroids.js',
-        ownersDB='db/test_owners.js',
+        user=USER,
+        chunks=CHUNKS,
+        config=Settings('test',showFrame=False,showResources=False,showBG=False),   # this is teporarily set to test so it looks nice.
         pageTitle="ViewTest"
         )
-  
+
 
 @route('/viewTest')
 def systemView():
     return template('tpl/systemView',
-        asteroidDB='db/test_asteroids.js',
-        ownersDB='db/test_owners.js',
+        user=USER,
+        chunks=CHUNKS,
+        config=Settings(MASTER_CONFIG),
         pageTitle="ViewTest"
         )
 
@@ -197,28 +173,10 @@ def systemView():
 def sysView():
     OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
     return template('tpl/sysView',
-            asteroidDB='db/test_asteroids.js',
-            ownersDB='db/test_owners.js',
+            config=Settings(MASTER_CONFIG),
             chunks=CHUNKS,
-            messages=MESSAGES,message_count=2,
-            note_count=1,notes=NOTES,
-            task_count=4,tasks=TASKS,
             user=USER,
-            pageTitle="Solar System",
-            resources=USER.resources)
-
-@route('/addAsteroid')
-def addOOI():
-    name = request.query.name
-    OOIs.addObject(python.getAsteroid.byName(name))
-    print 'object '+name+' added to OOIs'
-    return template('tpl/asteroidAdd',objectName=name,chunks=CHUNKS,
-            messages=MESSAGES,message_count=2,
-            note_count=1,notes=NOTES,
-            task_count=4,tasks=TASKS,
-            user=USER,
-            resources=USER.resources)
-
+            pageTitle="Solar System")
 
 @route('/getAsteroids')
 def getOOIs():
@@ -235,11 +193,36 @@ def getOOIs():
     # data.decode("string-escape")
     # json=data.replace(r"\"",r")
 #    return template('tpl/jsAsteroids',json=data)
-    return OOI_JSON_FILE
+    return Settings(MASTER_CONFIG).asteroidsDB
 
 #=====================================#
 #           User Actions              #
 #=====================================#
+@route('/addAsteroid')
+def addOOI():
+    name = str(request.query.name)
+    print 'request to track '+name
+        
+    if USER.affords('asteroidTrack'):
+        USER.payFor('asteroidTrack')
+        OOIs.addObject(python.getAsteroid.byName(name), 'PLAYER_1')
+        # write the new js file(s)
+        OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
+        print 'object '+name+' added to OOIs'
+        return template('tpl/pages/asteroidAdd',
+            objectName=name,
+            chunks=CHUNKS,
+            config=Settings(MASTER_CONFIG),
+            pageTitle='Asteroid Add Request Approved',
+            user=USER)
+    else:
+        return template('tpl/pages/insufficientFunds',
+            objectName=name,
+            chunks=CHUNKS,
+            config=Settings(MASTER_CONFIG),
+            pageTitle='Asteroid Add Request Denied',
+            user=USER)
+
 # @route('/upgradeTech')
 # def upgradeTech():
     # type = request.query.type
@@ -249,7 +232,7 @@ def getOOIs():
         # return #???
 
 #=====================================#
-#         DataBase Management         #
+#      SQLite for Basic UI Data       #
 #=====================================#
 # SQLite test
 @route('/data')
@@ -260,6 +243,75 @@ def database():
         cur.execute('SELECT SQLITE_VERSION()')
         data = cur.fetchone()
         return "SQLite version: %s" % data
+
+
+#=====================================#
+#     MONGO DB for State Storage      #
+#=====================================#
+
+### Testing Mongo with this Example:
+### https://github.com/mongolab/mongodb-driver-examples/blob/master/python/pymongo_simple_example.py
+
+### DEFAULT Mongo Path & Port
+### MongoDB starting : pid=1160 port=27017 dbpath=/data/db/
+### Change with arguments found here:
+### http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/
+
+SEED_DATA = [
+    {
+        'technology': 'Hydrazine',
+        'tech_type': 'Propulsion',
+        'parts_enabled':'Hydrazine Engine',
+        'research_level': 1,
+        'sci_pts_cost': 10,
+    },
+    {
+        'technology': 'Ionized Propulsion',
+        'tech_type': 'Propulsion',
+        'parts_enabled':'Xenon Thruster',
+        'research_level': 2,
+        'sci_pts_cost': 20,
+    },
+]
+
+### Standard URI format: mongodb://[dbuser:dbpassword@]host:port/dbname
+# db.addUser("spacecaptain", "5P@C3")
+
+MainDB = 'localhost:27020/MainDB'
+MONGODB_URI = 'mongodb://carl:sagan@' + MainDB
+#connection = Connection()
+
+###############################################################################
+# main
+###############################################################################
+
+def main(args):
+
+    client = pymongo.MongoClient(MONGODB_URI)
+    db = client.get_default_database()
+
+    # First we'll add a few songs. Nothing is required to create the songs
+    # collection; it is created automatically when we insert.
+    techtree = db['TechTree']
+
+    # Note that the insert method can take either an array or a single dict.
+    techtree.insert(SEED_DATA)
+    query = {'tech_type': 'Propulsion'}
+    techtree.update(query, {'$set': {'parts_enabled': 'Rocket Engine'}})
+
+    # Running a query
+    techlist = techtree.find({'sci_pts_cost': {'$gte': 10}}).sort('research_level', 1)
+
+    for tech in techlist:
+        print ('You can research %s in the %s category, at research level %s for %d science points.' %
+               (tech['technology'], tech['tech_type'], tech['research_level'], tech['sci_pts_cost']))
+
+
+    ### If you wanted to drop this table
+    #db.drop_collection('TechTree')
+
+    ### Only close the connection when your app is terminating
+    client.close()
 
 
 #=====================================#
@@ -332,3 +384,4 @@ def login_success():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 80))
     run(host='0.0.0.0', port=port)
+    main(sys.argv[1:]) # Invokes Mongo

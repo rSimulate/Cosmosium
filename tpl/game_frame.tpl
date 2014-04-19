@@ -22,7 +22,7 @@
                 <li class="dropdown messages-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-envelope"></i>
-                        <span class="label label-success">{{message_count}}</span>
+                        <span class="label label-success">{{len(user.messages)}}</span>
                     </a>
                     <ul class="dropdown-menu">
                         <li class="header">
@@ -31,7 +31,7 @@
                         <li>
                             <!-- inner menu: contains the actual data -->
                             <ul class="menu">
-                                % for message in messages:
+                                % for message in user.messages:
                                 <li><!-- start message -->
                                     <a href={{message.link}}>
                                         <div class="pull-left">
@@ -54,14 +54,14 @@
                 <li class="dropdown notifications-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-warning"></i>
-                        <span class="label label-warning">{{note_count}}</span>
+                        <span class="label label-warning">{{len(user.notes)}}</span>
                     </a>
                     <ul class="dropdown-menu">
                         <li class="header">{{chunks.notes_title}}</li>
                         <li>
                             <!-- inner menu: contains the actual data -->
                             <ul class="menu">
-                                % for note in notes:
+                                % for note in user.notes:
                                 <li>
                                     <a href={{note.link}}>
                                         <i class="fa fa-warning danger"}></i> {{note.text}}
@@ -77,14 +77,14 @@
                 <li class="dropdown tasks-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-tasks"></i>
-                        <span class="label label-danger">{{task_count}}</span>
+                        <span class="label label-danger">{{len(user.tasks)}}</span>
                     </a>
                     <ul class="dropdown-menu">
                         <li class="header">{{chunks.tasks_title}}</li>
                         <li>
                             <!-- inner menu: contains the actual data -->
                             <ul class="menu">
-                            % for task in tasks:
+                            % for task in user.tasks:
                                 <li><!-- Task item -->
                                     <a href="#">
                                         <h3>

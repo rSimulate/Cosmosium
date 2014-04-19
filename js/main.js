@@ -200,16 +200,19 @@ function RSimulate(opts) {
             infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
         }
 
-        // TODO: make this display the owner name...       
+        // make this display the owner name...       
         if (SHOWING_ASTEROID_OWNERSHIP) {
 
             var ownerName = owners[bodyId]; // asteroid[i] is owned by owner[i]
             if (ownerName) {
                 var ownerColor = mapFromOwnerNameToColor[ownerName];
-
                 console.log('claimed by "'+ownerName+'", color=('+ownerColor.b+','+ownerColor.g+','+ownerColor.r+')')
-               
-            }  
+                $("#owner-info").html('claimed by <b>"'+ownerName+'"</b>'); 
+                $("#owner-info").attr("color","rgb("+ownerColor.r+','+ownerColor.g+','+ownerColor.b+')')    //NOTE: this doesn't seem to work.
+            } else {
+                $("#owner-info").html('<b>UNCLAIMED</b>'); 
+                $("#owner-info").attr("color",'rgb(200,200,200)')    //NOTE: this doesn't seem to work.
+            }
         }
         
         $("#body-info").html(infoHTML);

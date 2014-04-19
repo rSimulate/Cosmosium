@@ -12,14 +12,20 @@ class OOIs(object):
             self.readOOIs()
         except IOError:
             print 'WARN: cannot load OOIs'
+        print str(len(self))+' OOIs unpickled.'
             
     def __del__(self):
         self.saveOOIs()
+        
+    def __len__(self):
+        return len(self.MPOs)
         
     def saveOOIs(self):
         print 'saving OOIs...'
         with open(OOI_FILE, 'wb') as f:
             pickle.dump(self.MPOs, f)
+            print str(len(self))+' OOIs pickled.'
+
 
     def readOOIs(self):
         print 'loading OOIs...'
@@ -28,7 +34,9 @@ class OOIs(object):
                 self.MPOs = pickle.load(f)
         except EOFError:    
             print 'WARN: OOI.pickle is empty! Starting from scratch.'
-    def addObject(self,object):
+    def addObject(self,object,ownerName=None):
+        if ownerName!=None:
+            self.owners.append(ownerName)
         self.MPOs.append(object)
         print 'MPO added.'
         
