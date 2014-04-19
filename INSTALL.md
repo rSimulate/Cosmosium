@@ -7,7 +7,7 @@
 
   #### ubuntu ####
   * `sudo apt-get pip` | install pip package manager
-  * `sudo pip install rauth requests` | install python packages rauth and requests 
+  * `sudo pip install rauth requests pymongo` | install python packages rauth and requests 
 3. `sudo python app.py` or `sudo ./startServer.sh` | start up from within the cosmosium directory
   * NOTE: you only need root to bind port 80, if you've got another port in `app.py`, run w/o `sudo`.
 4. open your browser and navigate to `localhost:7099`, or whatever port you have in `app.py`
