@@ -217,7 +217,7 @@ function RSimulate(opts) {
         
         $("#body-info").html(infoHTML);
 
-        $("#claim-asteroid-button").attr("href", ":7099/addAsteroid?name=" + bodyName);
+        $("#claim-asteroid-button").attr("href", "/addAsteroid?name=" + bodyName);
 
         $("#body-info-container").show();
 
