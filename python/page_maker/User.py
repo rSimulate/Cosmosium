@@ -1,47 +1,14 @@
 from math import exp
 from time import time
 
+from python.Research import Research
+from python.Telescope import Telescope
+from python.Miner import Miner
+from python.page_maker.Resources import Resources
 from python.page_maker.Message import Message
 from python.page_maker.Note import Note
 from python.page_maker.Task import Task
 from python import purchases
-
-class Resources(object):
-    def __init__(self):
-        self.science= 0 
-        self.wealth = 0
-        self.energy = 0
-        self.metals = 0
-        self.organic= 0
-       
-        
-class Miner(object):
-    def __init__(self):
-        self.techLevel=0
-        self.busy=False
-        self.ttc=0 #time to completion
-        
-        
-class Telescope(object):
-    def __init__(self):
-        self.techLevel=0
-        self.busy=False
-        self.ttc=0 #time to completion
-        
-class Research(object):
-    def __init__(self):
-        # "age"??? overall summary of state of science... "internet age", "space age"... idk...
-        self.age=0
-        
-        # for modulating task values
-        self.telescopeLevel=0
-        self.minerLevel=0
-        
-        # coeffs
-        self.EnergyScienceLevel=0   # energy output
-        self.manufactureLevel=0     # build efficiency
-        self.lifeScienceLevel=0     # life growth
-        self.propultionTechLevel=0  # fuel use & generation abilities
 
 
 class User(object):
