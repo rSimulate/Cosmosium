@@ -77,6 +77,14 @@ def error404(error):
 @route("/")
 def makeSplash():
     return template('tpl/pages/splash', gameList=GAMES)
+    
+#=====================================#
+#           js                        #
+#=====================================#
+@route("/resourceUpdate.js")
+def makeResourceUpdater():
+    return template('tpl/js/resourceUpdate', user=USER)
+
         
 #=====================================#
 #           Dashboard Route           #
