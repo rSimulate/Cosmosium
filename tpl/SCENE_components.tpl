@@ -5,8 +5,12 @@
 
 <script src="js/vendor/three.min.js"></script>
 
-<script src="js/vendor/OrbitControls.js"></script>
-
+% if config.controlBG:
+    <script src="js/vendor/OrbitControls.js"></script>
+% else:
+    <script src="js/vendor/page_bg_controls.js"></script>
+% end
+    
 <script src="js/vendor/Detector.js"></script>
 <script src="js/vendor/stats.min.js"></script>
 
