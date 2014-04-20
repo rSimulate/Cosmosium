@@ -72,11 +72,18 @@ def error404(error):
         pageTitle="LOST IN SPACE")
 
 #=====================================#
-#           Dashboard Route           #
+#           Splash Page               #
 #=====================================#
 @route("/")
+def makeSplash():
+    return template('tpl/pages/splash', gameList=GAMES)
+        
+#=====================================#
+#           Dashboard Route           #
+#=====================================#
+@route("/dash")
 #@view("main")
-def hello():
+def makeDash():
     if checkQuery(request):
         return template('tpl/pages/dash',chunks=CHUNKS,
             user=getUser(request,GAMES),
