@@ -31,7 +31,7 @@
         <div class="small-box bg-aqua">
             <div class="inner">
                 <h3>
-                    +{{user.getDeltaWealth()}}
+                    +{{user.resources.getDeltaWealth(user)}}
                 </h3>
                 <p>
                     Economy Growth
@@ -50,7 +50,7 @@
         <div class="small-box bg-yellow">
             <div class="inner">
                 <h3>
-                    +{{user.getDeltaScience()}}
+                    +{{user.resources.getDeltaScience(user)}}
                 </h3>
                 <p>
                     &#916; Science
@@ -69,7 +69,7 @@
         <div class="small-box bg-green">
             <div class="inner">
                 <h3>
-                    +{{user.getDeltaOrganic()}}
+                    +{{user.resources.getDeltaOrganic(user)}}
                 </h3>
                 <p>
                     Population Increase
@@ -88,7 +88,7 @@
         <div class="small-box bg-red">
             <div class="inner">
                 <h3>
-                    +{{user.getDeltaEnergy()}}
+                    +{{user.resources.getDeltaEnergy(user)}}
                 </h3>
                 </h3>
                 <p>
@@ -108,15 +108,9 @@
 <!-- top row -->
 <div class="row">
     <div class="col-xs-12 connectedSortable">
-        
+        <iframe src="{{tree_src}}"  style="float:center">Your browser does't support SVG? =(</iframe>
     </div><!-- /.col -->
 </div><!-- /.row -->
-
-
-
-<iframe src="{{tree_src}}"  style="float:center">Your browser does't support SVG? =(</iframe>
-
-
 
 <!-- Main row -->
 <div class="row">
