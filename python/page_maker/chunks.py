@@ -1,5 +1,7 @@
 # this file defines static values to be used in templates
 
+from python.bg_music import bg_music
+
 class chunks(object):
     def __init__(self):
 
@@ -28,3 +30,4 @@ class chunks(object):
         self.button2_text = 'Solar System'
         self.button2_num  = 1
         
+        self.bg_music = bg_music()

@@ -9,7 +9,6 @@ from python.page_maker.Note import Note
 from python.page_maker.Task import Task
 from python.game_logic import purchases
 
-
 class User(object):
     def __init__(self):
         ### USER PROFILE DATA ###

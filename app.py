@@ -38,7 +38,6 @@ from python.page_maker.Settings import Settings
 from python.OOIs import OOIs
 from python.game_logic import purchases
 
-
 #=====================================#
 #         Page Templating             #
 #=====================================#

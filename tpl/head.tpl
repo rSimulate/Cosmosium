@@ -40,6 +40,13 @@
               <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
             <![endif]-->
         % end
+        
+        % if config.music:
+            % chunks.bg_music.loadRand()
+            <audio id="background_audio" autoplay="autoplay">
+              <source src="{{chunks.bg_music.link}}" />
+            </audio> 
+        % end
 
     </head>
     <body class="skin-black">

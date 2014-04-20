@@ -9,6 +9,7 @@ class Settings(object):
         self.showBG    = True
         self.showResources = True
         self.controlBG = False
+        self.music = True
     
         # use general config setup key to specify settings preset:
         if configName == "default":
