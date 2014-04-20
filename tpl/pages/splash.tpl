@@ -55,7 +55,7 @@
               -->
         </section>
         <section>
-         <h2> Play a Demo Game Now: </h2>
+         <h2> Play in a Demo Game Now: </h2>
             Choose your player name:
             <ul>
                 <li><a href="/dash?player=Edwin_Hubble&gameID=0" class="text-center">Edwin Hubble</a>

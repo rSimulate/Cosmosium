@@ -13,7 +13,7 @@ def getProfile(userName):
     #  else returns false
     # NOTE: this should later be replaced with a database lookup
     if userName == 'Johannes_Kepler':
-        return createUser('Johannes_Kepler','/img/profiles/kepler.png','17th century Germany', 'Exploring the Mysterium Cosmographicum')
+        return createUser('Johannes_Kepler','/img/profiles/kepler.jpg','17th century Germany', 'Exploring the Mysterium Cosmographicum')
     elif userName =='Edwin_Hubble':
         return createUser('Edwin_Hubble','/img/profiles/hubble.png','Mount Wilson Observatory','Equipped with his five senses, man explores the universe around him and calls the adventure Science')
     else :
