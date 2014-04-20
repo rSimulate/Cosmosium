@@ -2,6 +2,7 @@
     <!-- js for updating the text-->
     <script type="text/javascript" onload="setInterval(updateAll,1000)">
         function updateAll(){
+            console.log('updating resource values');
             uScience();
             uWealth();
             uEnergy();
@@ -29,7 +30,6 @@
             document.getElementById('organic').innerHTML = 
                 parseInt(document.getElementById('organic').innerHTML) + {{user.resources.getDeltaOrganic(user)}};
         }
-            
     </script>
 
 	<h1>

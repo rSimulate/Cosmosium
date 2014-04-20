@@ -49,7 +49,7 @@ from python.game_logic.GameList import GameList
 CHUNKS = chunks()
 GAMES = GameList()
 OOIs = OOIs() #TODO: this is in the Game() object now... which is now in GameList()
-USER = User()
+USER = User() #TODO: this should now be replaced with getUser()
 MASTER_CONFIG = 'default' # this is the config keyword for all non-test pages. (see Config.py for more info)
 # initial write of JSON files:
 OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)

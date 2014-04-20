@@ -32,12 +32,9 @@ def getUser(req,gameList):
             return use
         else:
             raise ValueError('gameID '+str(currentGame)+' contains no user '+uName)
-
-    # check for user already in a game
-    user = gameList.inGame(uName)
-    if user:
-        return user
+            
     else: # user not in game, must create new and add to game
+        print 'Adding new user "'+uName+'" to game '+str(currentGame)
         user = getProfile(uName) # retrieve & build profile
         gameList.findOpenSlot(user) # add user to a game
         return user
