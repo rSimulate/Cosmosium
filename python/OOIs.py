@@ -34,6 +34,7 @@ class OOIs(object):
                 self = pickle.load(f)
         except EOFError:    
             print 'WARN: OOI.pickle is empty! Starting from scratch.'
+            
     def addObject(self,object,ownerName=None):
         if ownerName!=None:
             self.owners.append(ownerName)

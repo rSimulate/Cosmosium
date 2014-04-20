@@ -1,20 +1,20 @@
 % include('tpl/head')
 
         % tex = "To track an asteroid you need: "
-        % if user.getScience() < 100:
-        %   tex+=str(100-user.getScience())+'science, '
+        % if user.resources.getScience(user) < 100:
+        %   tex+=str(100-user.resources.getScience(user))+'science, '
         % end
-        % if user.getWealth() < 1000:
-        %   tex+=str(1000-user.getWealth())+'wealth, '
+        % if user.resources.getWealth(user) < 1000:
+        %   tex+=str(1000-user.resources.getWealth(user))+'wealth, '
         % end
-        % if user.getEnergy() < 100:
-        %   tex+=str(100-user.getEnergy())+'energy, '
+        % if user.resources.getEnergy(user) < 100:
+        %   tex+=str(100-user.resources.getEnergy(user))+'energy, '
         % end
-        % if user.getMetals() < 10:
-        %   tex+=str(10-user.getMetals())+'metals, '
+        % if user.resources.getMetals(user) < 10:
+        %   tex+=str(10-user.resources.getMetals(user))+'metals, '
         % end
-        % if user.getOrganic() < 10:
-        %   tex+=str(10-user.getOrganic())+'organic, '
+        % if user.resources.getOrganic(user) < 10:
+        %   tex+=str(10-user.resources.getOrganic(user))+'organic, '
         % end
         
         % include('tpl/tile',s1='col-lg-12', s2='connectedSortable',

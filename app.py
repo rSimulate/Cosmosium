@@ -36,7 +36,7 @@ from python.page_maker.chunks import chunks # global chunks
 from python.page_maker.User import User
 from python.page_maker.Settings import Settings
 from python.OOIs import OOIs
-from python import purchases
+from python.game_logic import purchases
 
 
 #=====================================#
@@ -48,6 +48,8 @@ CHUNKS = chunks()
 OOIs = OOIs()
 USER = User()
 MASTER_CONFIG = 'default' # this is the config keyword for all non-test pages. (see Config.py for more info)
+# initial write of JSON files:
+OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 
 #=====================================#
 #            Static Routing           #
@@ -193,7 +195,7 @@ def getOOIs():
     # data.decode("string-escape")
     # json=data.replace(r"\"",r")
 #    return template('tpl/jsAsteroids',json=data)
-    return Settings(MASTER_CONFIG).asteroidsDB
+    return Settings(MASTER_CONFIG).asteroidDB
 
 #=====================================#
 #           User Actions              #
