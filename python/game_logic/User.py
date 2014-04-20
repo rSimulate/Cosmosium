@@ -1,14 +1,13 @@
-from math import exp
-from time import time
 
-from python.Research import Research
-from python.Telescope import Telescope
-from python.Miner import Miner
-from python.page_maker.Resources import Resources
+
+from python.game_logic.Research import Research
+from python.game_logic.Telescope import Telescope
+from python.game_logic.Miner import Miner
+from python.game_logic.Resources import Resources
 from python.page_maker.Message import Message
 from python.page_maker.Note import Note
 from python.page_maker.Task import Task
-from python import purchases
+from python.game_logic import purchases
 
 
 class User(object):
@@ -33,9 +32,8 @@ class User(object):
         
         
         ### USER GAME LOGIC DATA ###
-        self.lastUpdate = int(time())
         
-        self.resources = Resources()
+        self.resources = Resources()        
         
         self.research  = Research()
         
@@ -49,11 +47,11 @@ class User(object):
         # returns true if can afford given item description
         # itemDesc can be a dict with cost values, or a string descriptor
         try:
-            return item['science'] < self.getScience()\
-                and item['wealth'] < self.getWealth()\
-                and item['energy'] < self.getEnergy()\
-                and item['metals'] < self.getMetals()\
-                and item['organic']< self.getOrganic()
+            return item['science'] < self.resources.getScience(self)\
+                and item['wealth'] < self.resources.getWealth(self)\
+                and item['energy'] < self.resources.getEnergy(self)\
+                and item['metals'] < self.resources.getMetals(self)\
+                and item['organic']< self.resources.getOrganic(self)
         except TypeError: # if not a dict
             return self.affords(purchases.getCost(item))
 
@@ -61,12 +59,13 @@ class User(object):
     def payFor(self,item):
         # deducts item cost from resources,
         # returns true if purchase is sucessful 
+        # assumes that user can afford item
         try:      
-            temp = item['science'] < self.getScience()\
-                and item['wealth'] < self.getWealth()\
-                and item['energy'] < self.getEnergy()\
-                and item['metals'] < self.getMetals()\
-                and item['organic']< self.getOrganic()
+            temp = item['science'] < self.resources.getScience(self)\
+                and item['wealth'] < self.resources.getWealth(self)\
+                and item['energy'] < self.resources.getEnergy(self)\
+                and item['metals'] < self.resources.getMetals(self)\
+                and item['organic']< self.resources.getOrganic(self)
             cost = item
         except TypeError: # if not a dict
             cost = purchases.getCost(item)
@@ -87,22 +86,11 @@ class User(object):
         else:
             return 'img/tech/tech'+str(level)+'.jpg'
             
-    def getDeltaScience(self):
-        # returns estimated increase/s for the js client
-        return int(exp(self.research.age)*10)
-            
     ### ASTRONOM-IZING ###
     def addTele(self):
         self.telescopes.append(Telescope())
         
     ### MINING ($$$ and metals) ###
-    def getDeltaWealth(self):
-        # returns estimated increase/s for the js client
-        return int(exp(self.research.age)*10)
-        
-    def getDeltaMetals(self):
-        # returns estimated increase/s for the js client
-        return int(exp(self.research.age)*10)
         
     def getMineImage(self, level=None):
         # returns image file name for given techlevel, else returns for current mine techLevel
@@ -121,56 +109,14 @@ class User(object):
         
     def addMiner(self):
         self.miners.append(Miner())
-        
-    ### ENERG-IZING (energy) ###
-    def getDeltaEnergy(self):
-        # returns estimated increase/s for the js client
-        return int(exp(self.research.age)*10)
     
+    ### ENERG-IZING (energy) ###
+
     ### COLONIZING (organic/life) ###
-    def getDeltaOrganic(self):
-        # returns estimated increase/s for the js client
-        return int(exp(self.research.age)*10)
     
     ### MORE ###
     def update(self):
-        # computes updated values for all resources
-        self.resources.science=int(self.getDeltaScience()*self.getTimeElapsed())
-        self.resources.wealth= int(self.getDeltaWealth() *self.getTimeElapsed())
-        self.resources.energy= int(self.getDeltaEnergy() *self.getTimeElapsed())
-        self.resources.metals= int(self.getDeltaMetals() *self.getTimeElapsed())
-        self.resources.organic=int(self.getDeltaOrganic()   *self.getTimeElapsed())
+        resources.update(self)
     
-    def getTimeElapsed(self):
-        # returns the number of seconds elapsed since last update
-    #    print '\n\n',time(),' - ', self.lastUpdate,'\n\n'
-        return int(time()) - self.lastUpdate
-    
-    def getScience(self):
-        #returns current amout of science
-        self.update()
-        return self.resources.science
-        
-    def getWealth(self):
-        #returns current amout of science
-        self.update()
-        return self.resources.wealth
-        
-    def getEnergy(self):
-        #returns current amout of energy
-        self.update()
-        return self.resources.energy   
-        
-    def getMetals(self):
-        #returns current amout of metals
-        self.update()
-        return self.resources.metals         
 
-    def getOrganic(self):
-        # alias for getLife()
-        return self.getLife()
-        
-    def getLife(self):
-        #returns current amout of life
-        self.update()
-        return self.resources.organic   
+    

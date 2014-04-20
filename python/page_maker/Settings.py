@@ -8,12 +8,15 @@ class Settings(object):
         self.showFrame = True
         self.showBG    = True
         self.showResources = True
+        self.controlBG = False
     
         # use general config setup key to specify settings preset:
         if configName == "default":
             pass # already set up
         elif configName == "test":
             self.testSetup()
+        elif configName == 'systemView':
+            self.sysViewSetup()
         else:
             raise ValueError('unknown settings configName "'+str(configName)+'"')
             
@@ -26,3 +29,9 @@ class Settings(object):
     def testSetup(self):
         self.ownersDB    = 'db/test_owners.js'
         self.asteroidDB = 'db/test_asteroids.js'
+        
+    def sysViewSetup(self):
+        self.showFrame = False
+        self.showBG = False
+        self.showResources = False
+        self.controlBG = True

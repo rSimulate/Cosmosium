@@ -33,10 +33,10 @@ import config
 
 # Template Components
 from python.page_maker.chunks import chunks # global chunks
-from python.page_maker.User import User
+from python.game_logic.User import User
 from python.page_maker.Settings import Settings
 from python.OOIs import OOIs
-from python import purchases
+from python.game_logic import purchases
 
 
 #=====================================#
@@ -48,6 +48,8 @@ CHUNKS = chunks()
 OOIs = OOIs()
 USER = User()
 MASTER_CONFIG = 'default' # this is the config keyword for all non-test pages. (see Config.py for more info)
+# initial write of JSON files:
+OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 
 #=====================================#
 #            Static Routing           #
@@ -155,7 +157,7 @@ def systemView():
     return template('tpl/systemView',
         user=USER,
         chunks=CHUNKS,
-        config=Settings('test',showFrame=False,showResources=False,showBG=False),   # this is teporarily set to test so it looks nice.
+        config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),   # this is teporarily set to test so it looks nice.
         pageTitle="ViewTest"
         )
 
@@ -165,7 +167,7 @@ def systemView():
     return template('tpl/systemView',
         user=USER,
         chunks=CHUNKS,
-        config=Settings(MASTER_CONFIG),
+        config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),
         pageTitle="ViewTest"
         )
 
@@ -173,7 +175,7 @@ def systemView():
 def sysView():
     OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
     return template('tpl/sysView',
-            config=Settings(MASTER_CONFIG),
+            config=Settings('test',showFrame=True,showResources=True,showBG=False,controlBG=True),
             chunks=CHUNKS,
             user=USER,
             pageTitle="Solar System")
@@ -193,7 +195,7 @@ def getOOIs():
     # data.decode("string-escape")
     # json=data.replace(r"\"",r")
 #    return template('tpl/jsAsteroids',json=data)
-    return Settings(MASTER_CONFIG).asteroidsDB
+    return Settings(MASTER_CONFIG).asteroidDB
 
 #=====================================#
 #           User Actions              #

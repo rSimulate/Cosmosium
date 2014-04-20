@@ -23,7 +23,7 @@ class OOIs(object):
     def saveOOIs(self):
         print 'saving OOIs...'
         with open(OOI_FILE, 'wb') as f:
-            pickle.dump(self.MPOs, f)
+            pickle.dump(self, f)
             print str(len(self))+' OOIs pickled.'
 
 
@@ -31,9 +31,10 @@ class OOIs(object):
         print 'loading OOIs...'
         try:
             with open(OOI_FILE, 'rb') as f:
-                self.MPOs = pickle.load(f)
+                self = pickle.load(f)
         except EOFError:    
             print 'WARN: OOI.pickle is empty! Starting from scratch.'
+            
     def addObject(self,object,ownerName=None):
         if ownerName!=None:
             self.owners.append(ownerName)
@@ -51,7 +52,7 @@ class OOIs(object):
             if len(self.owners) > 0:
                 dat = '['
                 for owner in self.owners:
-                    dat+=owner
+                    dat+='"'+str(owner)+'"'
                     dat+=','
                 dat = dat[:-1] # slice off last comma
                 dat+='];\n'
