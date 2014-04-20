@@ -157,7 +157,7 @@ def systemView():
     return template('tpl/systemView',
         user=USER,
         chunks=CHUNKS,
-        config=Settings('test',showFrame=False,showResources=False,showBG=False),   # this is teporarily set to test so it looks nice.
+        config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),   # this is teporarily set to test so it looks nice.
         pageTitle="ViewTest"
         )
 
@@ -167,7 +167,7 @@ def systemView():
     return template('tpl/systemView',
         user=USER,
         chunks=CHUNKS,
-        config=Settings(MASTER_CONFIG),
+        config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),
         pageTitle="ViewTest"
         )
 
@@ -175,7 +175,7 @@ def systemView():
 def sysView():
     OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
     return template('tpl/sysView',
-            config=Settings(MASTER_CONFIG),
+            config=Settings('test',showFrame=True,showResources=True,showBG=False,controlBG=True),
             chunks=CHUNKS,
             user=USER,
             pageTitle="Solar System")
