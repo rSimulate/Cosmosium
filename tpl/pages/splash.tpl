@@ -50,9 +50,17 @@
 
             <!-- VIDEO... doesn't work right now...
             <iframe id="ytplayer" type="text/html" width="640" height="390"
-              src="https://www.youtube.com/watch?v=KExgYWxdFVU?autoplay=0&origin=http://asteroid.ventures&output=embed"
+              src="https://www.youtube.com/watch?v=KExgYWxdFVU?autoplay=0&origin=http://asteroid.ventures"
               frameborder="0"/>
               -->
+        </section>
+        <section>
+         <h2> Play a Demo Game Now: </h2>
+            Choose your player name:
+            <ul>
+                <li><a href="/dash?player=Edwin_Hubble&gameID=0" class="text-center">Edwin Hubble</a>
+                <li><a href="/dash?player=Johannes_Kepler&gameID=0" class="text-center">Johannes Kepler</a>
+            </ul>
         </section>
         
         <div class="form-box" id="login-box">
