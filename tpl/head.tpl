@@ -41,12 +41,18 @@
             <![endif]-->
         % end
         
-        % if config.music:
-            % chunks.bg_music.loadRand()
-            <audio id="background_audio" autoplay="autoplay">
+            <!-- background music -->
+            % chunks.bg_music.loadRand() 
+            <script type='text/javascript'>var audioAttrib = "{{chunks.bg_music.attrib}}"</script>
+            <audio id="background_audio" 
+                % if config.music:
+                    autoplay="true">
+                % else:
+                    autoplay="false">
+                % end
               <source src="{{chunks.bg_music.link}}" />
             </audio> 
-        % end
+
 
     </head>
     <body class="skin-black">

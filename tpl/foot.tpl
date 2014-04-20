@@ -31,7 +31,10 @@
             <script src="js/AdminLTE/app.js" type="text/javascript"></script>
             
             <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-            <script src="js/AdminLTE/dashboard.js" type="text/javascript"></script>        
+            <script src="js/AdminLTE/dashboard.js" type="text/javascript"></script>     
+
+            <script src="js/bg_music_toggle.js" type="text/javascript"></script>
+            
         % end
     </body>
 </html>
