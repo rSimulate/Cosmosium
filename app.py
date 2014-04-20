@@ -37,6 +37,9 @@ from python.game_logic.User import User
 from python.page_maker.Settings import Settings
 from python.OOIs import OOIs
 from python.game_logic import purchases
+from python.query_parsers.getUser import getUser
+from python.query_parsers.checkQuery import checkQuery
+from python.game_logic.GameList import GameList
 
 #=====================================#
 #         Page Templating             #
@@ -44,7 +47,8 @@ from python.game_logic import purchases
 
 # Global Variables as Site Chunks
 CHUNKS = chunks()
-OOIs = OOIs()
+GAMES = GameList()
+OOIs = OOIs() #TODO: this is in the Game() object now... which is now in GameList()
 USER = User()
 MASTER_CONFIG = 'default' # this is the config keyword for all non-test pages. (see Config.py for more info)
 # initial write of JSON files:
@@ -64,7 +68,7 @@ def assets_static(filename):
 def error404(error):
     return template('tpl/pages/404',chunks=CHUNKS,
         user=USER,
-        config=Settings(MASTER_CONFIG),
+        config=Settings(MASTER_CONFIG,showBG=False),
         pageTitle="LOST IN SPACE")
 
 #=====================================#
@@ -73,11 +77,14 @@ def error404(error):
 @route("/")
 #@view("main")
 def hello():
-    return template('tpl/pages/dash',chunks=CHUNKS,
-        user=USER,
-        oois=OOIs,
-        config=Settings(MASTER_CONFIG),
-        pageTitle="Main Control Panel")
+    if checkQuery(request):
+        return template('tpl/pages/dash',chunks=CHUNKS,
+            user=getUser(request,GAMES),
+            oois=OOIs,
+            config=Settings(MASTER_CONFIG),
+            pageTitle="Main Control Panel")
+    else:
+        return error404('malformed query')
 
 #=====================================#
 #           Mission  Pages            #

@@ -12,11 +12,15 @@ from python.game_logic import purchases
 class User(object):
     def __init__(self):
         ### USER PROFILE DATA ###
-        self.name = 'Johannes Kepler'
+        self.name = 'No Name'
         self.icon = "img/avatar3.png"
-        self.agency = 'NASA'
-        self.subtext = 'forger of worlds'
+        self.agency = 'Serves No Man'
+        self.subtext = 'Renegade Astronomer'
         self.profile_link = '#'
+        
+        self.messages = [Message(),Message()]
+        self.notes = [Note()]
+        self.tasks = [Task(),Task(),Task(),Task()]
         
         self.history_text = "Game History"
         self.history_link = "#"
@@ -25,22 +29,35 @@ class User(object):
         self.thing3_text = "More"
         self.thing3_link = "#"
         
-        self.messages = [Message(),Message()]
-        self.notes = [Note()]
-        self.tasks = [Task(),Task(),Task(),Task()]
-        
         
         ### USER GAME LOGIC DATA ###
+        self.game = None # game instance in which this user is playing
         
-        self.resources = Resources()        
-        
+        self.resources = Resources()          
         self.research  = Research()
-        
         self.telescopes = list([Telescope(),Telescope()]) #start w/ 2 telescopes
-        
         self.miners    = [Miner()]  #start w/ 1 miner
         
+    def setGame(self,gam):
+        # sets the user's current game and updates values accordingly
+        self.game = gam
         
+    def setProfileInfo(self,name, icon, agency, subtext):
+        # sets profile data which should come from the database upon login
+        #  currently excludes messages/notes/tasks as well as game history data
+        #  and profile link
+        self.name = name
+        self.icon = icon
+        self.agency = agency
+        self.subtext = subtext
+        
+    def setGameInfo(self,resource,research,tele,mine):
+        # sets profile data which comes from the current game instance
+        #  currently excludes messages/notes/tasks
+        self.resources = resource
+        self.research = research
+        self.telescopes = tele
+        self.miners = mine
         
     def affords(self,item):
         # returns true if can afford given item description
