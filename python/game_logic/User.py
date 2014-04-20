@@ -1,9 +1,9 @@
 
 
-from python.Research import Research
-from python.Telescope import Telescope
-from python.Miner import Miner
-from python.page_maker.Resources import Resources
+from python.game_logic.Research import Research
+from python.game_logic.Telescope import Telescope
+from python.game_logic.Miner import Miner
+from python.game_logic.Resources import Resources
 from python.page_maker.Message import Message
 from python.page_maker.Note import Note
 from python.page_maker.Task import Task

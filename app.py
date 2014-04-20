@@ -33,7 +33,7 @@ import config
 
 # Template Components
 from python.page_maker.chunks import chunks # global chunks
-from python.page_maker.User import User
+from python.game_logic.User import User
 from python.page_maker.Settings import Settings
 from python.OOIs import OOIs
 from python.game_logic import purchases
