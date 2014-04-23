@@ -1,7 +1,7 @@
 Cosmosium
 =========
 
-The [Reddit/r/Simulate](http://www.reddit.com/r/simulate) team's SpaceApp! 
+The [Reddit/r/Simulate](http://www.reddit.com/r/simulate) team's SpaceApp! [One of the two apps selected by NASA](https://2014.spaceappschallenge.org/location/virtual/) out of 75+ apps in the "virtual participation" category to be included in People's Choice voting!
 
 Live out the most pivotal century in mankind's history, as - for the first time in history - we begin to mold the cosmos around us. From our first baby steps out of the atmosphere and onward to interstellar space, the player must hunt out asteroids and develop the technology to utilize their resources. Probe the depths of the solar system and learn how to profit, advance, and spread life throughout the cosmos. 
 
