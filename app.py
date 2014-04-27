@@ -98,21 +98,22 @@ def makeContentHTML():
         return template('tpl/content/under_construction')
 
 #=====================================#
-#           Custom 404                #
-#=====================================#
-@error(404)
-def error404(error):
-    return template('tpl/pages/404',chunks=CHUNKS,
-        user=USER,
-        config=Settings(MASTER_CONFIG,showBG=False),
-        pageTitle="LOST IN SPACE")
-
-#=====================================#
 #           Splash Page               #
 #=====================================#
 @route("/")
 def makeSplash():
     return template('tpl/pages/splash', gameList=GAMES)
+    
+#=====================================#
+#       main gameplay page            #
+#=====================================#
+@route("/play")
+def makeGamePage():
+    return template('tpl/pages/play',chunks=CHUNKS,
+        user=USER,
+        oois=OOIs,
+        config=Settings(MASTER_CONFIG),
+        pageTitle="Cosmosium Asteriod Ventures!")
     
 #=====================================#
 #           js                        #
@@ -132,93 +133,6 @@ def makeSocketSetup():
 #    linked_content_files = ['dash','systemView','missionControl','launchpad','observatories','timeline','neos','mainBelt','kuiperBelt','spaceIndustry','humanHabitation','roboticsAndAI','launchSys','resMarket','fuelNet','spaceTourism','outreach','gov','org']
 #    return template('tpl/js/game_frame_nav', 
 #        contentFiles=linked_content_files)
-
-        
-#=====================================#
-#           Dashboard Route           #
-#=====================================#
-@route("/dash")
-#@view("main")
-def makeDash():
-    if checkQuery(request):
-        return template('tpl/pages/dash',chunks=CHUNKS,
-            user=getUser(request,GAMES),
-            oois=OOIs,
-            config=Settings(MASTER_CONFIG),
-            pageTitle="Main Control Panel")
-    else:
-        return error404('malformed query')
-        
-@route("/play")
-def makeGamePage():
-    return template('tpl/pages/play',chunks=CHUNKS,
-        user=USER,
-        oois=OOIs,
-        config=Settings(MASTER_CONFIG),
-        pageTitle="Cosmosium Asteriod Ventures!")
-
-#=====================================#
-#           Mission  Pages            #
-#=====================================#
-@route('/missionControl')
-def  missionControl():
-		return template('tpl/pages/missionControl',
-            config=Settings(MASTER_CONFIG),
-            chunks=CHUNKS,
-            user=USER,
-            pageTitle="Mission Planning & Control Center",
-            resources=USER.resources)
-
-@route('/launchpad')
-def launchPad():
-    return template('tpl/pages/launchpad',
-        config=Settings(MASTER_CONFIG),
-        chunks=CHUNKS,
-        user=USER,
-        pageTitle="Launch Facilities")
-
-@route('/observatories')
-def launchPad():
-    return template('tpl/pages/observatories',
-        config=Settings(MASTER_CONFIG),
-        chunks=CHUNKS,
-        user=USER,
-        pageTitle="Main Observational Astronomy Facilities")
-
-#=====================================#
-#           Research Pages            #
-#=====================================#
-@route('/research')
-def researchPage():
-    subDir = request.query.section
-    if subDir=='Space Industry':
-        treeimg="img/space_industry_tech_tree_images.svg";
-
-    elif subDir=='Human Habitation':
-        treeimg="img/space_industry_tech_tree.svg";
-
-    elif subDir=='Robotics and AI':
-        treeimg="img/space_industry_tech_tree_images.svg";
-
-    else:
-        return error404('404')
-
-    return template('tpl/pages/research', tree_src=treeimg,
-        config=Settings(MASTER_CONFIG),
-        chunks=CHUNKS,
-        user=USER,
-        pageTitle=subDir+" Research")
-
-
-#=====================================#
-#           Econ Page Routes          #
-#=====================================#
-@route('/funding')
-def fundingPage():
-    return template('tpl/funding',chunks=CHUNKS,
-        config=Settings(MASTER_CONFIG),
-        user=USER,
-        pageTitle="Funding")
 
 
 #=====================================#
@@ -454,7 +368,6 @@ def login_success():
 #)
 
 
-
 #=====================================#
 #          WEB SERVER START           #
 #=====================================#
@@ -463,3 +376,98 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7099))
     run(host='0.0.0.0', port=port)
     main(sys.argv[1:]) # Invokes Mongo
+    
+    
+### ================= DEPRECIATED HACKS BELOW ================= ###
+### if you see these still used somewhere, try to remove usage. ### 
+### much better alternatives should now be in place.            ###
+### =========================================================== ###
+        
+#=====================================#
+#           Dashboard Route           #
+#=====================================#
+@route("/dash")
+#@view("main")
+def makeDash():
+    if checkQuery(request):
+        return template('tpl/pages/dash',chunks=CHUNKS,
+            user=getUser(request,GAMES),
+            oois=OOIs,
+            config=Settings(MASTER_CONFIG),
+            pageTitle="Main Control Panel")
+    else:
+        return error404('malformed query')
+        
+#=====================================#
+#           Custom 404                #
+#=====================================#
+@error(404)
+def error404(error):
+    return template('tpl/pages/404',chunks=CHUNKS,
+        user=USER,
+        config=Settings(MASTER_CONFIG,showBG=False),
+        pageTitle="LOST IN SPACE")
+
+
+#=====================================#
+#           Mission  Pages            #
+#=====================================#
+@route('/missionControl')
+def  missionControl():
+		return template('tpl/pages/missionControl',
+            config=Settings(MASTER_CONFIG),
+            chunks=CHUNKS,
+            user=USER,
+            pageTitle="Mission Planning & Control Center",
+            resources=USER.resources)
+
+@route('/launchpad')
+def launchPad():
+    return template('tpl/pages/launchpad',
+        config=Settings(MASTER_CONFIG),
+        chunks=CHUNKS,
+        user=USER,
+        pageTitle="Launch Facilities")
+
+@route('/observatories')
+def launchPad():
+    return template('tpl/pages/observatories',
+        config=Settings(MASTER_CONFIG),
+        chunks=CHUNKS,
+        user=USER,
+        pageTitle="Main Observational Astronomy Facilities")
+
+#=====================================#
+#           Research Pages            #
+#=====================================#
+@route('/research')
+def researchPage():
+    subDir = request.query.section
+    if subDir=='Space Industry':
+        treeimg="img/space_industry_tech_tree_images.svg";
+
+    elif subDir=='Human Habitation':
+        treeimg="img/space_industry_tech_tree.svg";
+
+    elif subDir=='Robotics and AI':
+        treeimg="img/space_industry_tech_tree_images.svg";
+
+    else:
+        return error404('404')
+
+    return template('tpl/pages/research', tree_src=treeimg,
+        config=Settings(MASTER_CONFIG),
+        chunks=CHUNKS,
+        user=USER,
+        pageTitle=subDir+" Research")
+
+
+#=====================================#
+#           Econ Page Routes          #
+#=====================================#
+@route('/funding')
+def fundingPage():
+    return template('tpl/funding',chunks=CHUNKS,
+        config=Settings(MASTER_CONFIG),
+        user=USER,
+        pageTitle="Funding")
