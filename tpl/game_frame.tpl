@@ -188,12 +188,12 @@
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
                 <li class="active">
-                    <a href="/">
+                    <a href="#dash" id='dash-link'>
                         <i class="fa fa-dashboard"></i> <span>{{chunks.button1_text}}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="/systemView">
+                    <a href="#systemView" id='systemView-link'>
                         <i class="ion ion-ionic"></i> <span>{{chunks.button2_text}}</span> 
                         <small class="badge pull-right bg-red">{{chunks.button2_num}}</small>
                     </a>
@@ -205,11 +205,11 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="/missionControl"><i class="fa fa-angle-double-right"></i> Mission Control</a></li>
-                        <li><a href="/launchpad"><i class="fa fa-angle-double-right"></i>
+                        <li><a href="#missionControl" id='missionControl-link'><i class="fa fa-angle-double-right"></i> Mission Control</a></li>
+                        <li><a href="#launchpad" id='launchpad-link'><i class="fa fa-angle-double-right"></i>
                          Launchpad</a></li>
-                        <li><a href="/observatories"><i class="fa fa-angle-double-right"></i> Observatories</a></li>
-                        <li><a href="pages/UI/timeline.html"><i class="fa fa-angle-double-right"></i> Timeline</a></li>
+                        <li><a href="#observatories" id='observatories-link'><i class="fa fa-angle-double-right"></i> Observatories</a></li>
+                        <li><a href="#timeline" id='timeline-link'><i class="fa fa-angle-double-right"></i> Timeline</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
@@ -242,10 +242,10 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="pages/charts/morris.html"><i class="fa fa-angle-double-right"></i> Launch Systems</a></li>
-                        <li><a href="pages/charts/flot.html"><i class="fa fa-angle-double-right"></i> Resource Market</a></li>
-                        <li><a href="pages/charts/inline.html"><i class="fa fa-angle-double-right"></i> Fuel Network</a></li>
-                        <li><a href="pages/charts/inline.html"><i class="fa fa-angle-double-right"></i> Space Tourism</a></li>
+                        <li><a href="#launchSys" id='launchSys-link'><i class="fa fa-angle-double-right"></i> Launch Systems</a></li>
+                        <li><a href="#resMarket" id='resMarket-link'><i class="fa fa-angle-double-right"></i> Resource Market</a></li>
+                        <li><a href="#fuelNet" id='fuelNet-link'><i class="fa fa-angle-double-right"></i> Fuel Network</a></li>
+                        <li><a href="#spaceTourism" id='spaceTourism-link'><i class="fa fa-angle-double-right"></i> Space Tourism</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
@@ -254,9 +254,9 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="pages/forms/general.html"><i class="fa fa-angle-double-right"></i> Outreach</a></li>
-                        <li><a href="pages/forms/advanced.html"><i class="fa fa-angle-double-right"></i>Government</a></li>
-                        <li><a href="pages/forms/editors.html"><i class="fa fa-angle-double-right"></i> Organization</a></li>
+                        <li><a href="#outreach" id='outreach-link'><i class="fa fa-angle-double-right"></i> Outreach</a></li>
+                        <li><a href="#gov" id='gov-link'><i class="fa fa-angle-double-right"></i>Government</a></li>
+                        <li><a href="#org" id='org-link'><i class="fa fa-angle-double-right"></i> Organization</a></li>
                     </ul>
                 </li>
             </ul>

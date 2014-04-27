@@ -68,4 +68,4 @@
             %   include('tpl/resourcebar') # implicitly passed: Chunks.appName, PageTitle
             % end
             <!-- Main content -->
-            <section class="content">
+            <section class="content" id="content">

@@ -57,9 +57,44 @@ OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 #=====================================#
 #            Static Routing           #
 #=====================================#
-@route('/<filename:path>')
-def assets_static(filename):
-    return static_file(filename, root='./')
+#@route('/js/<filename:path>')
+#def assets_static(filename):
+#    return static_file(filename, root='./js/')
+ 
+@route('/css/<filename:path>')
+def css_static(filename):
+    return static_file(filename, root='./css/')
+
+@route('/js/<filename:path>')
+def js_static(filename):
+    return static_file(filename, root='./js/')
+    
+@route('/fonts/<filename:path>')
+def js_static(filename):
+    return static_file(filename, root='./fonts/')
+    
+@route('/img/<filename:path>')
+def js_static(filename):
+    return static_file(filename, root='./img/')
+    
+@route('/db/<filename:path>')
+def js_static(filename):
+    return static_file(filename, root='./db/')
+ 
+@route('/content')
+def makeContentHTML():
+    name=request.query.name
+    fileName='tpl/content/'+name
+    if os.path.isfile(fileName+'.tpl'): #if file exists, use it
+        return template(fileName,
+            chunks=CHUNKS,
+            user=USER,
+            oois=OOIs,
+            config=Settings(MASTER_CONFIG),
+            pageTitle=name)
+    else: # else show content under construction
+        print 'unknown content request: '+fileName
+        return template('tpl/content/under_construction')
 
 #=====================================#
 #           Custom 404                #
@@ -85,6 +120,14 @@ def makeSplash():
 def makeResourceUpdater():
     return template('tpl/js/resourceUpdate', user=USER)
 
+# NOTE: this next approach is better than using the real file... but not working currently.
+#@route("/js/game_frame_nav.js")
+#def makeFrameNav():
+    # content_files = [fname.split('.')[0] for fname in os.listdir('tpl/content/')] # the files w/o links cause issue here...
+#    linked_content_files = ['dash','systemView','missionControl','launchpad','observatories','timeline','neos','mainBelt','kuiperBelt','spaceIndustry','humanHabitation','roboticsAndAI','launchSys','resMarket','fuelNet','spaceTourism','outreach','gov','org']
+#    return template('tpl/js/game_frame_nav', 
+#        contentFiles=linked_content_files)
+
         
 #=====================================#
 #           Dashboard Route           #
@@ -100,6 +143,14 @@ def makeDash():
             pageTitle="Main Control Panel")
     else:
         return error404('malformed query')
+        
+@route("/play")
+def makeGamePage():
+    return template('tpl/pages/play',chunks=CHUNKS,
+        user=USER,
+        oois=OOIs,
+        config=Settings(MASTER_CONFIG),
+        pageTitle="Cosmosium Asteriod Ventures!")
 
 #=====================================#
 #           Mission  Pages            #
