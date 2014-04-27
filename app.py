@@ -47,7 +47,9 @@ from python.game_logic.GameList import GameList
 
 # Global Variables as Site Chunks
 CHUNKS = chunks()
+DOMAIN = 'localhost' # domain name
 GAMES = GameList()
+USERS = UserList()
 OOIs = OOIs() #TODO: this is in the Game() object now... which is now in GameList()
 USER = User() #TODO: this should now be replaced with getUser()
 MASTER_CONFIG = 'default' # this is the config keyword for all non-test pages. (see Config.py for more info)
@@ -57,10 +59,6 @@ OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 #=====================================#
 #            Static Routing           #
 #=====================================#
-#@route('/js/<filename:path>')
-#def assets_static(filename):
-#    return static_file(filename, root='./js/')
- 
 @route('/css/<filename:path>')
 def css_static(filename):
     return static_file(filename, root='./css/')
@@ -81,6 +79,9 @@ def js_static(filename):
 def js_static(filename):
     return static_file(filename, root='./db/')
  
+#=====================================#
+#            game content             #
+#=====================================#
 @route('/content')
 def makeContentHTML():
     name=request.query.name
@@ -119,6 +120,10 @@ def makeSplash():
 @route("/resourceUpdate.js")
 def makeResourceUpdater():
     return template('tpl/js/resourceUpdate', user=USER)
+    
+@route("/webSocketSetup.js")
+def makeSocketSetup():
+    return template('tpl/js/webSocketSetup', client_id='0', DOMAIN=DOMAIN)
 
 # NOTE: this next approach is better than using the real file... but not working currently.
 #@route("/js/game_frame_nav.js")
@@ -232,7 +237,6 @@ def systemView():
         config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),   # this is teporarily set to test so it looks nice.
         pageTitle="ViewTest"
         )
-
 
 @route('/viewTest')
 def systemView():

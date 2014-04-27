@@ -10,9 +10,9 @@ from python.page_maker.Task import Task
 from python.game_logic import purchases
 
 class User(object):
-    def __init__(self):
+    def __init__(self, name='No Name'):
         ### USER PROFILE DATA ###
-        self.name = 'No Name'
+        self.name = name
         self.icon = "img/avatar3.png"
         self.agency = 'Serves No Man'
         self.subtext = 'Renegade Astronomer'
