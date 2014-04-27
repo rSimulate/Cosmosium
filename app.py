@@ -21,7 +21,7 @@ __author__ = 'rsimulate'
 
 # Primary Components
 import os
-from python.bottle import route, run, static_file, template, view, post, request, error
+from python.bottle import route, run, static_file, template, view, post, request, error, Bottle
 import sqlite3 as lite
 import sys
 import json
@@ -31,58 +31,71 @@ import pymongo # import Connection
 import rauth
 import config
 
+# websockets:
+import gevent
+from geventwebsocket import WebSocketServer, WebSocketApplication, Resource, WebSocketError
+from gevent.pywsgi import WSGIServer
+from geventwebsocket.handler import WebSocketHandler
+
+
 # Template Components
 from python.page_maker.chunks import chunks # global chunks
-from python.game_logic.User import User
 from python.page_maker.Settings import Settings
-from python.OOIs import OOIs
-from python.game_logic import purchases
+
+# ui handlers:
 from python.query_parsers.getUser import getUser
 from python.query_parsers.checkQuery import checkQuery
+
+# game logic:
+from python.game_logic.User import User
+from python.OOIs import OOIs
+from python.game_logic import purchases
 from python.game_logic.GameList import GameList
+from python.game_logic.UserList import UserList
 
 #=====================================#
-#         Page Templating             #
+#              GLOBALS                #
 #=====================================#
-
-# Global Variables as Site Chunks
-CHUNKS = chunks()
+app = Bottle()
+CHUNKS = chunks()   # static chunks or strings for the site
 DOMAIN = 'localhost' # domain name
-GAMES = GameList()
-USERS = UserList()
+GAMES = GameList()  # list of ongoing games on server
+USERS = UserList()  # list of users connected to the server
+MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
+
 OOIs = OOIs() #TODO: this is in the Game() object now... which is now in GameList()
 USER = User() #TODO: this should now be replaced with getUser()
-MASTER_CONFIG = 'default' # this is the config keyword for all non-test pages. (see Config.py for more info)
+
 # initial write of JSON files:
 OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 
 #=====================================#
 #            Static Routing           #
 #=====================================#
-@route('/css/<filename:path>')
+@app.route('/css/<filename:path>')
 def css_static(filename):
     return static_file(filename, root='./css/')
 
-@route('/js/<filename:path>')
+@app.route('/js/<filename:path>')
 def js_static(filename):
     return static_file(filename, root='./js/')
     
-@route('/fonts/<filename:path>')
+@app.route('/fonts/<filename:path>')
 def js_static(filename):
     return static_file(filename, root='./fonts/')
     
-@route('/img/<filename:path>')
+@app.route('/img/<filename:path>')
 def js_static(filename):
     return static_file(filename, root='./img/')
     
-@route('/db/<filename:path>')
+@app.route('/db/<filename:path>')
 def js_static(filename):
     return static_file(filename, root='./db/')
  
 #=====================================#
 #            game content             #
 #=====================================#
-@route('/content')
+@app.route('/content')
 def makeContentHTML():
     name=request.query.name
     fileName='tpl/content/'+name
@@ -100,14 +113,14 @@ def makeContentHTML():
 #=====================================#
 #           Splash Page               #
 #=====================================#
-@route("/")
+@app.route("/")
 def makeSplash():
     return template('tpl/pages/splash', gameList=GAMES)
     
 #=====================================#
 #       main gameplay page            #
 #=====================================#
-@route("/play")
+@app.route("/play")
 def makeGamePage():
     return template('tpl/pages/play',chunks=CHUNKS,
         user=USER,
@@ -118,22 +131,40 @@ def makeGamePage():
 #=====================================#
 #           js                        #
 #=====================================#
-@route("/resourceUpdate.js")
+@app.route("/resourceUpdate.js")
 def makeResourceUpdater():
     return template('tpl/js/resourceUpdate', user=USER)
     
-@route("/webSocketSetup.js")
+@app.route("/webSocketSetup.js")
 def makeSocketSetup():
     return template('tpl/js/webSocketSetup', client_id='0', DOMAIN=DOMAIN)
 
 # NOTE: this next approach is better than using the real file... but not working currently.
-#@route("/js/game_frame_nav.js")
+#@app.route("/js/game_frame_nav.js")
 #def makeFrameNav():
     # content_files = [fname.split('.')[0] for fname in os.listdir('tpl/content/')] # the files w/o links cause issue here...
 #    linked_content_files = ['dash','systemView','missionControl','launchpad','observatories','timeline','neos','mainBelt','kuiperBelt','spaceIndustry','humanHabitation','roboticsAndAI','launchSys','resMarket','fuelNet','spaceTourism','outreach','gov','org']
 #    return template('tpl/js/game_frame_nav', 
 #        contentFiles=linked_content_files)
 
+#=====================================#
+#          web sockets                #
+#=====================================#
+@app.route('/websocket')
+def handle_websocket():
+    wsock = request.environ.get('wsgi.websocket')
+    if not wsock:
+        abort(400, 'Expected WebSocket request.')
+
+    while True:
+        try:
+            message = wsock.receive()
+            print "received : "+str(message)
+            game_manager.parseMessage(message,wsock)
+            
+        except WebSocketError:
+            break
+            
 
 #=====================================#
 #        Asteroid Views Routing       #
@@ -143,7 +174,7 @@ import python.getAsteroid
 import python.search
 
 # these is here to circumvent global variable issues
-@route('/systemView')
+@app.route('/systemView')
 def systemView():
     return template('tpl/systemView',
         user=USER,
@@ -152,7 +183,7 @@ def systemView():
         pageTitle="ViewTest"
         )
 
-@route('/viewTest')
+@app.route('/viewTest')
 def systemView():
     return template('tpl/systemView',
         user=USER,
@@ -161,7 +192,7 @@ def systemView():
         pageTitle="ViewTest"
         )
 
-@route('/sysView')
+@app.route('/sysView')
 def sysView():
     OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
     return template('tpl/sysView',
@@ -170,7 +201,7 @@ def sysView():
             user=USER,
             pageTitle="Solar System")
 
-@route('/getAsteroids')
+@app.route('/getAsteroids')
 def getOOIs():
     OOIs.write2JSON(OOI_JSON_FILE)
 #    with open(OOI_JSON_FILE,'w') as f:
@@ -190,7 +221,7 @@ def getOOIs():
 #=====================================#
 #           User Actions              #
 #=====================================#
-@route('/addAsteroid')
+@app.route('/addAsteroid')
 def addOOI():
     name = str(request.query.name)
     print 'request to track '+name
@@ -215,7 +246,7 @@ def addOOI():
             pageTitle='Asteroid Add Request Denied',
             user=USER)
 
-# @route('/upgradeTech')
+# @app.route('/upgradeTech')
 # def upgradeTech():
     # type = request.query.type
     # cost = purchases.getCost(type,user)
@@ -227,7 +258,7 @@ def addOOI():
 #      SQLite for Basic UI Data       #
 #=====================================#
 # SQLite test
-@route('/data')
+@app.route('/data')
 def database():
     con = lite.connect('test.db')
     with con:
@@ -325,7 +356,7 @@ redirect_uri = '{uri}:{port}/success'.format(
 )
 
 # Login Routing
-@route('/login<:re:/?>')
+@app.route('/login<:re:/?>')
 def login():
     params = dict(
         scope='email profile',
@@ -336,7 +367,7 @@ def login():
     app.redirect(url)
 
 # Successful login
-@route('/success<:re:/?>')
+@app.route('/success<:re:/?>')
 def login_success():
     code = app.request.params.get('code')
     session = google.get_auth_session(
@@ -374,8 +405,13 @@ def login_success():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7099))
-    run(host='0.0.0.0', port=port)
+    #run(host='0.0.0.0', port=port)
+    server = WSGIServer(("0.0.0.0", port), app,
+                        handler_class=WebSocketHandler)
+    print 'starting server on '+str(port)
+    server.serve_forever()
     main(sys.argv[1:]) # Invokes Mongo
+
     
     
 ### ================= DEPRECIATED HACKS BELOW ================= ###
@@ -386,7 +422,7 @@ if __name__ == "__main__":
 #=====================================#
 #           Dashboard Route           #
 #=====================================#
-@route("/dash")
+@app.route("/dash")
 #@view("main")
 def makeDash():
     if checkQuery(request):
@@ -412,7 +448,7 @@ def error404(error):
 #=====================================#
 #           Mission  Pages            #
 #=====================================#
-@route('/missionControl')
+@app.route('/missionControl')
 def  missionControl():
 		return template('tpl/pages/missionControl',
             config=Settings(MASTER_CONFIG),
@@ -421,7 +457,7 @@ def  missionControl():
             pageTitle="Mission Planning & Control Center",
             resources=USER.resources)
 
-@route('/launchpad')
+@app.route('/launchpad')
 def launchPad():
     return template('tpl/pages/launchpad',
         config=Settings(MASTER_CONFIG),
@@ -429,7 +465,7 @@ def launchPad():
         user=USER,
         pageTitle="Launch Facilities")
 
-@route('/observatories')
+@app.route('/observatories')
 def launchPad():
     return template('tpl/pages/observatories',
         config=Settings(MASTER_CONFIG),
@@ -440,7 +476,7 @@ def launchPad():
 #=====================================#
 #           Research Pages            #
 #=====================================#
-@route('/research')
+@app.route('/research')
 def researchPage():
     subDir = request.query.section
     if subDir=='Space Industry':
@@ -465,7 +501,7 @@ def researchPage():
 #=====================================#
 #           Econ Page Routes          #
 #=====================================#
-@route('/funding')
+@app.route('/funding')
 def fundingPage():
     return template('tpl/funding',chunks=CHUNKS,
         config=Settings(MASTER_CONFIG),

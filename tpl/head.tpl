@@ -10,8 +10,7 @@
     
     <head>
         <meta charset="UTF-8">
-        <title>Cosmosium | {{pageTitle}}</title>
-        
+        <title>Cosmosium | {{pageTitle}}</title>        
         % if config.showFrame:
             <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
             <!-- bootstrap 3.0.2 -->

@@ -46,6 +46,8 @@
             <!-- for j-query based navigation -->
             <script src="/js/game_frame_nav.js" type="text/javascript"></script>
 
+            <script type="text/javascript" src='/webSocketSetup.js' </script>   
+
             
         % end
     </body>
