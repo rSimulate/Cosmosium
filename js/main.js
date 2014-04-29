@@ -196,7 +196,66 @@ function RSimulate(opts) {
         }
 
         var infoHTML = "<h3>" + bodyName + "</h3>";
+        // info to show in the window:
         for (var key in orbit.eph) {
+            // excluded info:
+            if (key.slice(0,6) == 'sigma_'
+                || key.slice(-6) == '_sigma'
+                || key == 'full_name'
+                || key == 'epoch_mjd'
+                || key == 'rms'
+                || key == 'neo'
+                || key == 'equinox'
+                || key == 'spkid'
+                || key == 'per'
+                || key == 'id'
+                || key == 'data_arc'
+                || key == 'condition_code'
+                || key == 'prov_des'
+                || key == 'moid_ld'
+                || key == 'orbit_id'
+                || key == 'two_body'
+                || key == 'G'
+                || key == 'e'
+                || key == 'class'
+                || key == 'a'
+                || key == 'name'
+                || key == 'i'
+                || key == 'tp'
+                
+                /* i'm not sure what these next ones are... maybe they should be included and renamed? */
+                || key == 'K2'
+                || key == 'K1'
+                || key == 'M1'
+                || key == 'M2'
+                || key == 'DT'
+                || key == 'pha'
+                || key == 'PC'
+                || key == 'A1'
+                || key == 'A2'
+                || key == 'A3'
+                || key == 'ad'
+                || key == 'saved'
+                || key == 'per_y'
+                || key == 'epoch_cal'
+                || key == 'epoch'
+                || key == 'IR'
+                || key == 'extent'
+                || key == 'tp_cal'
+                || key == 'pdes'
+                || key == 't_jup'
+                || key == 'om'
+                || key == 'ma'
+                || key == 'prefix'
+                || key == 'q'
+                || key == 'w'
+                || key == 'n'
+                || key == 'n_del_obs_used'
+                || key == 'n_dop_obs_used'
+                
+                ){
+                continue
+            }
             infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
         }
 
@@ -217,8 +276,14 @@ function RSimulate(opts) {
         
         $("#body-info").html(infoHTML);
 
-        $("#claim-asteroid-button").attr("href", "/addAsteroid?name=" + bodyName);
-
+        // link to add the asteroid
+        document.getElementById('claim-asteroid-button').addEventListener('click', function (e){
+            e = e || window.event;
+            
+            $('#content').load('/content/addAsteroid?name='+bodyName);
+            
+        }, false);
+        
         $("#body-info-container").show();
 
         console.log("\t" + bodyName);

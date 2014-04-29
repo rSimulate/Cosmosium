@@ -193,11 +193,11 @@ def searchNEOs():
     return template('tpl/searchView',asteroidDB="db/NEOs.js")
     
 @app.route('/searchMainBelt')
-def searchNEOs():
+def searchMains():
     return template('tpl/searchView',asteroidDB="db/MainBelt.js")
     
 @app.route('/searchKuiperBelt')
-def searchNEOs():
+def searchKuipers():
     return template('tpl/searchView',asteroidDB="db/KuiperBelt.js")
 
 # these is here to circumvent global variable issues
@@ -206,8 +206,8 @@ def systemView():
     return template('tpl/systemView',
         user=USER,
         chunks=CHUNKS,
-        config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),   # this is teporarily set to test so it looks nice.
-        pageTitle="ViewTest"
+        config=Settings('default',showFrame=False,showResources=False,showBG=False,controlBG=True),   # this is teporarily set to test so it looks nice.
+        pageTitle="system View"
         )
 
 @app.route('/viewTest')
@@ -255,6 +255,31 @@ def processReq():
 #=====================================#
 #           User Actions              #
 #=====================================#
+@app.route('/content/addAsteroid')
+def addOOI():
+    name = str(request.query.name)
+    print 'request to track '+name
+        
+    if USER.affords('asteroidTrack'):
+        USER.payFor('asteroidTrack')
+        OOIs.addObject(python.getAsteroid.byName(name), 'PLAYER_1')
+        # write the new js file(s)
+        OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
+        print 'object '+name+' added to OOIs'
+        return template('tpl/content/asteroidAdd',
+            objectName=name,
+            chunks=CHUNKS,
+            config=Settings(MASTER_CONFIG),
+            pageTitle='Asteroid Add Request Approved',
+            user=USER)
+    else:
+        return template('tpl/content/insufficientFunds',
+            objectName=name,
+            chunks=CHUNKS,
+            config=Settings(MASTER_CONFIG),
+            pageTitle='Asteroid Add Request Denied',
+            user=USER)
+            
 @app.route('/addAsteroid')
 def addOOI():
     name = str(request.query.name)
