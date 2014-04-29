@@ -218,9 +218,9 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="/searchNEOs"><i class="fa fa-angle-double-right"></i> NEO's</a></li>
-                        <li><a href="/searchMainBelt"><i class="fa fa-angle-double-right"></i> Main Belt</a></li>
-                        <li><a href="/searchKuiperBelt"><i class="fa fa-angle-double-right"></i> Kuiper Belt</a></li>
+                        <li><a href="#searchNEOs" id='systemView-NEOs-link'><i class="fa fa-angle-double-right"></i> NEO's</a></li>
+                        <li><a href="#searchMainBelt" id='systemView-MainBelt-link'><i class="fa fa-angle-double-right"></i> Main Belt</a></li>
+                        <li><a href="#searchKuiperBelt" id='systemView-KuiperBelt-link'><i class="fa fa-angle-double-right"></i> Kuiper Belt</a></li>
                     </ul>
                 </li>
                 <li class="treeview">

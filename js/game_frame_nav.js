@@ -1,3 +1,7 @@
+/*
+ Ajax navigation controls for the sidebar.
+*/
+
 
 document.getElementById('dash-link').addEventListener('click', function (e){
     e = e || window.event;
@@ -91,10 +95,31 @@ document.getElementById('spaceTourism-link').addEventListener('click', function 
 }, false);
 
 document.getElementById('systemView-link').addEventListener('click', function (e){
-    e = e || window.event;
-    
+    e = e || window.event; 
     $('#content').load('/content?name=systemView');
-    
+    THREE.OrbitControls.enabled = true
+    $('#systemBG').load('/systemView');
+}, false);
+
+document.getElementById('systemView-NEOs-link').addEventListener('click', function (e){
+    e = e || window.event; 
+    $('#content').load('/content?name=systemView');
+    THREE.OrbitControls.enabled = true
+    $('#systemBG').load('/searchNEOs');
+}, false);
+
+document.getElementById('systemView-MainBelt-link').addEventListener('click', function (e){
+    e = e || window.event; 
+    $('#content').load('/content?name=systemView');
+    THREE.OrbitControls.enabled = true
+    $('#systemBG').load('/searchMainBelt');
+}, false);
+
+document.getElementById('systemView-KuiperBelt-link').addEventListener('click', function (e){
+    e = e || window.event; 
+    $('#content').load('/content?name=systemView');
+    THREE.OrbitControls.enabled = true
+    $('#systemBG').load('/searchKuiperBelt');
 }, false);
 
 document.getElementById('timeline-link').addEventListener('click', function (e){
