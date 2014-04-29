@@ -229,9 +229,9 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="/research?section=Space%20Industry"><i class="fa fa-angle-double-right"></i> Space Industry</a></li>
-                        <li><a href="/research?section=Human%20Habitation"><i class="fa fa-angle-double-right"></i> Human Habitation</a></li>
-                        <li><a href="/research?section=Robotics%20and%20AI"><i class="fa fa-angle-double-right"></i> Robotics & AI</a></li>
+                        <li><a href="#research?section=Space%20Industry" id='research_spaceIndustry-link'><i class="fa fa-angle-double-right"></i> Space Industry</a></li>
+                        <li><a href="#research?section=Human%20Habitation" id='research_humanHabitation-link'><i class="fa fa-angle-double-right"></i> Human Habitation</a></li>
+                        <li><a href="#research?section=Robotics%20and%20AI" id='research_robotics-link'><i class="fa fa-angle-double-right"></i> Robotics & AI</a></li>
                     </ul>
                     </a>
                 </li>

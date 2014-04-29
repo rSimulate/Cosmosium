@@ -70,6 +70,20 @@ document.getElementById('research_spaceIndustry-link').addEventListener('click',
     
 }, false);
 */
+document.getElementById('research_spaceIndustry-link').addEventListener('click', function (e){
+    e = e || window.event;
+    $('#content').load('/content?name=research&section=spaceIndustry');
+}, false);
+document.getElementById('research_humanHabitation-link').addEventListener('click', function (e){
+    e = e || window.event;
+    $('#content').load('/content?name=research&section=humanHabitation');
+}, false);
+document.getElementById('research_robotics-link').addEventListener('click', function (e){
+    e = e || window.event;
+    $('#content').load('/content?name=research&section=roboticsAndAI');
+}, false);
+
+
 
 document.getElementById('spaceTourism-link').addEventListener('click', function (e){
     e = e || window.event;

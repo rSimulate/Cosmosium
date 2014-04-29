@@ -97,10 +97,24 @@ def js_static(filename):
 #=====================================#
 @app.route('/content')
 def makeContentHTML():
-    name=request.query.name
+    name=request.query.name # content page name
+    subDir = request.query.section=request.query.section # specific section of page (like type of research page)
+    
+    treeimg=''
+    if name == 'research': # then get research subDir info
+        if subDir=='spaceIndustry':
+            treeimg="img/space_industry_tech_tree_images.svg";
+        elif subDir=='humanHabitation':
+            treeimg="img/space_industry_tech_tree.svg";
+        elif subDir=='roboticsAndAI':
+            treeimg="img/space_industry_tech_tree_images.svg";
+        else:
+            return template('tpl/content/404') # error404('404')
+    
     fileName='tpl/content/'+name
     if os.path.isfile(fileName+'.tpl'): #if file exists, use it
         return template(fileName,
+            tree_src=treeimg, #used only for research pages
             chunks=CHUNKS,
             user=USER,
             oois=OOIs,
