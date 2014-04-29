@@ -3,7 +3,7 @@
 
 <!-- use the webGL scene as bg -->
 % if config.showBG:
-    <div style="position: absolute; left: 0px; top: 0px background-color: green;">
+    <div style="position: absolute; left: 0px; top: 0px background-color: green;" id='systemBG'>
         % include('tpl/webGL_scene',asteroidDB='db/test_asteroids.js')
     </div>
 # end

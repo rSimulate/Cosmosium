@@ -1,19 +1,19 @@
 
 from bottle import route, run, request, template
 
-@route('/searchtest')
+@app.route('/searchtest')
 def searchTest():
     return template('tpl/searchView',asteroidDB="db/test_asteroids.js")
     
-@route('/searchNEOs')
+@app.route('/searchNEOs')
 def searchNEOs():
     return template('tpl/searchView',asteroidDB="db/NEOs.js")
     
-@route('/searchMainBelt')
+@app.route('/searchMainBelt')
 def searchNEOs():
     return template('tpl/searchView',asteroidDB="db/MainBelt.js")
     
-@route('/searchKuiperBelt')
+@app.route('/searchKuiperBelt')
 def searchNEOs():
     return template('tpl/searchView',asteroidDB="db/KuiperBelt.js")
 

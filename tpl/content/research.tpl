@@ -1,4 +1,7 @@
- 
+ <script type="text/javascript">
+    THREE.OrbitControls.enabled = false
+</script>
+
 <!-- this row is fixed to the top... -->
 <div class="row">
 <!-- User tech summary -->

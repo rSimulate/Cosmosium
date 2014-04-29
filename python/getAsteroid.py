@@ -4,7 +4,7 @@ from bottle import route, run, request, template
 
 ### BOTTLE.PY ROUTES ###
     
-@route('/asteroidReq')
+@app.route('/asteroidReq')
 def processReq():
     q = request.query.query
     lim = request.query.limit
