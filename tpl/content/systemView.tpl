@@ -1,5 +1,5 @@
 <script type="text/javascript">
     THREE.OrbitControls.enabled = true
 
-    $('#systemBG').load('/searchNEOs');
+    $('#systemBG').load('/systemView');
 </script>

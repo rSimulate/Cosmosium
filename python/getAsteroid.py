@@ -1,15 +1,5 @@
 
 import requests
-from bottle import route, run, request, template
-
-### BOTTLE.PY ROUTES ###
-    
-@app.route('/asteroidReq')
-def processReq():
-    q = request.query.query
-    lim = request.query.limit
-    print 'q=',q,' l=',lim
-    return template('type: {{datatype}} (response {{res}})', datatype="asterank", res=asterankAPI(q,lim))
 
 ###    ###     ###
 

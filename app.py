@@ -37,7 +37,6 @@ from geventwebsocket import WebSocketServer, WebSocketApplication, Resource, Web
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 
-
 # Template Components
 from python.page_maker.chunks import chunks # global chunks
 from python.page_maker.Settings import Settings
@@ -52,6 +51,8 @@ from python.OOIs import OOIs
 from python.game_logic import purchases
 from python.game_logic.GameList import GameList
 from python.game_logic.UserList import UserList
+
+from python.getAsteroid import asterankAPI
 
 #=====================================#
 #              GLOBALS                #
@@ -183,9 +184,21 @@ def handle_websocket():
 #=====================================#
 #        Asteroid Views Routing       #
 #=====================================#
-# external python app routings (controllers):
-import python.getAsteroid
-import python.search
+@app.route('/searchtest')
+def searchTest():
+    return template('tpl/searchView',asteroidDB="db/test_asteroids.js")
+    
+@app.route('/searchNEOs')
+def searchNEOs():
+    return template('tpl/searchView',asteroidDB="db/NEOs.js")
+    
+@app.route('/searchMainBelt')
+def searchNEOs():
+    return template('tpl/searchView',asteroidDB="db/MainBelt.js")
+    
+@app.route('/searchKuiperBelt')
+def searchNEOs():
+    return template('tpl/searchView',asteroidDB="db/KuiperBelt.js")
 
 # these is here to circumvent global variable issues
 @app.route('/systemView')
@@ -231,6 +244,13 @@ def getOOIs():
     # json=data.replace(r"\"",r")
 #    return template('tpl/jsAsteroids',json=data)
     return Settings(MASTER_CONFIG).asteroidDB
+    
+@app.route('/asteroidReq')
+def processReq():
+    q = request.query.query
+    lim = request.query.limit
+    print 'q=',q,' l=',lim
+    return template('type: {{datatype}} (response {{res}})', datatype="asterank", res=asterankAPI(q,lim))
 
 #=====================================#
 #           User Actions              #
