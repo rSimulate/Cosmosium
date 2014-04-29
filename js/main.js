@@ -23,7 +23,8 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var skybox;
 
     var SHOWING_ASTEROID_OWNERSHIP = (typeof owners === "object");
-
+    var SHOWING_ASTEROID_CLAIM = true
+    
     var CAMERA_NEAR = 1;
     var CAMERA_FAR = 100000;
 
@@ -184,7 +185,6 @@ function RSimulate(opts) {
         var mesh = meshes[bodyId];
         var ellipse = ellipses[bodyId];
         ellipse.visible = true;
-
         var bodyName = "";
 
         console.log("\torbit: ");
@@ -281,10 +281,12 @@ function RSimulate(opts) {
             e = e || window.event;
             
             $('#content').load('/content/addAsteroid?name='+bodyName);
-            
+
         }, false);
-        
+
         $("#body-info-container").show();
+        
+
 
         console.log("\t" + bodyName);
         console.log("\tmesh: ");

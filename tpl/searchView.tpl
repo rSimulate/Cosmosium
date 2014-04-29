@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+
     <head>
         <title>three.js webgl - orbit controls</title>
         <meta charset="utf-8">
@@ -621,4 +620,3 @@
         </div>
 
     </body>
-</html>

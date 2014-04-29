@@ -61,30 +61,19 @@ class User(object):
         
     def affords(self,item):
         # returns true if can afford given item description
-        # itemDesc can be a dict with cost values, or a string descriptor
-        try:
-            return item['science'] < self.resources.getScience(self)\
-                and item['wealth'] < self.resources.getWealth(self)\
-                and item['energy'] < self.resources.getEnergy(self)\
-                and item['metals'] < self.resources.getMetals(self)\
-                and item['organic']< self.resources.getOrganic(self)
-        except TypeError: # if not a dict
-            return self.affords(purchases.getCost(item))
+        # itemDesc must be a dict with cost values like that returned by purchases.getCost()
+        return item['science'] < self.resources.science()\
+            and item['wealth'] < self.resources.wealth()\
+            and item['energy'] < self.resources.energy()\
+            and item['metals'] < self.resources.metals()\
+            and item['organic']< self.resources.organic()
+
 
                 
-    def payFor(self,item):
+    def payFor(self,cost):
         # deducts item cost from resources,
         # returns true if purchase is sucessful 
         # assumes that user can afford item
-        try:      
-            temp = item['science'] < self.resources.getScience(self)\
-                and item['wealth'] < self.resources.getWealth(self)\
-                and item['energy'] < self.resources.getEnergy(self)\
-                and item['metals'] < self.resources.getMetals(self)\
-                and item['organic']< self.resources.getOrganic(self)
-            cost = item
-        except TypeError: # if not a dict
-            cost = purchases.getCost(item)
             
         self.resources.science -= cost['science']
         self.resources.wealth  -= cost['wealth']

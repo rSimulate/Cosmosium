@@ -21,6 +21,14 @@ class Resource(object):
             raise ValueError('cannot request resource value before resource creation')
         else: # t = time 
             return self.__value + self.getDelta()*int(t-self.__lastUpdate)
+            
+    def __add__(self,val):
+        # overrides '+' operation to add to the resource
+        self.__value += val
+    
+    def __sub__(self,val):
+    # overrides '-' operation to subtract from the resource
+        self.__value -= val    
 
     def getValue(self):
         self.__update()

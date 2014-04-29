@@ -52,7 +52,7 @@ from python.game_logic import purchases
 from python.game_logic.GameList import GameList
 from python.game_logic.UserList import UserList
 
-from python.getAsteroid import asterankAPI
+from python.getAsteroid import asterankAPI, byName
 
 #=====================================#
 #              GLOBALS                #
@@ -258,11 +258,11 @@ def processReq():
 @app.route('/content/addAsteroid')
 def addOOI():
     name = str(request.query.name)
-    print 'request to track '+name
         
-    if USER.affords('asteroidTrack'):
-        USER.payFor('asteroidTrack')
-        OOIs.addObject(python.getAsteroid.byName(name), 'PLAYER_1')
+    if USER.affords(purchases.getCost('asteroidTrack')):
+        print 'request to track '+name+' accepted.'
+        USER.payFor(purchases.getCost('asteroidTrack'))
+        OOIs.addObject(byName(name), 'PLAYER_1')
         # write the new js file(s)
         OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
         print 'object '+name+' added to OOIs'
@@ -273,6 +273,7 @@ def addOOI():
             pageTitle='Asteroid Add Request Approved',
             user=USER)
     else:
+        print 'request to track '+name+' denied. insufficient funds.'
         return template('tpl/content/insufficientFunds',
             objectName=name,
             chunks=CHUNKS,
@@ -280,14 +281,15 @@ def addOOI():
             pageTitle='Asteroid Add Request Denied',
             user=USER)
             
+# DEPRECIATED!!!
 @app.route('/addAsteroid')
 def addOOI():
     name = str(request.query.name)
-    print 'request to track '+name
         
-    if USER.affords('asteroidTrack'):
-        USER.payFor('asteroidTrack')
-        OOIs.addObject(python.getAsteroid.byName(name), 'PLAYER_1')
+    if USER.affords(purchases.getCost('asteroidTrack')):
+        print 'request to track '+name+' accepted'
+        USER.payFor(purchases.getCost('asteroidTrack'))
+        OOIs.addObject(byName(name), 'PLAYER_1')
         # write the new js file(s)
         OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
         print 'object '+name+' added to OOIs'
@@ -298,6 +300,7 @@ def addOOI():
             pageTitle='Asteroid Add Request Approved',
             user=USER)
     else:
+        print 'request to track '+name+' denied. insufficient funds.'
         return template('tpl/pages/insufficientFunds',
             objectName=name,
             chunks=CHUNKS,
