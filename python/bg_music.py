@@ -11,9 +11,10 @@ def genAttr(author,title):
 tracks = [dict(link='http://storage-new.newjamendo.com/download/track/128345/mp32/',
             attrib=genAttr('Doc','Bell Meditiation')),
             dict(link='http://storage-new.newjamendo.com/download/track/878540/mp32/',
-            attrib=genAttr('Louigi Verona','ritual')),
-            dict(link='http://storage-new.newjamendo.com/download/track/213140/mp32/',
-            attrib=genAttr('Shane Carey','In Space, Nobody Can Hear You Dream'))
+            attrib=genAttr('Louigi Verona','ritual'))
+# this next one makes tylar crazy, so it has been disabled            
+#            dict(link='http://storage-new.newjamendo.com/download/track/213140/mp32/',
+#            attrib=genAttr('Shane Carey','In Space, Nobody Can Hear You Dream'))
             ]
 
 
