@@ -13,10 +13,6 @@
                 padding: 5px;
             }
 
-            a {
-                color: red;
-            }
-
             #body-info-container {
                 background-color: gray;
                 color: white;
@@ -25,6 +21,9 @@
                 right: 0px;
                 width: 200px;
                 padding: 5px;
+            }
+            #claim-asteroid-button {
+                color: red;
             }
 
             #body-info {
@@ -616,7 +615,9 @@
         <div id="body-info-container">
             <br>
             <div id="body-info">foo</div>
-            <a id="claim-asteroid-button" href="#">Claim this asteroid</a>
+            <h3>
+            <a id="claim-asteroid-button" href="#" >Claim this asteroid</a>
+            </h3 >
         </div>
 
     </body>
