@@ -1,7 +1,7 @@
 <!-- header logo: style can be found in header.less -->
-<header class="header">
+<header class="header" style="position: absolute; left: 0px; top: 0px">
     <!-- TODO: new logo -->
-    <a href="index.html" class="logo">
+    <a href="/" class="logo">
         <!-- Add the class icon to your logo image or logo icon to add the margining -->
         COSMOSIUM
     </a>

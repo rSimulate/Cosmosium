@@ -5,7 +5,7 @@ from time import time
 from math import exp
 
 class Resource(object):
-    def __init__(self, val=0, scaler=10, lvl=2, bal=0):
+    def __init__(self, val=0, scaler=10, lvl=0, bal=0):
         self.__value = val
         self.__growthScaler = scaler
         self.__growthLevel = lvl

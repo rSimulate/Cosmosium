@@ -8,11 +8,11 @@ from python.game_logic.Resource import Resource
 
 class Resources(object):
     def __init__(self):
-        self.science= Resource()
-        self.wealth = Resource()
-        self.energy = Resource()
-        self.metals = Resource()
-        self.organic= Resource()
+        self.science= Resource(scaler=7)
+        self.wealth = Resource(scaler=47)
+        self.energy = Resource(scaler=10)
+        self.metals = Resource(scaler=9)
+        self.organic= Resource(scaler=11)
         
         self.__lastUpdate = int(time())
         

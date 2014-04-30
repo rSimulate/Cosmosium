@@ -10,8 +10,14 @@ def genAttr(author,title):
 
 tracks = [dict(link='http://storage-new.newjamendo.com/download/track/128345/mp32/',
             attrib=genAttr('Doc','Bell Meditiation')),
+            dict(link='http://storage-new.newjamendo.com/download/track/128351/mp32/',
+            attrib=genAttr('Doc','Andromeda')),
             dict(link='http://storage-new.newjamendo.com/download/track/878540/mp32/',
-            attrib=genAttr('Louigi Verona','ritual'))
+            attrib=genAttr('Louigi Verona','ritual')),
+            dict(link='http://storage-new.newjamendo.com/download/track/415827/mp32/',
+            attrib=genAttr('Jaime Heras','Beyond The Edge Of Knowledge')),
+            dict(link='http://storage-new.newjamendo.com/download/track/36604/mp32/',
+            attrib=genAttr('Adam Certamen Bownik','Landing site'))
 # this next one makes tylar crazy, so it has been disabled            
 #            dict(link='http://storage-new.newjamendo.com/download/track/213140/mp32/',
 #            attrib=genAttr('Shane Carey','In Space, Nobody Can Hear You Dream'))

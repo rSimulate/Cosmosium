@@ -57,7 +57,7 @@
             <script type='text/javascript' src='/webSocketSetup.js'></script>
 
     </head>
-    <body class="skin-black">
+    <body class="skin-black" style='background-color: black;'>
         <!-- top navigation bar -->
         % if config.showFrame:
         %   include('tpl/frame_top')
@@ -72,11 +72,13 @@
         
         <!-- Right side column. Contains the navbar and content of the page -->
         <aside class="right-side">
+            <br>
             <!-- Page Header and Resource Bar -->
             % if config.showResources:
                 <section id="resource-bar" class="content-header" >
                     %   include('tpl/resourcebar')
                 </section>
             % end
+            <br>
             <!-- Main content -->
-            <section class="content" id="content">
+            <section class="content" id="content" style='background-color: black;'>
