@@ -36,7 +36,9 @@
             <p>
             Live out the most pivotal century in mankind's history, as - for the first time in history - we begin to mold the cosmos around us. From our first baby steps out of the atmosphere and onward to interstellar space, the player must hunt out asteroids and develop the technology to utilize their resources. Probe the depths of the solar system and learn how to profit, advance, and spread life throughout the cosmos.
             </p>
+            <p>
             <img src='https://camo.githubusercontent.com/935ed701e7a2226d04e161ed0e8b48ac3235f385/687474703a2f2f692e696d6775722e636f6d2f5837554e3435642e706e67' alt='asteroid hunting in webGL'>
+            </p>
             <p>
             This 4x-style browser game aims to inspire and educate the general population about the next phase of life in our solar system. Using REAL asteroid data from a scientific database of over 600,000 asteroids, and combining both past and future NASA missions with out-of-this-world futuristic technology we can only theorize about today, this game creates a factually-founded and engaging experience.
             </p>
@@ -48,10 +50,15 @@
               src="https://www.youtube.com/watch?v=KExgYWxdFVU?autoplay=0&origin=http://asteroid.ventures"
               frameborder="0"/>
               -->
+              
+            <p>
+            <h2>
+            Don't forget to <a href='https://twitter.com/intent/tweet?source=webclient&text=I+voted+for+%23cosmosium+for+%40spaceapps+People%27s+Choice.+You+can+too%3A+bit.ly%2FSA-Vote+Deadline+5+May+%40spaceappsvirtual+%23spaceapps'>vote for us</a> as your favorite <a href='https://2014.spaceappschallenge.org/awards/#peopleschoice'>People's Choice</a> Finalist!
+            </h2>
+            <p>
+
+            %include('tpl/loginBox')
         </section>
-        
-        <center><h1> Play now! </h1></center>
-        %include('tpl/loginBox')
 
         <!-- jQuery 2.0.2 -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
