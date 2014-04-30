@@ -21,4 +21,4 @@ Oh yeah... and we're working on making it multiplayer so we can crowd-source the
 Check out the [installation instructions](https://github.com/rSimulate/Cosmosium/blob/master/INSTALL.md) to get your own cosmosium server going and we'll gladly accept your pull requests.
 
 ####Licensing###
-All Cosmosium Asteroid Ventures code is open-source under the Apache License, Version 2.0. See LICENSE file for full text.
+All Cosmosium Asteroid Ventures code is open-source under the Creative Commons Attribution 4.0 International (CC BY 4.0) See LICENSE file for full text.
