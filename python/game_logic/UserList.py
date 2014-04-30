@@ -31,10 +31,16 @@ class UserList(object):
     def getUserByToken(self,token):
         # returns user obj if found, else returns none
         try:
-            return self.users[token]
+            use = self.users[token]
+            try:
+                nam = use.name
+            except AttributeError as e:
+                raise ReferenceError('\nuser found in memory, but object has been deleted!\n') # I _think_ that's the right error throw...
         except KeyError as e:
             print '\nuser lookup token not found. bad client access attempt?\n'
-            raise e
+            raise
+        # if no exceptions thrown...
+        return self.users[token]
         
     def addDemoUsers(self):
         for user in demoIDs:

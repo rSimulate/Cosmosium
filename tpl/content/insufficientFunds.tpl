@@ -21,4 +21,3 @@
         %           title="You can't afford to track "+objectName+'!',
         %           text=tex )
         
-        % print ('insufficient funds tpl built...')

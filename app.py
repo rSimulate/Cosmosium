@@ -21,7 +21,7 @@ __author__ = 'rsimulate'
 
 # Primary Components
 import os
-from python.bottle import route, run, static_file, template, view, post, request, error, Bottle, response
+from python.bottle import route, run, static_file, template, view, post, request, error, Bottle, response, redirect
 import sqlite3 as lite
 import sys
 import json
@@ -38,6 +38,7 @@ import gevent
 from geventwebsocket import WebSocketServer, WebSocketApplication, Resource, WebSocketError
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
+import python.webSocketParser as webSocketParser
 
 # Template Components
 from python.page_maker.chunks import chunks # global chunks
@@ -144,9 +145,10 @@ def makeGamePage():
         userLoginToken = request.get_cookie("cosmosium_login")
         try:
             _user = USERS.getUserByToken(userLoginToken)
-        except KeyError as E: # user token not found
+        except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
             return userLogin()
-        return template('tpl/pages/play',chunks=CHUNKS,
+        return template('tpl/pages/play',
+            chunks=CHUNKS,
             user=_user,
             oois=OOIs,
             config=Settings(MASTER_CONFIG),
@@ -185,7 +187,14 @@ def handle_websocket():
         try:
             message = wsock.receive()
             print "received : "+str(message)
-            mesDict = eval(str(message))
+            try:
+                mesDict = eval(str(message))
+            except TypeError as e:
+                if e.message == "'NoneType' object has no attribte '__getitem__'":
+                    # it's likely that pesky onclose message I can't fix... ignore for now
+                    print 'connection closed'
+                else:
+                    raise
             try:
                 gameID = mesDict['gID']
                 userID = mesDict['uID']
@@ -196,6 +205,7 @@ def handle_websocket():
             # TODO: call message parser sort of like:
             #game_manager.parseMessage(message,wsock)
             # NOTE: message parser should probably be an attribute of the game
+            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, OOIs)
             
         except WebSocketError:
             break
@@ -458,7 +468,7 @@ def setLoginCookie():
             except ValueError as e:
                 print e.message
             response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
-            return makeGamePage()
+            redirect('/play')
     else:
         return userLogin('user not found')
     

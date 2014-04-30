@@ -52,6 +52,7 @@
             </audio> 
 
             <!-- websocket connection --> 
+            <script type='text/javascript' src='/js/wsMessageParser.js'></script>
             <script type='text/javascript' src='/js/createMessage.js'></script>
             <script type='text/javascript' src='/webSocketSetup.js'></script>
 
