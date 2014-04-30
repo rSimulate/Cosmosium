@@ -5,9 +5,10 @@
     Launch Sites
 </h3>
 <div id="world-map" style="height: 400px"></div>
-  <script>
+<!--  <script>
     $(function(){
       $('#world-map').vectorMap(({map: 'world_mill_en'});                                          
     });
   </script>
+  -->
 </div>                                      
