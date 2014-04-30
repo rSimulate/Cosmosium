@@ -26,6 +26,8 @@ import sqlite3 as lite
 import sys
 import json
 import pymongo # import Connection
+import string 
+import random 
 
 # OAuth components
 import rauth
@@ -42,7 +44,7 @@ from python.page_maker.chunks import chunks # global chunks
 from python.page_maker.Settings import Settings
 
 # ui handlers:
-from python.query_parsers.getUser import getUser
+from python.query_parsers.getUser import getUser, getProfile, demoIDs
 from python.query_parsers.checkQuery import checkQuery
 
 # game logic:
@@ -61,11 +63,11 @@ app = Bottle()
 CHUNKS = chunks()   # static chunks or strings for the site
 DOMAIN = 'localhost:7099' # domain name
 GAMES = GameList()  # list of ongoing games on server
-USERS = UserList()  # list of users on the server (temporary db-like hack)
+USERS = UserList()  # list of users on the server TODO: replace use of this w/ real db.
 MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
 
 OOIs = OOIs() #TODO: this is in the Game() object now... which is now in GameList()
-USER = User() #TODO: this should now be replaced with getUser()
+USER = User() #TODO: this should now be replaced with USERS.getByToken() using a token from request cookie
 
 # initial write of JSON files:
 OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
@@ -140,9 +142,9 @@ def makeGamePage():
     # check for user login token in cookies
     if request.get_cookie("cosmosium_login"):
         userLoginToken = request.get_cookie("cosmosium_login")
-        # TODO: get user information from DB using login token, pass to template
+        _user = USERS.getUserByToken(userLoginToken)
         return template('tpl/pages/play',chunks=CHUNKS,
-            user=USER,
+            user=_user,
             oois=OOIs,
             config=Settings(MASTER_CONFIG),
             pageTitle="Cosmosium Asteriod Ventures!")
@@ -434,14 +436,8 @@ redirect_uri = '{uri}:{port}/success'.format(
 
 # Login Routing
 @app.route('/userLogin')
-def userLogin():
+def userLogin(specialMessage=''):
     return template('tpl/pages/userLogin')
-
-@app.route('/demoLogin')
-def demoLogin():
-    demoUser = request.query.userid
-    loginToken = demoUser
-    response.set_cookie("cosmosium_login",loginToken)
     
 @app.post('/loggin')
 def setLoginCookie():
@@ -449,15 +445,19 @@ def setLoginCookie():
     pw  = request.forms.get('password')
     rem = request.forms.get('remember_me')
     
-    # TODO: check that the values are in the user database, get loginToken from db
-    loginIsGood= True
-    loginToken = "loginToken"
-    
-    if loginIsGood:
-        response.set_cookie("cosmosium_login",loginToken)
-        return makeGamePage()
+    _user = USERS.getUserByName(uid) # TODO: replace this with db lookup
+    if _user: # if user has existing login
+        if uid in demoIDs or False: # TODO: replace this false with password check
+            loginToken = uid+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
+            userObj = getProfile(uid)
+            try:
+                USERS.addUser(userObj,loginToken) 
+            except ValueError as e:
+                print e.message
+            response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
+            return makeGamePage()
     else:
-        return userLogin()
+        return userLogin('user not found')
     
 
 # I'm not sure how to use this... =( ~Tylar

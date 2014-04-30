@@ -1,5 +1,7 @@
 from python.game_logic.User import User
 
+demoIDs = ['Johannes_Kepler','Edwin_Hubble']
+
 def createUser(name, icon, agency, subtext ):
     # basically a User constructor using a given set of values
     #  to save me some typing
@@ -20,7 +22,7 @@ def getProfile(userName):
         raise ValueError('user "'+userName+'" not found')
     
 
-        
+# DEPRECIATED!!!
 def getUser(req,gameList):
     # returns User() object (from db or memory) for given request query
     currentGame = int(req.query.gameID)
