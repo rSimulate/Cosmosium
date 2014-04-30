@@ -1,7 +1,7 @@
 <div class="form-box" id="login-box">
     <div class="header">Play in a Demo Game Now</div>
     <div class="body bg-gray">
-    Choose your player name:
+    Choose your player:
         <ul>
             <li><form action="/loggin" method="post">
                 <a href="javascript:;" onclick="parentNode.submit();">Edwin Hubble</a>
