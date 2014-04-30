@@ -3410,3 +3410,10 @@ fieldset[disabled] .btn-vk.active {
   color: #587ea3;
   background-color: #ffffff;
 }
+/* Adding Text classes for the splash page */
+.splash-body{
+  color: #333333;
+}
+.white-icons{
+  color: #FFFFFF;
+}
