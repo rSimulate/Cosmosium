@@ -11,9 +11,9 @@
         <!-- Left col -->
       
       
-      <script src="jquery.js"></script>
-      <script src="jquery-jvectormap-1.0.min.js"></script>
-      <script src="jquery-jvectormap-world-mill-en.js"></script>
+      <script src="js/jquery-1.11.0.min.js"></script>
+      <script src="js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+      <script src="js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
       
          
         </section><!-- /.Left col -->
