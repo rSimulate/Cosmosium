@@ -1,7 +1,9 @@
 
 import unittest
 
+from python.game_logic.User import User
+
 class User_test(unittest.TestCase):
-    def deltaResourcesGoesUp_if_researchAgeIncreases(self):
+    def test_deltaResourcesGoesUp_if_researchAgeIncreases(self):
         user = User()
-        
+        # TODO!!!

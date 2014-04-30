@@ -22,7 +22,6 @@
                  <div class="col-xs-7 text-left" >
                     % for d in data:
                     <p>
-                    % print d
                     {{d['val']}} {{d['name']}}s
                     </p>
                     % end

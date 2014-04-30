@@ -2,84 +2,84 @@
 Resources class handles all things related to user resources
 '''
 
-from math import exp
 from time import time
+
+from python.game_logic.Resource import Resource
 
 class Resources(object):
     def __init__(self):
-        self.science= 0 
-        self.wealth = 0
-        self.energy = 0
-        self.metals = 0
-        self.organic= 0
+        self.science= Resource(scaler=7)
+        self.wealth = Resource(scaler=47)
+        self.energy = Resource(scaler=10)
+        self.metals = Resource(scaler=9)
+        self.organic= Resource(scaler=11)
         
-        self.lastUpdate = int(time())
+        self.__lastUpdate = int(time())
         
+        
+    ### DEPRECIATED METHODS (DONT USE, REMOVE IF POSSIBLE) ###
     def getScience(self, player):
+        # DEPRECIATED! Use return statement directly in future.
         #returns current amout of science
-        self.update(player)
-        return self.science
+        return self.science()
         
     def getWealth(self, player):
         #returns current amout of science
-        self.update(player)
-        return self.wealth
+        # DEPRECIATED! Use return statement directly in future.
+        return self.wealth()
         
     def getEnergy(self, player):
         #returns current amout of energy
-        self.update(player)
-        return self.energy   
+        # DEPRECIATED! Use return statement directly in future.
+        return self.energy()
         
     def getMetals(self, player):
         #returns current amout of metals
-        self.update(player)
-        return self.metals         
+        # DEPRECIATED! Use return statement directly in future.
+        return self.metals()
 
     def getOrganic(self, player):
         # returns current amount of organic
-        self.update(player)
-        return self.organic
+        # DEPRECIATED! Use return statement directly in future.
+        return self.organic()
         
     def getLife(self, player):
         # DEPRECIATED alias for getOrganic
         return self.getOrganic()
-
         
     def getDeltaWealth(self, player):
         # returns estimated increase/s for the js client
-        return int(exp(player.research.age)*10)
+        # DEPRECIATED! Use return statement directly in future.
+        return self.wealth.getDelta()
                 
     def getDeltaScience(self, player):
         # returns estimated increase/s for the js client
-        # dScience = multiplier * e^(exponential) + linearIncrease
-        sciGrowthConst = 10
-        baseGrowth = sciGrowthConst*exp(player.research.age)
-        boosts = 1
-        operateCosts = -1
-        return sciGrowthConst*baseGrowth + boosts - operateCosts
+        # DEPRECIATED! Use return statement directly in future.
+        return self.science.getDelta()
         
     def getDeltaMetals(self, player):
         # returns estimated increase/s for the js client
-        return int(exp(player.research.age)*10)
+        # DEPRECIATED! Use return statement directly in future.
+        return self.metals.getDelta()
         
     def getDeltaEnergy(self, player):
         # returns estimated increase/s for the js client
-        return int(exp(player.research.age)*10)
+        # DEPRECIATED! Use return statement directly in future.
+        return self.energy.getDelta()
     
     def getDeltaOrganic(self, player):
         # returns estimated increase/s for the js client
-        return int(exp(player.research.age)*10)
+        # DEPRECIATED! Use return statement directly in future.
+        return self.organic.getDelta()
         
     def update(self, player):
-            # computes updated values for all resources
-        self.science=int(self.getDeltaScience(player)*self.getTimeElapsed())
-        self.wealth= int(self.getDeltaWealth(player) *self.getTimeElapsed())
-        self.energy= int(self.getDeltaEnergy(player) *self.getTimeElapsed())
-        self.metals= int(self.getDeltaMetals(player) *self.getTimeElapsed())
-        self.organic=int(self.getDeltaOrganic(player)   *self.getTimeElapsed())
+        # computes updated values for all resources
+        # DEPRECIATED! No use for all-resource updates, right?
+        self.science.__update()
+        self.wealth.__update()
+        self.metals.__update()
+        self.energy.__update()
+        self.organic.__update()
+        self.__lastUpdate = int(time())
         
-    def getTimeElapsed(self):
-        # returns the number of seconds elapsed since last update
-    #    print '\n\n',time(),' - ', self.lastUpdate,'\n\n'
-        return int(time()) - self.lastUpdate
     

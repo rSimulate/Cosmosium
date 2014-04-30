@@ -1,5 +1,7 @@
 # this file defines static values to be used in templates
 
+from python.bg_music import bg_music
+
 class chunks(object):
     def __init__(self):
 
@@ -21,10 +23,11 @@ class chunks(object):
 
         self.profile_link_text = "Profile"
         self.signout_link_text = "Sign out"
-        self.signout_link = '#'
+        self.signout_link = '/'
         self.salutation = 'Hello'
         
         self.button1_text = 'Dashboard'
         self.button2_text = 'Solar System'
         self.button2_num  = 1
         
+        self.bg_music = bg_music()

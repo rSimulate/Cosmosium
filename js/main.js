@@ -22,8 +22,11 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var plane;
     var skybox;
 
+    var claimButt = document.getElementById('claim-asteroid-button');
+    
     var SHOWING_ASTEROID_OWNERSHIP = (typeof owners === "object");
-
+    var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
+    
     var CAMERA_NEAR = 1;
     var CAMERA_FAR = 100000;
 
@@ -43,6 +46,8 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var nextEntityIndex = 0;
 
     var mapFromOwnerNameToColor = {};
+    
+    var selectedBody = '';
 
 function RSimulate(opts) {
 
@@ -67,7 +72,7 @@ function RSimulate(opts) {
         }
 
         indexes[indexLabel].push(nextEntityIndex);
-
+        
         nextEntityIndex++;
     }
 
@@ -184,7 +189,6 @@ function RSimulate(opts) {
         var mesh = meshes[bodyId];
         var ellipse = ellipses[bodyId];
         ellipse.visible = true;
-
         var bodyName = "";
 
         console.log("\torbit: ");
@@ -196,14 +200,73 @@ function RSimulate(opts) {
         }
 
         var infoHTML = "<h3>" + bodyName + "</h3>";
+        // info to show in the window:
         for (var key in orbit.eph) {
+            // excluded info:
+            if (key.slice(0,6) == 'sigma_'
+                || key.slice(-6) == '_sigma'
+                || key == 'full_name'
+                || key == 'epoch_mjd'
+                || key == 'rms'
+                || key == 'neo'
+                || key == 'equinox'
+                || key == 'spkid'
+                || key == 'per'
+                || key == 'id'
+                || key == 'data_arc'
+                || key == 'condition_code'
+                || key == 'prov_des'
+                || key == 'moid_ld'
+                || key == 'orbit_id'
+                || key == 'two_body'
+                || key == 'G'
+                || key == 'e'
+                || key == 'class'
+                || key == 'a'
+                || key == 'name'
+                || key == 'i'
+                || key == 'tp'
+                
+                /* i'm not sure what these next ones are... maybe they should be included and renamed? */
+                || key == 'K2'
+                || key == 'K1'
+                || key == 'M1'
+                || key == 'M2'
+                || key == 'DT'
+                || key == 'pha'
+                || key == 'PC'
+                || key == 'A1'
+                || key == 'A2'
+                || key == 'A3'
+                || key == 'ad'
+                || key == 'saved'
+                || key == 'per_y'
+                || key == 'epoch_cal'
+                || key == 'epoch'
+                || key == 'IR'
+                || key == 'extent'
+                || key == 'tp_cal'
+                || key == 'pdes'
+                || key == 't_jup'
+                || key == 'om'
+                || key == 'ma'
+                || key == 'prefix'
+                || key == 'q'
+                || key == 'w'
+                || key == 'n'
+                || key == 'n_del_obs_used'
+                || key == 'n_dop_obs_used'
+                
+                ){
+                continue
+            }
             infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
         }
 
         // make this display the owner name...       
         if (SHOWING_ASTEROID_OWNERSHIP) {
 
-            var ownerName = owners[bodyId]; // asteroid[i] is owned by owner[i]
+            var ownerName = owners[bodyId-12]; // asteroid[i] is owned by owner[i], there are 12 non-asteroid objects in the system...
             if (ownerName) {
                 var ownerColor = mapFromOwnerNameToColor[ownerName];
                 console.log('claimed by "'+ownerName+'", color=('+ownerColor.b+','+ownerColor.g+','+ownerColor.r+')')
@@ -217,9 +280,9 @@ function RSimulate(opts) {
         
         $("#body-info").html(infoHTML);
 
-        $("#claim-asteroid-button").attr("href", "/addAsteroid?name=" + bodyName);
-
         $("#body-info-container").show();
+        
+        selectedBody = bodyName;
 
         console.log("\t" + bodyName);
         console.log("\tmesh: ");
@@ -824,6 +887,20 @@ document.addEventListener('click', function(event) {
   }
 }, false);
 
+if (SHOWING_ASTEROID_CLAIM){
+    // link to add the asteroid
+    function claimButt_onClick(e){
+        e = e || window.event;
+        
+        // this doesn't work...
+        //$('#content').load('/content/addAsteroid?name='+bodyName);
+        // so we'll have to use websockets instead:
+        ws.send(message('track',selectedBody));
+        
+    }
+    claimButt.addEventListener('click', claimButt_onClick, false);
+}
+    
 $(document).ready(function(){
     $("#body-info-container").hide();
 });

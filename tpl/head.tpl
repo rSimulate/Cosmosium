@@ -1,17 +1,15 @@
 <!DOCTYPE html>
 <html>
-
-<!-- use the webGL scene as bg -->
-% if config.showBG:
-    <div style="position: absolute; left: 0px; top: 0px background-color: green;">
-        % include('tpl/webGL_scene',asteroidDB='db/test_asteroids.js')
-    </div>
-# end
-    
+        
+    <!-- use the webGL scene as bg -->
+    % if config.showBG:
+        <div style="position: absolute; left: 0px; top: 0px background-color: green;" id='systemBG'>
+            % include('tpl/webGL_scene',asteroidDB='db/test_asteroids.js')
+        </div>
+    # end
     <head>
         <meta charset="UTF-8">
-        <title>Cosmosium | {{pageTitle}}</title>
-        
+        <title>Cosmosium | {{pageTitle}}</title>        
         % if config.showFrame:
             <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
             <!-- bootstrap 3.0.2 -->
@@ -40,19 +38,47 @@
               <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
             <![endif]-->
         % end
+        
+            <!-- background music -->
+            % chunks.bg_music.loadRand() 
+            <script type='text/javascript'>var audioAttrib = "{{chunks.bg_music.attrib}}"</script>
+            <audio id="background_audio" 
+                % if config.music:
+                    autoplay="true">
+                % else:
+                    autoplay="false">
+                % end
+              <source src="{{chunks.bg_music.link}}" />
+            </audio> 
+
+            <!-- websocket connection --> 
+            <script type='text/javascript' src='/js/wsMessageParser.js'></script>
+            <script type='text/javascript' src='/js/createMessage.js'></script>
+            <script type='text/javascript' src='/webSocketSetup.js'></script>
 
     </head>
-    <body class="skin-black">
-        <!-- navigation bars -->
+    <body class="skin-black" style='background-color: black;'>
+        <!-- top navigation bar -->
         % if config.showFrame:
-        %   include('tpl/game_frame') # implicitly passed: chunks,messages,note_count,task_count,user,resources
+        %   include('tpl/frame_top')
         % end
+        
+        <!-- left navigation bars -->
+        % if config.showFrame:
+        %   include('tpl/frame_left')
+        % end
+        
+
         
         <!-- Right side column. Contains the navbar and content of the page -->
         <aside class="right-side">
+            <br>
             <!-- Page Header and Resource Bar -->
             % if config.showResources:
-            %   include('tpl/resourcebar') # implicitly passed: Chunks.appName, PageTitle
+                <section id="resource-bar" class="content-header" >
+                    %   include('tpl/resourcebar')
+                </section>
             % end
+            <br>
             <!-- Main content -->
-            <section class="content">
+            <section class="content" id="content" style='background-color: black;'>
