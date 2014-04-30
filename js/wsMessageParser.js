@@ -1,15 +1,23 @@
-function prependContent(m){
-    document.getElementById('content').innerHTML = m + document.getElementById('content').innerHTML;
+function prependContent(newContent){
+    // adds new content HTML to the beginning of the content section
+    document.getElementById('content').innerHTML = newContent + document.getElementById('content').innerHTML;
+}
+
+function updateResources(newHTML){
+    // replaces resource bar HTML with fresh, updated code. 
+    document.getElementById("resource-bar").innerHTML = newHTML;
 }
 
 function parseMessage(m){
     // interprets and carries out messages
     
-    var cmd = m.split('"')[3];
-    var data = m.split(',"data":"')[1].slice(0,-2);
+    var cmd = m.split('"')[3];  // this should be right so long as "cmd" is listed first...
+    var data = m.split(',"data":"')[1].slice(0,-2); // this assumes "data" is listed last
     
     if (cmd == "addToContent"){
         prependContent(data)
+    } else if (cmd = "updateResources"){
+        updateResources(data)
     } else {
         console.log("ERR: unknown message to client: "+m);
     }

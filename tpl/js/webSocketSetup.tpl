@@ -2,7 +2,7 @@
 var ws = new WebSocket("ws://{{DOMAIN}}/websocket");
 
 ws.onopen = function() {
-    ws.send(message("hello {{client_id}}"));
+    ws.send(message("hello"));
     console.log('websocket connection opened');
 };
 
@@ -11,5 +11,5 @@ ws.onmessage = function (evt) {
 };
 
 ws.onclose = function (){
-    ws.send(message("goodbye {{client_id}}"));
+    ws.send(message("goodbye"));
 };

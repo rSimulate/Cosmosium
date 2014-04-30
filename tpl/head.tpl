@@ -74,8 +74,9 @@
         <aside class="right-side">
             <!-- Page Header and Resource Bar -->
             % if config.showResources:
-            %   include('tpl/resourcebar') # implicitly passed: Chunks.appName, PageTitle
+                <section id="resource-bar" class="content-header" >
+                    %   include('tpl/resourcebar')
+                </section>
             % end
-            
             <!-- Main content -->
             <section class="content" id="content">

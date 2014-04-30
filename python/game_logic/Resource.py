@@ -25,10 +25,12 @@ class Resource(object):
     def __add__(self,val):
         # overrides '+' operation to add to the resource
         self.__value += val
+        return self
     
     def __sub__(self,val):
     # overrides '-' operation to subtract from the resource
         self.__value -= val    
+        return self
 
     def getValue(self):
         self.__update()

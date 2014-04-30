@@ -35,7 +35,15 @@ def asteroidTrackResponder(asteroidName, user, webSock, OOIs):
     message+='"}'
     webSock.send(message)
     
+def registerUserConnection(user,ws):
+    # saves user websocket connetion so that updates to the user object can push to the client
+    user.websocket = ws
+    
 def parse(cmd, data, user, websock, OOIs):
     # takes appropriate action on the given command and data string
     if cmd == 'track':
         asteroidTrackResponder(data, user, websock, OOIs)
+    elif cmd == 'hello':
+        registerUserConnection(user,websock)
+    else:
+        print "UNKNOWN CLIENT MESSAGE: cmd=",cmd,"data=",data," from user ",user

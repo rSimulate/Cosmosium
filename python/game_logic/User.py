@@ -1,5 +1,5 @@
 
-
+from python.bottle import template
 from python.game_logic.Research import Research
 from python.game_logic.Telescope import Telescope
 from python.game_logic.Miner import Miner
@@ -8,6 +8,7 @@ from python.page_maker.Message import Message
 from python.page_maker.Note import Note
 from python.page_maker.Task import Task
 from python.game_logic import purchases
+from python.webSocketMessenger import createMessage
 
 class User(object):
     def __init__(self, name='No Name'):
@@ -37,6 +38,8 @@ class User(object):
         self.research  = Research()
         self.telescopes = list([Telescope(),Telescope()]) #start w/ 2 telescopes
         self.miners    = [Miner()]  #start w/ 1 miner
+        
+        self.websocket = None # most recent websocket connection for sending out updates
         
     def setGame(self,gam):
         # sets the user's current game and updates values accordingly
@@ -68,7 +71,6 @@ class User(object):
             and item['metals'] < self.resources.metals()\
             and item['organic']< self.resources.organic()
 
-
                 
     def payFor(self,cost):
         # deducts item cost from resources,
@@ -79,7 +81,12 @@ class User(object):
         self.resources.wealth  -= cost['wealth']
         self.resources.energy  -= cost['energy']
         self.resources.metals  -= cost['metals']
-        self.resources.organic -= cost['organic']    
+        self.resources.organic -= cost['organic']
+        
+        if self.websocket != None:
+            self.websocket.send(createMessage('updateResources',data=template('tpl/resourcebar',user=self)))
+        else:
+            print 'no websocket connected to user ',self.name
         return True
 
     ### RESEARCHING (science) ###
