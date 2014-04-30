@@ -36,7 +36,7 @@
             <!--
             <script src="js/AdminLTE/dashboard.js" type="text/javascript"></script>     
             -->
-
+            
             <!-- for toggling music play -->
             <script src="js/bg_music_toggle.js" type="text/javascript"></script>
             

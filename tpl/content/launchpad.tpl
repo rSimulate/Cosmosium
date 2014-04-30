@@ -1,21 +1,9 @@
- 
-<!-- top row -->
-<div class="row">
-    <div class="col-xs-12 connectedSortable">
-        
-    </div><!-- /.col -->
-</div>
-<!-- /.row -->
-
   
-  
-<script src="jquery.js"></script>
-<script src="jquery-jvectormap-1.0.min.js"></script>
-<script src="jquery-jvectormap-world-mill-en.js"></script>
+<script src="js/jquery-1.11.0.min.js"></script>
+<script src="js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+<script src="js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
 					  
-                         
-</section><!-- /.Left col -->
-    <!-- right col (We are only adding the ID to make the widgets sortable)-->
+     <!-- right col (We are only adding the ID to make the widgets sortable)-->
     <section class="col-lg">
     
         <!-- Map box -->
@@ -23,6 +11,7 @@
             <div class="box-header">
     
                 % include('tpl/tile_mapView')
+                
             </div>
             <div class="box-footer">
                 
@@ -51,4 +40,5 @@
 
        
     </section><!-- right col -->
-</div><!-- /.row (main row) -->
+
+<script src='js/tiles/observatoryMap.js' type='text/javascript'></script>
