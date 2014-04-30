@@ -21,7 +21,7 @@ __author__ = 'rsimulate'
 
 # Primary Components
 import os
-from python.bottle import route, run, static_file, template, view, post, request, error, Bottle
+from python.bottle import route, run, static_file, template, view, post, request, error, Bottle, response
 import sqlite3 as lite
 import sys
 import json
@@ -59,9 +59,9 @@ from python.getAsteroid import asterankAPI, byName
 #=====================================#
 app = Bottle()
 CHUNKS = chunks()   # static chunks or strings for the site
-DOMAIN = 'localhost' # domain name
+DOMAIN = 'localhost:7099' # domain name
 GAMES = GameList()  # list of ongoing games on server
-USERS = UserList()  # list of users connected to the server
+USERS = UserList()  # list of users on the server (temporary db-like hack)
 MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
 
 OOIs = OOIs() #TODO: this is in the Game() object now... which is now in GameList()
@@ -137,12 +137,17 @@ def makeSplash():
 #=====================================#
 @app.route("/play")
 def makeGamePage():
-    return template('tpl/pages/play',chunks=CHUNKS,
-        user=USER,
-        oois=OOIs,
-        config=Settings(MASTER_CONFIG),
-        pageTitle="Cosmosium Asteriod Ventures!")
-    
+    # check for user login token in cookies
+    if request.get_cookie("cosmosium_login"):
+        userLoginToken = request.get_cookie("cosmosium_login")
+        # TODO: get user information from DB using login token, pass to template
+        return template('tpl/pages/play',chunks=CHUNKS,
+            user=USER,
+            oois=OOIs,
+            config=Settings(MASTER_CONFIG),
+            pageTitle="Cosmosium Asteriod Ventures!")
+    else: return userLogin()
+            
 #=====================================#
 #           js                        #
 #=====================================#
@@ -175,7 +180,17 @@ def handle_websocket():
         try:
             message = wsock.receive()
             print "received : "+str(message)
-            game_manager.parseMessage(message,wsock)
+            mesDict = eval(str(message))
+            try:
+                gameID = mesDict['gID']
+                userID = mesDict['uID']
+                cmd    = mesDict['cmd']                    
+                data   = mesDict['dat']
+            except KeyError:
+                print 'malformed message!'
+            # TODO: call message parser sort of like:
+            #game_manager.parseMessage(message,wsock)
+            # NOTE: message parser should probably be an attribute of the game
             
         except WebSocketError:
             break
@@ -418,6 +433,34 @@ redirect_uri = '{uri}:{port}/success'.format(
 )
 
 # Login Routing
+@app.route('/userLogin')
+def userLogin():
+    return template('tpl/pages/userLogin')
+
+@app.route('/demoLogin')
+def demoLogin():
+    demoUser = request.query.userid
+    loginToken = demoUser
+    response.set_cookie("cosmosium_login",loginToken)
+    
+@app.post('/loggin')
+def setLoginCookie():
+    uid = request.forms.get('userid')
+    pw  = request.forms.get('password')
+    rem = request.forms.get('remember_me')
+    
+    # TODO: check that the values are in the user database, get loginToken from db
+    loginIsGood= True
+    loginToken = "loginToken"
+    
+    if loginIsGood:
+        response.set_cookie("cosmosium_login",loginToken)
+        return makeGamePage()
+    else:
+        return userLogin()
+    
+
+# I'm not sure how to use this... =( ~Tylar
 @app.route('/login<:re:/?>')
 def login():
     params = dict(

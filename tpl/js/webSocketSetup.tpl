@@ -1,9 +1,9 @@
 
-
 var ws = new WebSocket("ws://{{DOMAIN}}/websocket");
 
 ws.onopen = function() {
-        ws.send("hello {{client_id}}");
+    ws.send(message("hello {{client_id}}"));
+    console.log('websocket connection opened');
 };
 
 ws.onmessage = function (evt) {
@@ -11,5 +11,5 @@ ws.onmessage = function (evt) {
 };
 
 ws.onclose = function (){
-    ws.send("goodbye {{client_id}}");
+    ws.send(message("goodbye {{client_id}}"));
 };

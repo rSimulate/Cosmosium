@@ -51,6 +51,9 @@
               <source src="{{chunks.bg_music.link}}" />
             </audio> 
 
+            <!-- websocket connection --> 
+            <script type='text/javascript' src='/js/createMessage.js'></script>
+            <script type='text/javascript' src='/webSocketSetup.js'></script>
 
     </head>
     <body class="skin-black">

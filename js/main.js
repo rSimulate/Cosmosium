@@ -280,8 +280,11 @@ function RSimulate(opts) {
         document.getElementById('claim-asteroid-button').addEventListener('click', function (e){
             e = e || window.event;
             
-            $('#content').load('/content/addAsteroid?name='+bodyName);
-
+            // this doesn't work...
+            //$('#content').load('/content/addAsteroid?name='+bodyName);
+            // so we'll have to use websockets instead:
+            ws.send('track'+bodyName);
+            
         }, false);
 
         $("#body-info-container").show();
