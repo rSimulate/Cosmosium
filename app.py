@@ -104,29 +104,39 @@ def makeContentHTML():
     name=request.query.name # content page name
     subDir = request.query.section=request.query.section # specific section of page (like type of research page)
     
-    treeimg=''
-    if name == 'research': # then get research subDir info
-        if subDir=='spaceIndustry':
-            treeimg="img/space_industry_tech_tree_images.svg";
-        elif subDir=='humanHabitation':
-            treeimg="img/space_industry_tech_tree.svg";
-        elif subDir=='roboticsAndAI':
-            treeimg="img/space_industry_tech_tree_images.svg";
-        else:
-            return template('tpl/content/404') # error404('404')
-    
-    fileName='tpl/content/'+name
-    if os.path.isfile(fileName+'.tpl'): #if file exists, use it
-        return template(fileName,
-            tree_src=treeimg, #used only for research pages
-            chunks=CHUNKS,
-            user=USER,
-            oois=OOIs,
-            config=Settings(MASTER_CONFIG),
-            pageTitle=name)
-    else: # else show content under construction
-        print 'unknown content request: '+fileName
-        return template('tpl/content/under_construction')
+    # check for user login token in cookies
+    if request.get_cookie("cosmosium_login"):
+        userLoginToken = request.get_cookie("cosmosium_login")
+        try:
+            _user = USERS.getUserByToken(userLoginToken)
+        except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
+            redirect('/userLogin')
+        
+        treeimg=''
+        if name == 'research': # then get research subDir info
+            if subDir=='spaceIndustry':
+                treeimg="img/space_industry_tech_tree_images.svg";
+            elif subDir=='humanHabitation':
+                treeimg="img/space_industry_tech_tree.svg";
+            elif subDir=='roboticsAndAI':
+                treeimg="img/space_industry_tech_tree_images.svg";
+            else:
+                return template('tpl/content/404') # error404('404')
+        
+        fileName='tpl/content/'+name
+        if os.path.isfile(fileName+'.tpl'): #if file exists, use it
+            return template(fileName,
+                tree_src=treeimg, #used only for research pages
+                chunks=CHUNKS,
+                user=_user,
+                oois=OOIs,
+                config=Settings(MASTER_CONFIG),
+                pageTitle=name)
+        else: # else show content under construction
+            print 'unknown content request: '+fileName
+            return template('tpl/content/under_construction')
+    else: 
+        redirect('/userLogin')
 
 #=====================================#
 #           Splash Page               #
@@ -146,14 +156,18 @@ def makeGamePage():
         try:
             _user = USERS.getUserByToken(userLoginToken)
         except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
-            return userLogin()
+            return userLogin('user token not found')
+            
+        if _user.game == None:
+            GAMES.joinGame(_user)
+            
         return template('tpl/pages/play',
             chunks=CHUNKS,
             user=_user,
             oois=OOIs,
             config=Settings(MASTER_CONFIG),
             pageTitle="Cosmosium Asteriod Ventures!")
-    else: return userLogin()
+    else: return userLogin('user login cookie not found')
             
 #=====================================#
 #           js                        #
