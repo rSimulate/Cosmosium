@@ -72,7 +72,7 @@ function RSimulate(opts) {
         }
 
         indexes[indexLabel].push(nextEntityIndex);
-
+        
         nextEntityIndex++;
     }
 
@@ -266,7 +266,7 @@ function RSimulate(opts) {
         // make this display the owner name...       
         if (SHOWING_ASTEROID_OWNERSHIP) {
 
-            var ownerName = owners[bodyId]; // asteroid[i] is owned by owner[i]
+            var ownerName = owners[bodyId-12]; // asteroid[i] is owned by owner[i], there are 12 non-asteroid objects in the system...
             if (ownerName) {
                 var ownerColor = mapFromOwnerNameToColor[ownerName];
                 console.log('claimed by "'+ownerName+'", color=('+ownerColor.b+','+ownerColor.g+','+ownerColor.r+')')

@@ -21,12 +21,12 @@
                 %   continue
                 % end
                 <li><form action="/loggin" method="post">
-                <a href="javascript:;" onclick="parentNode.submit();">{{demoID}}</a>
-                <input type="hidden" name="userid" value="{{demoID}}" />
-                <input type="hidden" name="password" value="{{demoID}}sPassword" />
-                <input type="hidden" name="remember_me" value=false />
+                    <a href="javascript:;" onclick="parentNode.submit();">{{demoID}}</a>
+                    <input type="hidden" name="userid" value="{{demoID}}" />
+                    <input type="hidden" name="password" value="{{demoID}}sPassword" />
+                    <input type="hidden" name="remember_me" value=false />
+                </form></li>
             % end
-            </form></li>
         </ul>
     </div>
 </div>
