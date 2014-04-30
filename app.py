@@ -133,7 +133,7 @@ def makeContentHTML():
 #=====================================#
 @app.route("/")
 def makeSplash():
-    return template('tpl/pages/splash', gameList=GAMES)
+    return template('tpl/pages/splash', gameList=GAMES, demoIDs=demoIDs)
     
 #=====================================#
 #       main gameplay page            #
@@ -450,7 +450,7 @@ redirect_uri = '{uri}:{port}/success'.format(
 # Login Routing
 @app.route('/userLogin')
 def userLogin(specialMessage=''):
-    return template('tpl/pages/userLogin')
+    return template('tpl/pages/userLogin', demoIDs=demoIDs, message=specialMessage)
     
 @app.post('/loggin')
 def setLoginCookie():

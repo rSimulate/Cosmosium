@@ -31,6 +31,8 @@
                 <small>An Educational Space 4x</small>
             </h1>
         </section> 
+        
+        <h2>{{message}}</h2>
 
         %include('tpl/loginBox')
 

@@ -1,6 +1,6 @@
 from python.game_logic.User import User
 
-demoIDs = ['Johannes_Kepler','Edwin_Hubble']
+demoIDs = ['Johannes_Kepler','Edwin_Hubble','Yuri_Gagarin','Carl_Sagan']
 
 def createUser(name, icon, agency, subtext ):
     # basically a User constructor using a given set of values
@@ -18,6 +18,10 @@ def getProfile(userName):
         return createUser('Johannes_Kepler','/img/profiles/kepler.jpg','17th century Germany', 'Exploring the Mysterium Cosmographicum')
     elif userName =='Edwin_Hubble':
         return createUser('Edwin_Hubble','/img/profiles/hubble.png','Mount Wilson Observatory','Equipped with his five senses, man explores the universe around him and calls the adventure Science')
+    elif userName =='Yuri_Gagarin':
+        return createUser('Yuri_Gagarin','/img/profiles/yuri-gagarin.jpg','Soviet Air Forces','The main force in man is the power of the spirit.')
+    elif userName =='Carl_Sagan':
+        return createUser('Carl_Sagan','/img/profiles/Carl_Sagan.png','Laboratory for Planetary Studies','Science is much more than a body of knowledge. It is a way of thinking.') 
     else :
         raise ValueError('user "'+userName+'" not found')
     
