@@ -62,7 +62,7 @@ from python.getAsteroid import asterankAPI, byName
 #=====================================#
 app = Bottle()
 CHUNKS = chunks()   # static chunks or strings for the site
-DOMAIN = 'localhost' # domain name
+DOMAIN = 'asteroid.ventures' # domain name
 GAMES = GameList()  # list of ongoing games on server
 USERS = UserList()  # list of users on the server TODO: replace use of this w/ real db.
 MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
