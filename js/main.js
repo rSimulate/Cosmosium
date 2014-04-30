@@ -22,8 +22,10 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var plane;
     var skybox;
 
+    var claimButt = document.getElementById('claim-asteroid-button');
+    
     var SHOWING_ASTEROID_OWNERSHIP = (typeof owners === "object");
-    var SHOWING_ASTEROID_CLAIM = true
+    var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
     
     var CAMERA_NEAR = 1;
     var CAMERA_FAR = 100000;
@@ -44,6 +46,8 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var nextEntityIndex = 0;
 
     var mapFromOwnerNameToColor = {};
+    
+    var selectedBody = '';
 
 function RSimulate(opts) {
 
@@ -276,20 +280,9 @@ function RSimulate(opts) {
         
         $("#body-info").html(infoHTML);
 
-        // link to add the asteroid
-        document.getElementById('claim-asteroid-button').addEventListener('click', function (e){
-            e = e || window.event;
-            
-            // this doesn't work...
-            //$('#content').load('/content/addAsteroid?name='+bodyName);
-            // so we'll have to use websockets instead:
-            ws.send('track'+bodyName);
-            
-        }, false);
-
         $("#body-info-container").show();
         
-
+        selectedBody = bodyName;
 
         console.log("\t" + bodyName);
         console.log("\tmesh: ");
@@ -894,6 +887,20 @@ document.addEventListener('click', function(event) {
   }
 }, false);
 
+if (SHOWING_ASTEROID_CLAIM){
+    // link to add the asteroid
+    function claimButt_onClick(e){
+        e = e || window.event;
+        
+        // this doesn't work...
+        //$('#content').load('/content/addAsteroid?name='+bodyName);
+        // so we'll have to use websockets instead:
+        ws.send(message('track',selectedBody));
+        
+    }
+    claimButt.addEventListener('click', claimButt_onClick, false);
+}
+    
 $(document).ready(function(){
     $("#body-info-container").hide();
 });

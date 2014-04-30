@@ -142,7 +142,10 @@ def makeGamePage():
     # check for user login token in cookies
     if request.get_cookie("cosmosium_login"):
         userLoginToken = request.get_cookie("cosmosium_login")
-        _user = USERS.getUserByToken(userLoginToken)
+        try:
+            _user = USERS.getUserByToken(userLoginToken)
+        except KeyError as E: # user token not found
+            return userLogin()
         return template('tpl/pages/play',chunks=CHUNKS,
             user=_user,
             oois=OOIs,
@@ -384,7 +387,7 @@ MONGODB_URI = 'mongodb://carl:sagan@' + MainDB
 #connection = Connection()
 
 ###############################################################################
-# main
+# main ?
 ###############################################################################
 
 def main(args):
