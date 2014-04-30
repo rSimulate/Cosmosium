@@ -48,3 +48,6 @@
         </section><!-- right col -->
     </div><!-- /.row (main row) -->				
 </center>
+
+<script src='js/tiles/observatoryMap.js' type='text/javascript'></script>
+
