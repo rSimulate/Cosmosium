@@ -91,7 +91,7 @@ We intend to do all of the gameplay elements of the game within our open source 
 </div>
 
 </div>
-
+&nbsp;
 <center>
 <p>
 <h2>
