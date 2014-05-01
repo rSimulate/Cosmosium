@@ -91,11 +91,11 @@ We intend to do all of the gameplay elements of the game within our open source 
 </div>
 
 </div>
-
+&nbsp;
 <center>
 <p>
 <h2>
- 		<span class="splash-body">&nbsp;
+ 		<span class="splash-body">
             Don't forget to <a href='https://twitter.com/intent/tweet?source=webclient&text=I+voted+for+%23cosmosium+for+%40spaceapps+People%27s+Choice.+You+can+too%3A+bit.ly%2FSA-Vote+Deadline+5+May+%40spaceappsvirtual+%23spaceapps'>vote for us</a> as your favorite <a href='https://2014.spaceappschallenge.org/awards/#peopleschoice'>People's Choice</a> Finalist!
 		</span> 
            </h2>
