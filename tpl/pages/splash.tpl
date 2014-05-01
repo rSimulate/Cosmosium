@@ -46,7 +46,8 @@
 			<h3 class="box-title">Journey into the Heavens!</h3>
 		</div>
 		<div class="box-body">
-<p>
+		<img src='/img/pic1.jpg' alt='reaching for space'>
+		<p>
 		<span class="splash-body">
 Live out the most pivotal century in mankind's history, as - for the first time in history - we begin to mold the cosmos around us. From our first baby steps out of the atmosphere and onward to interstellar space, the player must hunt out asteroids and develop the technology to utilize their resources. Probe the depths of the solar system and learn how to profit, advance, and spread life throughout the cosmos.
 		</span>
@@ -61,7 +62,8 @@ Live out the most pivotal century in mankind's history, as - for the first time 
 		<h3 class="box-title">Space Education</h3>
 	</div>
 	<div class="box-body">
-<p>
+	<img src='/img/pic2.jpg' alt='education about the cosmos'>
+	<p>
 	<span class="splash-body">
 This 4x-style browser game aims to inspire and educate the general population about the next phase of life in our solar system. Using REAL asteroid data from a scientific database of over 600,000 asteroids, and combining both past and future NASA missions with out-of-this-world futuristic technology we can only theorize about today, this game creates a factually-founded and engaging experience.
 	</span>
@@ -76,7 +78,8 @@ This 4x-style browser game aims to inspire and educate the general population ab
 		<h3 class="box-title">Open Source & Web Powered</h3>
 	</div>
 	<div class="box-body">
-            <p>
+    <img src='/img/pic3.jpg' alt='collaborative & open source'>
+			<p>
 	<span class="splash-body">
 We intend to do all of the gameplay elements of the game within our browser application. 3D graphics are rendered using WebGL, allowing the player to experience the game from their browser. As our project grows, we hope to connect the visual experience to a network of simulation components to make missions more realistic. The Open Source Cosmosium Engine will continue to grow organically from developers around the world.
 	</span>
@@ -100,7 +103,9 @@ We intend to do all of the gameplay elements of the game within our browser appl
             <img src='https://camo.githubusercontent.com/935ed701e7a2226d04e161ed0e8b48ac3235f385/687474703a2f2f692e696d6775722e636f6d2f5837554e3435642e706e67' alt='asteroid hunting in webGL'>
             </p>
             <p>
+		<span class="splash-body">
 		(This is what our project looks like if you have a webGL capable device.)
+		</span>
             </p>
 
 
@@ -167,7 +172,7 @@ We intend to do all of the gameplay elements of the game within our browser appl
 	<div class="col-lg-3 col-xs-6">
 		<div class="small-box bg-purple">
 			<div class="inner">
-				<h3>Message Us</h3>
+				<h3>Email</h3>
 				<p>
 				Do you have questions?
 				</p>
