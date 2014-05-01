@@ -179,7 +179,7 @@ img {
 .bg-gray,
 .bg-black {
   color: #f9f9f9 !important;
-  opacity: 0.8;
+  opacity: 1.0;
 }
 .bg-gray {
   background-color: #eaeaec !important;
