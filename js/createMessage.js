@@ -14,7 +14,7 @@ function readCookie(name) {
 function message(command,data){
     // returns a message string defining a message dictionary
     var uID = readCookie('cosmosium_login');
-    var gID = 'testGame';
+    var gID = 'testGame'; //TODO: use actual game info
     var datStr='{'
     datStr+='"uID":"'+uID+'"'
     datStr+=','

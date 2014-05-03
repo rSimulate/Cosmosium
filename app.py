@@ -200,15 +200,7 @@ def handle_websocket():
     while True:
         try:
             message = wsock.receive()
-            print "received : "+str(message)
-            try:
-                mesDict = eval(str(message))
-            except TypeError as e:
-                if e.message == "'NoneType' object has no attribte '__getitem__'":
-                    # it's likely that pesky onclose message I can't fix... ignore for now
-                    print 'connection closed'
-                else:
-                    raise
+            mesDict = eval(str(message))
             try:
                 gameID = mesDict['gID']
                 userID = mesDict['uID']
@@ -216,11 +208,19 @@ def handle_websocket():
                 data   = mesDict['dat']
             except KeyError:
                 print 'malformed message!'
+
+            except TypeError as e:
+                print 'check1'
+                if e.message == "'NoneType' object has no attribute '__getitem__'":
+                    # it's likely that pesky onclose message I can't fix... ignore for now
+                    print 'connection closed'
+                else:
+                    raise
             # TODO: call message parser sort of like:
             #game_manager.parseMessage(message,wsock)
             # NOTE: message parser should probably be an attribute of the game
             webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, OOIs)
-            
+            print "received :",cmd,'from',userID
         except WebSocketError:
             break
             
