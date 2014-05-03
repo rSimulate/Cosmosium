@@ -51,7 +51,7 @@ from python.query_parsers.checkQuery import checkQuery
 # game logic:
 from python.game_logic.User import User
 from python.OOIs import OOIs
-from python.game_logic import purchases
+from python.game_logic.eco import purchases
 from python.game_logic.GameList import GameList
 from python.game_logic.UserList import UserList
 

@@ -1,6 +1,6 @@
 from python.page_maker.chunks import chunks
 from python.page_maker.Settings import Settings
-from python.game_logic import purchases
+from python.game_logic.eco import purchases
 from python.bottle import template
 from python.getAsteroid import byName
 

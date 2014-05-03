@@ -1,7 +1,7 @@
 
 import unittest
 
-import python.game_logic.purchases as purchases
+from .. import purchases
 
 class purchases_test(unittest.TestCase):
     def test_getCost_returns_correctValue(self):

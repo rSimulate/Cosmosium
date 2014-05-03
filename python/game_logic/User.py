@@ -1,13 +1,13 @@
 
 from python.bottle import template
 from python.game_logic.Research import Research
-from python.game_logic.Telescope import Telescope
-from python.game_logic.Miner import Miner
-from python.game_logic.Resources import Resources
+from python.game_logic.units.Telescope import Telescope
+from python.game_logic.units.Miner import Miner
+from python.game_logic.eco.Resources import Resources
+from python.game_logic.eco import purchases
 from python.page_maker.Message import Message
 from python.page_maker.Note import Note
 from python.page_maker.Task import Task
-from python.game_logic import purchases
 from python.webSocketMessenger import createMessage
 
 class User(object):

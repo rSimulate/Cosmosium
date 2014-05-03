@@ -1,6 +1,6 @@
 # static functions for returning the cost of items
 
-from python.game_logic.Cost import Cost
+from python.game_logic.eco.Cost import Cost
 
 def getCost(item, user=None):
     # returns cost dict for given item name & given user

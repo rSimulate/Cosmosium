@@ -3,7 +3,7 @@ import unittest
 from nose.tools import assert_raises
 from time import time
 
-from python.game_logic.Resource import Resource
+from ..Resource import Resource
 
 class Resource_test(unittest.TestCase):
     def test_valueGoesUpOverTime(self):

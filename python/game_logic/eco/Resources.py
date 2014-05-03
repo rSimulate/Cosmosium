@@ -4,7 +4,7 @@ Resources class handles all things related to user resources
 
 from time import time
 
-from python.game_logic.Resource import Resource
+from python.game_logic.eco.Resource import Resource
 
 class Resources(object):
     def __init__(self):
