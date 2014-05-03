@@ -70,13 +70,13 @@ class User(object):
             and item['energy'] < self.resources.energy()\
             and item['metals'] < self.resources.metals()\
             and item['organic']< self.resources.organic()
-
-                
+              
     def payFor(self,cost):
         # deducts item cost from resources,
         # returns true if purchase is sucessful 
         # assumes that user can afford item
             
+        #TODO: replace this with resources-=cost by overloading resources.__sub__()
         self.resources.science -= cost['science']
         self.resources.wealth  -= cost['wealth']
         self.resources.energy  -= cost['energy']
@@ -89,6 +89,18 @@ class User(object):
             print 'no websocket connected to user ',self.name
         return True
 
+    def purchase(self,item):
+        '''
+        checks if user can afford item 
+         and deducts item cost from self.resources 
+         and adds the item (or the purchases effects) to the user.
+        '''
+        pass
+        # TODO: item-to-cost mapping should all be in one file (purchases.py?)
+        # TODO: list of purchaseable items should all be in one place... I guess this is purchases.py too?
+        # if self.affords(cost)
+        # self.payFor(cost)
+        
     ### RESEARCHING (science) ###
     def getTechImage(self, level=None):
         # returns image file name for given techlevel, else returns for current mine techLevel

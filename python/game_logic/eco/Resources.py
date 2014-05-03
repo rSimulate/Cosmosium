@@ -8,14 +8,20 @@ from python.game_logic.eco.Resource import Resource
 
 class Resources(object):
     def __init__(self):
-        self.science= Resource(scaler=7)
-        self.wealth = Resource(scaler=47)
-        self.energy = Resource(scaler=10)
-        self.metals = Resource(scaler=9)
-        self.organic= Resource(scaler=11)
+        self.science= Resource(bal=1)
+        self.wealth = Resource(bal=7)
+        self.energy = Resource(bal=5)
+        self.metals = Resource(bal=5)
+        self.organic= Resource(bal=11)
         
         self.__lastUpdate = int(time())
         
+    #TODO:
+    # def __sub__(self, value):
+        #self.science-=value['science']
+        #...
+    # def __add__(self,val):
+    
         
     ### DEPRECIATED METHODS (DONT USE, REMOVE IF POSSIBLE) ###
     def getScience(self, player):
