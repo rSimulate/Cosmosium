@@ -50,7 +50,6 @@ from python.query_parsers.checkQuery import checkQuery
 
 # game logic:
 from python.game_logic.User import User
-from python.OOIs import OOIs
 from python.game_logic.eco import purchases
 from python.game_logic.GameList import GameList
 from python.game_logic.UserList import UserList
@@ -67,11 +66,8 @@ GAMES = GameList()  # list of ongoing games on server
 USERS = UserList()  # list of users on the server TODO: replace use of this w/ real db.
 MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
 
-OOIs = OOIs() #TODO: this is in the Game() object now... which is now in GameList()
-#USER = User() #TODO: this should now be replaced with USERS.getByToken() using a token from request cookie
-
 # initial write of JSON files:
-OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
+GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 
 #=====================================#
 #            Static Routing           #
@@ -139,7 +135,7 @@ def makeContentHTML():
                 tree_src=treeimg, #used only for research pages
                 chunks=CHUNKS,
                 user=_user,
-                oois=OOIs,
+                oois=GAMES.games[0].OOIs,
                 config=Settings(MASTER_CONFIG),
                 pageTitle=name)
         else: # else show content under construction
@@ -174,7 +170,7 @@ def makeGamePage():
         return template('tpl/pages/play',
             chunks=CHUNKS,
             user=_user,
-            oois=OOIs,
+            oois=GAMES.games[0].OOIs,
             config=Settings(MASTER_CONFIG),
             pageTitle="Cosmosium Asteriod Ventures!")
     else: return userLogin('user login cookie not found')
@@ -238,7 +234,6 @@ def handle_websocket():
                 print 'malformed message!'
 
             except TypeError as e:
-                print 'check1'
                 if e.message == "'NoneType' object has no attribute '__getitem__'":
                     # it's likely that pesky onclose message I can't fix... ignore for now
                     print 'connection closed'
@@ -247,7 +242,7 @@ def handle_websocket():
             # TODO: call message parser sort of like:
             #game_manager.parseMessage(message,wsock)
             # NOTE: message parser should probably be an attribute of the game
-            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, OOIs)
+            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, GAMES.games[0].OOIs)
             print "received :",cmd,'from',userID
         except WebSocketError:
             break
@@ -298,19 +293,7 @@ def systemView():
 
 @app.route('/getAsteroids')
 def getOOIs():
-    OOIs.write2JSON(OOI_JSON_FILE)
-#    with open(OOI_JSON_FILE,'w') as f:
-#        json.dump(OOIs.MPOs,f)
-#    data = json.dumps(OOIs.MPOs)
-#    if len(data) > 2: # if not empty
-#        data = data[2:-2] # remove the weird encapsulation of the string
-#        data = repr(data)
-   #     data = tuple(data,)
-   #     print '==datacheck1== \n',data
-   # print 'datacheck2\n',data
-    # data.decode("string-escape")
-    # json=data.replace(r"\"",r")
-#    return template('tpl/jsAsteroids',json=data)
+    GAMES.games[0].OOIs.write2JSON(OOI_JSON_FILE)
     return Settings(MASTER_CONFIG).asteroidDB
     
 @app.route('/asteroidReq')
@@ -496,10 +479,16 @@ def login_success():
 #=====================================#
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 7099))
-    #run(host='0.0.0.0', port=port)
-    server = WSGIServer(("0.0.0.0", port), app,
-                        handler_class=WebSocketHandler)
-    print 'starting server on '+str(port)
-    server.serve_forever()
-    main(sys.argv[1:]) # Invokes Mongo
+    try:
+        port = int(os.environ.get("PORT", 7099))
+        #run(host='0.0.0.0', port=port)
+        server = WSGIServer(("0.0.0.0", port), app,
+                            handler_class=WebSocketHandler)
+        print 'starting server on '+str(port)
+        server.serve_forever()
+        main(sys.argv[1:]) # Invokes Mongo
+    finally:
+        print 'shutting down...'
+        # do all your destructing here
+        del USERS
+        del GAMES

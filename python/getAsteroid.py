@@ -12,13 +12,13 @@ def asterankAPI(query, limit):
     # query = (regex?) specifier string
     # limit = max asteroids to return
     payload = {'query':str(query),'limit':str(limit)}
-    print 'payload:',payload
+    #print 'payload:',payload
     r = requests.get("http://asterank.com/api/asterank", params=payload)
     # r = requests.get("http://asterank.com/api/asterank?query="+query+"&limit="+str(limit))
 #    resp = str(r.json())
 #    print('json='+resp) # this actually causes us problems b/c of the u'str' unicode string notation
 #   return resp
-    print('text='+r.text)
+    #print('text='+r.text)
     return r.text.replace("&quote;",'"')
 
 
