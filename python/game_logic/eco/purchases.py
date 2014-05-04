@@ -22,5 +22,5 @@ def getCost(item, user=None):
     
 # named items:
 baseCostMap = {'asteroidTrack':Balance(science=Cost(0,2), metals=Cost(-100,   -2), energy=Cost(-100,-10), organic=Cost(-100,-1)),
-                 'techUpgrade':Balance(science=Cost(-1000, -0), energy=Cost(-100,0), organic=Cost(-100,0))
+                 'research_techLevel':Balance(science=Cost(-1000, -0), energy=Cost(-100,0), organic=Cost(-100,0))
             }

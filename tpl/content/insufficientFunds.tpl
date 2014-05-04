@@ -1,5 +1,5 @@
 
-        % tex = "To track an asteroid you need: "
+        % tex = "To do that you need an additional (NOTE: these numbers are not correct): "
         % if user.resources.getScience(user) < 100:
         %   tex+=str(100-user.resources.getScience(user))+'science, '
         % end
@@ -18,6 +18,6 @@
         
         % include('tpl/tile',s1='col-lg-12', s2='connectedSortable',
         %           color='bg-orange',
-        %           title="You can't afford to track "+objectName+'!',
+        %           title="Insufficient Resources.",
         %           text=tex )
         

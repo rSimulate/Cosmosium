@@ -119,6 +119,15 @@ class User(object):
         else:
             return 'img/tech/tech'+str(level)+'.jpg'
             
+    def advance(self):
+        # advances to next research age...
+        self.research.advance()
+        if self.websocket != None:
+            self.websocket.send(createMessage('updateResources',data=template('tpl/resourcebar',user=self)))
+            return True
+        else:
+            print 'no websocket connected to user ',self.name
+            
     ### ASTRONOM-IZING ###
     def addTele(self):
         self.telescopes.append(Telescope())

@@ -12,3 +12,7 @@ class Research(object):
         self.manufactureLevel=0     # build efficiency
         self.lifeScienceLevel=0     # life growth
         self.propultionTechLevel=0  # fuel use & generation abilities
+        
+    def advance(self):
+        # advances to the next age
+        self.age+=1

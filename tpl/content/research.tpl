@@ -99,6 +99,15 @@
 <!-- top row -->
 <div class="row">
     <div class="col-xs-12 connectedSortable">
+    
+        <h3><a href='#research_techLevel' id='research_techLevel'> advance to next tech level (costs science)</a></h3>
+        <script type='text/javascript'> 
+            document.getElementById('research_techLevel').addEventListener('click', function (e){
+                e = e || window.event;
+                ws.send(message('research','techLevel'));  
+            }, false);
+        </script>
+      
         <iframe src="{{tree_src}}"  style="float:center">Your browser does't support SVG? =(</iframe>
     </div><!-- /.col -->
 </div><!-- /.row -->
@@ -116,6 +125,7 @@
 
     </section><!-- right col -->
 </div><!-- /.row (main row) -->
+
     % include('tpl/tile',s1='col-lg-6', s2='connectedSortable',
     %           color='bg-navy',
     %           title="Welcome to Comosium!",
