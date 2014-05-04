@@ -10,9 +10,9 @@ def asteroidTrackResponder(asteroidName, user, webSock, OOIs):
     # responds to asteroid track requests by sending html for a tile to be added to the content section
     message = '{"cmd":"addToContent","data":"'
     
-    if user.affords(purchases.getCost('asteroidTrack')):
+    if user.purchase('asteroidTrack'):
         print 'request to track '+asteroidName+' accepted.'
-        user.payFor(purchases.getCost('asteroidTrack'))
+        
         OOIs.addObject(byName(asteroidName), user.name)
         # write the new js file(s)
         OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)

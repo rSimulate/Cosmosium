@@ -16,6 +16,16 @@ class Balance(object):
         self.metals =metals
         self.energy =energy
         self.organic=organic
+        
+    def __neg__(self):
+        # inverts all values
+        return Balance(science=Cost(-self.science.oneTime, -self.science.recurring)
+            ,wealth=Cost(-self.wealth.oneTime, -self.wealth.recurring)
+            ,metals=Cost(-self.metals.oneTime, -self.metals.recurring)
+            ,energy=Cost(-self.energy.oneTime, -self.energy.recurring)
+            ,organic=Cost(-self.organic.oneTime, -self.organic.recurring))
+
+        
 
 class Resources(object):
     def __init__(self):

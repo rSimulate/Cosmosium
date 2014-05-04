@@ -64,42 +64,51 @@ class User(object):
         
     def affords(self,item):
         # returns true if can afford given item description
-        # itemDesc must be a dict with cost values like that returned by purchases.getCost()
-        return item['science'] < self.resources.science()\
-            and item['wealth'] < self.resources.wealth()\
-            and item['energy'] < self.resources.energy()\
-            and item['metals'] < self.resources.metals()\
-            and item['organic']< self.resources.organic()
+        # item must be a Balance object or similarly structured
+        return (item.science.oneTime + self.resources.science())>=0\
+            and (item.wealth.oneTime + self.resources.wealth())>=0\
+            and (item.energy.oneTime + self.resources.energy())>=0\
+            and (item.metals.oneTime + self.resources.metals())>=0\
+            and (item.organic.oneTime+ self.resources.organic())>=0
               
-    def payFor(self,cost):
+    def payFor(self,bal):
         # deducts item cost from resources,
         # returns true if purchase is sucessful 
         # assumes that user can afford item
             
-        #TODO: replace this with resources-=cost by overloading resources.__sub__()
-        self.resources.science -= cost['science']
-        self.resources.wealth  -= cost['wealth']
-        self.resources.energy  -= cost['energy']
-        self.resources.metals  -= cost['metals']
-        self.resources.organic -= cost['organic']
+        self.resources.applyBalance(bal)
         
         if self.websocket != None:
             self.websocket.send(createMessage('updateResources',data=template('tpl/resourcebar',user=self)))
+            return True
         else:
             print 'no websocket connected to user ',self.name
-        return True
 
-    def purchase(self,item):
+    def purchase(self,item=None, balance=None):
         '''
         checks if user can afford item 
          and deducts item cost from self.resources 
          and adds the item (or the purchases effects) to the user.
+        returns true if purchased, returns false if not.
+        Default usage is to use an item name from purchase.py.
+        If a Balance object "balance" is given INSTEAD of "item", then it is used directly.
         '''
-        pass
-        # TODO: item-to-cost mapping should all be in one file (purchases.py?)
-        # TODO: list of purchaseable items should all be in one place... I guess this is purchases.py too?
-        # if self.affords(cost)
-        # self.payFor(cost)
+        if item!= None:
+            cost = purchases.getCost(item)
+            if self.affords(cost):
+                self.payFor(cost)
+                return True
+            else:
+                return False
+        elif balance!= None:
+            if self.affords(balance):
+                self.payFor(balance)
+                return True
+            else:
+                return False
+        else:
+            raise ValueError('item or balance object must be given!')
+                
         
     ### RESEARCHING (science) ###
     def getTechImage(self, level=None):
