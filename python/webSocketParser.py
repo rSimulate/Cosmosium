@@ -17,7 +17,7 @@ def asteroidTrackResponder(asteroidName, user, webSock, OOIs):
         # write the new js file(s)
         OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
         print 'object '+asteroidName+' added to OOIs'
-        message+= template('tpl/content/asteroidAdd',
+        message+= template('tpl/content/tiles/asteroidAdd',
             objectName=asteroidName,
             chunks=CHUNKS,
             config=Settings('default'),
@@ -25,7 +25,7 @@ def asteroidTrackResponder(asteroidName, user, webSock, OOIs):
             user=user)
     else:
         print 'request to track '+asteroidName+' denied. insufficient funds.'
-        message+= template('tpl/content/insufficientFunds',
+        message+= template('tpl/content/tiles/insufficientFunds',
             objectName=asteroidName,
             chunks=CHUNKS,
             config=Settings('default'),
@@ -44,13 +44,13 @@ def researchResponder(user,ws,researchType):
     
     if user.purchase('research_'+researchType):
         user.research.advance()
-        message+= template('tpl/content/tile_purchase_success',
+        message+= template('tpl/content/tiles/purchase_success',
             chunks=CHUNKS,
             config=Settings('default'),
             pageTitle='research complete',
             user=user)
     else:
-        message+= template('tpl/content/insufficientFunds',
+        message+= template('tpl/content/tiles/insufficientFunds',
             chunks=CHUNKS,
             config=Settings('default'),
             pageTitle='research denied',
