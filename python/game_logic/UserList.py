@@ -10,6 +10,11 @@ class UserList(object):
         self.addDemoUsers()
         
     def addUser(self,userObj,token):
+        '''
+        Adds user to userList if user with same name does not already exist.
+        If user of same name exists, adds a new token to access that existing user obj.
+        Returns True if successful.
+        '''
         if token in self.users:
             raise ValueError('user with this token already exists')
         if self.getUserByName(userObj.name) != None:
@@ -17,8 +22,11 @@ class UserList(object):
             user = self.getUserByName(userObj.name)
             print 'new token attached to existing user "'+user.name+'"'
             self.users[token] = user # add another token reference to the object
-            
-        self.users[token] = userObj
+            return True
+        else:
+            self.users[token] = userObj
+            print 'new user ',userObj.name,'added'
+            return True
         
     def getUserByName(self,name):
         # returns user obj if found, else returns none
@@ -29,7 +37,7 @@ class UserList(object):
             return None
             
     def getUserByToken(self,token):
-        # returns user obj if found, else returns none
+        # returns user obj if found, else raises error
         try:
             use = self.users[token]
             try:
