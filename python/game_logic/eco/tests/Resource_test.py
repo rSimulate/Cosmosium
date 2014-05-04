@@ -3,7 +3,7 @@ import unittest
 from nose.tools import assert_raises
 from time import time
 
-from ..Resource import Resource
+from ..Resource import Resource, Cost
 
 class Resource_test(unittest.TestCase):
     def test_valueGoesUpOverTime(self):
@@ -26,3 +26,10 @@ class Resource_test(unittest.TestCase):
         now = time()
         res = Resource()
         assert_raises(ValueError,res,now-30)
+
+    def test_addCost(self):
+        cost = Cost(7,93)
+        res  = Resource(val=3,bal=7)
+        res.applyCost(cost)
+        self.assertEqual(res._value,7+3)
+        self.assertEqual(res._operationBalance,93+7)

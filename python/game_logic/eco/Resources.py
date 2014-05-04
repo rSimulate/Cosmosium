@@ -4,7 +4,18 @@ Resources class handles all things related to user resources
 
 from time import time
 
-from python.game_logic.eco.Resource import Resource
+from python.game_logic.eco.Resource import Resource, Cost
+
+class Balance(object):
+    '''
+    a set of costs for each resource 
+    '''
+    def __init__(self, science=Cost(0,0), wealth=Cost(0,0), metals=Cost(0,0), energy=Cost(0,0), organic=Cost(0,0)):
+        self.science=science
+        self.wealth =wealth
+        self.metals =metals
+        self.energy =energy
+        self.organic=organic
 
 class Resources(object):
     def __init__(self):
@@ -14,14 +25,17 @@ class Resources(object):
         self.metals = Resource(bal=5)
         self.organic= Resource(bal=11)
         
-        self.__lastUpdate = int(time())
+        self._lastUpdate = int(time())
         
-    #TODO:
-    # def __sub__(self, value):
-        #self.science-=value['science']
-        #...
-    # def __add__(self,val):
-    
+    def applyBalance(self,bal):
+        '''
+        deducts/adds costs for each resource as defined by given Balance object
+        '''
+        self.science.applyCost(bal.science)
+        self.wealth.applyCost(bal.wealth)
+        self.metals.applyCost(bal.metals)
+        self.energy.applyCost(bal.energy)
+        self.organic.applyCost(bal.organic)    
         
     ### DEPRECIATED METHODS (DONT USE, REMOVE IF POSSIBLE) ###
     def getScience(self, player):
@@ -86,6 +100,6 @@ class Resources(object):
         self.metals.__update()
         self.energy.__update()
         self.organic.__update()
-        self.__lastUpdate = int(time())
+        self._lastUpdate = int(time())
         
     

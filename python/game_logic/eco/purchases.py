@@ -1,6 +1,7 @@
 # static functions for returning the cost of items
 
-from python.game_logic.eco.Cost import Cost
+from python.game_logic.eco.Resources import Balance
+from python.game_logic.eco.Resource import Cost
 
 def getCost(item, user=None):
     # returns cost dict for given item name & given user
@@ -14,6 +15,6 @@ def getCost(item, user=None):
         raise e
     
 # named items:
-baseCostMap = {'asteroidTrack':Cost(100,1000,100,10,10),
-            'techUpgrade':Cost(1000,1000,1000,100,10)
+baseCostMap = {'asteroidTrack':{'science':0  ,'wealth':0,'metals':5,'energy':50,'organic':10},
+                 'techUpgrade':{'science':100,'wealth':0,'metals':0,'energy':0,'organic':0}
             }
