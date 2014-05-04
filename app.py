@@ -68,7 +68,7 @@ USERS = UserList()  # list of users on the server TODO: replace use of this w/ r
 MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
 
 OOIs = OOIs() #TODO: this is in the Game() object now... which is now in GameList()
-USER = User() #TODO: this should now be replaced with USERS.getByToken() using a token from request cookie
+#USER = User() #TODO: this should now be replaced with USERS.getByToken() using a token from request cookie
 
 # initial write of JSON files:
 OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
@@ -95,6 +95,16 @@ def js_static(filename):
 @app.route('/db/<filename:path>')
 def js_static(filename):
     return static_file(filename, root='./db/')
+    
+#=====================================#
+#           Custom 404                #
+#=====================================#
+@error(404)
+def error404(error):
+    return template('tpl/pages/404',chunks=CHUNKS,
+        user=USER,
+        config=Settings(MASTER_CONFIG,showBG=False),
+        pageTitle="LOST IN SPACE")
  
 #=====================================#
 #            game content             #
@@ -169,12 +179,30 @@ def makeGamePage():
             pageTitle="Cosmosium Asteriod Ventures!")
     else: return userLogin('user login cookie not found')
             
+def getLoggedInUser(request):
+    ''' 
+    returns user object if logged in, else returns None
+    '''
+    if request.get_cookie("cosmosium_login"):
+        userLoginToken = request.get_cookie("cosmosium_login")
+        try:
+            return USERS.getUserByToken(userLoginToken)
+        except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
+            return None  
+    else: return None
+ 
+
 #=====================================#
 #           js                        #
 #=====================================#
 @app.route("/resourceUpdate.js")
 def makeResourceUpdater():
-    return template('tpl/js/resourceUpdate', user=USER)
+    # check for user login token in cookies
+    _user = getLoggedInUser(request)
+    if _user != None:
+        return template('tpl/js/resourceUpdate', user=_user)
+    else: 
+        redirect('/userLogin')
     
 @app.route("/webSocketSetup.js")
 def makeSocketSetup():
@@ -244,33 +272,29 @@ def searchMains():
 def searchKuipers():
     return template('tpl/searchView',asteroidDB="db/KuiperBelt.js")
 
-# these is here to circumvent global variable issues
 @app.route('/systemView')
 def systemView():
-    return template('tpl/systemView',
-        user=USER,
-        chunks=CHUNKS,
-        config=Settings('default',showFrame=False,showResources=False,showBG=False,controlBG=True),   # this is teporarily set to test so it looks nice.
-        pageTitle="system View"
-        )
+    _user = getLoggedInUser(request)
+    if _user != None:
+        return template('tpl/systemView',
+            user=_user,
+            chunks=CHUNKS,
+            config=Settings('default',showFrame=False,showResources=False,showBG=False,controlBG=True),
+            pageTitle="system View"
+            )
+    else: 
+        redirect('/userLogin')
+    
 
 @app.route('/viewTest')
 def systemView():
     return template('tpl/systemView',
-        user=USER,
+        user=User(),
         chunks=CHUNKS,
         config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),
         pageTitle="ViewTest"
         )
 
-@app.route('/sysView')
-def sysView():
-    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
-    return template('tpl/sysView',
-            config=Settings('test',showFrame=True,showResources=True,showBG=False,controlBG=True),
-            chunks=CHUNKS,
-            user=USER,
-            pageTitle="Solar System")
 
 @app.route('/getAsteroids')
 def getOOIs():
@@ -295,70 +319,6 @@ def processReq():
     lim = request.query.limit
     print 'q=',q,' l=',lim
     return template('type: {{datatype}} (response {{res}})', datatype="asterank", res=asterankAPI(q,lim))
-
-#=====================================#
-#           User Actions              #
-#=====================================#
-@app.route('/content/addAsteroid')
-def addOOI():
-    name = str(request.query.name)
-        
-    if USER.affords(purchases.getCost('asteroidTrack')):
-        print 'request to track '+name+' accepted.'
-        USER.payFor(purchases.getCost('asteroidTrack'))
-        OOIs.addObject(byName(name), 'PLAYER_1')
-        # write the new js file(s)
-        OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
-        print 'object '+name+' added to OOIs'
-        return template('tpl/content/asteroidAdd',
-            objectName=name,
-            chunks=CHUNKS,
-            config=Settings(MASTER_CONFIG),
-            pageTitle='Asteroid Add Request Approved',
-            user=USER)
-    else:
-        print 'request to track '+name+' denied. insufficient funds.'
-        return template('tpl/content/insufficientFunds',
-            objectName=name,
-            chunks=CHUNKS,
-            config=Settings(MASTER_CONFIG),
-            pageTitle='Asteroid Add Request Denied',
-            user=USER)
-            
-# DEPRECIATED!!!
-@app.route('/addAsteroid')
-def addOOI():
-    name = str(request.query.name)
-        
-    if USER.affords(purchases.getCost('asteroidTrack')):
-        print 'request to track '+name+' accepted'
-        USER.payFor(purchases.getCost('asteroidTrack'))
-        OOIs.addObject(byName(name), 'PLAYER_1')
-        # write the new js file(s)
-        OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
-        print 'object '+name+' added to OOIs'
-        return template('tpl/pages/asteroidAdd',
-            objectName=name,
-            chunks=CHUNKS,
-            config=Settings(MASTER_CONFIG),
-            pageTitle='Asteroid Add Request Approved',
-            user=USER)
-    else:
-        print 'request to track '+name+' denied. insufficient funds.'
-        return template('tpl/pages/insufficientFunds',
-            objectName=name,
-            chunks=CHUNKS,
-            config=Settings(MASTER_CONFIG),
-            pageTitle='Asteroid Add Request Denied',
-            user=USER)
-
-# @app.route('/upgradeTech')
-# def upgradeTech():
-    # type = request.query.type
-    # cost = purchases.getCost(type,user)
-    # if user.affords(purchases.techUpgrade, type):
-        # user.upgrade(purchases.techUpgrade, type)
-        # return #???
 
 #=====================================#
 #      SQLite for Basic UI Data       #
@@ -543,99 +503,3 @@ if __name__ == "__main__":
     print 'starting server on '+str(port)
     server.serve_forever()
     main(sys.argv[1:]) # Invokes Mongo
-
-    
-    
-### ================= DEPRECIATED HACKS BELOW ================= ###
-### if you see these still used somewhere, try to remove usage. ### 
-### much better alternatives should now be in place.            ###
-### =========================================================== ###
-        
-#=====================================#
-#           Dashboard Route           #
-#=====================================#
-@app.route("/dash")
-#@view("main")
-def makeDash():
-    if checkQuery(request):
-        return template('tpl/pages/dash',chunks=CHUNKS,
-            user=getUser(request,GAMES),
-            oois=OOIs,
-            config=Settings(MASTER_CONFIG),
-            pageTitle="Main Control Panel")
-    else:
-        return error404('malformed query')
-        
-#=====================================#
-#           Custom 404                #
-#=====================================#
-@error(404)
-def error404(error):
-    return template('tpl/pages/404',chunks=CHUNKS,
-        user=USER,
-        config=Settings(MASTER_CONFIG,showBG=False),
-        pageTitle="LOST IN SPACE")
-
-
-#=====================================#
-#           Mission  Pages            #
-#=====================================#
-@app.route('/missionControl')
-def  missionControl():
-		return template('tpl/pages/missionControl',
-            config=Settings(MASTER_CONFIG),
-            chunks=CHUNKS,
-            user=USER,
-            pageTitle="Mission Planning & Control Center",
-            resources=USER.resources)
-
-@app.route('/launchpad')
-def launchPad():
-    return template('tpl/pages/launchpad',
-        config=Settings(MASTER_CONFIG),
-        chunks=CHUNKS,
-        user=USER,
-        pageTitle="Launch Facilities")
-
-@app.route('/observatories')
-def launchPad():
-    return template('tpl/pages/observatories',
-        config=Settings(MASTER_CONFIG),
-        chunks=CHUNKS,
-        user=USER,
-        pageTitle="Main Observational Astronomy Facilities")
-
-#=====================================#
-#           Research Pages            #
-#=====================================#
-@app.route('/research')
-def researchPage():
-    subDir = request.query.section
-    if subDir=='Space Industry':
-        treeimg="img/space_industry_tech_tree_images.svg";
-
-    elif subDir=='Human Habitation':
-        treeimg="img/space_industry_tech_tree.svg";
-
-    elif subDir=='Robotics and AI':
-        treeimg="img/space_industry_tech_tree_images.svg";
-
-    else:
-        return error404('404')
-
-    return template('tpl/pages/research', tree_src=treeimg,
-        config=Settings(MASTER_CONFIG),
-        chunks=CHUNKS,
-        user=USER,
-        pageTitle=subDir+" Research")
-
-
-#=====================================#
-#           Econ Page Routes          #
-#=====================================#
-@app.route('/funding')
-def fundingPage():
-    return template('tpl/funding',chunks=CHUNKS,
-        config=Settings(MASTER_CONFIG),
-        user=USER,
-        pageTitle="Funding")
