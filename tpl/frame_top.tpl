@@ -14,7 +14,9 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </a>
-		
+        <ul class="nav navbar-nav">
+            <li><a href='#' id="gametime">{{user.game.time()}}</a></li>
+		</ul>
         <div class="navbar-right">
             <ul class="nav navbar-nav">
                 <li>

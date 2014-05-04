@@ -1,13 +1,36 @@
+import pickle
+
 from python.game_logic.Game import Game
+
+GAMES_FILE = 'db/GAMELIST.pickle'
 
 class GameList(object):
     def __init__(self):
         self.games = [Game()]
         
+    def __len__(self):
+        return len(self.games)
+        
     def addGame(self):
         self.games.append(Game())
         
-
+    # this turned out to be more trouble than it was worth:    
+    # def pickle(self):
+        # ''' 
+        # Removes down non-pickleable attributes and saves what it can to file.
+        # This should be an uncommon operation, used only to preserve game-states for next time the
+        # server comes back up.
+        # '''
+        # with open(GAMES_FILE, 'wb') as f:
+            # pickle.dump(self, f,-1)
+            # print str(len(self))+' games-in-progress pickled.'
+            
+    def unpickle(self):
+        try:
+            with open(GAMES_FILE, 'rb') as f:
+                self = pickle.load(f)
+        except (EOFError, IOError):    
+            print 'No pickled games-in-progress found. Starting from scratch.'
         
     def joinGame(self,userObj):
         # connects given user object to best game

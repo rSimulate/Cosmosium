@@ -63,10 +63,12 @@ app = Bottle()
 CHUNKS = chunks()   # static chunks or strings for the site
 DOMAIN = 'localhost:7099' # domain name
 GAMES = GameList()  # list of ongoing games on server
+GAMES.unpickle() # restores any games that were saved last time server shut down
+
 USERS = UserList()  # list of users on the server TODO: replace use of this w/ real db.
 MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
 
-# initial write of JSON files:
+# initial write of JSON files (to clear out old ones):
 GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 
 #=====================================#
@@ -489,6 +491,5 @@ if __name__ == "__main__":
         main(sys.argv[1:]) # Invokes Mongo
     finally:
         print 'shutting down...'
-        # do all your destructing here
-        del USERS
-        del GAMES
+        # do all your destructing here, the server is going down.
+        

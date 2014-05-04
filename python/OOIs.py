@@ -9,26 +9,21 @@ class OOIs(object):
         self.MPOs  = list() #list of all OoIs
         self.owners= list() #matched list of user ids for each OoI
         try: 
-            self.readOOIs()
+            self._readOOIs()
+            print str(len(self))+' OOIs unpickled.'
         except IOError:
-            print 'WARN: cannot load OOIs'
-        print str(len(self))+' OOIs unpickled.'
-            
-    def __del__(self):
-        self.saveOOIs()
+            print 'pickled OOIs not loaded.'
         
     def __len__(self):
         return len(self.MPOs)
         
-    def saveOOIs(self):
-        print 'saving OOIs...'
+    def _saveOOIs(self):
         with open(OOI_FILE, 'wb') as f:
             pickle.dump(self, f)
             print str(len(self))+' OOIs pickled.'
 
 
-    def readOOIs(self):
-        print 'loading OOIs...'
+    def _readOOIs(self):
         try:
             with open(OOI_FILE, 'rb') as f:
                 self = pickle.load(f)
