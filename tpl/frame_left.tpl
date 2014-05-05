@@ -59,9 +59,8 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#searchNEOs" id='systemView-NEOs-link'><i class="fa fa-angle-double-right"></i> NEO's</a></li>
-                        <li><a href="#searchMainBelt" id='systemView-MainBelt-link'><i class="fa fa-angle-double-right"></i> Main Belt</a></li>
-                        <li><a href="#searchKuiperBelt" id='systemView-KuiperBelt-link'><i class="fa fa-angle-double-right"></i> Kuiper Belt</a></li>
+                        <li><a href="#asteroidSurveys" id='asteroidSurveys-link'><i class="fa fa-angle-double-right"></i> Asteroid Surveys</a></li>
+                        <li><a href="#surveyEquip" id='surveyEquip-link'><i class="fa fa-angle-double-right"></i>Survey Equipment</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
