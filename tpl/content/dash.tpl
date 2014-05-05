@@ -119,6 +119,6 @@
 
     <!-- Main row -->
     <div class="row">
-            % include('tpl/content/tiles/welcomeTile')
+        % include('tpl/content/tiles/welcomeTile')
     </div><!-- /.row (main row) -->
 
