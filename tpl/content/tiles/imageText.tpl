@@ -1,11 +1,15 @@
-<!-- PARAMS:           
-    title = head title
+<!-- 
+defines a generic content tile with image to left and text to the right
+
+:PARAMS:           
+    title = box title
     imgsrc = source loc of image
     alt_text = hovertext
     text = main body text
-        -->
+    color = box color name
+-->
 <div class="col-xs-12 col-xs-6">
-    <div class="box box-solid bg-maroon">
+    <div class="box box-solid bg-{{color}}">
         <div class="box-header">
             <h3 class="box-title">{{title}}</h3>
         </div>
