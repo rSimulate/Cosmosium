@@ -82,7 +82,6 @@
                 <h3>
                     +{{user.resources.getDeltaEnergy(user)}}
                 </h3>
-                </h3>
                 <p>
                     Energy Balance
                 </p>
@@ -108,8 +107,7 @@
                 ws.send(message('research','techLevel'));  
             }, false);
         </script>
-      
-        <iframe src="{{tree_src}}"  style="float:center">Your browser does't support SVG? =(</iframe>
+        <object type='image/svg+xml' id="researchTree" data="{{tree_src}}" onload="displayState(this)" style="float:center">Your browser does't support SVG? =(</object>
     </div><!-- /.col -->
 </div><!-- /.row -->
 
@@ -118,3 +116,4 @@
     % include('tpl/content/tiles/welcomeTile')
 </div><!-- /.row (main row) -->
 
+ <script type='text/javascript' src='/js/researchTree/requestResearch.js'></script>
