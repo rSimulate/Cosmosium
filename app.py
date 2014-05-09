@@ -21,7 +21,7 @@ __author__ = 'rsimulate'
 
 # Primary Components
 import os
-from python.bottle import route, run, static_file, template, view, post, request, error, Bottle, response, redirect
+from python.bottle import static_file, template, request, error, Bottle, response, redirect, abort
 import sqlite3 as lite
 import sys
 import json
@@ -35,7 +35,7 @@ import config
 
 # websockets:
 import gevent
-from geventwebsocket import WebSocketServer, WebSocketApplication, Resource, WebSocketError
+from geventwebsocket import WebSocketError
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 import python.webSocketParser as webSocketParser
@@ -45,16 +45,14 @@ from python.page_maker.chunks import chunks # global chunks
 from python.page_maker.Settings import Settings
 
 # ui handlers:
-from python.query_parsers.getUser import getUser, getProfile, demoIDs
-from python.query_parsers.checkQuery import checkQuery
+from python.query_parsers.getUser import  getProfile, demoIDs
 
 # game logic:
 from python.game_logic.User import User
-from python.game_logic.eco import purchases
 from python.game_logic.GameList import GameList
 from python.game_logic.UserList import UserList
 
-from python.getAsteroid import asterankAPI, byName
+from python.getAsteroid import asterankAPI
 
 #=====================================#
 #              GLOBALS                #
@@ -93,17 +91,36 @@ def js_static(filename):
 @app.route('/db/<filename:path>')
 def js_static(filename):
     return static_file(filename, root='./db/')
+
+#=====================================#
+#      Routing Helper Functions       #
+#=====================================#
+def getLoggedInUser(request):
+    '''
+    returns user object if logged in, else returns None
+    '''
+    if request.get_cookie("cosmosium_login"):
+        userLoginToken = request.get_cookie("cosmosium_login")
+        try:
+            return USERS.getUserByToken(userLoginToken)
+        except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
+            return None
+    else: return None
     
 #=====================================#
 #           Custom 404                #
 #=====================================#
-@error(404)
+@app.error(404)
 def error404(error):
-    return template('tpl/pages/404',chunks=CHUNKS,
-        user=USER,
-        config=Settings(MASTER_CONFIG,showBG=False),
-        pageTitle="LOST IN SPACE")
- 
+    _user = getLoggedInUser(request)
+    if _user != None:
+        return template('tpl/pages/404',chunks=CHUNKS,
+            user=_user,
+            config=Settings(MASTER_CONFIG,showBG=False),
+            pageTitle="LOST IN SPACE")
+    else:
+        redirect('/userLogin')
+
 #=====================================#
 #            game content             #
 #=====================================#
@@ -111,7 +128,7 @@ def error404(error):
 def makeContentHTML():
     name=request.query.name # content page name
     subDir = request.query.section=request.query.section # specific section of page (like type of research page)
-    
+
     # check for user login token in cookies
     if request.get_cookie("cosmosium_login"):
         userLoginToken = request.get_cookie("cosmosium_login")
@@ -119,7 +136,7 @@ def makeContentHTML():
             _user = USERS.getUserByToken(userLoginToken)
         except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
             redirect('/userLogin')
-        
+
         treeimg=''
         if name == 'research': # then get research subDir info
             if subDir=='spaceIndustry':
@@ -130,7 +147,7 @@ def makeContentHTML():
                 treeimg="img/space_industry_tech_tree_images.svg";
             else:
                 return template('tpl/content/404') # error404('404')
-        
+
         fileName='tpl/content/'+name
         if os.path.isfile(fileName+'.tpl'): #if file exists, use it
             return template(fileName,
@@ -143,7 +160,7 @@ def makeContentHTML():
         else: # else show content under construction
             print 'unknown content request: '+fileName
             return template('tpl/content/under_construction')
-    else: 
+    else:
         redirect('/userLogin')
 
 #=====================================#
@@ -152,7 +169,7 @@ def makeContentHTML():
 @app.route("/")
 def makeSplash():
     return template('tpl/pages/splash', gameList=GAMES, demoIDs=demoIDs)
-    
+
 #=====================================#
 #       main gameplay page            #
 #=====================================#
@@ -165,10 +182,10 @@ def makeGamePage():
             _user = USERS.getUserByToken(userLoginToken)
         except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
             return userLogin('user token not found')
-            
+
         if _user.game == None:
             GAMES.joinGame(_user)
-            
+
         return template('tpl/pages/play',
             chunks=CHUNKS,
             user=_user,
@@ -176,19 +193,6 @@ def makeGamePage():
             config=Settings(MASTER_CONFIG),
             pageTitle="Cosmosium Asteriod Ventures!")
     else: return userLogin('user login cookie not found')
-            
-def getLoggedInUser(request):
-    ''' 
-    returns user object if logged in, else returns None
-    '''
-    if request.get_cookie("cosmosium_login"):
-        userLoginToken = request.get_cookie("cosmosium_login")
-        try:
-            return USERS.getUserByToken(userLoginToken)
-        except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
-            return None  
-    else: return None
- 
 
 #=====================================#
 #           js                        #
@@ -295,7 +299,7 @@ def systemView():
 
 @app.route('/getAsteroids')
 def getOOIs():
-    GAMES.games[0].OOIs.write2JSON(OOI_JSON_FILE)
+    GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
     return Settings(MASTER_CONFIG).asteroidDB
     
 @app.route('/asteroidReq')
