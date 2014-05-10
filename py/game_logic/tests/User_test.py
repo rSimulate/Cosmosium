@@ -1,10 +1,10 @@
 
 import unittest
 
-from python.game_logic.User import User
+from py.game_logic.User import User
 
-from python.game_logic.eco.Resources import Balance
-from python.game_logic.eco.Resource import Cost
+from py.game_logic.eco.Resources import Balance
+from py.game_logic.eco.Resource import Cost
 
 class User_test(unittest.TestCase):
     def test_deltaResourcesGoesUp_if_researchAgeIncreases(self):

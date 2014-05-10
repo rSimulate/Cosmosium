@@ -3,8 +3,8 @@
 from time import time
 from calendar import month_abbr
 
-from python.OOIs import OOIs
-from python.game_logic.mockEventList import getMockEventList
+from py.OOIs import OOIs
+from py.game_logic.mockEventList import getMockEventList
 
 GAME_LEN = 60 # max length of game in minutes
 GAME_YEAR_SPAN = 200 # years spanned by a max-len game

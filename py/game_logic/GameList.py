@@ -1,6 +1,6 @@
 import pickle
 
-from python.game_logic.Game import Game
+from py.game_logic.Game import Game
 
 GAMES_FILE = 'db/GAMELIST.pickle'
 

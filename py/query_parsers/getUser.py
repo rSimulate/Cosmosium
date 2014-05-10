@@ -1,4 +1,4 @@
-from python.game_logic.User import User
+from py.game_logic.User import User
 
 demoIDs = ['Johannes_Kepler','Edwin_Hubble','Yuri_Gagarin','Carl_Sagan','Jebediah_Kerman','Chris_Hadfield']
 

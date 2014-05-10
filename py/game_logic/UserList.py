@@ -1,7 +1,7 @@
 # this class holds all users currently logged on
 
-from python.game_logic.User import User
-from python.query_parsers.getUser import getProfile, demoIDs
+from py.game_logic.User import User
+from py.query_parsers.getUser import getProfile, demoIDs
 
 class UserList(object):
     def __init__(self):

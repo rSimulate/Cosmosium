@@ -1,14 +1,14 @@
 
-from python.lib.bottle.bottle import template
-from python.game_logic.Research import Research
-from python.game_logic.units.Telescope import Telescope
-from python.game_logic.units.Miner import Miner
-from python.game_logic.eco.Resources import Resources
-from python.game_logic.eco import purchases
-from python.page_maker.Message import Message
-from python.page_maker.Note import Note
-from python.page_maker.Task import Task
-from python.webSocketMessenger import createMessage
+from py.lib.bottle.bottle import template
+from py.game_logic.Research import Research
+from py.game_logic.units.Telescope import Telescope
+from py.game_logic.units.Miner import Miner
+from py.game_logic.eco.Resources import Resources
+from py.game_logic.eco import purchases
+from py.page_maker.Message import Message
+from py.page_maker.Note import Note
+from py.page_maker.Task import Task
+from py.webSocketMessenger import createMessage
 
 class User(object):
     def __init__(self, name='No Name'):

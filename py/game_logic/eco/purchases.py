@@ -3,8 +3,8 @@
  This should be replaced by a database soon...
 '''
 
-from python.game_logic.eco.Resources import Balance
-from python.game_logic.eco.Resource import Cost
+from py.game_logic.eco.Resources import Balance
+from py.game_logic.eco.Resource import Cost
 
 def getCost(item, user=None):
     '''

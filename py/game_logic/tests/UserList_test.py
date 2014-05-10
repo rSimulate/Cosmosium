@@ -1,8 +1,8 @@
 
 import unittest
 
-from python.game_logic.UserList import UserList
-from python.game_logic.User import User
+from py.game_logic.UserList import UserList
+from py.game_logic.User import User
 
 
 class UserList_test(unittest.TestCase):

@@ -29,7 +29,7 @@ import random
 
 import pymongo # import Connection
 
-from python.lib.bottle.bottle import static_file, template, request, Bottle, response, redirect, abort
+from py.lib.bottle.bottle import static_file, template, request, Bottle, response, redirect, abort
 
 
 # OAuth components
@@ -40,21 +40,21 @@ import config
 from geventwebsocket import WebSocketError
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
-import python.webSocketParser as webSocketParser
+import py.webSocketParser as webSocketParser
 
 # Template Components
-from python.page_maker.chunks import chunks # global chunks
-from python.page_maker.Settings import Settings
+from py.page_maker.chunks import chunks # global chunks
+from py.page_maker.Settings import Settings
 
 # ui handlers:
-from python.query_parsers.getUser import  getProfile, demoIDs
+from py.query_parsers.getUser import  getProfile, demoIDs
 
 # game logic:
-from python.game_logic.User import User
-from python.game_logic.GameList import GameList
-from python.game_logic.UserList import UserList
+from py.game_logic.User import User
+from py.game_logic.GameList import GameList
+from py.game_logic.UserList import UserList
 
-from python.getAsteroid import asterankAPI
+from py.getAsteroid import asterankAPI
 
 #=====================================#
 #              GLOBALS                #
@@ -330,7 +330,7 @@ def database():
 #=====================================#
 
 ### Testing Mongo with this Example:
-### https://github.com/mongolab/mongodb-driver-examples/blob/master/python/pymongo_simple_example.py
+### https://github.com/mongolab/mongodb-driver-examples/blob/master/py/pymongo_simple_example.py
 
 ### DEFAULT Mongo Path & Port
 ### MongoDB starting : pid=1160 port=27017 dbpath=/data/db/
