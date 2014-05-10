@@ -21,20 +21,22 @@ __author__ = 'rsimulate'
 
 # Primary Components
 import os
-from python.bottle import static_file, template, request, error, Bottle, response, redirect, abort
 import sqlite3 as lite
 import sys
 import json
+import string
+import random
+
 import pymongo # import Connection
-import string 
-import random 
+
+from python.lib.bottle.bottle import static_file, template, request, Bottle, response, redirect, abort
+
 
 # OAuth components
 import rauth
 import config
 
 # websockets:
-import gevent
 from geventwebsocket import WebSocketError
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler

@@ -1,5 +1,5 @@
 
-from python.bottle import template
+from python.lib.bottle.bottle import template
 from python.game_logic.Research import Research
 from python.game_logic.units.Telescope import Telescope
 from python.game_logic.units.Miner import Miner
