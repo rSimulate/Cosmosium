@@ -7,7 +7,7 @@
             <!-- jQuery UI 1.10.3 -->
             <script src="js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
             <!-- Bootstrap -->
-            <script src="js/bootstrap.min.js" type="text/javascript"></script>
+            <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
             <!-- Morris.js charts -->
             <!--
             <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
