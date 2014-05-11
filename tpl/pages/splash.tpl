@@ -200,7 +200,7 @@ Play with the Alpha Today! Early Beta coming soon!
 (First be sure you have a webGL capable device.)
 </p>
 </center>
-        %include('tpl/loginBox')
+        %include('tpl/page_chunks/loginBox')
 
 
 </section>

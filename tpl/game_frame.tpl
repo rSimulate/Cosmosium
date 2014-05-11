@@ -1,2 +1,2 @@
-%include('tpl/frame_top')
-%include('tpl/frame_left')
+%include('tpl/page_chunks/frame_top')
+%include('tpl/page_chunks/frame_left')

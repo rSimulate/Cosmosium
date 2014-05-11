@@ -47,10 +47,10 @@ from py.page_maker.chunks import chunks # global chunks
 from py.page_maker.Settings import Settings
 
 # ui handlers:
-from py.query_parsers.getUser import  getProfile, demoIDs
+from py.query_parsers.getUser import getProfile, demoIDs
 
 # game logic:
-from py.game_logic.User import User
+from py.game_logic.user.User import User
 from py.game_logic.GameList import GameList
 from py.game_logic.UserList import UserList
 
@@ -110,18 +110,27 @@ def getLoggedInUser(request):
     else: return None
     
 #=====================================#
-#           Custom 404                #
+#         Custom Error Handles        #
 #=====================================#
 @app.error(404)
 def error404(error):
     _user = getLoggedInUser(request)
     if _user != None:
-        return template('tpl/pages/404',chunks=CHUNKS,
-            user=_user,
-            config=Settings(MASTER_CONFIG,showBG=False),
-            pageTitle="LOST IN SPACE")
+        return template('tpl/pages/404',
+                        chunks=CHUNKS,
+                        user=_user,
+                        config=Settings(MASTER_CONFIG, showBG=False),
+                        pageTitle="LOST IN SPACE")
     else:
         redirect('/userLogin')
+
+@app.error(500)
+def error500(error):
+    print '500 error getting ', request.url, ':', response.body
+    return "oops! something broke. we've logged the error. \
+        if you want to help us sort it out, please visit \
+        <a href='https://github.com/rSimulate/Cosmosium/issues'>our issue tracker on github</a>."
+
 
 #=====================================#
 #            game content             #
@@ -153,12 +162,12 @@ def makeContentHTML():
         fileName='tpl/content/'+name
         if os.path.isfile(fileName+'.tpl'): #if file exists, use it
             return template(fileName,
-                tree_src=treeimg, #used only for research pages
-                chunks=CHUNKS,
-                user=_user,
-                oois=GAMES.games[0].OOIs,
-                config=Settings(MASTER_CONFIG),
-                pageTitle=name)
+                            tree_src=treeimg, #used only for research pages
+                            chunks=CHUNKS,
+                            user=_user,
+                            oois=GAMES.games[0].OOIs,
+                            config=Settings(MASTER_CONFIG),
+                            pageTitle=name)
         else: # else show content under construction
             print 'unknown content request: '+fileName
             return template('tpl/content/under_construction')
@@ -189,11 +198,11 @@ def makeGamePage():
             GAMES.joinGame(_user)
 
         return template('tpl/pages/play',
-            chunks=CHUNKS,
-            user=_user,
-            oois=GAMES.games[0].OOIs,
-            config=Settings(MASTER_CONFIG),
-            pageTitle="Cosmosium Asteriod Ventures!")
+                        chunks=CHUNKS,
+                        user=_user,
+                        oois=GAMES.games[0].OOIs,
+                        config=Settings(MASTER_CONFIG),
+                        pageTitle="Cosmosium Asteriod Ventures!")
     else: return userLogin('user login cookie not found')
 
 #=====================================#
@@ -253,6 +262,7 @@ def handle_websocket():
             webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, GAMES.games[0].OOIs)
             print "received :",cmd,'from',userID
         except WebSocketError:
+            print 'websocketerror encountered'
             break
             
 
@@ -280,11 +290,11 @@ def systemView():
     _user = getLoggedInUser(request)
     if _user != None:
         return template('tpl/systemView',
-            user=_user,
-            chunks=CHUNKS,
-            config=Settings('default',showFrame=False,showResources=False,showBG=False,controlBG=True),
-            pageTitle="system View"
-            )
+                        user=_user,
+                        chunks=CHUNKS,
+                        config=Settings('default',showFrame=False,showResources=False,showBG=False,controlBG=True),
+                        pageTitle="system View"
+                        )
     else: 
         redirect('/userLogin')
     
@@ -292,10 +302,10 @@ def systemView():
 @app.route('/viewTest')
 def systemView():
     return template('tpl/systemView',
-        user=User(),
-        chunks=CHUNKS,
-        config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),
-        pageTitle="ViewTest"
+                    user=User(),
+                    chunks=CHUNKS,
+                    config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),
+                    pageTitle="ViewTest"
         )
 
 
@@ -488,14 +498,15 @@ def login_success():
 
 if __name__ == "__main__":
     try:
+     #   app.catchall = True  # Now most exceptions are re-raised within bottle.
         port = int(os.environ.get("PORT", 7099))
         #run(host='0.0.0.0', port=port)
         server = WSGIServer(("0.0.0.0", port), app,
                             handler_class=WebSocketHandler)
         print 'starting server on '+str(port)
         server.serve_forever()
-        main(sys.argv[1:]) # Invokes Mongo
+        print 'code after this point never executes.'
+        main(sys.argv[1:])  # Invokes Mongo
     finally:
         print 'shutting down...'
         # do all your destructing here, the server is going down.
-        

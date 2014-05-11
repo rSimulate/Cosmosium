@@ -1,7 +1,7 @@
 
 import unittest
 
-from py.game_logic.User import User
+from py.game_logic.user.User import User
 
 from py.game_logic.eco.Resources import Balance
 from py.game_logic.eco.Resource import Cost
@@ -31,4 +31,4 @@ class User_test(unittest.TestCase):
         bal = Balance(science=Cost(-10,0))
         val = user.resources.science._value
         user.purchase(balance=bal)
-        self.assertEqual(user.resources.science._value,90)
+        self.assertEqual(val,90)

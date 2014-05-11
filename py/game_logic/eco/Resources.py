@@ -105,11 +105,11 @@ class Resources(object):
     def update(self, player):
         # computes updated values for all resources
         # DEPRECIATED! No use for all-resource updates, right?
-        self.science.__update()
-        self.wealth.__update()
-        self.metals.__update()
-        self.energy.__update()
-        self.organic.__update()
+        self.science._update()
+        self.wealth._update()
+        self.metals._update()
+        self.energy._update()
+        self.organic._update()
         self._lastUpdate = int(time())
         
     

@@ -22,11 +22,11 @@ class Game(object):
         # if t is given, in-game time at given time t
         if t == None:
             t = time()
-        secsPassed = int(time()-self._epoch) #real-time
+        secsPassed = int(t-self._epoch) #real-time
         yearsPassed = float(secsPassed)/self.getDeltaYearUpdate() #game-time
         month = int(yearsPassed%1*12)
         year  = int(yearsPassed)+START_YEAR
-        return month_abbr[month+1]+' '+str(int(yearsPassed)+START_YEAR)
+        return month_abbr[month+1]+' '+str(year)
             
     def getDeltaYearUpdate(self):
         # returns time (in real seconds) between year changes in game-time

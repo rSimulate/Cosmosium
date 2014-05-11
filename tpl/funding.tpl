@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html>
     <body class="skin-black">
-            % include('tpl/head') # implicitly passed: pageTitle
+            % include('tpl/page_chunks/head') # implicitly passed: pageTitle
 			
             % include('tpl/game_frame') # implicitly passed: chunks,messages,note_count,task_count,user,resources
             
@@ -19,7 +19,7 @@
             <aside class="right-side">
 
             <!-- Page Header and Resource Bar -->
-			% include('tpl/resourcebar') # implicitly passed: Chunks.appName, PageTitle
+			% include('tpl/page_chunks/resourcebar') # implicitly passed: Chunks.appName, PageTitle
 
                 <!-- Main content -->
                 <section class="content">

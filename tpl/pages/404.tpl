@@ -9,7 +9,7 @@
         -->
 
 
-% include('tpl/head') # implicitly passed: pageTitle
+% include('tpl/page_chunks/head') # implicitly passed: pageTitle
 
 
 <div class="col-xs-5 text-center" >
@@ -18,4 +18,4 @@
 </div>
 
 
-% include('tpl/foot')
+% include('tpl/page_chunks/foot')

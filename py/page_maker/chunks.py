@@ -1,6 +1,7 @@
 # this file defines static values to be used in templates
 
-from py.bg_music import bg_music
+from py.page_maker.bg_music import bg_music
+
 
 class chunks(object):
     def __init__(self):

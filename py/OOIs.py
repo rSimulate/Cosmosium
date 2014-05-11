@@ -30,10 +30,10 @@ class OOIs(object):
         except EOFError:    
             print 'WARN: OOI.pickle is empty! Starting from scratch.'
             
-    def addObject(self,object,ownerName=None):
+    def addObject(self,obj,ownerName=None):
         if ownerName!=None:
             self.owners.append(ownerName)
-        self.MPOs.append(object)
+        self.MPOs.append(obj)
         print 'MPO added.'
         
     #with open(OOI_JSON_FILE,'r') as f:

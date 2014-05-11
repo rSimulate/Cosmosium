@@ -1,13 +1,12 @@
-
+from py.game_logic.user.Message import Message
+from py.game_logic.user.Task import Task
+from py.game_logic.user.Note import Note
 from py.lib.bottle.bottle import template
 from py.game_logic.Research import Research
 from py.game_logic.units.Telescope import Telescope
 from py.game_logic.units.Miner import Miner
 from py.game_logic.eco.Resources import Resources
 from py.game_logic.eco import purchases
-from py.page_maker.Message import Message
-from py.page_maker.Note import Note
-from py.page_maker.Task import Task
 from py.webSocketMessenger import createMessage
 
 class User(object):
@@ -79,7 +78,7 @@ class User(object):
         self.resources.applyBalance(bal)
         
         if self.websocket != None:
-            self.websocket.send(createMessage('updateResources',data=template('tpl/resourcebar',user=self)))
+            self.websocket.send(createMessage('updateResources',data=template('tpl/page_chunks/resourcebar',user=self)))
             return True
         else:
             print 'no websocket connected to user ',self.name
@@ -123,7 +122,7 @@ class User(object):
         # advances to next research age...
         self.research.advance()
         if self.websocket != None:
-            self.websocket.send(createMessage('updateResources',data=template('tpl/resourcebar',user=self)))
+            self.websocket.send(createMessage('updateResources',data=template('tpl/page_chunks/resourcebar',user=self)))
             return True
         else:
             print 'no websocket connected to user ',self.name
@@ -158,7 +157,7 @@ class User(object):
     
     ### MORE ###
     def update(self):
-        resources.update(self)
+        self.resources.update(self)
     
 
     

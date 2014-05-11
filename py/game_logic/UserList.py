@@ -1,6 +1,5 @@
 # this class holds all users currently logged on
 
-from py.game_logic.User import User
 from py.query_parsers.getUser import getProfile, demoIDs
 
 class UserList(object):
@@ -45,8 +44,8 @@ class UserList(object):
             except AttributeError as e:
                 raise ReferenceError('\nuser found in memory, but object has been deleted!\n') # I _think_ that's the right error throw...
         except KeyError as e:
-            print '\nuser lookup token not found. bad client access attempt?\n'
-            raise
+            e.message += '\nuser lookup token not found. bad client access attempt?\n'
+            raise e
         # if no exceptions thrown...
         return self.users[token]
         

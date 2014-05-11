@@ -34,7 +34,7 @@
         
         <h2>{{message}}</h2>
 
-        %include('tpl/loginBox')
+        %include('tpl/page_chunks/loginBox')
 
         <!-- jQuery 2.0.2 -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>

@@ -4,7 +4,7 @@ class pastEvent(object):
         self.time = time
         self.title= title
         self.text = text
-        self.img  = '#'
+        self.img  = img
 
 def getMockEventList():
     return [ 
