@@ -11,16 +11,16 @@ __author__ = 'rSimulate'
 
 # these are the commands you'd use in your cmd line,
 #  if different on your sys (ie to use python you type C:\Python27\python.exe, change them)
-PY  = 'python'
+PY  = '\c\Python27\python.exe'
 GIT = 'git'
 PIP = 'pip'
 
 SUBMODULES = {
     # loc_in_dir   : repo_url
-    'py/lib/bottle': 'https://github.com/defnull/bottle'
+    './py/lib/bottle': 'https://github.com/defnull/bottle'
 }
 
-PIP_LIBS = ['rauth', 'requests', 'pymongo', 'gevent' 'gevent-websocket', 'greenlet']
+PIP_LIBS = ['rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet']
 
 from subprocess import call  # for sys commands
 
