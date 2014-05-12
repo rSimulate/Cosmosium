@@ -15,7 +15,7 @@
   
   #### using pip ####
 
-  * `sudo pip install rauth requests pymongo gevent geventwebsocket greenlet` | install needed python packages 
+  * `sudo pip install rauth requests pymongo gevent gevent-websocket greenlet` | install needed python packages 
 3. `sudo python app.py` or `sudo ./startServer.sh` | start up from within the cosmosium directory
   * NOTE: you only need root to bind port 80, if you've got another port in `app.py`, run w/o `sudo`.
 4. open your browser and navigate to `localhost:7099`, or whatever port you have in `app.py`
