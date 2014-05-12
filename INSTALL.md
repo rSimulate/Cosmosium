@@ -4,6 +4,8 @@
   #### using git ####
   `git clone https://github.com/rSimulate/Cosmosium.git`
 2. install dependencies
+  * `git submodule add https://github.com/defnull/bottle py/lib/bottle`
+  * `touch py/lib/bottle/__init__.py`
 
   #### ubuntu ####
   * `sudo apt-get pip` | install pip package manager
