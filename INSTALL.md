@@ -9,6 +9,12 @@
 
   #### ubuntu ####
   * `sudo apt-get pip` | install pip package manager
+
+  #### windows ####
+  * download and run [get-pip.py](https://bootstrap.pypa.io/get-pip.py)
+  
+  #### using pip ####
+
   * `sudo pip install rauth requests pymongo gevent geventwebsocket greenlet` | install needed python packages 
 3. `sudo python app.py` or `sudo ./startServer.sh` | start up from within the cosmosium directory
   * NOTE: you only need root to bind port 80, if you've got another port in `app.py`, run w/o `sudo`.
