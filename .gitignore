@@ -1,3 +1,6 @@
+# py/lib/ needs to be ignored or else it keeps trying to add submodule files!
+*/py/lib/*
+
 # .conf file to prevent accidental uploads of user directories and an unintentional edit battle
 *cosmos.conf
 
