@@ -1,23 +1,11 @@
 ## Step-by-step Intallation Instructions ##
 1. clone the repo
-
-  #### using git ####
   `git clone https://github.com/rSimulate/Cosmosium.git`
-2. install dependencies
-  * `git submodule add https://github.com/defnull/bottle py/lib/bottle`
-  * `touch py/lib/bottle/__init__.py`
-
-  #### ubuntu ####
-  * `sudo apt-get pip` | install pip package manager
-
-  #### windows ####
-  * download and run [get-pip.py](https://bootstrap.pypa.io/get-pip.py)
-  
-  #### using pip ####
-
-  * `sudo pip install rauth requests pymongo gevent gevent-websocket greenlet` | install needed python packages 
-3. `sudo python app.py` or `sudo ./startServer.sh` | start up from within the cosmosium directory
-  * NOTE: you only need root to bind port 80, if you've got another port in `app.py`, run w/o `sudo`.
+2. install dependencies & a tiny bit of setup
+  `python INSTALL.py`
+3. start the server
+  `python app.py` or `./startServer.sh`
+  * NOTE: you need sudo to bind port 80
 4. open your browser and navigate to `localhost:7099`, or whatever port you have in `app.py`
 
 ## advanced setup ##
