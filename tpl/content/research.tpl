@@ -118,8 +118,8 @@
 			 <script src="js/lib/techtreejs/techtree.js"></script>
 
           <!-- include a div with id "tech-tree" where the tree should go -->
-			 <div id='tech-tree' onclick='techtree.drawTree()'>
-              tree appears here
+			 <div id='tech-tree' onclick='techtree.drawTree(); document.getElementById("tech-tree").onclick={}'>
+              click to show tech tree TODO: make this appear automatically (see <a href='https://github.com/rSimulate/Cosmosium/issues/64'>issue #64</a>)
 			 </div>
 
 			 <!-- init the tree (using jquery here but there are other ways) -->
