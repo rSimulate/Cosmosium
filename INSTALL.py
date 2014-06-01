@@ -37,6 +37,11 @@ for sub in SUBMODULES:
 # TODO: tweak submodules so we can use them
 print 'tweaking submodules for our usage... '
 call(['touch', 'py/lib/bottle/__init__.py'])
+try:
+    call('rm -r py/lib/bottle/test')
+    call('rm -r py/lib/bottle/docs')
+except OSError:
+    print "bottle test & docs not found so I'm not deleting them."
 
 # TODO: check for pip, else: if windows: d/l and run get_pip.py, elif ubuntu: `apt-get pip`
 
