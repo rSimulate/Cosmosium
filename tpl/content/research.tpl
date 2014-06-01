@@ -107,7 +107,10 @@
                 ws.send(message('research','techLevel'));  
             }, false);
         </script>
-        <object type='image/svg+xml' id="researchTree" data="{{tree_src}}" onload="displayState(this)" style="float:center">Your browser does't support SVG? =(</object>
+
+        <object type='image/svg+xml' id="researchTree" data="{{tree_src}}" onload="displayState(this)" style="float:center">Your browser does't support SVG? =(
+        </object>
+
     </div><!-- /.col -->
 </div><!-- /.row -->
 
