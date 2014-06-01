@@ -29,6 +29,7 @@ class User_test(unittest.TestCase):
         user = User()
         user.resources.science._value = 100
         bal = Balance(science=Cost(-10,0))
-        val = user.resources.science._value
+        assert(user.affords(bal))
         user.purchase(balance=bal)
+        val = user.resources.science._value
         self.assertEqual(val,90)
