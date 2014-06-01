@@ -1,6 +1,7 @@
 
 treeConfig = {
     // svgSrc: '/demo/demo_resources/tree.svg',
+    imgDir: '/img/techTree/',
     jsonSrc: '/js/researchTree/researchTree.json',
     treeWidth: 800,
     treeHeight: 1000,
