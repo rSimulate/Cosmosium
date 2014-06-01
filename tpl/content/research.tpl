@@ -108,8 +108,35 @@
             }, false);
         </script>
 
-        <object type='image/svg+xml' id="researchTree" data="{{tree_src}}" onload="displayState(this)" style="float:center">Your browser does't support SVG? =(
-        </object>
+			  <!-- load techtree dependencies: -->
+			 <script src="http://d3js.org/d3.v3.min.js"></script>
+
+			 <!-- load your treeConfig script -->
+			 <script src="/js/researchTree/tree_config.js"></script>
+
+			 <!-- load the tech tree script -->
+			 <script src="js/lib/techtreejs/techtree.js"></script>
+
+          <!-- include a div with id "tech-tree" where the tree should go -->
+			 <div id='tech-tree' onclick='techtree.drawTree()'>
+              tree appears here
+			 </div>
+
+			 <!-- init the tree (using jquery here but there are other ways) -->
+          <script type='text/javascript'>
+            // TODO: replace the onclick in tech-tree div with working verison of one of these:
+				/* this fires too early...
+              $(document).ready(function() {
+						 techtree.drawTree();
+					});
+            */
+            /* this never fires...
+              $(document).load(function() {
+						 techtree.drawTree();
+					});
+            */
+          </script>
+
 
     </div><!-- /.col -->
 </div><!-- /.row -->

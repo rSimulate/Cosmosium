@@ -17,7 +17,8 @@ PIP = 'pip'
 
 SUBMODULES = {
     # loc_in_dir   : repo_url
-    './py/lib/bottle': 'https://github.com/defnull/bottle'
+    './py/lib/bottle':     'https://github.com/defnull/bottle',
+    './js/lib/techtreejs': 'https://github.com/7yl4r/techtreejs'
 }
 
 PIP_LIBS = ['rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet']
