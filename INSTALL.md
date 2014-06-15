@@ -10,6 +10,7 @@
 
 ## advanced setup ##
 1. make the app run forever and start automatically on system boot
+
   #### ubuntu ####
   * edit `cosmos.conf` so that `chdir` is set to your cosmosium repository folder.
   * `sudo cp cosmos.conf /etc/init/cosmos.conf` | add the .conf for upstart
