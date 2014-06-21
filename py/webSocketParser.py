@@ -1,6 +1,6 @@
 from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
-from py.lib.bottle.bottle import template
+from bottle import template
 from py.getAsteroid import byName
 
 CHUNKS = chunks()
