@@ -99,6 +99,9 @@
 <!-- top row -->
 <div class="row">
     <div class="col-xs-12 connectedSortable">
+        <!-- include a div with id "tech-tree" where the tree should go -->
+         <div id='tech-tree' onclick='document.getElementById("tech-tree").onclick={}'>
+         </div>
     
         <h3><a href='#research_techLevel' id='research_techLevel'> advance to next tech level (costs science)</a></h3>
         <script type='text/javascript'> 
@@ -108,34 +111,25 @@
             }, false);
         </script>
 
-			  <!-- load techtree dependencies: -->
-			 <script src="http://d3js.org/d3.v3.min.js"></script>
-
-			 <!-- load your treeConfig script -->
-			 <script src="/js/researchTree/tree_config.js"></script>
-
-			 <!-- load the tech tree script -->
-			 <script src="js/lib/techtreejs/techtree.js"></script>
-
-          <!-- include a div with id "tech-tree" where the tree should go -->
-			 <div id='tech-tree' onclick='techtree.drawTree(); document.getElementById("tech-tree").onclick={}'>
-              click to show tech tree TODO: make this appear automatically (see <a href='https://github.com/rSimulate/Cosmosium/issues/64'>issue #64</a>)
-			 </div>
-
 			 <!-- init the tree (using jquery here but there are other ways) -->
           <script type='text/javascript'>
-            // TODO: replace the onclick in tech-tree div with working verison of one of these:
-				/* this fires too early...
-              $(document).ready(function() {
-						 techtree.drawTree();
-					});
-            */
-            /* this never fires...
-              $(document).load(function() {
-						 techtree.drawTree();
-					});
-            */
+            $.getScript( "http://d3js.org/d3.v3.min.js", function( data, textStatus, jqxhr ) {
+                $.getScript("/js/researchTree/tree_config.js", function(data, textStatus, jqxhr){
+                    $.getScript("/js/lib/techtreejs/techtree.js", function(data, textStatus, jqxhr){
+                        techtree.drawTree();
+                    });
+                });
+            });
           </script>
+
+          <!-- load techtree dependencies: -->
+         <script src="http://d3js.org/d3.v3.min.js"></script>
+
+         <!-- load your treeConfig script -->
+         <script src="/js/researchTree/tree_config.js"></script>
+
+         <!-- load the tech tree script -->
+         <script src="js/lib/techtreejs/techtree.js"></script>
 
 
     </div><!-- /.col -->
