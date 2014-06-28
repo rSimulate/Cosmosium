@@ -24,7 +24,7 @@ import platform
 # TODO: Are the windows commands correct?
 if platform.system() == 'Windows':
     PY = '\c\Python' + version_info.major + version_info.minor + '\python.exe'
-    PIP = 'pip'
+    PIP = '\c\Python'+ version_info.major + version_info.minor + 'Scripts\pip.exe'
 elif platform.system() == 'Linux':
     PY = 'python'
     PIP = 'pip'
