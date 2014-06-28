@@ -497,12 +497,13 @@ def login_success():
 #=====================================#
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 80))
-    #run(host='0.0.0.0', port=port)
-    server = WSGIServer(("0.0.0.0", port), app,
-                        handler_class=WebSocketHandler)
-    print 'starting server on '+str(port)
-    server.serve_forever() # any code following this will never execute
+    try:
+        port = int(os.environ.get("PORT", 80))
+        #run(host='0.0.0.0', port=port)
+        server = WSGIServer(("0.0.0.0", port), app,
+                            handler_class=WebSocketHandler)
+        print 'starting server on '+str(port)
+        server.serve_forever() # any code following this will never execute
 
     finally:
         print 'shutting down...'
