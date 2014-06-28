@@ -2,6 +2,8 @@
     THREE.OrbitControls.enabled = false
 </script>
 
+<link href="/js/researchTree/tree_style.css" rel="stylesheet" type="text/css" />
+
 <!-- this row is fixed to the top... -->
 <div class="row">
 <!-- User tech summary -->
@@ -121,16 +123,6 @@
                 });
             });
           </script>
-
-          <!-- load techtree dependencies: -->
-         <script src="http://d3js.org/d3.v3.min.js"></script>
-
-         <!-- load your treeConfig script -->
-         <script src="/js/researchTree/tree_config.js"></script>
-
-         <!-- load the tech tree script -->
-         <script src="js/lib/techtreejs/techtree.js"></script>
-
 
     </div><!-- /.col -->
 </div><!-- /.row -->

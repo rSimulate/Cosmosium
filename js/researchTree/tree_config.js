@@ -16,7 +16,8 @@ treeConfig = {
     tooltipH: 200,
     tooltipW: 400,
     tooltipTextLineCount: 12,  // approx number of lines of description text in the tooltip
-    nodeSize: 70  // [px]
+    nodeSize: 70,  // [px]
+    transitionTime: 2000    // ms used for transitions
 
 };
 
