@@ -7,47 +7,56 @@ NOTE: this is NOT a setup.py script to be used with disutils, and it might not b
 
 __author__ = 'rSimulate'
 
-# TODO: check python version is 2.*, not 3+
+import sys
 
-# these are the commands you'd use in your cmd line,
-#  if different on your sys (ie to use python you type C:\Python27\python.exe, change them)
-PY  = '\c\Python27\python.exe'
-GIT = 'git'
-PIP = 'pip'
+# check python version
+version_info = sys.version_info
+if version_info.major <= 2:
+    print "\npython version " + sys.version + " is compatible\n"
+else:
+    raise Exception("Please use Python version 2.* or less")
 
-SUBMODULES = {
-    # loc_in_dir   : repo_url
-    './py/lib/bottle':     'https://github.com/defnull/bottle',
-    './js/lib/techtreejs': 'https://github.com/7yl4r/techtreejs'
-}
+import platform
 
-PIP_LIBS = ['rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet']
+# TODO: Are the windows commands correct?
+if platform.system() == 'Windows':
+    PY = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
+    PIP = 'C:\Python'+ str(version_info.major) + str(version_info.minor) + '\Scripts\pip.exe'
+elif platform.system() == 'Linux':
+    PY = 'python'
+    PIP = 'pip'
+else:
+    raise Exception("The " + platform.system() + " platform is not officially supported at this time")
+
+# TODO: check for pip, else: if windows: d/l and run get_pip.py, elif ubuntu: `apt-get pip`
+# install other dependencies using pip
+
+PIP_LIBS = ['GitPython==0.3.2.RC1', 'rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet']
 
 from subprocess import call  # for sys commands
 
-# TODO: check for git, else slap user in face
-
-# install submodules using git
-# TODO: this is the WRONG way to do it. see following comments for the RIGHT way (that doesn't work).
-for sub in SUBMODULES:
-    print '\ninstalling submodule @ ', sub, '...'
-    call([GIT, 'submodule', 'add', SUBMODULES[sub], sub])
-# call([GIT, 'submodule', 'init'])
-# call([GIT, 'submodule', 'update'])
-
-# TODO: tweak submodules so we can use them
-print 'tweaking submodules for our usage... '
-call(['touch', 'py/lib/bottle/__init__.py'])
 try:
-    call('rm -r py/lib/bottle/test')
-    call('rm -r py/lib/bottle/docs')
+    call([PIP, 'install'] + PIP_LIBS)
 except OSError:
-    print "bottle test & docs not found so I'm not deleting them."
+    print ("\n\nCan't find pip at "+PIP+
+           "\nIs python-pip installed? If the error was about vcvarsall.bat, "
+           "see the solution here: http://stackoverflow.com/a/10558328/1483986\n\n")
+    raise
 
-# TODO: check for pip, else: if windows: d/l and run get_pip.py, elif ubuntu: `apt-get pip`
+# install/update submodules using GitPython
+from os import getcwd, path
+from git import Repo
 
-# install other dependencies using pip
-call([PIP, 'install'] + PIP_LIBS)
-# TODO: catch that annoying vcvarsall.bat issue from pip on windows and direct user here: http://stackoverflow.com/a/10558328/1483986
+repo = Repo(getcwd())
+assert repo.bare == False
+
+print "Installing submodules..."
+repo.submodule_update()  # inits and updates all submodules listed in .gitmodules
+
+# create __init__.py in each submodule root directory if there isn't one (fixes bottle import issue)
+for module in repo.submodules:
+    init_path = path.join(module.abspath, '__init__.py')
+    if not path.isfile(init_path):
+        open(init_path, 'a').close()
 
 print '\n\nDone! Hopefully all went well and you can run `python app.py` now!'

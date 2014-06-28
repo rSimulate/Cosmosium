@@ -9,6 +9,10 @@
 *db/OOIs.js
 *db/owners.js
 
+#PyCharm files
+.idea
+pycharm
+
 # pickle OOI save files
 *.pickle
 
