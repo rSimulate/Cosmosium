@@ -21,41 +21,40 @@ __author__ = 'rsimulate'
 
 # Primary Components
 import os
-from python.bottle import route, run, static_file, template, view, post, request, error, Bottle, response, redirect
 import sqlite3 as lite
 import sys
 import json
+import string
+import random
+
 import pymongo # import Connection
-import string 
-import random 
+
+from bottle import static_file, template, request, Bottle, response, redirect, abort
+
 
 # OAuth components
 import rauth
 import config
 
 # websockets:
-import gevent
-from geventwebsocket import WebSocketServer, WebSocketApplication, Resource, WebSocketError
+from geventwebsocket import WebSocketError
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
-import python.webSocketParser as webSocketParser
+import py.webSocketParser as webSocketParser
 
 # Template Components
-from python.page_maker.chunks import chunks # global chunks
-from python.page_maker.Settings import Settings
+from py.page_maker.chunks import chunks # global chunks
+from py.page_maker.Settings import Settings
 
 # ui handlers:
-from python.query_parsers.getUser import getUser, getProfile, demoIDs
-from python.query_parsers.checkQuery import checkQuery
+from py.query_parsers.getUser import getProfile, demoIDs
 
 # game logic:
-from python.game_logic.User import User
-from python.OOIs import OOIs
-from python.game_logic import purchases
-from python.game_logic.GameList import GameList
-from python.game_logic.UserList import UserList
+from py.game_logic.user.User import User
+from py.game_logic.GameList import GameList
+from py.game_logic.UserList import UserList
 
-from python.getAsteroid import asterankAPI, byName
+from py.getAsteroid import asterankAPI
 
 #=====================================#
 #              GLOBALS                #
@@ -64,14 +63,13 @@ app = Bottle()
 CHUNKS = chunks()   # static chunks or strings for the site
 DOMAIN = 'asteroid.ventures' # domain name
 GAMES = GameList()  # list of ongoing games on server
+GAMES.unpickle() # restores any games that were saved last time server shut down
+
 USERS = UserList()  # list of users on the server TODO: replace use of this w/ real db.
 MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
 
-OOIs = OOIs() #TODO: this is in the Game() object now... which is now in GameList()
-USER = User() #TODO: this should now be replaced with USERS.getByToken() using a token from request cookie
-
-# initial write of JSON files:
-OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
+# initial write of JSON files (to clear out old ones):
+GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 
 #=====================================#
 #            Static Routing           #
@@ -95,7 +93,45 @@ def js_static(filename):
 @app.route('/db/<filename:path>')
 def js_static(filename):
     return static_file(filename, root='./db/')
- 
+
+#=====================================#
+#      Routing Helper Functions       #
+#=====================================#
+def getLoggedInUser(request):
+    '''
+    returns user object if logged in, else returns None
+    '''
+    if request.get_cookie("cosmosium_login"):
+        userLoginToken = request.get_cookie("cosmosium_login")
+        try:
+            return USERS.getUserByToken(userLoginToken)
+        except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
+            return None
+    else: return None
+    
+#=====================================#
+#         Custom Error Handles        #
+#=====================================#
+@app.error(404)
+def error404(error):
+    _user = getLoggedInUser(request)
+    if _user != None:
+        return template('tpl/pages/404',
+                        chunks=CHUNKS,
+                        user=_user,
+                        config=Settings(MASTER_CONFIG, showBG=False),
+                        pageTitle="LOST IN SPACE")
+    else:
+        redirect('/userLogin')
+
+@app.error(500)
+def error500(error):
+    print '500 error getting ', request.url, ':', response.body
+    return "oops! something broke. we've logged the error. \
+        if you want to help us sort it out, please visit \
+        <a href='https://github.com/rSimulate/Cosmosium/issues'>our issue tracker on github</a>."
+
+
 #=====================================#
 #            game content             #
 #=====================================#
@@ -103,7 +139,7 @@ def js_static(filename):
 def makeContentHTML():
     name=request.query.name # content page name
     subDir = request.query.section=request.query.section # specific section of page (like type of research page)
-    
+
     # check for user login token in cookies
     if request.get_cookie("cosmosium_login"):
         userLoginToken = request.get_cookie("cosmosium_login")
@@ -111,7 +147,7 @@ def makeContentHTML():
             _user = USERS.getUserByToken(userLoginToken)
         except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
             redirect('/userLogin')
-        
+
         treeimg=''
         if name == 'research': # then get research subDir info
             if subDir=='spaceIndustry':
@@ -122,20 +158,20 @@ def makeContentHTML():
                 treeimg="img/space_industry_tech_tree_images.svg";
             else:
                 return template('tpl/content/404') # error404('404')
-        
+
         fileName='tpl/content/'+name
         if os.path.isfile(fileName+'.tpl'): #if file exists, use it
             return template(fileName,
-                tree_src=treeimg, #used only for research pages
-                chunks=CHUNKS,
-                user=_user,
-                oois=OOIs,
-                config=Settings(MASTER_CONFIG),
-                pageTitle=name)
+                            tree_src=treeimg, #used only for research pages
+                            chunks=CHUNKS,
+                            user=_user,
+                            oois=GAMES.games[0].OOIs,
+                            config=Settings(MASTER_CONFIG),
+                            pageTitle=name)
         else: # else show content under construction
             print 'unknown content request: '+fileName
             return template('tpl/content/under_construction')
-    else: 
+    else:
         redirect('/userLogin')
 
 #=====================================#
@@ -144,7 +180,7 @@ def makeContentHTML():
 @app.route("/")
 def makeSplash():
     return template('tpl/pages/splash', gameList=GAMES, demoIDs=demoIDs)
-    
+
 #=====================================#
 #       main gameplay page            #
 #=====================================#
@@ -157,24 +193,29 @@ def makeGamePage():
             _user = USERS.getUserByToken(userLoginToken)
         except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
             return userLogin('user token not found')
-            
+
         if _user.game == None:
             GAMES.joinGame(_user)
-            
+
         return template('tpl/pages/play',
-            chunks=CHUNKS,
-            user=_user,
-            oois=OOIs,
-            config=Settings(MASTER_CONFIG),
-            pageTitle="Cosmosium Asteriod Ventures!")
+                        chunks=CHUNKS,
+                        user=_user,
+                        oois=GAMES.games[0].OOIs,
+                        config=Settings(MASTER_CONFIG),
+                        pageTitle="Cosmosium Asteriod Ventures!")
     else: return userLogin('user login cookie not found')
-            
+
 #=====================================#
 #           js                        #
 #=====================================#
 @app.route("/resourceUpdate.js")
 def makeResourceUpdater():
-    return template('tpl/js/resourceUpdate', user=USER)
+    # check for user login token in cookies
+    _user = getLoggedInUser(request)
+    if _user != None:
+        return template('tpl/js/resourceUpdate', user=_user)
+    else: 
+        redirect('/userLogin')
     
 @app.route("/webSocketSetup.js")
 def makeSocketSetup():
@@ -200,15 +241,7 @@ def handle_websocket():
     while True:
         try:
             message = wsock.receive()
-            print "received : "+str(message)
-            try:
-                mesDict = eval(str(message))
-            except TypeError as e:
-                if e.message == "'NoneType' object has no attribte '__getitem__'":
-                    # it's likely that pesky onclose message I can't fix... ignore for now
-                    print 'connection closed'
-                else:
-                    raise
+            mesDict = eval(str(message))
             try:
                 gameID = mesDict['gID']
                 userID = mesDict['uID']
@@ -216,12 +249,20 @@ def handle_websocket():
                 data   = mesDict['dat']
             except KeyError:
                 print 'malformed message!'
+
+            except TypeError as e:
+                if e.message == "'NoneType' object has no attribute '__getitem__'":
+                    # it's likely that pesky onclose message I can't fix... ignore for now
+                    print 'connection closed'
+                else:
+                    raise
             # TODO: call message parser sort of like:
             #game_manager.parseMessage(message,wsock)
             # NOTE: message parser should probably be an attribute of the game
-            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, OOIs)
-            
+            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, GAMES.games[0].OOIs)
+            print "received :",cmd,'from',userID
         except WebSocketError:
+            print 'websocketerror encountered'
             break
             
 
@@ -244,49 +285,33 @@ def searchMains():
 def searchKuipers():
     return template('tpl/searchView',asteroidDB="db/KuiperBelt.js")
 
-# these is here to circumvent global variable issues
 @app.route('/systemView')
 def systemView():
-    return template('tpl/systemView',
-        user=USER,
-        chunks=CHUNKS,
-        config=Settings('default',showFrame=False,showResources=False,showBG=False,controlBG=True),   # this is teporarily set to test so it looks nice.
-        pageTitle="system View"
-        )
+    _user = getLoggedInUser(request)
+    if _user != None:
+        return template('tpl/systemView',
+                        user=_user,
+                        chunks=CHUNKS,
+                        config=Settings('default',showFrame=False,showResources=False,showBG=False,controlBG=True),
+                        pageTitle="system View"
+                        )
+    else: 
+        redirect('/userLogin')
+    
 
 @app.route('/viewTest')
 def systemView():
     return template('tpl/systemView',
-        user=USER,
-        chunks=CHUNKS,
-        config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),
-        pageTitle="ViewTest"
+                    user=User(),
+                    chunks=CHUNKS,
+                    config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),
+                    pageTitle="ViewTest"
         )
 
-@app.route('/sysView')
-def sysView():
-    OOIs.write2JSON(OOI_JSON_FILE,OWNERS_JSON_FILE)
-    return template('tpl/sysView',
-            config=Settings('test',showFrame=True,showResources=True,showBG=False,controlBG=True),
-            chunks=CHUNKS,
-            user=USER,
-            pageTitle="Solar System")
 
 @app.route('/getAsteroids')
 def getOOIs():
-    OOIs.write2JSON(OOI_JSON_FILE)
-#    with open(OOI_JSON_FILE,'w') as f:
-#        json.dump(OOIs.MPOs,f)
-#    data = json.dumps(OOIs.MPOs)
-#    if len(data) > 2: # if not empty
-#        data = data[2:-2] # remove the weird encapsulation of the string
-#        data = repr(data)
-   #     data = tuple(data,)
-   #     print '==datacheck1== \n',data
-   # print 'datacheck2\n',data
-    # data.decode("string-escape")
-    # json=data.replace(r"\"",r")
-#    return template('tpl/jsAsteroids',json=data)
+    GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
     return Settings(MASTER_CONFIG).asteroidDB
     
 @app.route('/asteroidReq')
@@ -295,70 +320,6 @@ def processReq():
     lim = request.query.limit
     print 'q=',q,' l=',lim
     return template('type: {{datatype}} (response {{res}})', datatype="asterank", res=asterankAPI(q,lim))
-
-#=====================================#
-#           User Actions              #
-#=====================================#
-@app.route('/content/addAsteroid')
-def addOOI():
-    name = str(request.query.name)
-        
-    if USER.affords(purchases.getCost('asteroidTrack')):
-        print 'request to track '+name+' accepted.'
-        USER.payFor(purchases.getCost('asteroidTrack'))
-        OOIs.addObject(byName(name), 'PLAYER_1')
-        # write the new js file(s)
-        OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
-        print 'object '+name+' added to OOIs'
-        return template('tpl/content/asteroidAdd',
-            objectName=name,
-            chunks=CHUNKS,
-            config=Settings(MASTER_CONFIG),
-            pageTitle='Asteroid Add Request Approved',
-            user=USER)
-    else:
-        print 'request to track '+name+' denied. insufficient funds.'
-        return template('tpl/content/insufficientFunds',
-            objectName=name,
-            chunks=CHUNKS,
-            config=Settings(MASTER_CONFIG),
-            pageTitle='Asteroid Add Request Denied',
-            user=USER)
-            
-# DEPRECIATED!!!
-@app.route('/addAsteroid')
-def addOOI():
-    name = str(request.query.name)
-        
-    if USER.affords(purchases.getCost('asteroidTrack')):
-        print 'request to track '+name+' accepted'
-        USER.payFor(purchases.getCost('asteroidTrack'))
-        OOIs.addObject(byName(name), 'PLAYER_1')
-        # write the new js file(s)
-        OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
-        print 'object '+name+' added to OOIs'
-        return template('tpl/pages/asteroidAdd',
-            objectName=name,
-            chunks=CHUNKS,
-            config=Settings(MASTER_CONFIG),
-            pageTitle='Asteroid Add Request Approved',
-            user=USER)
-    else:
-        print 'request to track '+name+' denied. insufficient funds.'
-        return template('tpl/pages/insufficientFunds',
-            objectName=name,
-            chunks=CHUNKS,
-            config=Settings(MASTER_CONFIG),
-            pageTitle='Asteroid Add Request Denied',
-            user=USER)
-
-# @app.route('/upgradeTech')
-# def upgradeTech():
-    # type = request.query.type
-    # cost = purchases.getCost(type,user)
-    # if user.affords(purchases.techUpgrade, type):
-        # user.upgrade(purchases.techUpgrade, type)
-        # return #???
 
 #=====================================#
 #      SQLite for Basic UI Data       #
@@ -379,7 +340,7 @@ def database():
 #=====================================#
 
 ### Testing Mongo with this Example:
-### https://github.com/mongolab/mongodb-driver-examples/blob/master/python/pymongo_simple_example.py
+### https://github.com/mongolab/mongodb-driver-examples/blob/master/py/pymongo_simple_example.py
 
 ### DEFAULT Mongo Path & Port
 ### MongoDB starting : pid=1160 port=27017 dbpath=/data/db/
@@ -541,101 +502,9 @@ if __name__ == "__main__":
     server = WSGIServer(("0.0.0.0", port), app,
                         handler_class=WebSocketHandler)
     print 'starting server on '+str(port)
-    server.serve_forever()
-    main(sys.argv[1:]) # Invokes Mongo
+    server.serve_forever() # any code following this will never execute
 
-    
-    
-### ================= DEPRECIATED HACKS BELOW ================= ###
-### if you see these still used somewhere, try to remove usage. ### 
-### much better alternatives should now be in place.            ###
-### =========================================================== ###
-        
-#=====================================#
-#           Dashboard Route           #
-#=====================================#
-@app.route("/dash")
-#@view("main")
-def makeDash():
-    if checkQuery(request):
-        return template('tpl/pages/dash',chunks=CHUNKS,
-            user=getUser(request,GAMES),
-            oois=OOIs,
-            config=Settings(MASTER_CONFIG),
-            pageTitle="Main Control Panel")
-    else:
-        return error404('malformed query')
-        
-#=====================================#
-#           Custom 404                #
-#=====================================#
-@error(404)
-def error404(error):
-    return template('tpl/pages/404',chunks=CHUNKS,
-        user=USER,
-        config=Settings(MASTER_CONFIG,showBG=False),
-        pageTitle="LOST IN SPACE")
+    finally:
+        print 'shutting down...'
+        # do all your destructing here, the server is going down.
 
-
-#=====================================#
-#           Mission  Pages            #
-#=====================================#
-@app.route('/missionControl')
-def  missionControl():
-		return template('tpl/pages/missionControl',
-            config=Settings(MASTER_CONFIG),
-            chunks=CHUNKS,
-            user=USER,
-            pageTitle="Mission Planning & Control Center",
-            resources=USER.resources)
-
-@app.route('/launchpad')
-def launchPad():
-    return template('tpl/pages/launchpad',
-        config=Settings(MASTER_CONFIG),
-        chunks=CHUNKS,
-        user=USER,
-        pageTitle="Launch Facilities")
-
-@app.route('/observatories')
-def launchPad():
-    return template('tpl/pages/observatories',
-        config=Settings(MASTER_CONFIG),
-        chunks=CHUNKS,
-        user=USER,
-        pageTitle="Main Observational Astronomy Facilities")
-
-#=====================================#
-#           Research Pages            #
-#=====================================#
-@app.route('/research')
-def researchPage():
-    subDir = request.query.section
-    if subDir=='Space Industry':
-        treeimg="img/space_industry_tech_tree_images.svg";
-
-    elif subDir=='Human Habitation':
-        treeimg="img/space_industry_tech_tree.svg";
-
-    elif subDir=='Robotics and AI':
-        treeimg="img/space_industry_tech_tree_images.svg";
-
-    else:
-        return error404('404')
-
-    return template('tpl/pages/research', tree_src=treeimg,
-        config=Settings(MASTER_CONFIG),
-        chunks=CHUNKS,
-        user=USER,
-        pageTitle=subDir+" Research")
-
-
-#=====================================#
-#           Econ Page Routes          #
-#=====================================#
-@app.route('/funding')
-def fundingPage():
-    return template('tpl/funding',chunks=CHUNKS,
-        config=Settings(MASTER_CONFIG),
-        user=USER,
-        pageTitle="Funding")

@@ -18,6 +18,10 @@ function parseMessage(m){
         prependContent(data)
     } else if (cmd = "updateResources"){
         updateResources(data)
+    } else if (cdm = "researchCompleted"){
+        // try sending update to techtree (only works if techtree is displayed)
+        techtree.completeResearch(data);
+        // TODO: add user notification?
     } else {
         console.log("ERR: unknown message to client: "+m);
     }

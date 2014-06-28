@@ -119,19 +119,6 @@
 
     <!-- Main row -->
     <div class="row">
-        <!-- Left col -->
-        <section class="col-lg-6 connectedSortable"> 
-            
-
-        </section><!-- /.Left col -->
-        <!-- right col (We are only adding the ID to make the widgets sortable)-->
-        <section class="col-lg-6 connectedSortable">
-            
-
-        </section><!-- right col -->
+        % include('tpl/content/tiles/welcomeTile')
     </div><!-- /.row (main row) -->
-        % include('tpl/tile',s1='col-lg-6', s2='connectedSortable',
-        %           color='bg-navy',
-        %           title="Welcome to Comosium!",
-        %           text="Cosmosium is still a work in progress, so lots of features are missing, but you definitely want to check out the 'Solar System' view to see claimed asteroids, and search for good NEO or main belt 'Targets' through the left-panel navigation. Be sure to check back for more soon!" )
 

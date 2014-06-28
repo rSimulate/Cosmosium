@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html>
     <body class="skin-black">
-            % include('tpl/head') # implicitly passed: pageTitle
+            % include('tpl/page_chunks/head') # implicitly passed: pageTitle
 			
             % include('tpl/game_frame') # implicitly passed: chunks,messages,note_count,task_count,user,resources
             
@@ -19,7 +19,7 @@
             <aside class="right-side">
 
             <!-- Page Header and Resource Bar -->
-			% include('tpl/resourcebar') # implicitly passed: Chunks.appName, PageTitle
+			% include('tpl/page_chunks/resourcebar') # implicitly passed: Chunks.appName, PageTitle
 
                 <!-- Main content -->
                 <section class="content">
@@ -100,9 +100,9 @@
         <!-- jQuery 2.0.2 -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
         <!-- jQuery UI 1.10.3 -->
-        <script src="js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
+        <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js" type="text/javascript"></script>
         <!-- Bootstrap -->
-        <script src="js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
         <!-- Morris.js charts -->
         <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
         <script src="js/plugins/morris/morris.min.js" type="text/javascript"></script>

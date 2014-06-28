@@ -552,4 +552,4 @@ void main() {
 
 <div id="container"></div>
 
-% include('tpl/SCENE_components') 
+% include('tpl/page_chunks/SCENE_components')

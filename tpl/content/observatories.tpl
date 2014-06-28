@@ -2,7 +2,7 @@
     <div class="row">
         <!-- Left col -->
       
-      <script src="js/jquery-1.11.0.min.js"></script>
+      <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
       <script src="js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
       <script src="js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
          

@@ -2,15 +2,18 @@
     THREE.OrbitControls.enabled = false
 </script>
 
+<link href="/js/researchTree/tree_style.css" rel="stylesheet" type="text/css" />
+
 <!-- this row is fixed to the top... -->
 <div class="row">
 <!-- User tech summary -->
 
 
-%include('tpl/tile_imageText'
+%include('tpl/content/tiles/imageText'
 %   ,title=pageTitle+' Level '+str(user.research.age)+' - The Age of Observation'
 %   ,imgsrc=user.getTechImage()
 %   ,alt_text=user.research.age
+%   ,color='maroon'
 %   ,text="Mankind has spent ages gazing at the night sky, but only recently have we reached up and touched the heavens. Optical telescopes have been around for centuries, but advances in electronics and information systems now allow us to observe the sky like never before. Space-based equipment like the Hubble and James Webb telescopes allow us to see from above the soupy atmosphere, rather through it.")
 
 </div>
@@ -81,7 +84,6 @@
                 <h3>
                     +{{user.resources.getDeltaEnergy(user)}}
                 </h3>
-                </h3>
                 <p>
                     Energy Balance
                 </p>
@@ -99,24 +101,35 @@
 <!-- top row -->
 <div class="row">
     <div class="col-xs-12 connectedSortable">
-        <iframe src="{{tree_src}}"  style="float:center">Your browser does't support SVG? =(</iframe>
+        <!-- include a div with id "tech-tree" where the tree should go -->
+         <div id='tech-tree' onclick='document.getElementById("tech-tree").onclick={}'>
+         </div>
+    
+        <h3><a href='#research_techLevel' id='research_techLevel'> advance to next tech level (costs science)</a></h3>
+        <script type='text/javascript'> 
+            document.getElementById('research_techLevel').addEventListener('click', function (e){
+                e = e || window.event;
+                ws.send(message('research','techLevel'));  
+            }, false);
+        </script>
+
+			 <!-- init the tree (using jquery here but there are other ways) -->
+          <script type='text/javascript'>
+            $.getScript( "http://d3js.org/d3.v3.min.js", function( data, textStatus, jqxhr ) {
+                $.getScript("/js/researchTree/tree_config.js", function(data, textStatus, jqxhr){
+                    $.getScript("/js/lib/techtreejs/techtree.js", function(data, textStatus, jqxhr){
+                        techtree.drawTree();
+
+                        $.getScript("/js/researchTree/setupTreeInterface.js", function(){});
+                    });
+                });
+            });
+          </script>
+
     </div><!-- /.col -->
 </div><!-- /.row -->
 
 <!-- Main row -->
 <div class="row">
-    <!-- Left col -->
-    <section class="col-lg-6 connectedSortable"> 
-        
-
-    </section><!-- /.Left col -->
-    <!-- right col (We are only adding the ID to make the widgets sortable)-->
-    <section class="col-lg-6 connectedSortable">
-        
-
-    </section><!-- right col -->
+    % include('tpl/content/tiles/welcomeTile')
 </div><!-- /.row (main row) -->
-    % include('tpl/tile',s1='col-lg-6', s2='connectedSortable',
-    %           color='bg-navy',
-    %           title="Welcome to Comosium!",
-    %           text="Cosmosium is still a work in progress, so lots of features are missing, but you definitely want to check out the 'Solar System' view to see claimed asteroids, and search for good NEO or main belt 'Targets' through the left-panel navigation. Be sure to check back for more soon!" )

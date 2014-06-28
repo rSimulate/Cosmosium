@@ -1,9 +1,17 @@
+# submodule libs
+*/py/lib/*
+*/js/lib/*
+
 # .conf file to prevent accidental uploads of user directories and an unintentional edit battle
 *cosmos.conf
 
 # the local databases
 *db/OOIs.js
 *db/owners.js
+
+#PyCharm files
+.idea
+pycharm
 
 # pickle OOI save files
 *.pickle
@@ -23,18 +31,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-env/
-bin/
-build/
-develop-eggs/
-dist/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
 .installed.cfg
 *.egg
 
