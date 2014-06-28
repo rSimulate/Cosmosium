@@ -119,6 +119,8 @@
                 $.getScript("/js/researchTree/tree_config.js", function(data, textStatus, jqxhr){
                     $.getScript("/js/lib/techtreejs/techtree.js", function(data, textStatus, jqxhr){
                         techtree.drawTree();
+
+                        $.getScript("/js/researchTree/setupTreeInterface.js", function(){});
                     });
                 });
             });
@@ -131,5 +133,3 @@
 <div class="row">
     % include('tpl/content/tiles/welcomeTile')
 </div><!-- /.row (main row) -->
-
- <script type='text/javascript' src='/js/researchTree/requestResearch.js'></script>
