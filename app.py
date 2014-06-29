@@ -442,20 +442,26 @@ def setLoginCookie():
     pw  = request.forms.get('password')
     rpw = request.forms.get('repeat_password')
     rem = request.forms.get('remember_me')
-    
-    if pw == rpw:
+    db=client.users_2
 
-        db=client.users_2
-        collection=db.users
-        data={"user":uid,
-        "password":pw,
-        "date":datetime.datetime.utcnow()}
-        db.test_user.insert(data)
+    if str(db.test_user.find_one({"user":uid})) == 'None':
 
-        return 'User Added'
+
+
+        if pw == rpw:
+
+            data={"user":uid,
+            "password":pw,
+            "date":datetime.datetime.utcnow()}
+            db.test_user.insert(data)
+
+            return 'User Added'
+        else:
+
+            return 'Passwords do not match'
     else:
 
-        return 'Passwords do not match'
+        return 'User Name Already Exists'
     
 
 # I'm not sure how to use this... =( ~Tylar
