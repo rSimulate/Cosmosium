@@ -29,7 +29,7 @@ import random
 
 import pymongo # import Connection
 
-from py.lib.bottle.bottle import static_file, template, request, Bottle, response, redirect, abort
+from bottle import static_file, template, request, Bottle, response, redirect, abort
 
 
 # OAuth components

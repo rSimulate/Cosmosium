@@ -1,3 +1,6 @@
 [submodule "py/lib/bottle"]
 	path = py/lib/bottle
 	url = https://github.com/defnull/bottle
+[submodule "js/lib/techtreejs"]
+	path = js/lib/techtreejs
+	url = https://github.com/7yl4r/techtreejs

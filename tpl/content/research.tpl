@@ -2,6 +2,8 @@
     THREE.OrbitControls.enabled = false
 </script>
 
+<link href="/js/researchTree/tree_style.css" rel="stylesheet" type="text/css" />
+
 <!-- this row is fixed to the top... -->
 <div class="row">
 <!-- User tech summary -->
@@ -99,6 +101,9 @@
 <!-- top row -->
 <div class="row">
     <div class="col-xs-12 connectedSortable">
+        <!-- include a div with id "tech-tree" where the tree should go -->
+         <div id='tech-tree' onclick='document.getElementById("tech-tree").onclick={}'>
+         </div>
     
         <h3><a href='#research_techLevel' id='research_techLevel'> advance to next tech level (costs science)</a></h3>
         <script type='text/javascript'> 
@@ -108,8 +113,18 @@
             }, false);
         </script>
 
-        <object type='image/svg+xml' id="researchTree" data="{{tree_src}}" onload="displayState(this)" style="float:center">Your browser does't support SVG? =(
-        </object>
+			 <!-- init the tree (using jquery here but there are other ways) -->
+          <script type='text/javascript'>
+            $.getScript( "http://d3js.org/d3.v3.min.js", function( data, textStatus, jqxhr ) {
+                $.getScript("/js/researchTree/tree_config.js", function(data, textStatus, jqxhr){
+                    $.getScript("/js/lib/techtreejs/techtree.js", function(data, textStatus, jqxhr){
+                        techtree.drawTree();
+
+                        $.getScript("/js/researchTree/setupTreeInterface.js", function(){});
+                    });
+                });
+            });
+          </script>
 
     </div><!-- /.col -->
 </div><!-- /.row -->
@@ -118,5 +133,3 @@
 <div class="row">
     % include('tpl/content/tiles/welcomeTile')
 </div><!-- /.row (main row) -->
-
- <script type='text/javascript' src='/js/researchTree/requestResearch.js'></script>

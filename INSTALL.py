@@ -16,9 +16,6 @@ if version_info.major <= 2:
 else:
     raise Exception("Please use Python version 2.* or less")
 
-# these are the commands you'd use in your cmd line,
-#  if different on your sys (ie to use python you type C:\Python27\python.exe, change them)
-
 import platform
 
 # TODO: Are the windows commands correct?
@@ -26,8 +23,8 @@ if platform.system() == 'Windows':
     PY = '\c\Python' + version_info.major + version_info.minor + '\python.exe'
     PIP = '\c\Python'+ version_info.major + version_info.minor + 'Scripts\pip.exe'
 elif platform.system() == 'Linux' or platform.system() == 'Darwin':
-    PY = 'python'
-    PIP = 'pip'
+    PY = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
+    PIP = 'C:\Python'+ str(version_info.major) + str(version_info.minor) + '\Scripts\pip.exe'
 else:
     raise Exception("The " + platform.system() + " platform is not officially supported at this time")
 
@@ -41,8 +38,10 @@ from subprocess import call  # for sys commands
 try:
     call([PIP, 'install'] + PIP_LIBS)
 except OSError:
-    print ("Is python-pip installed? If the error was about vcvarsall.bat, "
-           "see the solution here: http://stackoverflow.com/a/10558328/1483986")
+    print ("\n\nCan't find pip at "+PIP+
+           "\nIs python-pip installed? If the error was about vcvarsall.bat, "
+           "see the solution here: http://stackoverflow.com/a/10558328/1483986\n\n")
+    raise
 
 # install/update submodules using GitPython
 from os import getcwd, path
