@@ -25,10 +25,7 @@ import platform
 if platform.system() == 'Windows':
     PY = '\c\Python' + version_info.major + version_info.minor + '\python.exe'
     PIP = '\c\Python'+ version_info.major + version_info.minor + 'Scripts\pip.exe'
-elif platform.system() == 'Linux':
-    PY = 'python'
-    PIP = 'pip'
-elif platform.system() == 'Darwin':
+elif platform.system() == 'Linux' or platform.system() == 'Darwin':
     PY = 'python'
     PIP = 'pip'
 else:
