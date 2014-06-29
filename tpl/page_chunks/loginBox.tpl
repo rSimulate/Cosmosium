@@ -42,7 +42,7 @@
 
 <div class="col-md-4">        
 	<div class="form-box" id="login-box">
-	    <div class="header">Beta Sign In (coming soon):
+	    <div class="header">Beta Sign Up:
 	    </div>
 		   <form action="/loggin" method="post">
 			<div class="body bg-gray">
@@ -51,13 +51,20 @@
 			    </div>
 			    <div class="form-group">
 				<input type="password" name="password" class="form-control" placeholder="Password"/>
-			    </div>          
+			    </div>
+			    <div class="form-group">
+				<input type="password" name="repeat_password" class="form-control" placeholder="Repeat Password"/>
+			    </div>
+
+
+
+
 			    <div class="form-group">
 				<input type="checkbox" name="remember_me"/>    <span class="splash-body"> Remember me</span>
 			    </div>
 			</div>
 			<div class="footer">                                                               
-			    <button type="submit" class="btn bg-olive btn-block">Sign me in</button>  
+			    <button type="submit" class="btn bg-olive btn-block">Sign me up</button>
 			    <!--
 			    <p><a href="/recoverAccount">I forgot my password</a></p>
 			    

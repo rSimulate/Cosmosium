@@ -19,15 +19,6 @@ __author__ = 'rsimulate'
 #         Library Imports             #
 #=====================================#
 
-#db control
-import pymongo
-import datetime
-import ssl
-from pymongo import MongoClient
-
-client = MongoClient('data.asteroid.ventures',27017)
-
-
 # Primary Components
 import os
 import sqlite3 as lite
@@ -440,22 +431,21 @@ def userLogin(specialMessage=''):
 def setLoginCookie():
     uid = request.forms.get('userid')
     pw  = request.forms.get('password')
-    rpw = request.forms.get('repeat_password')
     rem = request.forms.get('remember_me')
     
-    if pw == rpw:
-
-        db=client.users_2
-        collection=db.users
-        data={"user":uid,
-        "password":pw,
-        "date":datetime.datetime.utcnow()}
-        db.test_user.insert(data)
-
-        return 'User Added'
+    _user = USERS.getUserByName(uid) # TODO: replace this with db lookup
+    if _user: # if user has existing login
+        if uid in demoIDs or False: # TODO: replace this false with password check
+            loginToken = uid+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
+            userObj = getProfile(uid)
+            try:
+                USERS.addUser(userObj,loginToken) 
+            except ValueError as e:
+                print e.message
+            response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
+            redirect('/play')
     else:
-
-        return 'Passwords do not match'
+        return userLogin('user not found')
     
 
 # I'm not sure how to use this... =( ~Tylar
