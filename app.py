@@ -433,8 +433,8 @@ def setLoginCookie():
     pw  = request.forms.get('password')
     rem = request.forms.get('remember_me')
     
-    _user = USERS.getUserByName(uid) # TODO: replace this with db lookup
-    if _user: # if user has existing login
+    _user = USERS.getUserByName(uid)
+    if _user: # if user has existing login (in python memory)
         if uid in demoIDs or False: # TODO: replace this false with password check
             loginToken = uid+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
             userObj = getProfile(uid)
@@ -444,9 +444,13 @@ def setLoginCookie():
                 print e.message
             response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
             redirect('/play')
+    elif False:  # if user is in database
+        # TODO: load user into USERS (python memory)
+        pass
     else:
         return userLogin('user not found')
-    
+
+
 
 # I'm not sure how to use this... =( ~Tylar
 @app.route('/login<:re:/?>')

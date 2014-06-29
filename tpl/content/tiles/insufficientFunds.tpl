@@ -16,8 +16,8 @@
         %   tex+=str(10-user.resources.getOrganic(user))+'organic, '
         % end
         
-        % include('tpl/tile',s1='col-lg-12', s2='connectedSortable',
-        %           color='bg-orange',
+        % include('tpl/content/tiles/textOnly',s1='col-lg-12', s2='connectedSortable',
+        %           color='orange',
         %           title="Insufficient Resources.",
         %           text=tex )
         
