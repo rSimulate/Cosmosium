@@ -20,11 +20,11 @@ import platform
 
 # TODO: Are the windows commands correct?
 if platform.system() == 'Windows':
+    PY = '\c\Python' + version_info.major + version_info.minor + '\python.exe'
+    PIP = '\c\Python'+ version_info.major + version_info.minor + 'Scripts\pip.exe'
+elif platform.system() == 'Linux' or platform.system() == 'Darwin':
     PY = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
     PIP = 'C:\Python'+ str(version_info.major) + str(version_info.minor) + '\Scripts\pip.exe'
-elif platform.system() == 'Linux':
-    PY = 'python'
-    PIP = 'pip'
 else:
     raise Exception("The " + platform.system() + " platform is not officially supported at this time")
 
