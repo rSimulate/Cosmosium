@@ -20,9 +20,12 @@ import platform
 
 # TODO: Are the windows commands correct?
 if platform.system() == 'Windows':
-    PY = '\c\Python' + version_info.major + version_info.minor + '\python.exe'
-    PIP = '\c\Python'+ version_info.major + version_info.minor + 'Scripts\pip.exe'
-elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+    PY = '\c\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
+    PIP = '\c\Python'+ str(version_info.major) + str(version_info.minor) + 'Scripts\pip.exe'
+elif platform.system() == 'Linux':
+    PY = 'python'
+    PIP = 'pip'
+elif platform.system() == 'Darwin':
     PY = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
     PIP = 'C:\Python'+ str(version_info.major) + str(version_info.minor) + '\Scripts\pip.exe'
 else:
@@ -31,7 +34,7 @@ else:
 # TODO: check for pip, else: if windows: d/l and run get_pip.py, elif ubuntu: `apt-get pip`
 # install other dependencies using pip
 
-PIP_LIBS = ['GitPython==0.3.2.RC1', 'rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet']
+PIP_LIBS = ['GitPython==0.3.2.RC1', 'bottle', 'rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet']
 
 from subprocess import call  # for sys commands
 
