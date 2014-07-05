@@ -21,6 +21,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var clock;
     var plane;
     var skybox;
+    var sun;
 
     var claimButt = document.getElementById('claim-asteroid-button');
     
@@ -350,6 +351,9 @@ function RSimulate(opts) {
 
         scene = new THREE.Scene();
 
+        clock = new THREE.Clock();
+        clock.start();
+
         // world
 
         if (SHOWING_ASTEROID_OWNERSHIP) {
@@ -370,10 +374,6 @@ function RSimulate(opts) {
         //
 
         window.addEventListener( 'resize', onWindowResize, false );
-
-        clock = new THREE.Clock();
-        clock.start();
-        
     }
 
     function initOwners() {
@@ -577,24 +577,58 @@ function RSimulate(opts) {
 	  // lensFlare.size = size ? size : 16000 ;
 	  // return lensFlare;
 	// }
-	
+
     function initSun() {
         //Create Sun Model
 		var sphereGeometry = new THREE.SphereGeometry( SUN_SIZE, 32, 32 );
-		var sunTexture = THREE.ImageUtils.loadTexture('img/textures/sun_small.jpg');
+		//var sunTexture = THREE.ImageUtils.loadTexture('img/textures/sun_small.jpg');
+        var time = clock.getElapsedTime();
+        var uniforms = {
+            texture: {
+                type: 't',
+                value: THREE.ImageUtils.loadTexture('img/textures/sun_small.jpg')
+            },
+            glow: {
+                type: 't',
+                value: THREE.ImageUtils.loadTexture('img/textures/sun_glow.jpg')
+            },
+            time: {
+                type: 'f',
+                value: time
+            }
+        };
+
+
+
+        var vertexShaderText = document.getElementById("sun-vertex").textContent;
+        var fragmentShaderText = document.getElementById("sun-fragment").textContent;
+
+        var sunMaterial = new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: vertexShaderText,
+            fragmentShader: fragmentShaderText,
+            lights:false,
+            fog: true
+        });
+
+        /*
         var sunMaterial = new THREE.MeshPhongMaterial( {
 			color: '#FFFFCC',
 			specular: '#FFFF99',
 			emissive: '#FFAD33',
 			map: sunTexture,
 			shininess: 100 
-		});
-        var sun = new THREE.Mesh( sphereGeometry, sunMaterial );
+		});*/
+        sun = new THREE.Mesh( sphereGeometry, sunMaterial );
 		scene.add(sun);
 		
 		//Create SunFlare
         //var sunflare = lensFlare(0,0,0, SUN_SIZE*1.05, 'img/textures/lensflare0.png');
 		
+    }
+
+    function animateSun() {
+        sun.material.uniforms['time'].value = clock.getElapsedTime();
     }
 
     function initPlanets() {
@@ -821,8 +855,8 @@ function RSimulate(opts) {
 
     function update(deltaSeconds) {
         var timeAdvanced = jed_delta*deltaSeconds;
-
         jed += jed_delta*deltaSeconds;
+
 
         updateBodies(timeAdvanced, orbits, meshes);
     }
@@ -858,6 +892,8 @@ function RSimulate(opts) {
         requestAnimationFrame(animate);
 
         update(clock.getDelta());
+        animateSun();
+
 
         render();
         stats.update();

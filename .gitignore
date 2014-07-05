@@ -12,6 +12,7 @@
 #PyCharm files
 .idea
 pycharm
+*.iml
 
 # pickle OOI save files
 *.pickle

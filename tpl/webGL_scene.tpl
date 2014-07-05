@@ -36,7 +36,7 @@ vec4 taylorInvSqrt(vec4 r)
 }
 
 vec3 fade(vec3 t) {
-  return t*t*t*(t*(t*6.0-15.0)+10.0);
+  return t*t*t*(t*(t*6.0-1timeValue)+10.0);
 }
 
 // Classic Perlin noise
@@ -375,7 +375,7 @@ mvPosition = modelViewMatrix * vec4( position, 1.0 );
 // get a turbulent 3d noise using the normal, normal to high freq
 noise = 4.0 *  -.10 * turbulence( .5 * normal );
 // get a 3d noise using the position, low frequency
-float b = 5.0 * pnoise( 0.05 * position, vec3( 100.0 ) );
+float b = timeValue * pnoise( 0.05 * position, vec3( 100.0 ) );
 // compose both noises
 float displacement = - 3. * noise + b;
 
@@ -548,6 +548,55 @@ void main() {
   vec4 sample = texture2D(texture, vUV);
   gl_FragColor = vec4(sample.xyz, sample.w);
 }
+</script>
+
+<script type="application/x-glsl" id="sun-vertex">
+    varying vec2 vUV;
+
+    void main() {
+        vUV = uv;
+        vec4 pos = vec4(position, 1.0);
+        gl_Position = projectionMatrix * modelViewMatrix * pos;
+    }
+
+</script>
+
+<script type="application/x-glsl" id="sun-fragment">
+    uniform sampler2D texture;
+    uniform sampler2D glow;
+    uniform float time;
+    varying vec2 vUV;
+
+    void main() {
+        float glowCycle = 15.0;
+        float shiftCycle = 10.0;
+        float timeValue = mod(time, glowCycle);
+        float remainingTime = glowCycle - timeValue;
+
+
+        vec4 sample = texture2D(texture, vUV);
+        vec4 sample2 = texture2D(glow, vUV);
+        float altW = 0.1;
+        float rIntensity = 0.3;
+        float gIntensity = 1.0;
+
+        if (timeValue > (glowCycle/2.0)) {
+            timeValue = remainingTime;
+        }
+        sample.x = mix(texture2D(texture, vUV).x - 0.02, texture2D(texture, vUV).x + 0.05,
+                        timeValue * rIntensity * texture2D(texture, vUV).x);
+        sample.y = mix(texture2D(texture, vUV).y + 0.1, texture2D(texture, vUV).y + 0.2,
+                        timeValue * gIntensity * texture2D(texture, vUV).y);
+
+        timeValue = mod(time, shiftCycle);
+        remainingTime = shiftCycle - timeValue;
+        if (timeValue > (shiftCycle/2.0)) {
+            timeValue = remainingTime;
+        }
+
+        gl_FragColor = vec4(sample.xyz, sample.w);
+    }
+
 </script>
 
 <div id="container"></div>
