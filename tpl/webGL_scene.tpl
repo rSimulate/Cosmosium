@@ -36,7 +36,7 @@ vec4 taylorInvSqrt(vec4 r)
 }
 
 vec3 fade(vec3 t) {
-  return t*t*t*(t*(t*6.0-1timeValue)+10.0);
+  return t*t*t*(t*(t*6.0-5.0)+10.0);
 }
 
 // Classic Perlin noise
@@ -375,7 +375,7 @@ mvPosition = modelViewMatrix * vec4( position, 1.0 );
 // get a turbulent 3d noise using the normal, normal to high freq
 noise = 4.0 *  -.10 * turbulence( .5 * normal );
 // get a 3d noise using the position, low frequency
-float b = timeValue * pnoise( 0.05 * position, vec3( 100.0 ) );
+float b = 5.0 * pnoise( 0.05 * position, vec3( 100.0 ) );
 // compose both noises
 float displacement = - 3. * noise + b;
 
