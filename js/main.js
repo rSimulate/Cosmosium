@@ -558,7 +558,7 @@ function RSimulate(opts) {
     }
 
 	//From http://www.html5rocks.com/en/tutorials/casestudies/100000stars/
-	// 
+	//
 	// function addSunFlare(x,y,z, size, overrideImage){
 	  // var flareColor = new THREE.Color( 0xffffff );
 
@@ -578,6 +578,88 @@ function RSimulate(opts) {
 	  // return lensFlare;
 	// }
 
+    // lens flares
+
+    function lensFlareUpdateCallback( object ) {
+
+        var f, fl = object.lensFlares.length;
+        var flare;
+        var vecX = -object.positionScreen.x * 2;
+        var vecY = -object.positionScreen.y * 2;
+
+
+        for( f = 0; f < fl; f++ ) {
+
+            flare = object.lensFlares[ f ];
+
+            flare.x = object.positionScreen.x + vecX * flare.distance;
+            flare.y = object.positionScreen.y + vecY * flare.distance;
+
+            flare.rotation = 0;
+
+        }
+
+        object.lensFlares[ 2 ].y += 0.025;
+        object.lensFlares[ 3 ].rotation = object.positionScreen.x * 0.5 + THREE.Math.degToRad( 45 );
+
+    }
+
+    function addLight( r, g, b, x, y, z, power) {
+
+        var light = new THREE.PointLight( 0xffffff, 1.5, power );
+        light.color.setRGB( r, g, b );
+        light.position.set( x, y, z );
+        scene.add( light );
+
+        var flareColor = new THREE.Color( 0xffffff );
+        flareColor.setRGB( r, g, b );
+
+
+
+        var lensFlare = new THREE.LensFlare( textureFlare0, 700, 0.0, THREE.AdditiveBlending, flareColor );
+
+        lensFlare.add( textureFlare2, 512, 0.0, THREE.AdditiveBlending );
+        lensFlare.add( textureFlare2, 512, 0.0, THREE.AdditiveBlending );
+        lensFlare.add( textureFlare2, 512, 0.0, THREE.AdditiveBlending );
+
+        lensFlare.add( textureFlare3, 60, 0.6, THREE.AdditiveBlending );
+        lensFlare.add( textureFlare3, 70, 0.7, THREE.AdditiveBlending );
+        lensFlare.add( textureFlare3, 120, 0.9, THREE.AdditiveBlending );
+        lensFlare.add( textureFlare3, 70, 1.0, THREE.AdditiveBlending );
+
+        lensFlare.customUpdateCallback = lensFlareUpdateCallback;
+        lensFlare.position = light.position;
+
+        scene.add( lensFlare );
+    }
+
+    function addSunLight( r, g, b, x, y, z, power) {
+
+        var light = new THREE.PointLight( 0xffffff, 2, power);
+        light.position.set( x, y, z );
+        scene.add( light );
+
+        var flareColor = new THREE.Color( 0xffffff );
+
+        var textureFlare0 = THREE.ImageUtils.loadTexture( "img/textures/lensflare0.png" );
+        var textureFlare2 = THREE.ImageUtils.loadTexture( "img/textures/lensflare2.png" );
+        var textureFlare3 = THREE.ImageUtils.loadTexture( "img/textures/lensflare3.png" );
+        var lensFlare = new THREE.LensFlare( textureFlare0, SUN_SIZE, 0.0, THREE.AdditiveBlending, flareColor );
+
+        lensFlare.add( textureFlare2, 512, 0.0, THREE.AdditiveBlending );
+        lensFlare.add( textureFlare2, 512, 0.0, THREE.AdditiveBlending );
+        lensFlare.add( textureFlare2, 512, 0.0, THREE.AdditiveBlending );
+
+        lensFlare.add( textureFlare3, 60, 0.6, THREE.AdditiveBlending );
+        lensFlare.add( textureFlare3, 70, 0.7, THREE.AdditiveBlending );
+        lensFlare.add( textureFlare3, 120, 0.9, THREE.AdditiveBlending );
+        lensFlare.add( textureFlare3, 70, 1.0, THREE.AdditiveBlending );
+        lensFlare.customUpdateCallback = lensFlareUpdateCallback;
+        lensFlare.position = light.position;
+
+        scene.add( lensFlare );
+    }
+
     function initSun() {
         //Create Sun Model
 		var sphereGeometry = new THREE.SphereGeometry( SUN_SIZE, 32, 32 );
@@ -590,7 +672,7 @@ function RSimulate(opts) {
             },
             glow: {
                 type: 't',
-                value: THREE.ImageUtils.loadTexture('img/textures/sun_glow.jpg')
+                value: THREE.ImageUtils.loadTexture('img/textures/lensflare0.jpg')
             },
             time: {
                 type: 'f',
@@ -603,7 +685,8 @@ function RSimulate(opts) {
         var vertexShaderText = document.getElementById("sun-vertex").textContent;
         var fragmentShaderText = document.getElementById("sun-fragment").textContent;
 
-        var sunMaterial = new THREE.ShaderMaterial({
+        var materials = [];
+        materials[0] = new THREE.ShaderMaterial({
             uniforms: uniforms,
             vertexShader: vertexShaderText,
             fragmentShader: fragmentShaderText,
@@ -611,24 +694,22 @@ function RSimulate(opts) {
             fog: true
         });
 
-        /*
-        var sunMaterial = new THREE.MeshPhongMaterial( {
-			color: '#FFFFCC',
-			specular: '#FFFF99',
-			emissive: '#FFAD33',
-			map: sunTexture,
-			shininess: 100 
-		});*/
-        sun = new THREE.Mesh( sphereGeometry, sunMaterial );
+        materials[1] = new THREE.ShaderMaterial({
+            uniforms: {texture: {type: 't', value: THREE.ImageUtils.loadTexture('img/textures/sun_small.jpg')}},
+            vertexShader: vertexShaderText,
+            fragmentShader: document.getElementById("glow-fragment").textContent,
+            lights: false,
+            fog: true
+        });
+
+        //noinspection JSPotentiallyInvalidConstructorUsage
+        sun = new THREE.Mesh(sphereGeometry, new THREE.MeshFaceMaterial(materials));
+
 		scene.add(sun);
-		
-		//Create SunFlare
-        //var sunflare = lensFlare(0,0,0, SUN_SIZE*1.05, 'img/textures/lensflare0.png');
-		
     }
 
     function animateSun() {
-        sun.material.uniforms['time'].value = clock.getElapsedTime();
+        sun.material.materials[0].uniforms['time'].value = clock.getElapsedTime();
     }
 
     function initPlanets() {
@@ -810,9 +891,9 @@ function RSimulate(opts) {
     }
 
     function initLights() {
-        light = new THREE.PointLight( 0xffffff, 2, 10000);
-        light.position.set(0,0,0);  // sun
-        scene.add(light);
+
+        addSunLight(255, 164, 55, 0, 0, 0, 10000); // sun
+        addSunLight(255, 164, 55, 0, 0, 1000, 10000); // sun
 
         light = new THREE.AmbientLight( 0x222222 );
         scene.add( light );
@@ -825,7 +906,7 @@ function RSimulate(opts) {
 
         projector = new THREE.Projector();
 
-        renderer = new THREE.WebGLRenderer( { antialias: false } );
+        renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true } );
         renderer.setSize( window.innerWidth, window.innerHeight );
 
         container = document.getElementById( 'container' );
