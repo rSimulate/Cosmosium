@@ -20,14 +20,15 @@ __author__ = 'rsimulate'
 #=====================================#
 
 #db control
+from py.game_logic.user.User import User
 import pymongo
 import datetime
 import ssl
 from pymongo import MongoClient
 
-client = MongoClient('data.asteroid.ventures',27017)
-
-
+#client = MongoClient('localhost', 27017)
+#client=MongoClient('mongodb://rsimulate:r5imulate@ds037637.mongolab.com:37637/cosmosium')
+client = MongoClient('mongodb://admin:%40st3r0idVenture5@small.asteroid.ventures:27017')
 # Primary Components
 import os
 import sqlite3 as lite
@@ -57,7 +58,6 @@ from py.page_maker.Settings import Settings
 
 # ui handlers:
 from py.query_parsers.getUser import getProfile, demoIDs
-
 # game logic:
 from py.game_logic.user.User import User
 from py.game_logic.GameList import GameList
@@ -435,25 +435,79 @@ redirect_uri = '{uri}:{port}/success'.format(
 @app.route('/userLogin')
 def userLogin(specialMessage=''):
     return template('tpl/pages/userLogin', demoIDs=demoIDs, message=specialMessage)
+
+
+def createUser(name, icon, agency, subtext ):                       #test user creation...
+    # basically a User constructor using a given set of values
+    #  to save me some typing
+    use = User()
+    use.setProfileInfo(name,icon,agency,subtext)
+    return use
     
+
+
 @app.post('/loggin')
 def setLoginCookie():
     uid = request.forms.get('userid')
     pw  = request.forms.get('password')
-    rpw = request.forms.get('repeat_password')
     rem = request.forms.get('remember_me')
-    db=client.users_2
+    db=client.users
 
     if str(db.test_user.find_one({"user":uid})) == 'None':
 
+        return "User not Found"
+    else:
+        if str(db.test_user.find_one({"user":uid},{"password": 1,"_id":0})) == str("{u'password': u'"+pw+"'}"): #matches input password to db password, probably better way to pull out just the password value
+            _user = USERS.getUserByName(uid) # TODO: replace this with db lookup
+
+            loginToken = uid+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
 
 
-        if pw == rpw:
+            def createUser(name, icon, agency, subtext ):
+                use = User()
+                use.setProfileInfo(name,icon,agency,subtext)
+                return use
+            mongo_user=db.test_user.find_one({"user":uid},{"user": 1,"_id":0})['user'] #pull out mongodb query and display only the value of the approriate key, i.e. pymongo returns a <type 'dict'>
+            mongo_org=db.test_user.find_one({"user":uid},{"org": 1,"_id":0})['org']
+            mongo_quote=db.test_user.find_one({"user":uid},{"quote": 1,"_id":0})['quote']
 
-            data={"user":uid,
+            userObj=createUser(mongo_user,'/img/profiles/martin2.png',mongo_org,mongo_quote)
+
+            try:
+                USERS.addUser(userObj,loginToken)
+            except ValueError as e:
+                print e.message
+            response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
+            redirect('/play')
+
+
+
+        else:
+            return "Wrong Password"
+
+
+@app.post('/signup')
+def setLoginCookie():
+    uid = request.forms.get('userid')
+    pw  = request.forms.get('password')
+    rpw = request.forms.get('repeat_password')
+    org = request.forms.get('org')
+    quote = request.forms.get('quote')
+
+    db=client.users                                       #define which database to use
+
+    if str(db.test_user.find_one({"user":uid})) == 'None':  #check that user does not exist in db
+
+
+
+        if pw == rpw:                                       #check that passwords match
+
+            data={"user":uid,                               #make new user document
             "password":pw,
+            "org":org,
+            "quote":quote,
             "date":datetime.datetime.utcnow()}
-            db.test_user.insert(data)
+            db.test_user.insert(data)                       #insert document into db
 
             return 'User Added'
         else:
