@@ -12,7 +12,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
     var container, stats;
 
-    var camera, controls, scene, renderer;
+    var camera, controls, scene, sunScene, renderer, sceneComposer, sunComposer, blendComposer;
     var mouse = new THREE.Vector2();
     var offset = new THREE.Vector3();
     var SELECTED;
@@ -350,6 +350,7 @@ function RSimulate(opts) {
         initCamera();
 
         scene = new THREE.Scene();
+        sunScene = new THREE.Scene();
 
         clock = new THREE.Clock();
         clock.start();
@@ -670,17 +671,11 @@ function RSimulate(opts) {
                 type: 't',
                 value: THREE.ImageUtils.loadTexture('img/textures/sun_small.jpg')
             },
-            glow: {
-                type: 't',
-                value: THREE.ImageUtils.loadTexture('img/textures/lensflare0.jpg')
-            },
             time: {
                 type: 'f',
                 value: time
             }
         };
-
-
 
         var vertexShaderText = document.getElementById("sun-vertex").textContent;
         var fragmentShaderText = document.getElementById("sun-fragment").textContent;
@@ -694,18 +689,10 @@ function RSimulate(opts) {
             fog: true
         });
 
-        materials[1] = new THREE.ShaderMaterial({
-            uniforms: {texture: {type: 't', value: THREE.ImageUtils.loadTexture('img/textures/sun_small.jpg')}},
-            vertexShader: vertexShaderText,
-            fragmentShader: document.getElementById("glow-fragment").textContent,
-            lights: false,
-            fog: true
-        });
-
         //noinspection JSPotentiallyInvalidConstructorUsage
         sun = new THREE.Mesh(sphereGeometry, new THREE.MeshFaceMaterial(materials));
 
-		scene.add(sun);
+		sunScene.add(sun);
     }
 
     function animateSun() {
@@ -893,20 +880,24 @@ function RSimulate(opts) {
     function initLights() {
 
         addSunLight(255, 164, 55, 0, 0, 0, 10000); // sun
-        addSunLight(255, 164, 55, 0, 0, 1000, 10000); // sun
 
-        light = new THREE.AmbientLight( 0x222222 );
+        var light = new THREE.AmbientLight( 0x222222 );
         scene.add( light );
     }
 
+
+
     function initRenderer() {
-        plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true, wireframe: true } ) );
+        plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ),
+                new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true, wireframe: true } ) );
         plane.visible = false;
         scene.add( plane );
 
         projector = new THREE.Projector();
 
-        renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true } );
+        // RGBAFormat is needed for lens flares, which is enabled by alpha = true
+        renderer = new THREE.WebGLRenderer( { alpha: true } );
+
         renderer.setSize( window.innerWidth, window.innerHeight );
 
         container = document.getElementById( 'container' );
@@ -915,6 +906,44 @@ function RSimulate(opts) {
         renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
         renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
         renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+
+        //************************************
+        //          POST PROCESSING
+        //************************************
+        //common render target params. THREE.RGBAFormat is needed for lens flares
+        var renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter,
+                                        format: THREE.RGBAFormat };
+
+        // separate render buffers
+        var renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, renderTargetParameters );
+        var renderTargetSun = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, renderTargetParameters );
+
+        // init composers
+        //A composer is a stack of shader passes combined
+        sceneComposer = new THREE.EffectComposer( renderer, renderTarget );
+        sunComposer = new THREE.EffectComposer( renderer, renderTargetSun );
+        blendComposer = new THREE.EffectComposer( renderer );
+
+        //create shader passes
+        var renderPass = new THREE.RenderPass( scene, camera );
+        var sunRenderPass = new THREE.RenderPass( sunScene, camera );
+        var hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
+        var vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
+        var blendPass = new THREE.ShaderPass( THREE.AdditiveBlendShader );
+
+        // add shaders/renderers to composer passes
+        sceneComposer.addPass( renderPass );
+        sunComposer.addPass( sunRenderPass );
+        sunComposer.addPass( hblurPass );
+        sunComposer.addPass( vblurPass );
+        //sunComposer.addPass( godRayPass );
+
+        //blend Composer runs the AdditiveBlendShader to combine the output of sceneComposer and sunComposer
+        blendPass.uniforms[ 'tBase' ].value = sceneComposer.renderTarget1;
+        blendPass.uniforms[ 'tAdd' ].value = sunComposer.renderTarget1;
+
+        blendComposer.addPass( blendPass );
+        blendPass.renderToScreen = true;
     }
 
     function initStats() {
@@ -926,6 +955,7 @@ function RSimulate(opts) {
     }
 
     function onWindowResize() {
+        console.log("Window resizing");
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
 
@@ -981,12 +1011,15 @@ function RSimulate(opts) {
     }
 
     function render() {
-        renderer.render( scene, camera );
+        // render composers. Ignore float 0.1; this is supposed to be delta, but is unimplemented in EffectComposer.js
+        sceneComposer.render(0.1);
+        sunComposer.render(0.1);
+        blendComposer.render(0.1);
     }
 
     init();
     animate();
-};
+}
 
 
 // the following is needed to have relative URLs to different ports

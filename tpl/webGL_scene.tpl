@@ -563,7 +563,6 @@ void main() {
 
 <script type="application/x-glsl" id="sun-fragment">
     uniform sampler2D texture;
-    uniform sampler2D glow;
     uniform float time;
     varying vec2 vUV;
 
@@ -575,7 +574,6 @@ void main() {
 
 
         vec4 sample = texture2D(texture, vUV);
-        vec4 sample2 = texture2D(glow, vUV);
         float altW = 0.1;
         float rIntensity = 0.3;
         float gIntensity = 1.0;
