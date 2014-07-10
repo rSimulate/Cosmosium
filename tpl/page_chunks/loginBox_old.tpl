@@ -42,42 +42,9 @@
 
 <div class="col-md-4">        
 	<div class="form-box" id="login-box">
-	    <div class="header">Beta Login:
-	    </div>
-		   <form action="/loggin" method="post">
-			<div class="body bg-gray">
-			    <div class="form-group">
-				<input type="text" name="userid" class="form-control" placeholder="User ID"/>
-			    </div>
-			    <div class="form-group">
-				<input type="password" name="password" class="form-control" placeholder="Password"/>
-			    </div>
-
-
-
-
-
-			    <div class="form-group">
-				<input type="checkbox" name="remember_me"/>    <span class="splash-body"> Remember me</span>
-			    </div>
-			</div>
-			<div class="footer">                                                               
-			    <button type="submit" class="btn bg-olive btn-block">Log In</button>
-			    <!--
-			    <p><a href="/recoverAccount">I forgot my password</a></p>
-			    
-			    <a href="/register" class="text-center">Register a new membership</a>
-		    -->
-			</div>
-	    	</form>
-	</div>
-</div>
-
-<div class="col-md-4">
-	<div class="form-box" id="signup-box">
 	    <div class="header">Beta Sign Up:
 	    </div>
-		   <form action="/signup" method="post">
+		   <form action="/loggin" method="post">
 			<div class="body bg-gray">
 			    <div class="form-group">
 				<input type="text" name="userid" class="form-control" placeholder="User ID"/>
@@ -88,28 +55,41 @@
 			    <div class="form-group">
 				<input type="password" name="repeat_password" class="form-control" placeholder="Repeat Password"/>
 			    </div>
+
+
+
+
 			    <div class="form-group">
-				<input type="text" name="org" class="form-control" placeholder="Your Orginization"/>
+				<input type="checkbox" name="remember_me"/>    <span class="splash-body"> Remember me</span>
 			    </div>
-			    <div class="form-group">
-				<input type="text" name="quote" class="form-control" placeholder="Your Space Motto"/>
-			    </div>
-
-
-
-
-
 			</div>
-			<div class="footer">
+			<div class="footer">                                                               
 			    <button type="submit" class="btn bg-olive btn-block">Sign me up</button>
 			    <!--
 			    <p><a href="/recoverAccount">I forgot my password</a></p>
-
+			    
 			    <a href="/register" class="text-center">Register a new membership</a>
 		    -->
 			</div>
 	    	</form>
 	</div>
+</div>
+
+<div class="col-md-4">   
+    <div class="form-box" id="login-box">
+    <span class="splash-body">
+        <div class="header">
+	Sign in using social networks (coming soon)
+	</div>
+        <div class="body bg-gray">
+            <div class="margin text-center">
+                <button class="btn bg-light-blue btn-circle"><i class="fa fa-facebook"></i></button>
+                <button class="btn bg-aqua btn-circle"><i class="fa fa-twitter"></i></button>
+                <button class="btn bg-red btn-circle"><i class="fa fa-google-plus"></i></button>
+            </div>
+        </div>
+    </span>
+    </div>
 </div>
 
 </div>
