@@ -16,33 +16,35 @@ if version_info.major <= 2:
 else:
     raise Exception("Please use Python version 2.* or less")
 
-# these are the commands you'd use in your cmd line,
-#  if different on your sys (ie to use python you type C:\Python27\python.exe, change them)
-
 import platform
 
 # TODO: Are the windows commands correct?
 if platform.system() == 'Windows':
-    PY = '\c\Python' + version_info.major + version_info.minor + '\python.exe'
-    PIP = 'pip'
+    PY = '\c\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
+    PIP = '\c\Python'+ str(version_info.major) + str(version_info.minor) + 'Scripts\pip.exe'
 elif platform.system() == 'Linux':
     PY = 'python'
     PIP = 'pip'
+elif platform.system() == 'Darwin':
+    PY = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
+    PIP = 'C:\Python'+ str(version_info.major) + str(version_info.minor) + '\Scripts\pip.exe'
 else:
     raise Exception("The " + platform.system() + " platform is not officially supported at this time")
 
 # TODO: check for pip, else: if windows: d/l and run get_pip.py, elif ubuntu: `apt-get pip`
 # install other dependencies using pip
 
-PIP_LIBS = ['GitPython==0.3.2.RC1', 'rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet']
+PIP_LIBS = ['GitPython==0.3.2.RC1', 'bottle', 'rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet']
 
 from subprocess import call  # for sys commands
 
 try:
     call([PIP, 'install'] + PIP_LIBS)
 except OSError:
-    print ("Is python-pip installed? If the error was about vcvarsall.bat, "
-           "see the solution here: http://stackoverflow.com/a/10558328/1483986")
+    print ("\n\nCan't find pip at "+PIP+
+           "\nIs python-pip installed? If the error was about vcvarsall.bat, "
+           "see the solution here: http://stackoverflow.com/a/10558328/1483986\n\n")
+    raise
 
 # install/update submodules using GitPython
 from os import getcwd, path

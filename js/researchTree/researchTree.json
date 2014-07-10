@@ -1,0 +1,80 @@
+{
+    "name": "observational_astronomy",
+    "text": "a division of the astronomical science that is concerned with recording data",
+    "enabled": true,
+    "children": [
+        {
+            "name": "CCD",
+            "text": "Charge-Coupled Devices are a major piece of technology in digital imaging. In a CCD sensor, pixels are represented by p-doped MOS capacitors. These capacitors are biased above the threshold for inversion when image acquisition begins, allowing the conversion of incoming photons into electron charges at the semiconductor-oxide interface.",
+            "children": [
+                {
+                    "name": "radio_telescope_tech_II",
+                    "text": "An advanced radio telescope capable of imaging more objects in greater detail thanks to improvments in digital image processing and acquisition techniques.",
+                    "children": [
+                        {
+                            "name": "Very_Long_Baseline_Interferometry",
+                            "text": "improvements in the stability of radio telescope receivers permits telescopes from all over the world (and Earth orbit) to be combined. Data received at each antenna is paired with timing information and correlated with data from other antennas to produce a single image. Using this method it is possible to synthesise an antenna that is effectively the size of the Earth.",
+                            "size": 3938,
+                            "children":[
+                                {
+                                    "name": "SETI_project",
+                                    "text": "The search for extraterrestrial intelligence is the collective name for a number of activities undertaken to search for intelligent extraterrestrial life. Though the chance of contact may be small and the cost large, success in this endevour could change everything. Successfully making contact with intellgent life will win you the game.",
+                                    "size": 94384
+                                },
+                                {
+                                    "name": "Radar_Reflection_spectroscopy",
+                                    "text": "By utilizing an observed correlation between echo polarization ratio (which is a measure of surface roughness), with visible-infrared spectroscopic class radar devices can now be used to estimate the composition of asteroids. (src=A RADAR LINK BETWEEN COMPOSITION AND SURFACE ROUGHNESS, echo.jpl.nasa.gov)",
+                                    "size": 2313
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "optical_telescope_tech_II",
+                    "text": "An advanced optical telescope capable of imaging more objects in greater detail thanks to improvments in digital image processing and acquisition techniques.",
+                    "children": [
+                        {
+                            "name": "optical_telescope_tech_III",
+                            "text": "Biggerer and coolerer than the tech II optical telescope, the tech III scope allows for imaging of even more asteroids per scan.",
+                            "size": 3534
+                        }
+                    ]
+                },
+                {
+                    "name": "infrared_telescope_tech_II",
+                    "text": "An advanced infrared telescope capable of imaging more objects in greater detail thanks to improvments in digital image processing and acquisition techniques.",
+                    "children": [
+                        {
+                            "name": "infrared_telescope_tech_III",
+                            "text": "Biggerer and coolerer than the tech II infrared telescope, the tech III scope allows for imaging of even more asteroids per scan.",
+                            "size": 7074
+                        }
+                    ]
+                },
+                {
+                    "name": "aperture_synthesis",
+                    "text": "A type of Interferometry that mixes signals from a collection of telescopes to produce images having the same angular resolution as an instrument the size of the entire collection. This means you can take many smaller telescopes and use them like one GIANT one!"
+                },
+                {
+                    "name": "active_optics",
+                    "text": "Actively shapes a telescope mirrors to prevent deformation due to external influences such as wind, temperature, mechanical stress. Without active optics, the construction of 8 metre class telescopes is not possible, nor would telescopes with segmented mirrors be feasible.",
+                    "children": [
+                        {
+                            "name": "lucky_imaging",
+                            "text": "Utilizing a high-speed camera with exposure times short enough (100 ms or less) that the changes in the atmosphere during the exposure are minimal, lucky imaging chooses optimum exposures least affected by the atmosphere and combines them into a single image, yielding a much higher resolution than is possible with a single long exposure.",
+                            "size": 7074,
+                            "children": [
+                                {
+                                    "name": "advanced_MEMS_mirror_arrays",
+                                    "text": "Micromirror devices are devices based on microscopically small mirrors. The mirrors are Microelectromechanical systems, which means that their states are controlled by applying a voltage between the two electrodes around the mirror arrays. I can not remember why this helps telescopes right now...",
+                                    "size": 1234
+                                }    
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

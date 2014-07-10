@@ -39,7 +39,7 @@ import random
 
 import pymongo # import Connection
 
-from py.lib.bottle.bottle import static_file, template, request, Bottle, response, redirect, abort
+from bottle import static_file, template, request, Bottle, response, redirect, abort
 
 
 # OAuth components
@@ -459,7 +459,7 @@ def setLoginCookie():
     else:
         if str(db.test_user.find_one({"user":uid},{"password": 1,"_id":0})) == str("{u'password': u'"+pw+"'}"): #matches input password to db password, probably better way to pull out just the password value
             _user = USERS.getUserByName(uid) # TODO: replace this with db lookup
-
+ 
             loginToken = uid+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
 
 
@@ -516,7 +516,8 @@ def setLoginCookie():
     else:
 
         return 'User Name Already Exists'
-    
+
+
 
 # I'm not sure how to use this... =( ~Tylar
 @app.route('/login<:re:/?>')
