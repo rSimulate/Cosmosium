@@ -692,7 +692,8 @@ function RSimulate(opts) {
         //noinspection JSPotentiallyInvalidConstructorUsage
         sun = new THREE.Mesh(sphereGeometry, new THREE.MeshFaceMaterial(materials));
 
-		sunScene.add(sun);
+		//scene.add(sun);
+        sunScene.add(sun);
     }
 
     function animateSun() {
@@ -897,6 +898,8 @@ function RSimulate(opts) {
 
         // RGBAFormat is needed for lens flares, which is enabled by alpha = true
         renderer = new THREE.WebGLRenderer( { alpha: true } );
+        renderer.setClearColor( 0x000000, 1 );
+        renderer.autoClear = false;
 
         renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -912,38 +915,40 @@ function RSimulate(opts) {
         //************************************
         //common render target params. THREE.RGBAFormat is needed for lens flares
         var renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter,
-                                        format: THREE.RGBAFormat };
+                                        format: THREE.RGBAFormat, stencilBuffer: true };
 
         // separate render buffers
         var renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, renderTargetParameters );
         var renderTargetSun = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, renderTargetParameters );
 
-        // init composers
         //A composer is a stack of shader passes combined
-        sceneComposer = new THREE.EffectComposer( renderer, renderTarget );
-        sunComposer = new THREE.EffectComposer( renderer, renderTargetSun );
-        blendComposer = new THREE.EffectComposer( renderer );
-
-        //create shader passes
+        // sceneComposer holds all the stuffs except for what gets post processed
+        // Copy shader is used so the composer writes to the target, not the screen, since there are composers after it
+        sceneComposer = new THREE.EffectComposer( renderer );
+        sceneComposer.renderTarget1.stencilBuffer = true;
+        sceneComposer.renderTarget2.stencilBuffer = true;
         var renderPass = new THREE.RenderPass( scene, camera );
-        var sunRenderPass = new THREE.RenderPass( sunScene, camera );
+        renderPass.clear = false;
+        var sunRenderPass = new THREE.RenderPass( sunScene, camera);
+        sunRenderPass.clear = true;
+        var sceneMask = new THREE.MaskPass( scene, camera );
+        var sunMask = new THREE.MaskPass( sunScene, camera );
+        sunMask.inverse = true;
         var hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
+        hblurPass.clear = false;
         var vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
-        var blendPass = new THREE.ShaderPass( THREE.AdditiveBlendShader );
-
-        // add shaders/renderers to composer passes
+        vblurPass.clear = false;
+        var clearMask = new THREE.ClearMaskPass();
+        var copyPass = new THREE.ShaderPass( THREE.CopyShader );
+        copyPass.renderToScreen = true;
+        sceneComposer.addPass( sunRenderPass );
+        sceneComposer.addPass( hblurPass );
+        sceneComposer.addPass( vblurPass );
+        sceneComposer.addPass( sunMask );
+        sceneComposer.addPass( clearMask );
+        sceneComposer.addPass( copyPass );
         sceneComposer.addPass( renderPass );
-        sunComposer.addPass( sunRenderPass );
-        sunComposer.addPass( hblurPass );
-        sunComposer.addPass( vblurPass );
-        //sunComposer.addPass( godRayPass );
-
-        //blend Composer runs the AdditiveBlendShader to combine the output of sceneComposer and sunComposer
-        blendPass.uniforms[ 'tBase' ].value = sceneComposer.renderTarget1;
-        blendPass.uniforms[ 'tAdd' ].value = sunComposer.renderTarget1;
-
-        blendComposer.addPass( blendPass );
-        blendPass.renderToScreen = true;
+        sceneComposer.addPass( copyPass );
     }
 
     function initStats() {
@@ -1011,10 +1016,9 @@ function RSimulate(opts) {
     }
 
     function render() {
-        // render composers. Ignore float 0.1; this is supposed to be delta, but is unimplemented in EffectComposer.js
+        // render composer. Ignore float 0.1; this is supposed to be delta, but is unimplemented in EffectComposer.js
+
         sceneComposer.render(0.1);
-        sunComposer.render(0.1);
-        blendComposer.render(0.1);
     }
 
     init();
