@@ -12,7 +12,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
     var container, stats;
 
-    var camera, controls, scene, sunScene, effectScene, renderer, sceneComposer, blendComposer;
+    var camera, controls, scene, sunScene, effectScene, renderer, sceneComposer, effectComposer, blendComposer;
     var mouse = new THREE.Vector2();
     var offset = new THREE.Vector3();
     var SELECTED;
@@ -926,45 +926,59 @@ function RSimulate(opts) {
 
         // separate render buffers
         var renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, renderTargetParameters );
-        var renderTargetSun = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, renderTargetParameters );
+        var renderTargetEffect = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, renderTargetParameters );
 
         //A composer is a stack of shader passes combined
         // sceneComposer holds all the stuffs except for what gets post processed
         // Copy shader is used so the composer writes to the target, not the screen, since there are composers after it
-        sceneComposer = new THREE.EffectComposer( renderer );
+        sceneComposer = new THREE.EffectComposer( renderer, renderTarget );
         sceneComposer.renderTargetParameters = renderTargetParameters;
         sceneComposer.renderTarget1.stencilBuffer = true;
         sceneComposer.renderTarget2.stencilBuffer = true;
-        var renderPass = new THREE.RenderPass( scene, camera );
-        renderPass.clear = false;
         var sunRenderPass = new THREE.RenderPass( sunScene, camera);
         sunRenderPass.clear = true;
-        var effectMask = new THREE.MaskPass( effectScene, camera );
-        effectMask.inverse = true;
+        var renderPass = new THREE.RenderPass( scene, camera );
+        renderPass.clear = false;
         var hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
         hblurPass.uniforms["h"].value = 2.0/window.innerWidth;
         hblurPass.clear = false;
         var vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
         vblurPass.uniforms["v"].value = 2.0/window.innerWidth;
         vblurPass.clear = false;
+        var sunMask = new THREE.MaskPass( sunScene, camera );
+        sunMask.inverse = true;
         var clearMask = new THREE.ClearMaskPass();
         var copyPass = new THREE.ShaderPass( THREE.CopyShader );
         copyPass.renderToScreen = true;
         sceneComposer.addPass( sunRenderPass );
         sceneComposer.addPass( hblurPass );
         sceneComposer.addPass( vblurPass );
-        sceneComposer.addPass( effectMask );
+        sceneComposer.addPass( sunMask );
         sceneComposer.addPass( clearMask );
         sceneComposer.addPass( copyPass );
         sceneComposer.addPass( renderPass );
         sceneComposer.addPass( copyPass );
 
+        effectComposer = new THREE.EffectComposer(renderer, renderTargetEffect);
+        effectComposer.renderTargetParameters = renderTargetParameters;
+        effectComposer.renderTarget2 = sceneComposer.renderTarget1.clone();
+        effectComposer.renderTarget1.stencilBuffer = true;
+        effectComposer.renderTarget2.stencilBuffer = true;
+        var effectMask = new THREE.MaskPass( effectScene, camera );
+        var rayPass = new THREE.ShaderPass( THREE.SunRayShader );
+        effectComposer.addPass( effectMask );
+        effectComposer.addPass( sunMask );
+        effectComposer.addPass( rayPass );
+        sceneComposer.addPass( clearMask );
+        effectComposer.addPass( copyPass );
+
         //blend Composer runs the AdditiveBlendShader to combine the output of sceneComposer and sunComposer
-        //var blendPass = new THREE.AdditiveBlendShader;
-        //blendPass.uniforms[ 'tBase' ].value = sceneComposer.renderTarget1;
-        //blendPass.uniforms[ 'tAdd' ].value = sunComposer.renderTarget1;
-        ///blendComposer.addPass( blendPass );
-        //blendPass.renderToScreen = true;
+        blendComposer = new THREE.EffectComposer(renderer);
+        var blendPass = new THREE.ShaderPass( THREE.AdditiveBlendShader );
+        blendPass.uniforms[ 'tBase' ].value = sceneComposer.renderTarget1;
+        blendPass.uniforms[ 'tAdd' ].value = effectComposer.renderTarget1;
+        blendComposer.addPass( blendPass );
+        blendPass.renderToScreen = true;
     }
 
     function initStats() {
@@ -1032,9 +1046,11 @@ function RSimulate(opts) {
     }
 
     function render() {
-        // render composer. Ignore float 0.1; this is supposed to be delta, but is unimplemented in EffectComposer.js
+        // render composers. Ignore float 0.1; this is supposed to be delta, but is unimplemented in EffectComposer.js
 
         sceneComposer.render(0.1);
+        //effectComposer.render(0.1);
+        blendComposer.render(0.1);
     }
 
     init();
