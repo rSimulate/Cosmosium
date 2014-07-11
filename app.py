@@ -92,16 +92,33 @@ def js_static(filename):
     return static_file(filename, root='./js/')
     
 @app.route('/fonts/<filename:path>')
-def js_static(filename):
+def font_static(filename):
     return static_file(filename, root='./fonts/')
     
 @app.route('/img/<filename:path>')
-def js_static(filename):
+def img_static(filename):
     return static_file(filename, root='./img/')
     
 @app.route('/db/<filename:path>')
-def js_static(filename):
+def db_static(filename):
     return static_file(filename, root='./db/')
+
+
+#=====================================#
+#           dynamic js files          #
+#=====================================#
+@app.route("/tpl/js/<filename>")
+def getDynamicJS(filename):
+    # check for user login token in cookies
+    _user = getLoggedInUser(request)
+    if _user != None:
+    #    try:
+        return template('tpl/js/'+filename, user=_user, DOMAIN=DOMAIN)
+    #    except:
+    #        print 'error getting template "'+str(filename)+'"!'
+    #        return 404
+    else:
+        redirect('/userLogin')
 
 #=====================================#
 #      Routing Helper Functions       #
@@ -213,22 +230,6 @@ def makeGamePage():
                         config=Settings(MASTER_CONFIG),
                         pageTitle="Cosmosium Asteriod Ventures!")
     else: return userLogin('user login cookie not found')
-
-#=====================================#
-#           js                        #
-#=====================================#
-@app.route("/resourceUpdate.js")
-def makeResourceUpdater():
-    # check for user login token in cookies
-    _user = getLoggedInUser(request)
-    if _user != None:
-        return template('tpl/js/resourceUpdate', user=_user)
-    else: 
-        redirect('/userLogin')
-    
-@app.route("/webSocketSetup.js")
-def makeSocketSetup():
-    return template('tpl/js/webSocketSetup', client_id='0', DOMAIN=DOMAIN)
 
 # NOTE: this next approach is better than using the real file... but not working currently.
 #@app.route("/js/game_frame_nav.js")

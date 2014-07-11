@@ -41,7 +41,7 @@
             <script src="js/bg_music_toggle.js" type="text/javascript"></script>
             
             <!-- for updating the resource display -->
-            <script src="/resourceUpdate.js" type="text/javascript" onload="setInterval(updateAll,1000)"></script>
+            <script src="/tpl/js/resourceUpdate.js" type="text/javascript" onload="setInterval(updateAll,1000)"></script>
             
            <!-- for updating the game time display -->
             <script src="/js/timeUpdater.js" type="text/javascript" onload="setInterval(uTime,{{user.game.getDeltaYearUpdate()}}000)"></script>
@@ -49,7 +49,7 @@
             <!-- for j-query based navigation -->
             <script src="/js/game_frame_nav.js" type="text/javascript"></script>
 
-            <script type="text/javascript" src='/webSocketSetup.js' </script>   
+            <script type="text/javascript" src='/tpl/js/webSocketSetup.js' </script>
 
             
         % end

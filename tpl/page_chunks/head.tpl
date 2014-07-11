@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
-        
+    <script type='text/javascript' src='/tpl/js/player.js'></script>
+
+
     <!-- use the webGL scene as bg -->
     % if config.showBG:
         <div style="position: absolute; left: 0px; top: 0px background-color: green;" id='systemBG'>
@@ -54,7 +56,7 @@
             <!-- websocket connection --> 
             <script type='text/javascript' src='/js/wsMessageParser.js'></script>
             <script type='text/javascript' src='/js/createMessage.js'></script>
-            <script type='text/javascript' src='/webSocketSetup.js'></script>
+            <script type='text/javascript' src='/tpl/js/webSocketSetup.js'></script>
 
     </head>
     <body class="skin-black" style='background-color: black;'>

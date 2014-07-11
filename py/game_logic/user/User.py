@@ -96,6 +96,8 @@ class User(object):
             cost = purchases.getCost(item)
             if self.affords(cost):
                 self.payFor(cost)
+                # TODO: actually do whatever was purchased
+                # self.applyItem(item)
                 return True
             else:
                 return False

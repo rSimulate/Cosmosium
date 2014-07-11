@@ -113,14 +113,15 @@
             }, false);
         </script>
 
-			 <!-- init the tree (using jquery here but there are other ways) -->
+          <!-- init the tree (using jquery here but there are other ways) -->
           <script type='text/javascript'>
             $.getScript( "http://d3js.org/d3.v3.min.js", function( data, textStatus, jqxhr ) {
                 $.getScript("/js/researchTree/tree_config.js", function(data, textStatus, jqxhr){
                     $.getScript("/js/lib/techtreejs/techtree.js", function(data, textStatus, jqxhr){
-                        techtree.drawTree();
-
-                        $.getScript("/js/researchTree/setupTreeInterface.js", function(){});
+                        $.getScript("/js/researchTree/setupTreeInterface.js", function(data, textStatus, jqxhr){
+                            console.log('techtree is ready.');
+                            techtree.drawTree();
+                        });
                     });
                 });
             });

@@ -38,7 +38,7 @@ def registerUserConnection(user,ws):
     # saves user websocket connetion so that updates to the user object can push to the client
     user.websocket = ws
     
-def researchResponder(user,ws,researchType):
+def researchResponder(user, ws, researchType):
     message = '{"cmd":"addToContent","data":"'
     
     if user.purchase('research_'+researchType):
@@ -62,8 +62,8 @@ def parse(cmd, data, user, websock, OOIs):
     if cmd == 'track':
         asteroidTrackResponder(data, user, websock, OOIs)
     elif cmd == 'hello':
-        registerUserConnection(user,websock)
+        registerUserConnection(user, websock)
     elif cmd == 'research':
-        researchResponder(user,websock,data)
+        researchResponder(user, websock, data)
     else:
         print "UNKNOWN CLIENT MESSAGE: cmd=",cmd,"data=",data," from user ",user
