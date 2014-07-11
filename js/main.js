@@ -12,7 +12,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
     var container, stats;
 
-    var camera, controls, scene, sunScene, renderer, sceneComposer, sunComposer, blendComposer;
+    var camera, controls, scene, sunScene, effectScene, renderer, sceneComposer, blendComposer;
     var mouse = new THREE.Vector2();
     var offset = new THREE.Vector3();
     var SELECTED;
@@ -305,7 +305,7 @@ function RSimulate(opts) {
             controls.enabled = false;
 
             SELECTED = intersects[ 0 ].object;
-            var intersects = raycaster.intersectObject( plane );
+            intersects = raycaster.intersectObject( plane );
             offset.copy( intersects[ 0 ].point ).sub( plane.position );
 
             var meshId = SELECTED.id;
@@ -351,6 +351,7 @@ function RSimulate(opts) {
 
         scene = new THREE.Scene();
         sunScene = new THREE.Scene();
+        effectScene = new THREE.Scene();
 
         clock = new THREE.Clock();
         clock.start();
@@ -689,11 +690,16 @@ function RSimulate(opts) {
             fog: true
         });
 
-        //noinspection JSPotentiallyInvalidConstructorUsage
         sun = new THREE.Mesh(sphereGeometry, new THREE.MeshFaceMaterial(materials));
-
-		//scene.add(sun);
         sunScene.add(sun);
+
+        var sunEffect = sun.clone();
+        var size = 1.33;
+        sunEffect.material = new THREE.MeshBasicMaterial();
+        sunEffect.scale.set(sunEffect.scale.x * size, sunEffect.scale.y * size, sunEffect.scale.z * size);
+        sunEffect.material.transparent = true;
+        sunEffect.material.opacity = 0.01;
+        effectScene.add(sunEffect);
     }
 
     function animateSun() {
@@ -851,6 +857,7 @@ function RSimulate(opts) {
               texture_path: opts.static_prefix + '/img/texture-earth.jpg',
               display_color: new THREE.Color(0x009ACD),
               particle_geometry: particle_system_geometry,
+              particle_geometry: particle_system_geometry,
               name: 'Ganymede'
             }, !using_webgl);
         var ganymedeMesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg');
@@ -925,18 +932,20 @@ function RSimulate(opts) {
         // sceneComposer holds all the stuffs except for what gets post processed
         // Copy shader is used so the composer writes to the target, not the screen, since there are composers after it
         sceneComposer = new THREE.EffectComposer( renderer );
+        sceneComposer.renderTargetParameters = renderTargetParameters;
         sceneComposer.renderTarget1.stencilBuffer = true;
         sceneComposer.renderTarget2.stencilBuffer = true;
         var renderPass = new THREE.RenderPass( scene, camera );
         renderPass.clear = false;
         var sunRenderPass = new THREE.RenderPass( sunScene, camera);
         sunRenderPass.clear = true;
-        var sceneMask = new THREE.MaskPass( scene, camera );
-        var sunMask = new THREE.MaskPass( sunScene, camera );
-        sunMask.inverse = true;
+        var effectMask = new THREE.MaskPass( effectScene, camera );
+        effectMask.inverse = true;
         var hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
+        hblurPass.uniforms["h"].value = 2.0/window.innerWidth;
         hblurPass.clear = false;
         var vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
+        vblurPass.uniforms["v"].value = 2.0/window.innerWidth;
         vblurPass.clear = false;
         var clearMask = new THREE.ClearMaskPass();
         var copyPass = new THREE.ShaderPass( THREE.CopyShader );
@@ -944,11 +953,18 @@ function RSimulate(opts) {
         sceneComposer.addPass( sunRenderPass );
         sceneComposer.addPass( hblurPass );
         sceneComposer.addPass( vblurPass );
-        sceneComposer.addPass( sunMask );
+        sceneComposer.addPass( effectMask );
         sceneComposer.addPass( clearMask );
         sceneComposer.addPass( copyPass );
         sceneComposer.addPass( renderPass );
         sceneComposer.addPass( copyPass );
+
+        //blend Composer runs the AdditiveBlendShader to combine the output of sceneComposer and sunComposer
+        //var blendPass = new THREE.AdditiveBlendShader;
+        //blendPass.uniforms[ 'tBase' ].value = sceneComposer.renderTarget1;
+        //blendPass.uniforms[ 'tAdd' ].value = sunComposer.renderTarget1;
+        ///blendComposer.addPass( blendPass );
+        //blendPass.renderToScreen = true;
     }
 
     function initStats() {
