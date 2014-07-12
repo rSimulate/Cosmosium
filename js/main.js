@@ -21,7 +21,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var clock;
     var plane;
     var skybox;
-    var sun;
+    var sun, sunEffect;
 
     var claimButt = document.getElementById('claim-asteroid-button');
     
@@ -665,7 +665,6 @@ function RSimulate(opts) {
     function initSun() {
         //Create Sun Model
 		var sphereGeometry = new THREE.SphereGeometry( SUN_SIZE, 32, 32 );
-		//var sunTexture = THREE.ImageUtils.loadTexture('img/textures/sun_small.jpg');
         var time = clock.getElapsedTime();
         var uniforms = {
             texture: {
@@ -693,17 +692,26 @@ function RSimulate(opts) {
         sun = new THREE.Mesh(sphereGeometry, new THREE.MeshFaceMaterial(materials));
         sunScene.add(sun);
 
-        var sunEffect = sun.clone();
-        var size = 1.33;
-        sunEffect.material = new THREE.MeshBasicMaterial();
-        sunEffect.scale.set(sunEffect.scale.x * size, sunEffect.scale.y * size, sunEffect.scale.z * size);
+        var size = 4.25;
+        sunEffect = new THREE.Mesh(new THREE.PlaneGeometry(SUN_SIZE * size, SUN_SIZE * size * 0.90));
+        sunEffect.position = sun.position;
+        sunEffect.material = new THREE.ShaderMaterial({
+            uniforms: {
+                texture: { type: "t", value: THREE.ImageUtils.loadTexture('img/textures/sunEclipse.png') },
+                time: { type: "f", value: time }
+            },
+            vertexShader: document.getElementById("sunEffectVertex").textContent,
+            fragmentShader: document.getElementById("sunEffectFragment").textContent,
+            transparent: true
+        });
         sunEffect.material.transparent = true;
         sunEffect.material.opacity = 0.01;
-        effectScene.add(sunEffect);
+        sunScene.add(sunEffect);
     }
 
     function animateSun() {
         sun.material.materials[0].uniforms['time'].value = clock.getElapsedTime();
+        sunEffect.lookAt(camera.position);
     }
 
     function initPlanets() {
@@ -857,7 +865,6 @@ function RSimulate(opts) {
               texture_path: opts.static_prefix + '/img/texture-earth.jpg',
               display_color: new THREE.Color(0x009ACD),
               particle_geometry: particle_system_geometry,
-              particle_geometry: particle_system_geometry,
               name: 'Ganymede'
             }, !using_webgl);
         var ganymedeMesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg');
@@ -905,7 +912,8 @@ function RSimulate(opts) {
 
         // RGBAFormat is needed for lens flares, which is enabled by alpha = true
         renderer = new THREE.WebGLRenderer( { alpha: true } );
-        renderer.setClearColor( 0x000000, 1 );
+        //renderer.sortObjects = false;
+        renderer.setClearColor( 0x000000, 0 );
         renderer.autoClear = false;
 
         renderer.setSize( window.innerWidth, window.innerHeight );
@@ -924,10 +932,6 @@ function RSimulate(opts) {
         var renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter,
                                         format: THREE.RGBAFormat, stencilBuffer: true };
 
-        // separate render buffers
-        var renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, renderTargetParameters );
-        var renderTargetSun = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, renderTargetParameters );
-
         //A composer is a stack of shader passes combined
         // sceneComposer holds all the stuffs except for what gets post processed
         // Copy shader is used so the composer writes to the target, not the screen, since there are composers after it
@@ -942,21 +946,18 @@ function RSimulate(opts) {
         var effectMask = new THREE.MaskPass( effectScene, camera );
         effectMask.inverse = true;
         var hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
-        hblurPass.uniforms["h"].value = 2.0/window.innerWidth;
+        hblurPass.uniforms["h"].value = 0.5/window.innerWidth;
         hblurPass.clear = false;
         var vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
-        vblurPass.uniforms["v"].value = 2.0/window.innerWidth;
+        vblurPass.uniforms["v"].value = 0.5/window.innerWidth;
         vblurPass.clear = false;
         var clearMask = new THREE.ClearMaskPass();
         var copyPass = new THREE.ShaderPass( THREE.CopyShader );
         copyPass.renderToScreen = true;
         sceneComposer.addPass( sunRenderPass );
+        sceneComposer.addPass( renderPass );
         sceneComposer.addPass( hblurPass );
         sceneComposer.addPass( vblurPass );
-        sceneComposer.addPass( effectMask );
-        sceneComposer.addPass( clearMask );
-        sceneComposer.addPass( copyPass );
-        sceneComposer.addPass( renderPass );
         sceneComposer.addPass( copyPass );
 
         //blend Composer runs the AdditiveBlendShader to combine the output of sceneComposer and sunComposer

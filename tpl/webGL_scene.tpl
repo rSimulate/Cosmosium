@@ -550,7 +550,7 @@ void main() {
 }
 </script>
 
-<script type="application/x-glsl" id="sun-vertex">
+<script type="application/x-glsl" id="sunEffectVertex">
     varying vec2 vUV;
 
     void main() {
@@ -559,6 +559,30 @@ void main() {
         gl_Position = projectionMatrix * modelViewMatrix * pos;
     }
 
+</script>
+
+<script type="application/x-glsl" id="sunEffectFragment">
+    uniform sampler2D texture;
+    uniform float time;
+    varying vec2 vUV;
+
+    void main() {
+        vec4 sample = texture2D(texture, vUV);
+        if (sample.rgb == vec3(0)) {
+            sample = vec4(0.0);
+        }
+        gl_FragColor = vec4(sample.xyz, sample.w);
+    }
+</script>
+
+<script type="application/x-glsl" id="sun-vertex">
+varying vec2 vUV;
+
+void main() {
+  vUV = uv;
+  vec4 pos = vec4(position, 1.0);
+  gl_Position = projectionMatrix * modelViewMatrix * pos;
+}
 </script>
 
 <script type="application/x-glsl" id="sun-fragment">
