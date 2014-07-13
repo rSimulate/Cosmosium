@@ -23,6 +23,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var skybox;
     var sun;
 
+    var addButt, removeButt;
     var claimButt = document.getElementById('claim-asteroid-button');
     
     var SHOWING_ASTEROID_OWNERSHIP = (typeof owners === "object");
@@ -35,13 +36,15 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var orbits = [];
     var meshes = [];
     var ellipses = [];
+    var playerObjects = [];
 
     // for each type of object, there is a list of indexes of orbits/meshes that match it
     // example: indexes["asteroid"] --> [2,3,5] and you can get the orbits at orbits[2], orbits[3], orbits[5]
     var indexes = {
         "asteroid": [],
         "planet": [],
-        "moon" : []
+        "moon" : [],
+        "playerObject": []
     };
     var mapFromMeshIdToBodyId = {};   // maps ids of three.js meshes to bodies they represent
     var nextEntityIndex = 0;
@@ -77,13 +80,53 @@ function RSimulate(opts) {
         nextEntityIndex++;
     }
 
+    function removeBody (parentScene, indexLabel, playerObject) {
+        for (var index in orbits) {
+            if (orbits[index].hasOwnProperty('name')) {
+                if (orbits[index].name == playerObject.orbit.name) {
+                    orbits.splice(index, 1);
+                    break;
+                }
+            }
+        }
+        for (index in meshes) {
+            if (meshes[index] == playerObject.mesh) {
+                meshes.splice(index, 1);
+                break;
+            }
+        }
+
+        parent.remove(playerObject.mesh);
+
+        var ellipse = playerObject.orbit.getEllipse();
+        for (index in ellipses) {
+            if (ellipses[index] == ellipse) {
+                ellipses.splice(index, 1);
+                break;
+            }
+        }
+
+        parent.remove(ellipse);
+
+
+        var bodyId = mapFromMeshIdToBodyId[playerObject.mesh];
+
+        for (index in indexes[indexLabel]) {
+            if (indexes[indexLabel][index] == bodyId) {
+                indexes[indexLabel].splice(index, 1);
+                //nextEntityIndex--;
+                break;
+            }
+        }
+    }
+
 	function makeBodyMesh(size, texture){
 		var bodyGeometry = new THREE.SphereGeometry( size, 32, 32 );
 		var bodyTexture = THREE.ImageUtils.loadTexture(texture);
 		var bodyMaterial = new THREE.MeshLambertMaterial({ map: bodyTexture });
 		
 		var bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
-		//addBody( scene, "planet", orbit, planetmesh, true );
+
 		return bodyMesh;
 	}
 	
@@ -91,6 +134,9 @@ function RSimulate(opts) {
 		addBody( scene, "planet", orbit, planetmesh, true );
     }
 
+    function addPlayerObject(orbit, mesh) {
+        addBody( scene, "playerObject", orbit, mesh, true);
+    }
 
     function addAsteroid(orbit, mesh) {
         addBody( scene, "asteroid", orbit, mesh, false );
@@ -611,14 +657,6 @@ function RSimulate(opts) {
             fog: true
         });
 
-        /*
-        var sunMaterial = new THREE.MeshPhongMaterial( {
-			color: '#FFFFCC',
-			specular: '#FFFF99',
-			emissive: '#FFAD33',
-			map: sunTexture,
-			shininess: 100 
-		});*/
         sun = new THREE.Mesh( sphereGeometry, sunMaterial );
 		scene.add(sun);
 		
@@ -632,13 +670,9 @@ function RSimulate(opts) {
     }
 
     function initPlanets() {
-
-        //var planetGeometry = new THREE.SphereGeometry( PLANET_SIZE, 32, 32 );
-        //var planetMaterial = new THREE.MeshLambertMaterial( {color: 0x0000ff} );
-		//var MercuryMaterial = new THREE.MeshLambertMaterial( {color: 0x913CEE} );
 		
-        var moonGeometry = new THREE.SphereGeometry( MOON_SIZE, 16, 16 );
-        var moonMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc} );
+        //var moonGeometry = new THREE.SphereGeometry( MOON_SIZE, 16, 16 );
+        //var moonMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc} );
 
         var mercury = new Orbit3D(Ephemeris.mercury,
             {
@@ -888,12 +922,49 @@ function RSimulate(opts) {
         }
     }
 
+    function addPlayerObject(object3D) {
+
+    }
+
+    function removePlayerObject(object3D) {
+
+    }
+
+    function initUI() {
+        addButt = document.getElementById('add-object-button');
+        removeButt = document.getElementById('remove-object-button');
+        addButt.addEventListener('click', addPlayerObject(), false);
+        removeButt.addEventListener('click', removePlayerObject(), false);
+
+        // testing
+        var orbit = new Orbit3D(Ephemeris.earth,
+            {
+                color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
+                texture_path: opts.static_prefix + '/img/texture-earth.jpg',
+                display_color: new THREE.Color(0x009ACD),
+                particle_geometry: particle_system_geometry,
+                name: 'Player Terraformed Planet ' + playerObjects.length
+            }, !using_webgl);
+
+        //var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+        var earthMesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg');
+
+        addPlanet(earth, earthMesh);
+        playerObjects.push({mesh: earthMesh, orbit: orbit});
+    }
+
+    function drawUI() {
+
+    }
+
+
     function animate() {
         requestAnimationFrame(animate);
 
         update(clock.getDelta());
         animateSun();
 
+        drawUI();
 
         render();
         stats.update();
@@ -905,7 +976,7 @@ function RSimulate(opts) {
 
     init();
     animate();
-};
+}
 
 
 // the following is needed to have relative URLs to different ports
