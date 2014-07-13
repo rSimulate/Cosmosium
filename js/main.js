@@ -23,7 +23,9 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var skybox;
     var sun;
 
-    var addButt, removeButt;
+    //var addButt = document.getElementById('add-object-button');
+    // TODO: removeButt element is null on run-time when trying to attach listener
+    var removeButt = document.getElementById('remove-object-button');
     var claimButt = document.getElementById('claim-asteroid-button');
     
     var SHOWING_ASTEROID_OWNERSHIP = (typeof owners === "object");
@@ -59,7 +61,7 @@ function RSimulate(opts) {
 
     function addBody( parent, indexLabel, orbit, mesh, shouldAlwaysShowEllipse ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
-
+        console.log(orbit.name);
         orbits.push(orbit);
         meshes.push(mesh);
         mapFromMeshIdToBodyId[mesh.id] = nextEntityIndex;
@@ -79,8 +81,14 @@ function RSimulate(opts) {
         
         nextEntityIndex++;
     }
+    function removePlayerBody() {
+        removeBody(undefined, undefined, undefined);
+    }
 
     function removeBody (parentScene, indexLabel, playerObject) {
+        if (indexLabel == undefined) { indexLabel = "playerObject"; }
+        if (parentScene == undefined) { parentScene = scene; }
+        if (playerObject == undefined) { playerObject = selectedBody; }
         for (var index in orbits) {
             if (orbits[index].hasOwnProperty('name')) {
                 if (orbits[index].name == playerObject.orbit.name) {
@@ -96,7 +104,7 @@ function RSimulate(opts) {
             }
         }
 
-        parent.remove(playerObject.mesh);
+        parentScene.remove(playerObject.mesh);
 
         var ellipse = playerObject.orbit.getEllipse();
         for (index in ellipses) {
@@ -106,7 +114,7 @@ function RSimulate(opts) {
             }
         }
 
-        parent.remove(ellipse);
+        parentScene.remove(ellipse);
 
 
         var bodyId = mapFromMeshIdToBodyId[playerObject.mesh];
@@ -231,7 +239,7 @@ function RSimulate(opts) {
         console.log("onBodySelected(" + bodyId + ")");
 
         hideAllAsteroidEllipses();
-        
+
         var orbit = orbits[bodyId];
         var mesh = meshes[bodyId];
         var ellipse = ellipses[bodyId];
@@ -245,12 +253,11 @@ function RSimulate(opts) {
         } else if (orbit && orbit.name) {
             bodyName = orbit.name;
         }
-
         var infoHTML = "<h3>" + bodyName + "</h3>";
         // info to show in the window:
         for (var key in orbit.eph) {
             // excluded info:
-            if (key.slice(0,6) == 'sigma_'
+            if (key.slice(0, 6) == 'sigma_'
                 || key.slice(-6) == '_sigma'
                 || key == 'full_name'
                 || key == 'epoch_mjd'
@@ -273,7 +280,7 @@ function RSimulate(opts) {
                 || key == 'name'
                 || key == 'i'
                 || key == 'tp'
-                
+
                 /* i'm not sure what these next ones are... maybe they should be included and renamed? */
                 || key == 'K2'
                 || key == 'K1'
@@ -303,33 +310,38 @@ function RSimulate(opts) {
                 || key == 'n'
                 || key == 'n_del_obs_used'
                 || key == 'n_dop_obs_used'
-                
-                ){
+
+                ) {
                 continue
             }
             infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
         }
 
-        // make this display the owner name...       
+        // make this display the owner name...
         if (SHOWING_ASTEROID_OWNERSHIP) {
 
-            var ownerName = owners[bodyId-12]; // asteroid[i] is owned by owner[i], there are 12 non-asteroid objects in the system...
+            var ownerName = owners[bodyId - 12]; // asteroid[i] is owned by owner[i], there are 12 non-asteroid objects in the system...
             if (ownerName) {
                 var ownerColor = mapFromOwnerNameToColor[ownerName];
-                console.log('claimed by "'+ownerName+'", color=('+ownerColor.b+','+ownerColor.g+','+ownerColor.r+')')
-                $("#owner-info").html('claimed by <b>"'+ownerName+'"</b>'); 
-                $("#owner-info").attr("color","rgb("+ownerColor.r+','+ownerColor.g+','+ownerColor.b+')')    //NOTE: this doesn't seem to work.
+                console.log('claimed by "' + ownerName + '", color=(' + ownerColor.b + ',' + ownerColor.g + ',' + ownerColor.r + ')');
+                $("#owner-info").html('claimed by <b>"' + ownerName + '"</b>');
+                $("#owner-info").attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')');  //NOTE: this doesn't seem to work.
             } else {
-                $("#owner-info").html('<b>UNCLAIMED</b>'); 
-                $("#owner-info").attr("color",'rgb(200,200,200)')    //NOTE: this doesn't seem to work.
+                $("#owner-info").html('<b>UNCLAIMED</b>');
+                $("#owner-info").attr("color", 'rgb(200,200,200)');   //NOTE: this doesn't seem to work.
             }
         }
-        
-        $("#body-info").html(infoHTML);
+        if (bodyName.toLocaleLowerCase().search("player") !== -1) {
+            $("#player-body-info").html(infoHTML);
+            $("#player-body-info-container").show();
+        }
+        else {
+            $("#body-info").html(infoHTML);
+            $("#body-info-container").show();
+        }
 
-        $("#body-info-container").show();
-        
         selectedBody = bodyName;
+
 
         console.log("\t" + bodyName);
         console.log("\tmesh: ");
@@ -420,6 +432,8 @@ function RSimulate(opts) {
         //
 
         window.addEventListener( 'resize', onWindowResize, false );
+
+        initUI();
     }
 
     function initOwners() {
@@ -567,7 +581,8 @@ function RSimulate(opts) {
               width: 2,
               object_size: i < NUM_BIG_PARTICLES ? 50 : 15, //1.5,
               jed: jed,
-              particle_geometry: particle_system_geometry // will add itself to this geometry
+              particle_geometry: particle_system_geometry, // will add itself to this geometry
+              name: "asteroid"
             }, useBigParticles);
 
             var material = new THREE.ShaderMaterial({
@@ -922,26 +937,28 @@ function RSimulate(opts) {
         }
     }
 
-    function addPlayerObject(object3D) {
+    function addTestObject() {
+        /*var ephemerisExample = {"sigma_tp": 2.5317e-05, "rms": 0.53248, "epoch_mjd": 56800.0, "ad": 1.415843073989676,
+            "producer": "Otto Matic", "closeness": 5790.655335318724, "prov_des": "1999 JU3", "tp": 2456850.0304208165,
+            "saved": -79283961669.67264, "id": "a0162173", "moid_ld": 0.0453616552, "neo": "Y",
+            "profit": 34519804034.69253, "sigma_q": 3.7997e-08, "sigma_w": 4.4991e-05, "epoch": 2456800.5,
+            "per": 473.8619484817272, "n_obs_used": 622.0, "data_arc": 9567.0, "sigma_i": 2.7705e-06,
+            "score": 289.55276676593616, "per_y": 1.29736330864265, "sigma_n": 3.1303e-09, "epoch_cal": 20140523.0,
+            "orbit_id": "JPL 101", "sigma_a": 3.2675e-09, "sigma_om": 4.0452e-05, "price": 95016780624.57524,
+            "sigma_e": 3.2029e-08, "condition_code": 0.0, "a": 1.189512305967212, "n": 0.7597149362877829,
+            "last_obs": "2012-06-23", "H": 19.2, "pha": "Y", "spkid": 2162173.0, "tp_cal": 20140711.5304208,
+            "first_obs": "1986-04-14", "moid": 0.00011656, "spec_B": "Cg", "ma": 322.3709995051157, "pdes": 162173.0,
+            "class": "APO", "rot_per": 7.627, "t_jup": 5.308, "om": 251.6143045194225, "e": 0.1902719012548845,
+            "i": 5.883964051447641, "spec": "Cg", "q": 0.963181537944749, "w": 211.4370351822665,
+            "sigma_ma": 1.9187e-05, "dv": 4.663854, "est_diameter": 0.4959973445799733};*/
 
-    }
+        var ephemeris = {"per": 473.8619484817272, "e": 0.302719012548845};
 
-    function removePlayerObject(object3D) {
-
-    }
-
-    function initUI() {
-        addButt = document.getElementById('add-object-button');
-        removeButt = document.getElementById('remove-object-button');
-        addButt.addEventListener('click', addPlayerObject(), false);
-        removeButt.addEventListener('click', removePlayerObject(), false);
-
-        // testing
-        var orbit = new Orbit3D(Ephemeris.earth,
+        var orbit = new Orbit3D(ephemeris,
             {
-                color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
+                color: 0xff0000, width: 1, jed: jed, object_size: 1.7,
                 texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-                display_color: new THREE.Color(0x009ACD),
+                display_color: new THREE.Color(0xff0000),
                 particle_geometry: particle_system_geometry,
                 name: 'Player Terraformed Planet ' + playerObjects.length
             }, !using_webgl);
@@ -949,22 +966,22 @@ function RSimulate(opts) {
         //var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
         var earthMesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg');
 
-        addPlanet(earth, earthMesh);
+        addPlayerObject(orbit, earthMesh);
         playerObjects.push({mesh: earthMesh, orbit: orbit});
     }
 
-    function drawUI() {
-
+    function initUI() {
+        //addButt = document.getElementById('add-object-button');
+        //addButt.addEventListener('click', addTestObject(), false);
+        removeButt.addEventListener('click', removePlayerBody, false);
+        addTestObject();
     }
-
 
     function animate() {
         requestAnimationFrame(animate);
 
         update(clock.getDelta());
         animateSun();
-
-        drawUI();
 
         render();
         stats.update();
