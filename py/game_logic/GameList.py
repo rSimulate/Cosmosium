@@ -47,7 +47,7 @@ class GameList(object):
         gObj.addPlayer(uObj)
         uObj.setGame(gObj)
             
-    def __inGame(self,user):
+    def _inGame(self,user):
         # returns game obj if user is in a game, else returns false
         for game in self.games:
             if game.inGame(user.name):

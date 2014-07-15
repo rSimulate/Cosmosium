@@ -2,6 +2,7 @@ from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
 from bottle import template
 from py.getAsteroid import byName
+from app import GAMES
 
 CHUNKS = chunks()
 
@@ -56,6 +57,44 @@ def researchResponder(user, ws, researchType):
             user=user)
     message+='"}'
     ws.send(message)
+
+def playerObjectResponder(user, ws, data):
+    """
+
+    :param user: the requesting user
+    :param ws:
+    :param data: data as a string
+    :return:
+    """
+    game = GAMES.__inGame(user)
+    if game is not None:
+        pData = data  # TODO: Parse data
+        cmdName = pData.name
+        objectType = pData.type
+        uuid = pData.uuid
+
+        if cmdName == 'create':
+            # TODO: Check and see if there's enough resources to grant the request
+
+            uuid = game.addPlayerObject(objectType, pData, user)
+            message = '{"cmd":"pObjCreate","data":"'
+            message += uuid  # TODO: Is it better to send back the object?
+            message += '"}'
+            ws.send(message)
+
+        elif cmdName == 'click':
+            message = '{"cmd":"pObjRequest","data":"'
+            message += str(game.getPlayerObject(uuid))
+            message += '"}'
+            ws.send(message)
+
+        elif cmdName == 'destroy':
+            result = game.removePlayerObject(uuid, user)
+            message = '{"cmd":"pObjDestroyRequest","data":"'
+            message += str(result)
+            message += '"}'
+            ws.send(message)
+            # TODO: Send back success along with possible recovered res from destroyed object
     
 def parse(cmd, data, user, websock, OOIs):
     # takes appropriate action on the given command and data string
@@ -65,5 +104,7 @@ def parse(cmd, data, user, websock, OOIs):
         registerUserConnection(user, websock)
     elif cmd == 'research':
         researchResponder(user, websock, data)
+    elif cmd == 'playerObject':
+        playerObjectResponder(user, websock, data)
     else:
         print "UNKNOWN CLIENT MESSAGE: cmd=",cmd,"data=",data," from user ",user
