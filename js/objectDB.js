@@ -1,12 +1,15 @@
 
 var rel = $('script[src*=objectDB]').attr('src');
 var models = list();
-models.append(rel.replace('objectDB.js', "../models/Magellan_16.dae"));
+
+var magellan = {model: 'magellan', path: rel.replace('objectDB.js', "../models/Magellan_16.dae")};
+
+models.append(magellan);
 
 function getPathForModel(model) {
-    for (var m in models) {
-        if (m == model) {
-            return m;
+    for (var obj in models) {
+        if (obj.model == model) {
+            return obj.path;
         }
     }
 
