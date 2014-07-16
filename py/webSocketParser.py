@@ -3,6 +3,7 @@ from py.page_maker.Settings import Settings
 from bottle import template
 from py.getAsteroid import byName
 from app import GAMES
+from ast import literal_eval
 
 CHUNKS = chunks()
 
@@ -68,17 +69,18 @@ def playerObjectResponder(user, ws, data):
     """
     game = GAMES._inGame(user)
     if game is not None:
-        pData = data  # TODO: Parse data
-        cmdName = pData.name
-        objectType = pData.type
-        uuid = pData.uuid
+        pData = literal_eval(data)  # TODO: Parse data
+        cmdName = pData['cmd']
+        objectType = pData['type']
+        model = pData['model']
+        info = pData['data']
+        uuid = pData['uuid']
 
         if cmdName == 'create':
             # TODO: Check and see if there's enough resources to grant the request
 
-            obj = game.addPlayerObject(objectType, pData, user)
             message = '{"cmd":"pObjCreate","data":"'
-            message += str(obj)
+            message += str(game.addPlayerObject(objectType, model, info, user))
             message += '"}'
             ws.send(message)
 

@@ -137,6 +137,12 @@ function RSimulate(opts) {
 
 		return bodyMesh;
 	}
+
+    this.addBlenderPlayerObjectMesh = function (daePath, orbit) {
+        var mesh = THREE.ColladaLoader(daePath);
+        addPlayerObject(orbit, mesh);
+        playerObjects.push({mesh: mesh, orbit: orbit});
+    }
 	
     function addPlanet(orbit, planetmesh) {
 		addBody( scene, "planet", orbit, planetmesh, true );
@@ -963,11 +969,8 @@ function RSimulate(opts) {
                 name: 'Player Terraformed Planet ' + playerObjects.length
             }, !using_webgl);
 
-        //var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-        var earthMesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg');
-
-        addPlayerObject(orbit, earthMesh);
-        playerObjects.push({mesh: earthMesh, orbit: orbit});
+        ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'probe', " +
+                                        "'model': 'magellan', 'data': None}"));
     }
 
     function initUI() {
