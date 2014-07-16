@@ -66,7 +66,7 @@ def playerObjectResponder(user, ws, data):
     :param data: data as a string
     :return:
     """
-    game = GAMES.__inGame(user)
+    game = GAMES._inGame(user)
     if game is not None:
         pData = data  # TODO: Parse data
         cmdName = pData.name
@@ -76,9 +76,9 @@ def playerObjectResponder(user, ws, data):
         if cmdName == 'create':
             # TODO: Check and see if there's enough resources to grant the request
 
-            uuid = game.addPlayerObject(objectType, pData, user)
+            obj = game.addPlayerObject(objectType, pData, user)
             message = '{"cmd":"pObjCreate","data":"'
-            message += uuid  # TODO: Is it better to send back the object?
+            message += str(obj)
             message += '"}'
             ws.send(message)
 

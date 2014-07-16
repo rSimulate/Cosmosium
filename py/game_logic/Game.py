@@ -45,11 +45,11 @@ class Game(object):
     def addPlayerObject(self, objectType, data, ownerName):
         """
         Adds a player object to the instance
-        :return: The generated UUID of the object as a string
+        :return: The object as a dict
         """
-        pUuid = uuid.uuid4()
-        self.playerObjects.append({'owner': ownerName, 'objectId': pUuid, 'type': objectType, 'data': data})
-        return pUuid
+        obj = {'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'data': data}
+        self.playerObjects.append(obj)
+        return obj
 
     def getPlayerObject(self, uuid):
         """

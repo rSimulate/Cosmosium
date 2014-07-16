@@ -70,13 +70,3 @@ class GameList(object):
         selectedGame.addPlayer(user)
         user.setGame(selectedGame)
         return selectedGame
-        
-    # DEPRECIATED
-    def inGame(self,userName):
-        # returns user obj if user is in a game, else returns false
-        for game in self.games:
-            user = game.inGame(userName)
-            if user:
-                return user, game
-        else:
-            return False
