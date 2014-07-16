@@ -865,7 +865,7 @@ function RSimulate(opts) {
     }
 
     function initLights() {
-        light = new THREE.PointLight( 0xffffff, 2, 10000);
+        var light = new THREE.PointLight( 0xffffff, 2, 10000);
         light.position.set(0,0,0);  // sun
         scene.add(light);
 
@@ -944,33 +944,21 @@ function RSimulate(opts) {
     }
 
     function addTestObject() {
-        /*var ephemerisExample = {"sigma_tp": 2.5317e-05, "rms": 0.53248, "epoch_mjd": 56800.0, "ad": 1.415843073989676,
-            "producer": "Otto Matic", "closeness": 5790.655335318724, "prov_des": "1999 JU3", "tp": 2456850.0304208165,
-            "saved": -79283961669.67264, "id": "a0162173", "moid_ld": 0.0453616552, "neo": "Y",
-            "profit": 34519804034.69253, "sigma_q": 3.7997e-08, "sigma_w": 4.4991e-05, "epoch": 2456800.5,
-            "per": 473.8619484817272, "n_obs_used": 622.0, "data_arc": 9567.0, "sigma_i": 2.7705e-06,
-            "score": 289.55276676593616, "per_y": 1.29736330864265, "sigma_n": 3.1303e-09, "epoch_cal": 20140523.0,
-            "orbit_id": "JPL 101", "sigma_a": 3.2675e-09, "sigma_om": 4.0452e-05, "price": 95016780624.57524,
-            "sigma_e": 3.2029e-08, "condition_code": 0.0, "a": 1.189512305967212, "n": 0.7597149362877829,
-            "last_obs": "2012-06-23", "H": 19.2, "pha": "Y", "spkid": 2162173.0, "tp_cal": 20140711.5304208,
-            "first_obs": "1986-04-14", "moid": 0.00011656, "spec_B": "Cg", "ma": 322.3709995051157, "pdes": 162173.0,
-            "class": "APO", "rot_per": 7.627, "t_jup": 5.308, "om": 251.6143045194225, "e": 0.1902719012548845,
-            "i": 5.883964051447641, "spec": "Cg", "q": 0.963181537944749, "w": 211.4370351822665,
-            "sigma_ma": 1.9187e-05, "dv": 4.663854, "est_diameter": 0.4959973445799733};*/
-
-        var ephemeris = {"per": 473.8619484817272, "e": 0.302719012548845};
-
-        var orbit = new Orbit3D(ephemeris,
-            {
-                color: 0xff0000, width: 1, jed: jed, object_size: 1.7,
-                texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-                display_color: new THREE.Color(0xff0000),
-                particle_geometry: particle_system_geometry,
-                name: 'Player Terraformed Planet ' + playerObjects.length
-            }, !using_webgl);
-
+        // NOTE: send ephemeris without a name; the server will assign one
+        var ephemeris = {
+            ma: -2.47311027,
+            epoch: 2451545.0,
+            a:1.00000261,
+            e: 0.01671123,
+            i: 0.00001531,
+            w_bar: 102.93768193,
+            w: 102.93768193,
+            L: 100.46457166,
+            om: 0,
+            P: 365.256
+        };
         ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'probe', " +
-                                        "'model': 'magellan', 'data': None}"));
+                                        "'model': 'magellan', 'data': "+JSON.stringify(ephemeris)));
     }
 
     function initUI() {

@@ -20,7 +20,7 @@
     this.particle_geometry = opts.particle_geometry;
     this.bigParticle = bigParticle;
 
-    this.CreateParticle(opts.jed, opts.texture_path);
+    this.CreateParticle(opts.jed);
   };
 
   Orbit3D.prototype.CreateOrbit = function(jed) {
@@ -52,7 +52,7 @@
     return line;
   }
 
-  Orbit3D.prototype.CreateParticle = function(jed, texture_path) {
+  Orbit3D.prototype.CreateParticle = function(jed) {
     if (!this.bigParticle && this.particle_geometry) {
       // dummy position for particle geometry
       var tmp_vec = new THREE.Vector3(0,0,0);

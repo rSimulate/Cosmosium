@@ -42,12 +42,14 @@ class Game(object):
         # adds object to track to OOIs
         self.OOIs.addObject(object,ownerName)
 
-    def addPlayerObject(self, objectType, model, data, ownerName):
+    def addPlayerObject(self, objectType, model, orbit, ownerName):
         """
         Adds a player object to the instance
         :return: The object as a dict
         """
-        obj = {'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'data': data}
+        pUuid = uuid.uuid4()
+        orbit['full_name'] = str(pUuid)
+        obj = {'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'orbit': data}
         self.playerObjects.append(obj)
         return obj
 

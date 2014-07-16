@@ -71,26 +71,28 @@ def playerObjectResponder(user, ws, data):
     if game is not None:
         pData = literal_eval(data)  # TODO: Parse data
         cmdName = pData['cmd']
-        objectType = pData['type']
-        model = pData['model']
-        info = pData['data']
-        uuid = pData['uuid']
 
         if cmdName == 'create':
             # TODO: Check and see if there's enough resources to grant the request
 
+            objectType = pData['type']
+            model = pData['model']
+            orbit = literal_eval(pData['data'])
+
             message = '{"cmd":"pObjCreate","data":"'
-            message += str(game.addPlayerObject(objectType, model, info, user))
+            message += str(game.addPlayerObject(objectType, model, orbit, user))
             message += '"}'
             ws.send(message)
 
         elif cmdName == 'click':
+            uuid = pData['uuid']
             message = '{"cmd":"pObjRequest","data":"'
             message += str(game.getPlayerObject(uuid))
             message += '"}'
             ws.send(message)
 
         elif cmdName == 'destroy':
+            uuid = pData['uuid']
             result = game.removePlayerObject(uuid, user)
             message = '{"cmd":"pObjDestroyRequest","data":"'
             message += str(result)
