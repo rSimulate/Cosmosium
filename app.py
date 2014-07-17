@@ -51,18 +51,19 @@ from geventwebsocket import WebSocketError
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 import py.webSocketParser as webSocketParser
+from py.webSocketMessenger import createMessage
 
 # Template Components
 from py.page_maker.chunks import chunks # global chunks
 from py.page_maker.Settings import Settings
 
 # ui handlers:
-from py.query_parsers.getUser import getProfile, demoIDs
+from py.query_parsers.getUser import demoIDs
 # game logic:
-from py.game_logic.user.User import User
 from py.game_logic.GameList import GameList
 from py.game_logic.UserList import UserList
 
+import py.query_parsers.asterQuery as asterQuery
 from py.getAsteroid import asterankAPI
 
 #=====================================#
@@ -287,20 +288,13 @@ def asteroidSearch():
     if _user == None:
         redirect('/userLogin')
     else:
-        queee = Query(request.query)
+        # TODO: all of this:
+        queee = asterQuery(request.query)
         queee.conditionToUser(_user)
+        queee.performSearch()
+        asteroids = queee.augmentResults()
+        _user.ws.send(createMessage('addMPOs', asteroids))
 
-        group = queee.group
-        if group == 'mainBelt':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/MainBelt.js"))
-        elif group == 'NEOs':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB='db/NEOs.js'))
-        elif group == 'kuiper':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/KuiperBelt.js"))
-        elif group == 'test':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/test_asteroids.js"))
-        else:
-            raise ValueError('unknown asteroid group request "'+str(group)+'"')
 
 
 @app.route('/systemView')
