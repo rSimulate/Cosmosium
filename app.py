@@ -287,7 +287,10 @@ def asteroidSearch():
     if _user == None:
         redirect('/userLogin')
     else:
-        group = request.query.group
+        queee = Query(request.query)
+        queee.conditionToUser(_user)
+
+        group = queee.group
         if group == 'mainBelt':
             return template('tpl/searchView', asteroidDB="db/MainBelt.js")
         elif group == 'NEOs':
