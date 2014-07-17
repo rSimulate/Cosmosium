@@ -112,6 +112,8 @@ function parsePlayerObject(objectStr) {
             name: name
         }, !using_webgl);
 
+    console.log("received player object");
+
     return {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit};
 }
 

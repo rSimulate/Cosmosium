@@ -35,7 +35,9 @@ class Game(object):
         return GAME_LEN*60/GAME_YEAR_SPAN  # real-time sec / 1 game_year
         
     def addPlayer(self, player):
+        print "game instance is adding player " + player.name
         # adds a player to the current game
+        player.setGame(self)
         self.players.append(player)
         
     def addObject(self, object, ownerName=None):
@@ -49,7 +51,8 @@ class Game(object):
         """
         pUuid = uuid.uuid4()
         orbit['full_name'] = str(pUuid)
-        obj = {'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'orbit': data}
+        obj = {'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'orbit': orbit}
+        print "added ", obj['model'], " for owner ", obj['owner'], " with objectId ", obj['objectId']
         self.playerObjects.append(obj)
         return obj
 
@@ -88,10 +91,12 @@ class Game(object):
         return False
 
     def inGame(self, uName):
-        # returns user obj if user is in game, else returns false
+        # returns true if user is in game, else returns false
+        print str(self.players)
         for user in self.players:
+
             if user.name == uName:
-                return user
+                return True
         else:
             return False
         

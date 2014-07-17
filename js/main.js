@@ -945,6 +945,7 @@ function RSimulate(opts) {
 
     function addTestObject() {
         // NOTE: send ephemeris without a name; the server will assign one
+        var cmd = 'create';
         var ephemeris = {
             ma: -2.47311027,
             epoch: 2451545.0,
@@ -957,14 +958,20 @@ function RSimulate(opts) {
             om: 0,
             P: 365.256
         };
+        var type = 'probe';
+        var model = 'magellan';
+        var objectId = 'None';
+        var data = {cmd: cmd, type: type, model: model, objectId: objectId, orbit: ephemeris};
+        var stringify = JSON.stringify(data).replace(/\"+/g, "\'");
+
         ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'probe', " +
-                                        "'model': 'magellan', 'data': "+JSON.stringify(ephemeris)));
+                                        "'model': 'magellan', 'data': "+stringify+'}'));
     }
 
     function initUI() {
         //addButt = document.getElementById('add-object-button');
         //addButt.addEventListener('click', addTestObject(), false);
-        removeButt.addEventListener('click', removePlayerBody, false);
+        //removeButt.addEventListener('click', removePlayerBody, false);
         addTestObject();
     }
 
@@ -1015,10 +1022,15 @@ if (SHOWING_ASTEROID_CLAIM){
     }
     claimButt.addEventListener('click', claimButt_onClick, false);
 }
+
+var rSimulate;
     
 $(document).ready(function(){
     $("#body-info-container").hide();
 });
 
-var rSimulate = new RSimulate({});
+// called once the webSocket makes a complete connection in webSocketSetup.js.tpl
+function initrSimulate() {
+    rSimulate = new RSimulate({});
+}
 

@@ -2,7 +2,6 @@ from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
 from bottle import template
 from py.getAsteroid import byName
-from app import GAMES
 from ast import literal_eval
 
 CHUNKS = chunks()
@@ -67,21 +66,32 @@ def playerObjectResponder(user, ws, data):
     :param data: data as a string
     :return:
     """
-    game = GAMES._inGame(user)
+    # from app import GAMES
+    game = user.game
+    print "SAFDELKHSDF: " + str(game)
     if game is not None:
-        pData = literal_eval(data)  # TODO: Parse data
+        # Data Example
+        # {'data': {'cmd': 'create', 'orbit': {'a': 1.00000261, 'om': 0, 'e': 0.01671123, 'i': 1.531e-05,
+        # 'L': 100.46457166, 'P': 365.256, 'epoch': 2451545, 'w': 102.93768193, 'w_bar': 102.93768193,
+        # 'ma': -2.47311027}}, 'model': 'magellan', 'cmd': 'pObjCreate', 'type': 'probe', 'objectId': None}
+        print "game is not none"
+        data = literal_eval(data)
+
+        pData = data['data']
         cmdName = pData['cmd']
-
+        print cmdName
         if cmdName == 'create':
+            print "command name is create"
             # TODO: Check and see if there's enough resources to grant the request
-
+            print str(pData)
             objectType = pData['type']
             model = pData['model']
-            orbit = literal_eval(pData['data'])
+            orbit = pData['orbit']
 
             message = '{"cmd":"pObjCreate","data":"'
             message += str(game.addPlayerObject(objectType, model, orbit, user))
             message += '"}'
+            print(message)
             ws.send(message)
 
         elif cmdName == 'click':
