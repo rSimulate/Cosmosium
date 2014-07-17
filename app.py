@@ -292,13 +292,13 @@ def asteroidSearch():
 
         group = queee.group
         if group == 'mainBelt':
-            return template('tpl/searchView', asteroidDB="db/MainBelt.js")
+            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/MainBelt.js"))
         elif group == 'NEOs':
-            return template('tpl/searchView', asteroidDB='db/NEOs.js')
+            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB='db/NEOs.js'))
         elif group == 'kuiper':
-            return template('tpl/searchView', asteroidDB="db/KuiperBelt.js")
+            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/KuiperBelt.js"))
         elif group == 'test':
-            return template('tpl/searchView', asteroidDB="db/test_asteroids.js")
+            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/test_asteroids.js"))
         else:
             raise ValueError('unknown asteroid group request "'+str(group)+'"')
 

@@ -42,15 +42,19 @@
 
    <body>
 
-        % include('tpl/webGL_scene')
-        
+        % include('tpl/page_chunks/webGL_shaders')
+
         <!-- html for asteroid detail & claim sidebar -->
+        <div id="container"></div>
+
         <div id="body-info-container">
             <br>
             <br>
             <div id="owner-info"><b>UNCLAIMED</b></div>
             <div id="body-info">foo</div>
         </div>
+
+       % include('tpl/page_chunks/webGL_js')
 
     </body>
 </html>
