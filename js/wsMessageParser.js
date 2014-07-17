@@ -11,9 +11,11 @@ function updateResources(newHTML){
 function parsePlayerObject(objectStr) {
     //{'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'data': data}
     // clean string and parse everything but data. NOTE: Data should be the last item in the dict
-    var str = objectStr.replace(/([\:\,\{\}])+/g, "");
+    var str = objectStr.replace(/([\:\,\'\{\}\(\)])+/g, "");
+    str = str.replace(/(UUID)+/g, "");
+    str = str.replace(/([\(\)])+/g, "");
     var split = str.split(" ");
-    var owner, objectId, type, model, data, orbitData;
+    var owner, objectId, type, model, orbitData;
     for (var ii = 0; ii < split.length; ii++) {
         var s = split[ii];
         var next = ii+1;
@@ -29,34 +31,24 @@ function parsePlayerObject(objectStr) {
         else if (s == 'model') {
             model = split[next];
         }
-        else if (s == 'data') {
-            data = split.slice(next);
-            break;
+        else if (s == 'orbit') {
+            orbitData = split.slice(next, next+22);
         }
     }
 
     // info check
     if ((owner == undefined) || (objectId == undefined) || (type == undefined)
-                             || (model == undefined) || (data == undefined)) {
+                             || (model == undefined) || (orbitData == undefined)) {
         console.log("ERROR parsing player object data returned from server. objectId: " + objectId);
+        console.log("owner " + owner + " type " + type + " model " + model + " orbit " + orbitData);
         return null;
-    }
-
-    //parse object data. NOTE: orbit should be the last item in the dict
-    for (var u = 0; u < data.length; u++) {
-        var st = data[u];
-        var nxt = u+1;
-        if (st == 'orbit') {
-            orbitData = data.slice(nxt);
-            break;
-        }
     }
 
     // parse orbit
     var ma, epoch, a, e, i, w_bar, w, L, om, P, full_name;
     for (var q = 0; q < orbitData.length; q++) {
         var stri = orbitData[q];
-        var n = u+1;
+        var n = q+1;
         if (stri == 'ma') {
             ma = orbitData[n];
         }
@@ -84,20 +76,22 @@ function parsePlayerObject(objectStr) {
         else if (stri == 'om') {
             om = orbitData[n];
         }
-        else if (stri == 'per') {
+        else if (stri == 'P') {
             P = orbitData[n];
         }
-        else if (stri == 'name') {
+        else if (stri == 'full_name') {
             full_name = orbitData[n];
         }
     }
 
     // data check
-    if ((orbitData == undefined) || (P == undefined) || (e == undefined) || (full_name == undefined)
+    if ((P == undefined) || (e == undefined) || (full_name == undefined)
             || (ma == undefined) || (a == undefined) || (i == undefined) || (w_bar == undefined)
             || (w == undefined) || (L == undefined) || (om == undefined)
             || (P == undefined)) {
         console.log("ERROR parsing player object data returned from server. objectId: " + objectId);
+        console.log("a " + a + " om " + om + " full_name " + full_name + " i " + i + " L " + L + " P " + P +
+                    " epoch " + epoch + " w " + w + " w_bar " + w_bar + " ma " + ma);
         return null;
     }
 
@@ -109,7 +103,7 @@ function parsePlayerObject(objectStr) {
             color: 0xff0000, width: 1, jed: rSimulate.jed, object_size: 1.7,
             display_color: new THREE.Color(0xff0000),
             particle_geometry: particle_system_geometry,
-            name: name
+            name: full_name
         }, !using_webgl);
 
     console.log("received player object");
@@ -137,6 +131,7 @@ function parseMessage(m) {
     } else if (cmd == "pObjCreate") {
         var object = parsePlayerObject(data);
         if (object != null) {
+            console.log(object.model);
             var path = getPathForModel(object.model);
             if (path != null) {
                 rSimulate.addBlenderPlayerObjectMesh(path, object.orbit);

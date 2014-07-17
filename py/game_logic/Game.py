@@ -50,9 +50,12 @@ class Game(object):
         :return: The object as a dict
         """
         pUuid = uuid.uuid4()
+        # translate unicode to ascii for net transfer
+        name = ''.join(map(lambda x: x.encode('ascii'), ownerName))
+
         orbit['full_name'] = str(pUuid)
-        obj = {'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'orbit': orbit}
-        print "added ", obj['model'], " for owner ", obj['owner'], " with objectId ", obj['objectId']
+        obj = {'owner': name, 'objectId': pUuid, 'type': objectType, 'model': model, 'orbit': orbit}
+        print "added player object ", obj['model'], " for owner ", obj['owner'], " with objectId ", obj['objectId']
         self.playerObjects.append(obj)
         return obj
 
@@ -92,7 +95,6 @@ class Game(object):
 
     def inGame(self, uName):
         # returns true if user is in game, else returns false
-        print str(self.players)
         for user in self.players:
 
             if user.name == uName:

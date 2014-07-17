@@ -139,10 +139,21 @@ function RSimulate(opts) {
 	}
 
     this.addBlenderPlayerObjectMesh = function (daePath, orbit) {
-        var mesh = THREE.ColladaLoader(daePath);
-        addPlayerObject(orbit, mesh);
-        playerObjects.push({mesh: mesh, orbit: orbit});
-    }
+        var loader = new THREE.ColladaLoader();
+        loader.options.convertUpAxis = true;
+
+        // If you had animations, you would add to the second argument function below
+        var mesh;
+        loader.load(daePath, function (collada) {
+            mesh = collada.scene;
+            mesh.scale.x = mesh.scale.y = mesh.scale.z = 1000;
+        });
+        if (mesh != undefined) {
+            addPlayerObject(orbit, mesh);
+            playerObjects.push({mesh: mesh, orbit: orbit});
+        }
+        else {console.log("ERROR: Parsing blender model failed");}
+    };
 	
     function addPlanet(orbit, planetmesh) {
 		addBody( scene, "planet", orbit, planetmesh, true );

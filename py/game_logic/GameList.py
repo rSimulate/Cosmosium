@@ -47,7 +47,6 @@ class GameList(object):
             
     def _inGame(self,user):
         # returns game obj if user is in a game, else returns None
-        print str(self.games)
         for game in self.games:
             if game.inGame(user.name):
                 return game

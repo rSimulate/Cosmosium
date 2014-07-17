@@ -66,47 +66,45 @@ def playerObjectResponder(user, ws, data):
     :param data: data as a string
     :return:
     """
-    # from app import GAMES
     game = user.game
-    print "SAFDELKHSDF: " + str(game)
     if game is not None:
         # Data Example
         # {'data': {'cmd': 'create', 'orbit': {'a': 1.00000261, 'om': 0, 'e': 0.01671123, 'i': 1.531e-05,
         # 'L': 100.46457166, 'P': 365.256, 'epoch': 2451545, 'w': 102.93768193, 'w_bar': 102.93768193,
         # 'ma': -2.47311027}}, 'model': 'magellan', 'cmd': 'pObjCreate', 'type': 'probe', 'objectId': None}
-        print "game is not none"
         data = literal_eval(data)
 
         pData = data['data']
         cmdName = pData['cmd']
-        print cmdName
         if cmdName == 'create':
-            print "command name is create"
             # TODO: Check and see if there's enough resources to grant the request
-            print str(pData)
             objectType = pData['type']
             model = pData['model']
             orbit = pData['orbit']
 
             message = '{"cmd":"pObjCreate","data":"'
-            message += str(game.addPlayerObject(objectType, model, orbit, user))
+            message += str(game.addPlayerObject(objectType, model, orbit, user.name))
             message += '"}'
-            print(message)
+
             ws.send(message)
 
         elif cmdName == 'click':
             uuid = pData['uuid']
+
             message = '{"cmd":"pObjRequest","data":"'
             message += str(game.getPlayerObject(uuid))
             message += '"}'
+
             ws.send(message)
 
         elif cmdName == 'destroy':
             uuid = pData['uuid']
             result = game.removePlayerObject(uuid, user)
+
             message = '{"cmd":"pObjDestroyRequest","data":"'
             message += str(result)
             message += '"}'
+
             ws.send(message)
             # TODO: Send back success along with possible recovered res from destroyed object
     
