@@ -103,6 +103,9 @@ def img_static(filename):
 def db_static(filename):
     return static_file(filename, root='./db/')
 
+@app.get('/favicon.ico')
+def get_favicon():
+    return static_file('/img/favicon.ico')
 
 #=====================================#
 #           dynamic js files          #
