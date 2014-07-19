@@ -11,6 +11,7 @@ GAME_LEN = 60 # max length of game in minutes
 GAME_YEAR_SPAN = 200 # years spanned by a max-len game
 START_YEAR = 1969 # starting year of game
 
+
 class Game(object):
     def __init__(self):
         self.OOIs = OOIs()
@@ -22,7 +23,7 @@ class Game(object):
             'ma': -2.47311027,
             'epoch': 2451545.0,
             'a': 2.00000261,
-            'e': .02671123,
+            'e': 0.02671123,
             'i': 0.00001531,
             'w_bar': 102.93768193,
             'w': 102.93768193,
@@ -79,9 +80,9 @@ class Game(object):
         # translate unicode to ascii for net transfer
         name = ''.join(map(lambda x: x.encode('ascii'), ownerName))
 
-        orbit['full_name'] = str(pUuid)
+        orbit['full_name'] = name + "'s_" + model + "_" + objectType
         obj = {'owner': name, 'objectId': pUuid, 'type': objectType, 'model': model, 'orbit': orbit}
-        print "added player object ", obj['model'], " for owner ", obj['owner'], " with objectId ", obj['objectId']
+        print "added player object", obj['model'], "for owner", obj['owner'], "with objectId", obj['objectId']
         self.playerObjects.append(obj)
         return obj
 

@@ -24,8 +24,6 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var sun;
 
     //var addButt = document.getElementById('add-object-button');
-    // TODO: removeButt element is null on run-time when trying to attach listener
-    var removeButt = document.getElementById('remove-object-button');
     var claimButt = document.getElementById('claim-asteroid-button');
     
     var SHOWING_ASTEROID_OWNERSHIP = (typeof owners === "object");
@@ -57,13 +55,30 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 function RSimulate(opts) {
 
-  
+
 
     function addBody( parent, indexLabel, orbit, mesh, shouldAlwaysShowEllipse ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
         orbits.push(orbit);
         meshes.push(mesh);
         mapFromMeshIdToBodyId[mesh.id] = nextEntityIndex;
+
+        // recursively add children to root body id
+        var matchChildren = function(child) {
+            mapFromMeshIdToBodyId[child.id] = nextEntityIndex;
+            if (child.children.length > 0) {
+                for (var i = 0; i < child.children.length; i++) {
+                    matchChildren(child.children[i]);
+                }
+            }
+        };
+
+        if (mesh.children.length > 0) {
+            for  (var i = 0; i < mesh.children.length; i++) {
+               matchChildren(mesh.children[i]);
+            }
+        }
+
         parent.add(mesh);
 
         var ellipse = orbit.getEllipse();
@@ -80,9 +95,10 @@ function RSimulate(opts) {
         
         nextEntityIndex++;
     }
-    function removePlayerBody() {
+    function removePlayerBody(e) {
+        console.log("Called for removal of bodyID" + selectedBody);
         removeBody(undefined, undefined, undefined);
-    }
+    };
 
     function removeBody (parentScene, indexLabel, playerObject) {
         if (indexLabel == undefined) { indexLabel = "playerObject"; }
@@ -138,7 +154,6 @@ function RSimulate(opts) {
 	}
 
     this.addBlenderPlayerObjectMesh = function (daePath, orbit) {
-        console.log(daePath);
         var loader = new THREE.ColladaLoader();
         loader.options.convertUpAxis = true;
 
@@ -196,8 +211,7 @@ function RSimulate(opts) {
 
         }
 
-
-        var intersects = raycaster.intersectObjects( meshes );
+        var intersects = raycaster.intersectObjects( meshes, true );
 
         if ( intersects.length > 0 ) {
 
@@ -212,7 +226,6 @@ function RSimulate(opts) {
                 plane.lookAt( camera.position );
 
             }
-
             container.style.cursor = 'pointer';
 
         } else {
@@ -255,8 +268,6 @@ function RSimulate(opts) {
     }
 
     function onBodySelected(bodyId) {
-        console.log("onBodySelected(" + bodyId + ")");
-
         hideAllAsteroidEllipses();
 
         var orbit = orbits[bodyId];
@@ -265,8 +276,6 @@ function RSimulate(opts) {
         ellipse.visible = true;
         var bodyName = "";
 
-        console.log("\torbit: ");
-        console.log(orbit);
         if (orbit && orbit.eph && orbit.eph.full_name) {
             bodyName = orbit.eph.full_name;
         } else if (orbit && orbit.name) {
@@ -335,10 +344,9 @@ function RSimulate(opts) {
             }
             infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
         }
-
         // make this display the owner name...
         if (SHOWING_ASTEROID_OWNERSHIP) {
-
+            // TODO: May have to fix this due to the addition of player objects
             var ownerName = owners[bodyId - 12]; // asteroid[i] is owned by owner[i], there are 12 non-asteroid objects in the system...
             if (ownerName) {
                 var ownerColor = mapFromOwnerNameToColor[ownerName];
@@ -349,22 +357,19 @@ function RSimulate(opts) {
                 $("#owner-info").html('<b>UNCLAIMED</b>');
                 $("#owner-info").attr("color", 'rgb(200,200,200)');   //NOTE: this doesn't seem to work.
             }
+
+            console.log(playerObjects[0].mesh.id);
+            for (var i = 0; i < playerObjects.length; i++) {
+                console.log(playerObjects[i].mesh.id);
+                if (mapFromMeshIdToBodyId[playerObjects[i].mesh.id] == bodyId) {
+                    $('remove-object-button').show();
+                }
+            }
         }
-        if (bodyName.toLocaleLowerCase().search("player") !== -1) {
-            $("#player-body-info").html(infoHTML);
-            $("#player-body-info-container").show();
-        }
-        else {
-            $("#body-info").html(infoHTML);
-            $("#body-info-container").show();
-        }
+        $("#body-info").html(infoHTML);
+        $("#body-info-container").show();
 
         selectedBody = bodyName;
-
-
-        console.log("\t" + bodyName);
-        console.log("\tmesh: ");
-        console.log(mesh);
     }
 
     function onDocumentMouseDown( event ) {
@@ -375,7 +380,7 @@ function RSimulate(opts) {
 
         var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
 
-        var intersects = raycaster.intersectObjects( meshes );
+        var intersects = raycaster.intersectObjects( meshes, true );
 
         if ( intersects.length > 0 ) {
 
@@ -421,6 +426,7 @@ function RSimulate(opts) {
 
     function onBodyDeselected() {
         $("#body-info-container").hide();
+        $('remove-object-button').hide();
     }
 
     function init() {
@@ -527,10 +533,8 @@ function RSimulate(opts) {
 
         var asteroidsData = TestAsteroids;
         //var asteroidsData += OOIs[0];
-        console.log(asteroidsData);
 
         var numAsteroids = asteroidsData.length;
-        console.log("num asteroids: " + numAsteroids);
 
         var useBigParticles = !using_webgl;
 
@@ -984,8 +988,13 @@ function RSimulate(opts) {
     function initUI() {
         //addButt = document.getElementById('add-object-button');
         //addButt.addEventListener('click', addTestObject(), false);
-        //removeButt.addEventListener('click', removePlayerBody, false);
         //addTestObject();
+
+        $.get("/tpl/playerObjectView.tpl", function(data) {
+            $('#body-info-container').append(data);
+            document.getElementById('remove-object-button').addEventListener('click', removePlayerBody, false);
+            $('remove-object-button').css('color', 'red').hide();
+        });
     }
 
     function animate() {

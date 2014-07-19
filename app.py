@@ -104,8 +104,12 @@ def db_static(filename):
     return static_file(filename, root='./db/')
 
 @app.route('/models/<filename:path>')
-def db_static(filename):
+def po_static(filename):
     return static_file(filename, root='./models/')
+
+@app.route('/tpl/playerObjectView.tpl')
+def objView_static():
+    return static_file('/tpl/playerObjectView.tpl', root='./')
 
 
 #=====================================#
