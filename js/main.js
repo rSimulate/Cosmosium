@@ -61,7 +61,6 @@ function RSimulate(opts) {
 
     function addBody( parent, indexLabel, orbit, mesh, shouldAlwaysShowEllipse ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
-        console.log(orbit.name);
         orbits.push(orbit);
         meshes.push(mesh);
         mapFromMeshIdToBodyId[mesh.id] = nextEntityIndex;
@@ -139,6 +138,7 @@ function RSimulate(opts) {
 	}
 
     this.addBlenderPlayerObjectMesh = function (daePath, orbit) {
+        /*console.log(daePath);
         var loader = new THREE.ColladaLoader();
         loader.options.convertUpAxis = true;
 
@@ -146,13 +146,13 @@ function RSimulate(opts) {
         var mesh;
         loader.load(daePath, function (collada) {
             mesh = collada.scene;
-            mesh.scale.x = mesh.scale.y = mesh.scale.z = 1000;
-        });
-        if (mesh != undefined) {
-            addPlayerObject(orbit, mesh);
-            playerObjects.push({mesh: mesh, orbit: orbit});
-        }
-        else {console.log("ERROR: Parsing blender model failed");}
+            mesh.scale.x = mesh.scale.y = mesh.scale.z = 10;
+            if (mesh != undefined) {
+                addPlayerObject(orbit, mesh);
+                playerObjects.push({mesh: mesh, orbit: orbit});
+            }
+            else {console.log("ERROR: Parsing blender model failed");}
+        });*/
     };
 	
     function addPlanet(orbit, planetmesh) {
@@ -983,7 +983,7 @@ function RSimulate(opts) {
         //addButt = document.getElementById('add-object-button');
         //addButt.addEventListener('click', addTestObject(), false);
         //removeButt.addEventListener('click', removePlayerBody, false);
-        addTestObject();
+        //addTestObject();
     }
 
     function animate() {
@@ -1035,9 +1035,14 @@ if (SHOWING_ASTEROID_CLAIM){
 }
 
 var rSimulate;
-    
+
 $(document).ready(function(){
     $("#body-info-container").hide();
+    if ((playerObjects.length <= 0) && (ws.readyState == 1)) {
+        ws.send(message('refresh','None'))
+    }
+
+    console.log("Refreshing webGL canvas")
 });
 
 // called once the webSocket makes a complete connection in webSocketSetup.js.tpl

@@ -103,6 +103,10 @@ def img_static(filename):
 def db_static(filename):
     return static_file(filename, root='./db/')
 
+@app.route('/models/<filename:path>')
+def db_static(filename):
+    return static_file(filename, root='./models/')
+
 
 #=====================================#
 #           dynamic js files          #

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
-    <!-- THREEJS Extras -->
-    <script type='text/javascript' src='/tpl/js/vendor/three.ColladaLoader.js'></script>
+    <script type="application/javascript">
 
+    </script>
     <script type='text/javascript' src='/tpl/js/player.js'></script>
-
 
     <!-- use the webGL scene as bg -->
     % if config.showBG:

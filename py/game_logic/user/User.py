@@ -43,7 +43,7 @@ class User(object):
     def setGame(self,gam):
         # sets the user's current game and updates values accordingly
         self.game = gam
-        
+
     def setProfileInfo(self,name, icon, agency, subtext):
         # sets profile data which should come from the database upon login
         #  currently excludes messages/notes/tasks as well as game history data

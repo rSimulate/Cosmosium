@@ -18,6 +18,19 @@ class Game(object):
         self.playerObjects = list()
         self.eventList = getMockEventList()
         self._epoch = int(time())  # real-time game start
+        ephemeris = {
+            'ma': -2.47311027,
+            'epoch': 2451545.0,
+            'a': 1.00000261,
+            'e': 0.01671123,
+            'i': 0.00001531,
+            'w_bar': 102.93768193,
+            'w': 102.93768193,
+            'L': 100.46457166,
+            'om': 0,
+            'P': 365.256
+        }
+        self.addPlayerObject("probe", "magellan", ephemeris, "test_user")
         
     def time(self, t=None):
         # returns current in-game time representation as a string 
@@ -35,10 +48,23 @@ class Game(object):
         return GAME_LEN*60/GAME_YEAR_SPAN  # real-time sec / 1 game_year
         
     def addPlayer(self, player):
+        # TODO: Make a more specific/useful log
         print "game instance is adding player " + player.name
         # adds a player to the current game
         player.setGame(self)
         self.players.append(player)
+
+    def synchronizeObjects(self, player):
+        # send player objects in game instance
+        if player.websocket is not None:
+            for obj in self.playerObjects:
+                message = '{"cmd":"pObjCreate","data":"'
+                message += str(obj)
+                message += '"}'
+                print "sending object to player"
+                player.websocket.send(message)
+        else:
+            print "Cannot synchronize objects with user " + player.name + ". WebSocket is NoneType"
         
     def addObject(self, object, ownerName=None):
         # adds object to track to OOIs

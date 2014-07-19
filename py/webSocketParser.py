@@ -38,6 +38,10 @@ def asteroidTrackResponder(asteroidName, user, webSock, OOIs):
 def registerUserConnection(user,ws):
     # saves user websocket connetion so that updates to the user object can push to the client
     user.websocket = ws
+    if user.game is not None:
+        user.game.synchronizeObjects(user)
+    else:
+        print "Cannot synchronize objects for user " + user + ". User is not in a game instance."
     
 def researchResponder(user, ws, researchType):
     message = '{"cmd":"addToContent","data":"'
@@ -107,13 +111,18 @@ def playerObjectResponder(user, ws, data):
 
             ws.send(message)
             # TODO: Send back success along with possible recovered res from destroyed object
+
+def refreshResponder(user):
+    user.game.synchronizeObjects(user)
     
-def parse(cmd, data, user, websock, OOIs):
+def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     # takes appropriate action on the given command and data string
     if cmd == 'track':
         asteroidTrackResponder(data, user, websock, OOIs)
     elif cmd == 'hello':
         registerUserConnection(user, websock)
+    elif cmd == 'refresh':
+        refreshResponder(user)
     elif cmd == 'research':
         researchResponder(user, websock, data)
     elif cmd == 'playerObject':

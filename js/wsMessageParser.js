@@ -106,8 +106,6 @@ function parsePlayerObject(objectStr) {
             name: full_name
         }, !using_webgl);
 
-    console.log("received player object");
-
     return {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit};
 }
 
@@ -131,7 +129,6 @@ function parseMessage(m) {
     } else if (cmd == "pObjCreate") {
         var object = parsePlayerObject(data);
         if (object != null) {
-            console.log(object.model);
             var path = getPathForModel(object.model);
             if (path != null) {
                 rSimulate.addBlenderPlayerObjectMesh(path, object.orbit);

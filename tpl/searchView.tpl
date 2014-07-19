@@ -598,6 +598,7 @@
         <script type="text/javascript" src="js/vendor/ces-browser.min.js"></script>
 
         <script src="js/vendor/three.min.js"></script>
+        <script src="js/vendor/three.ColladaLoader.js"></script>
 
         <script src="js/vendor/OrbitControls.js"></script>
 
