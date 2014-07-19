@@ -138,7 +138,7 @@ function RSimulate(opts) {
 	}
 
     this.addBlenderPlayerObjectMesh = function (daePath, orbit) {
-        /*console.log(daePath);
+        console.log(daePath);
         var loader = new THREE.ColladaLoader();
         loader.options.convertUpAxis = true;
 
@@ -146,13 +146,15 @@ function RSimulate(opts) {
         var mesh;
         loader.load(daePath, function (collada) {
             mesh = collada.scene;
-            mesh.scale.x = mesh.scale.y = mesh.scale.z = 10;
             if (mesh != undefined) {
+                mesh.scale.x = mesh.scale.y = mesh.scale.z = 5;
+                mesh.updateMatrix();
+
                 addPlayerObject(orbit, mesh);
                 playerObjects.push({mesh: mesh, orbit: orbit});
             }
             else {console.log("ERROR: Parsing blender model failed");}
-        });*/
+        });
     };
 	
     function addPlanet(orbit, planetmesh) {
@@ -1039,13 +1041,14 @@ var rSimulate;
 $(document).ready(function(){
     $("#body-info-container").hide();
     if ((playerObjects.length <= 0) && (ws.readyState == 1)) {
+        initrSimulate();
         ws.send(message('refresh','None'))
     }
 
     console.log("Refreshing webGL canvas")
 });
 
-// called once the webSocket makes a complete connection in webSocketSetup.js.tpl
+// called once the webSocket makes a complete connection in webSocketSetup.js.tpl, or a refresh occurs
 function initrSimulate() {
     rSimulate = new RSimulate({});
 }

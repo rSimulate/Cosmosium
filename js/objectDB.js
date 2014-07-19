@@ -1,7 +1,7 @@
 
 var models = [];
 
-var magellan = {model: 'magellan', path: "/models/magellan16.dae"};
+var magellan = {model: 'magellan', path: "/models/Magellan/magellan.dae"};
 
 models.push(magellan);
 
