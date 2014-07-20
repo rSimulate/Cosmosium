@@ -62,7 +62,7 @@ class Game(object):
                 message = '{"cmd":"pObjCreate","data":"'
                 message += str(obj)
                 message += '"}'
-                print "sending object to player"
+                print "sending object", obj['objectId'], "to", player.name
                 player.websocket.send(message)
         else:
             print "Cannot synchronize objects with user " + player.name + ". WebSocket is NoneType"

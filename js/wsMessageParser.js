@@ -95,6 +95,8 @@ function parsePlayerObject(objectStr) {
         return null;
     }
 
+    full_name = full_name.replace(/(\")+/g, "");
+
     var ephemeris = {full_name: full_name, ma: ma, epoch: epoch, a: a, e: e,
                         i: i, w_bar: w_bar, w: w, L: L, om: om, P: P};
 
@@ -129,7 +131,7 @@ function parseMessage(m) {
     } else if (cmd == "pObjCreate") {
         var object = parsePlayerObject(data);
         if (object != null) {
-            object.orbit.name = object.orbit.name.replace(/([_\"])+/g, " ").trim();
+            object.orbit.name = object.orbit.name.replace(/([\"])+/g, " ").trim();
             var path = getPathForModel(object.model);
             if (path != null) {
                 rSimulate.addBlenderPlayerObjectMesh(path, object.orbit);
