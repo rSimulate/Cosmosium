@@ -23,7 +23,6 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var skybox;
     var sun;
 
-    //var addButt = document.getElementById('add-object-button');
     var claimButt = document.getElementById('claim-asteroid-button');
     
     var SHOWING_ASTEROID_OWNERSHIP = (typeof owners === "object");
@@ -105,6 +104,7 @@ function RSimulate(opts) {
         if (parentScene == undefined) { parentScene = scene; }
         if (playerObject == undefined) { playerObject = selectedBody; }
         for (var index in orbits) {
+            // TODO: Cannot read property 'name' of undefined. Line 109
             if (orbits[index].hasOwnProperty('name')) {
                 if (orbits[index].name == playerObject.orbit.name) {
                     orbits.splice(index, 1);
@@ -178,6 +178,33 @@ function RSimulate(opts) {
 
     function addPlayerObject(orbit, mesh) {
         addBody( scene, "playerObject", orbit, mesh, true);
+
+        var divName = orbit.name.replace(/(\s)+/g, "_");
+
+        // clone template button for use
+        var newObjButt = $('#object-button').clone()
+                            .attr("id", divName+"-button").addClass('playerObject').show();
+
+        // append a new object specific button to the list
+        $(newObjButt).find("#object-element:first-child").append("<div id=" + divName +
+            " style='position: relative; width: 80%; margin: 0 auto'>" + orbit.name + "</div>");
+        $(newObjButt).appendTo('#object-list');
+
+        // add listener to object specific div
+        console.log(orbit.name);
+        console.log('#'+divName+'-button');
+        $('#'+divName+'-button').click(function() {
+            orientToObject(mesh);
+        });
+    }
+
+    function orientToObject(mesh) {
+        console.log("orienting to object");
+        // TODO: Add a smooth translation callback to not disorient the player
+        camera.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
+        camera.translateY(300);
+        camera.translateX(300);
+        camera.lookAt(mesh.position);
     }
 
     function addAsteroid(orbit, mesh) {
@@ -358,12 +385,15 @@ function RSimulate(opts) {
                 $("#owner-info").attr("color", 'rgb(200,200,200)');   //NOTE: this doesn't seem to work.
             }
 
-            console.log(playerObjects[0].mesh.id);
+            var showButt = false;
             for (var i = 0; i < playerObjects.length; i++) {
-                console.log(playerObjects[i].mesh.id);
                 if (mapFromMeshIdToBodyId[playerObjects[i].mesh.id] == bodyId) {
-                    $('remove-object-button').show();
+                    $('#destroy-object-container').show();
+                    showButt = true;
                 }
+            }
+            if (!showButt) {
+                $('#destroy-object-container').hide();
             }
         }
         $("#body-info").html(infoHTML);
@@ -426,7 +456,7 @@ function RSimulate(opts) {
 
     function onBodyDeselected() {
         $("#body-info-container").hide();
-        $('remove-object-button').hide();
+        $('#destroy-object-container').hide();
     }
 
     function init() {
@@ -961,6 +991,7 @@ function RSimulate(opts) {
     }
 
     function addTestObject() {
+        console.log("Trying to add new object!!");
         // NOTE: send ephemeris without a name; the server will assign one
         var cmd = 'create';
         var ephemeris = {
@@ -986,15 +1017,34 @@ function RSimulate(opts) {
     }
 
     function initUI() {
-        //addButt = document.getElementById('add-object-button');
-        //addButt.addEventListener('click', addTestObject(), false);
-        //addTestObject();
 
-        $.get("/tpl/playerObjectView.tpl", function(data) {
-            $('#body-info-container').append(data);
-            document.getElementById('remove-object-button').addEventListener('click', removePlayerBody, false);
-            $('remove-object-button').css('color', 'red').hide();
-        });
+        // Player Object List
+        if ($('#object-list-container').length <= 0) {
+            $.get("/tpl/playerObjectView.tpl", function(data) {
+                $(data).appendTo("body");
+
+                // hide template button
+                $('#object-button').hide();
+
+                // add listener to new object button
+                // TODO: Add a real list of new objects you can create
+                //document.getElementById('#add-object-button').addEventListener('click', addTestObject, false);
+                $('#add-object-button').click(addTestObject);
+
+            });
+        }
+        // wipe object list on init to clean things that might have been left over from a refresh event
+        $('.playerObject').remove();
+
+
+        // Remove Button
+        $('#body-info-container').append("<div id='destroy-object-container'><br>" +
+        "<h3>" +
+        "<a id='destroy-object-button' href='#' style='color: red'>Remove this object</a>" +
+        "</h3 >" +
+        "</div>");
+        $('#destroy-object-container').hide();
+        $('#destroy-object-button').click(removePlayerBody);
     }
 
     function animate() {
@@ -1059,6 +1109,8 @@ $(document).ready(function(){
 
 // called once the webSocket makes a complete connection in webSocketSetup.js.tpl, or a refresh occurs
 function initrSimulate() {
+
+    // refresh webGL
     rSimulate = new RSimulate({});
 }
 

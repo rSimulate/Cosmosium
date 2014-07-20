@@ -79,8 +79,13 @@ class Game(object):
         pUuid = uuid.uuid4()
         # translate unicode to ascii for net transfer
         name = ''.join(map(lambda x: x.encode('ascii'), ownerName))
+        uniqueId = 1
 
-        orbit['full_name'] = name + "'s_" + model + "_" + objectType
+        for o in self.playerObjects:
+            if (o['owner'] == name) & (o['model'] == model):
+                uniqueId += 1
+
+        orbit['full_name'] = name + "'s_" + model + "_" + objectType + "_" + str(uniqueId)
         obj = {'owner': name, 'objectId': pUuid, 'type': objectType, 'model': model, 'orbit': orbit}
         print "added player object", obj['model'], "for owner", obj['owner'], "with objectId", obj['objectId']
         self.playerObjects.append(obj)
@@ -93,9 +98,9 @@ class Game(object):
         :return: object if found, None if not
         """
 
-        for object in self.playerObjects:
-            if object['objectId'] == uuid:
-                return object
+        for obj in self.playerObjects:
+            if obj['objectId'] == uuid:
+                return obj
 
         return None
 

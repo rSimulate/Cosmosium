@@ -129,7 +129,7 @@ function parseMessage(m) {
     } else if (cmd == "pObjCreate") {
         var object = parsePlayerObject(data);
         if (object != null) {
-            object.orbit.name = object.orbit.name.replace(/(_)+/g, " ");
+            object.orbit.name = object.orbit.name.replace(/([_\"])+/g, " ").trim();
             var path = getPathForModel(object.model);
             if (path != null) {
                 rSimulate.addBlenderPlayerObjectMesh(path, object.orbit);
