@@ -200,18 +200,14 @@ function RSimulate(opts) {
         addBody( scene, "playerObject", orbit, mesh, true);
 
         var textName = orbit.name.replace(/(_)+/g, " ");
-
-        // clone template button for use
-        var newObjButt = $('#object-button').clone()
-                            .attr("id", orbit.name+"-button").addClass('playerObject').show();
+        textName = textName.replace(/(--)+/g, "\'");
 
         // append a new object specific button to the list
-        $(newObjButt).find("#object-element:first-child").append("<div id=" + orbit.name +
-            " style='position: relative; width: 80%; margin: 0 auto'>" + textName + "</div>");
-        $(newObjButt).appendTo('#object-list');
+        $("<li><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
+            textName + "</a></li>").appendTo('#object-list-container');
 
         // add listener to object specific div
-        $('#'+orbit.name+'-button').click(function() {
+        $('#'+orbit.name).click(function() {
             orientToObject(mesh);
         });
     }
@@ -1032,35 +1028,23 @@ function RSimulate(opts) {
             om: 0,
             P: 365.256
         };
-        var type = 'probe';
-        var model = 'magellan';
+        var type = 'Probe';
+        var model = 'Magellan';
         var objectId = 'None';
         var data = {cmd: cmd, type: type, model: model, objectId: objectId, orbit: ephemeris};
         var stringify = JSON.stringify(data).replace(/\"+/g, "\'");
 
-        ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'probe', " +
-                                        "'model': 'magellan', 'data': "+stringify+'}'));
+        ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'Probe', " +
+                                        "'model': 'Magellan', 'data': "+stringify+'}'));
     }
 
     function initUI() {
 
-        // Player Object List
-        if ($('#object-list-container').length <= 0) {
-            $.get("/tpl/playerObjectView.tpl", function(data) {
-                $(data).appendTo("body");
-
-                // hide template button
-                $('#object-button').hide();
-
-                // add listener to new object button
-                // TODO: Add a real list of new objects you can create
-                //document.getElementById('#add-object-button').addEventListener('click', addTestObject, false);
-                $('#add-object-button').click(addTestObject);
-
-            });
-        }
         // wipe object list on init to clean things that might have been left over from a refresh event
         $('.playerObject').remove();
+
+        // add listener to new object button
+        $('#add-object-button').click(addTestObject);
 
 
         // Remove Button

@@ -14,7 +14,9 @@ START_YEAR = 1969 # starting year of game
 
 class Game(object):
     def __init__(self):
+        print "New game instance initializing..."
         self.OOIs = OOIs()
+        self.id = uuid.uuid4()
         self.players = list()
         self.playerObjects = list()
         self.eventList = getMockEventList()
@@ -31,7 +33,7 @@ class Game(object):
             'om': 0,
             'P': 365.256
         }
-        self.addPlayerObject("probe", "magellan", ephemeris, "test_user")
+        self.addPlayerObject("Probe", "Magellan", ephemeris, "test_user")
         
     def time(self, t=None):
         # returns current in-game time representation as a string 
@@ -50,7 +52,7 @@ class Game(object):
         
     def addPlayer(self, player):
         # TODO: Make a more specific/useful log
-        print "game instance is adding player " + player.name
+        print "game instance", self.id, "is adding player", player.name
         # adds a player to the current game
         player.setGame(self)
         self.players.append(player)
@@ -85,7 +87,7 @@ class Game(object):
             if (o['owner'] == name) & (o['model'] == model):
                 uniqueId += 1
 
-        orbit['full_name'] = name + "'s_" + model + "_" + objectType + "_" + str(uniqueId)
+        orbit['full_name'] = name + "--s_" + model + "_" + objectType + "_" + str(uniqueId)
         obj = {'owner': name, 'objectId': pUuid, 'type': objectType, 'model': model, 'orbit': orbit}
         print "added player object", obj['model'], "for owner", obj['owner'], "with objectId", obj['objectId']
         self.playerObjects.append(obj)

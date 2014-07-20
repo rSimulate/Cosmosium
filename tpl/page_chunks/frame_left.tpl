@@ -99,6 +99,15 @@
                         <li><a href="#org" id='org-link'><i class="fa fa-angle-double-right"></i> Organization</a></li>
                     </ul>
                 </li>
+                <li class="treeview">
+                    <a href="#">
+                        <i class="fa fa-rocket"></i> <span>Player Objects</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul id='object-list-container' class="treeview-menu">
+                        <li><a id='add-object-button' href='#'><i class="fa fa-angle-double-right"></i>Add New Object</a></li>
+                    </ul>
+                </li>
             </ul>
         </section>
         <!-- /.sidebar -->
