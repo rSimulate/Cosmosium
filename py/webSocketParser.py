@@ -38,10 +38,6 @@ def asteroidTrackResponder(asteroidName, user, webSock, OOIs):
 def registerUserConnection(user,ws):
     # saves user websocket connetion so that updates to the user object can push to the client
     user.websocket = ws
-    if user.game is not None:
-        user.game.synchronizeObjects(user)
-    else:
-        print "Cannot synchronize objects for user " + user + ". User is not in a game instance."
     
 def researchResponder(user, ws, researchType):
     message = '{"cmd":"addToContent","data":"'
@@ -92,7 +88,7 @@ def playerObjectResponder(user, ws, data):
 
             ws.send(message)
 
-        elif cmdName == 'click':
+        elif cmdName == 'query':
             uuid = pData['uuid']
 
             message = '{"cmd":"pObjRequest","data":"'

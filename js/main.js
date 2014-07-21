@@ -11,7 +11,6 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var NUM_BIG_PARTICLES = 500;
 
     var container, stats;
-
     var camera, controls, scene, renderer;
     var mouse = new THREE.Vector2();
     var offset = new THREE.Vector3();
@@ -35,7 +34,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var orbits = [];
     var meshes = [];
     var ellipses = []; // {bodyId: id, ellipse: ellipse, type: (planet, asteroid, etc)}
-    var playerObjects = [];  // {mesh: mesh, orbit: orbit, bodyId: id}
+    var playerObjects = [];  // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
 
     // for each type of object, there is a list of indexes of orbits/meshes that match it
     // example: indexes["asteroid"] --> [2,3,5] and you can get the orbits at orbits[2], orbits[3], orbits[5]
@@ -183,7 +182,9 @@ function RSimulate(opts) {
 		return bodyMesh;
 	}
 
-    this.addBlenderPlayerObjectMesh = function (daePath, orbit, objectId) {
+    this.addBlenderPlayerObjectMesh = function (daePath, object) {
+        // object = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, // ADDING mesh: mesh}
+
         var loader = new THREE.ColladaLoader();
         loader.options.convertUpAxis = true;
 
@@ -196,10 +197,11 @@ function RSimulate(opts) {
                 mesh.updateMatrix();
 
                 // add to scene
-                addPlayerObject(orbit, mesh);
+                addPlayerObject(object.orbit, mesh);
 
                 // add to player object collection
-                playerObjects.push({mesh: mesh, orbit: orbit, objectId: objectId});
+                object.mesh = mesh;
+                playerObjects.push(object);
             }
             else {console.log("ERROR: Parsing blender model failed");}
         });
@@ -209,11 +211,17 @@ function RSimulate(opts) {
 		addBody( scene, "planet", orbit, planetmesh, true );
     }
 
+    function cleanOrbitName(str) {
+        var textName = str.replace(/(_)+/g, " ");
+        textName = textName.replace(/(--)+/g, "\'");
+
+        return textName;
+    }
+
     function addPlayerObject(orbit, mesh) {
         addBody( scene, "playerObject", orbit, mesh, true);
 
-        var textName = orbit.name.replace(/(_)+/g, " ");
-        textName = textName.replace(/(--)+/g, "\'");
+        var textName = cleanOrbitName(orbit.name);
 
         // append a new object specific button to the list
         $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
@@ -339,9 +347,9 @@ function RSimulate(opts) {
         var bodyName = "";
 
         if (orbit && orbit.eph && orbit.eph.full_name) {
-            bodyName = orbit.eph.full_name;
+            bodyName = cleanOrbitName(orbit.eph.full_name);
         } else if (orbit && orbit.name) {
-            bodyName = orbit.name;
+            bodyName = cleanOrbitName(orbit.name);
         }
         var infoHTML = "<h3>" + bodyName + "</h3>";
         // info to show in the window:
@@ -421,8 +429,12 @@ function RSimulate(opts) {
             }
 
             var showButt = false;
+            var userName = readCookie('cosmosium_login');
             for (var i = 0; i < playerObjects.length; i++) {
-                if (mapFromMeshIdToBodyId[playerObjects[i].mesh.id] == bodyId) {
+                console.log(userName + " " + playerObjects[i].owner);
+                if ((mapFromMeshIdToBodyId[playerObjects[i].mesh.id] == bodyId)
+                        && (userName == playerObjects[i].owner)) {
+
                     $('#destroy-object-container').show();
                     showButt = true;
                 }
@@ -1031,9 +1043,9 @@ function RSimulate(opts) {
         var ephemeris = {
             ma: -2.47311027,
             epoch: 2451545.0,
-            a:1.00000261,
+            a:1.50000261,
             e: 0.01671123,
-            i: 0.00001531,
+            i: 0.00101531,
             w_bar: 102.93768193,
             w: 102.93768193,
             L: 100.46457166,
@@ -1045,7 +1057,7 @@ function RSimulate(opts) {
         var objectId = 'None';
         var data = {cmd: cmd, type: type, model: model, objectId: objectId, orbit: ephemeris};
         var stringify = JSON.stringify(data).replace(/\"+/g, "\'");
-        console.log("Adding new object request")
+        console.log("Requesting new Object");
         ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'Probe', " +
                                         "'model': 'Magellan', 'data': "+stringify+'}'));
     }
@@ -1056,9 +1068,7 @@ function RSimulate(opts) {
         $('.playerObject').remove();
 
         // add listener to new object button
-        console.log($._data($('#add-object-button'), "events"));
         $('#add-object-button').click(addTestObject);
-
 
         // Remove Button
         $('#body-info-container').append("<div id='destroy-object-container'><br>" +
@@ -1135,5 +1145,6 @@ function initrSimulate() {
 
     // refresh webGL
     rSimulate = new RSimulate({});
+    ws.send(message('refresh','None'))
 }
 
