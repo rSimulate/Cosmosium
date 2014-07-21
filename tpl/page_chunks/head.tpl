@@ -8,7 +8,9 @@
     <!-- use the webGL scene as bg -->
     % if config.showBG:
         <div style="position: absolute; left: 0px; top: 0px background-color: green;" id='systemBG'>
-            % include('tpl/webGL_scene',asteroidDB='db/test_asteroids.js')
+            % include('tpl/page_chunks/webGL_shaders')
+            <div id="container"></div>
+            % include('tpl/page_chunks/webGL_js')
         </div>
     # end
     <head>

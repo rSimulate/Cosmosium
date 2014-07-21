@@ -12,17 +12,32 @@ def asteroidTrackResponder(asteroidName, user, webSock, OOIs):
     
     if user.purchase('asteroidTrack'):
         print 'request to track '+asteroidName+' accepted.'
-        
-        OOIs.addObject(byName(asteroidName), user.name)
-        # write the new js file(s)
-        OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
-        print 'object '+asteroidName+' added to OOIs'
-        message+= template('tpl/content/tiles/asteroidAdd',
-            objectName=asteroidName,
-            chunks=CHUNKS,
-            config=Settings('default'),
-            pageTitle='Asteroid Add Request Approved',
-            user=user)
+
+        asteroidData=byName(asteroidName)
+
+        print asteroidData
+
+        print len(asteroidData)
+
+        if asteroidData == None or asteroidData == "" or asteroidData == '[]':
+            print 'problem getting '+str(asteroidName)+ ' from asterank'
+            message += template('tpl/content/tiles/uhoh',
+                text="Sorry, I couldn't add "+str(asteroidName)+". Maybe try again later?",
+                chunks=CHUNKS,
+                config=Settings('default'),
+                title='Something went terribly wrong tracking that asteroid!',
+                user=user)
+        else:
+            OOIs.addObject(asteroidData, user.name)
+            # write the new js file(s)
+            OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
+            print 'object '+asteroidName+' added to OOIs'
+            message+= template('tpl/content/tiles/asteroidAdd',
+                objectName=asteroidName,
+                chunks=CHUNKS,
+                config=Settings('default'),
+                pageTitle='Asteroid Add Request Approved',
+                user=user)
     else:
         print 'request to track '+asteroidName+' denied. insufficient funds.'
         message+= template('tpl/content/tiles/insufficientFunds',

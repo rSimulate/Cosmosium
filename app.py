@@ -282,21 +282,26 @@ def handle_websocket():
 #=====================================#
 #        Asteroid Views Routing       #
 #=====================================#
-@app.route('/searchtest')
-def searchTest():
-    return template('tpl/searchView',asteroidDB="db/test_asteroids.js")
-    
-@app.route('/searchNEOs')
-def searchNEOs():
-    return template('tpl/searchView',asteroidDB="db/NEOs.js")
-    
-@app.route('/searchMainBelt')
-def searchMains():
-    return template('tpl/searchView',asteroidDB="db/MainBelt.js")
-    
-@app.route('/searchKuiperBelt')
-def searchKuipers():
-    return template('tpl/searchView',asteroidDB="db/KuiperBelt.js")
+@app.route('/asteroidSearch')
+@app.route('/asteroidSearch/')
+def asteroidSearch():
+    # returns systemView based on user data and given query
+    _user = getLoggedInUser(request)
+    if _user == None:
+        redirect('/userLogin')
+    else:
+        group = request.query.group
+        if group == 'mainBelt':
+            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/MainBelt.js"))
+        elif group == 'NEOs':
+            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB='db/NEOs.js'))
+        elif group == 'kuiper':
+            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/KuiperBelt.js"))
+        elif group == 'test':
+            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/test_asteroids.js"))
+        else:
+            raise ValueError('unknown asteroid group request "'+str(group)+'"')
+
 
 @app.route('/systemView')
 def systemView():
@@ -313,7 +318,7 @@ def systemView():
     
 
 @app.route('/viewTest')
-def systemView():
+def viewTest():
     return template('tpl/systemView',
                     user=User(),
                     chunks=CHUNKS,

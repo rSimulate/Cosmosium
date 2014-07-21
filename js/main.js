@@ -23,10 +23,10 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var sun;
 
     var claimButt = document.getElementById('claim-asteroid-button');
-    
+
     var SHOWING_ASTEROID_OWNERSHIP = (typeof owners === "object");
     var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
-    
+
     var CAMERA_NEAR = 1;
     var CAMERA_FAR = 100000;
 
@@ -48,7 +48,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var nextEntityIndex = 0;
 
     var mapFromOwnerNameToColor = {};
-    
+
     var selectedBody = '';
     var removeBody;
 
@@ -91,20 +91,21 @@ function RSimulate(opts) {
         }
 
         indexes[indexLabel].push(nextEntityIndex);
-        
+
         nextEntityIndex++;
     }
-    function removePlayerBody(event) {
-        event.stopPropagation();
+    function removePlayerBody(e) {
         console.log("Called for removal of bodyID " + selectedBody);
         var rmObject;
         for (var i = 0; i < playerObjects.length; i++) {
-            if (playerObjects[i].orbit.name == selectedBody) {
+            if (cleanOrbitName(playerObjects[i].orbit.name) == selectedBody) {
                 rmObject = playerObjects[i];
                 break;
             }
         }
         ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + rmObject.objectId + "'}}"));
+        e.stopPropagation();
+        e.preventDefault();
     }
 
     removeBody = function (parentScene, indexLabel, objectId) {
@@ -176,7 +177,7 @@ function RSimulate(opts) {
 		var bodyGeometry = new THREE.SphereGeometry( size, 32, 32 );
 		var bodyTexture = THREE.ImageUtils.loadTexture(texture);
 		var bodyMaterial = new THREE.MeshLambertMaterial({ map: bodyTexture });
-		
+
 		var bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
 
 		return bodyMesh;
@@ -206,7 +207,7 @@ function RSimulate(opts) {
             else {console.log("ERROR: Parsing blender model failed");}
         });
     };
-	
+
     function addPlanet(orbit, planetmesh) {
 		addBody( scene, "planet", orbit, planetmesh, true );
     }
@@ -216,6 +217,33 @@ function RSimulate(opts) {
         textName = textName.replace(/(--)+/g, "\'");
 
         return textName;
+    }
+
+    function addTestObject (e) {
+        // NOTE: send ephemeris without a name; the server will assign one
+        var cmd = 'create';
+        var ephemeris = {
+            ma: -2.47311027,
+            epoch: 2451545.0,
+            a:1.50000261,
+            e: 0.01671123,
+            i: 0.00101531,
+            w_bar: 102.93768193,
+            w: 102.93768193,
+            L: 100.46457166,
+            om: 0,
+            P: 365.256
+        };
+        var type = 'Probe';
+        var model = 'Magellan';
+        var objectId = 'None';
+        var data = {cmd: cmd, type: type, model: model, objectId: objectId, orbit: ephemeris};
+        var stringify = JSON.stringify(data).replace(/\"+/g, "\'");
+        console.log("Requesting new Object");
+        ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'Probe', " +
+            "'model': 'Magellan', 'data': "+stringify+'}'));
+        e.stopPropagation();
+        e.preventDefault();
     }
 
     function addPlayerObject(orbit, mesh) {
@@ -429,11 +457,11 @@ function RSimulate(opts) {
             }
 
             var showButt = false;
-            var userName = readCookie('cosmosium_login');
+            //var userName = readCookie('cosmosium_login');
             for (var i = 0; i < playerObjects.length; i++) {
-                console.log(userName + " " + playerObjects[i].owner);
-                if ((mapFromMeshIdToBodyId[playerObjects[i].mesh.id] == bodyId)
-                        && (userName == playerObjects[i].owner)) {
+                if (mapFromMeshIdToBodyId[playerObjects[i].mesh.id] == bodyId) {
+                    // TODO: Only allow removal of owned objects
+                        //&& (userName == playerObjects[i].owner)) {
 
                     $('#destroy-object-container').show();
                     showButt = true;
@@ -529,7 +557,7 @@ function RSimulate(opts) {
 
         // renderer
         initRenderer();
-        
+
         initStats();
         //
 
@@ -539,7 +567,7 @@ function RSimulate(opts) {
     }
 
     function initOwners() {
-        if (owners) { 
+        if (owners) {
 
             var uniqueOwners = owners.filter(onlyUnique);
             var numUniqueOwners = uniqueOwners.length;
@@ -551,10 +579,10 @@ function RSimulate(opts) {
                 }
             }
         }
-        
+
     }
 
-    function onlyUnique(value, index, self) { 
+    function onlyUnique(value, index, self) {
         return self.indexOf(value) === index;
     }
 
@@ -562,9 +590,9 @@ function RSimulate(opts) {
         var geometry = new THREE.SphereGeometry(CAMERA_FAR / 2.0, 60, 40);
 
         var uniforms = {
-            texture: { 
-                type: 't', 
-                value: THREE.ImageUtils.loadTexture('img/eso_dark.jpg') 
+            texture: {
+                type: 't',
+                value: THREE.ImageUtils.loadTexture('img/eso_dark.jpg')
             }
         };
 
@@ -598,7 +626,7 @@ function RSimulate(opts) {
     function initAsteroids() {
 
         var geometry = new THREE.SphereGeometry( 1, 16, 16 );
-        
+
 
         var lambertShader = THREE.ShaderLib['lambert'];
         var basicShader = THREE.ShaderLib['basic'];
@@ -656,7 +684,7 @@ function RSimulate(opts) {
 
             if (asteroid.H && asteroid.H !== "") {  // magnitude
                 var percentageDark = (asteroid.H - minH) / (maxH - minH);
-                uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);                
+                uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);
             }
 
             // color asteroids based on ownership
@@ -668,12 +696,12 @@ function RSimulate(opts) {
 
                     fragmentShaderText = basicShader.fragmentShader;
 
-                    uniforms.diffuse.value = ownerColor;              
-                }  
+                    uniforms.diffuse.value = ownerColor;
+                }
             }
 
             var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid)
-            
+
             var asteroidOrbit = new Orbit3D(asteroid, {
               color: 0xcccccc,
               display_color: display_color,
@@ -718,7 +746,7 @@ function RSimulate(opts) {
     }
 
 	//From http://www.html5rocks.com/en/tutorials/casestudies/100000stars/
-	// 
+	//
 	// function addSunFlare(x,y,z, size, overrideImage){
 	  // var flareColor = new THREE.Color( 0xffffff );
 
@@ -773,10 +801,10 @@ function RSimulate(opts) {
 
         sun = new THREE.Mesh( sphereGeometry, sunMaterial );
 		scene.add(sun);
-		
+
 		//Create SunFlare
         //var sunflare = lensFlare(0,0,0, SUN_SIZE*1.05, 'img/textures/lensflare0.png');
-		
+
     }
 
     function animateSun() {
@@ -800,7 +828,7 @@ function RSimulate(opts) {
           scene.add(mercury.getParticle());
 
         //var mercuryMesh = new THREE.Mesh(planetGeometry, MercuryMaterial);
-        
+
 		var mercuryMesh = makeBodyMesh(MERCURY_SIZE, 'img/textures/mercury_small.jpg');
 		addPlanet(mercury, mercuryMesh);
 
@@ -814,7 +842,7 @@ function RSimulate(opts) {
             }, !using_webgl);
 
         //var venusMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-        
+
 		var venusMesh = makeBodyMesh(VENUS_SIZE, 'img/textures/venus_small.jpg');
 		addPlanet(venus, venusMesh);
 
@@ -827,7 +855,7 @@ function RSimulate(opts) {
               name: 'Earth'
             }, !using_webgl);
 
-        //var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);    
+        //var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
 		var earthMesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg');
 		addPlanet(earth, earthMesh);
 
@@ -949,7 +977,7 @@ function RSimulate(opts) {
     }
 
     function initCamera() {
-        
+
         camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, CAMERA_NEAR, CAMERA_FAR );
         camera.position.z = 500;
 
@@ -1012,9 +1040,9 @@ function RSimulate(opts) {
     function updateBodies(timeAdvanced, orbits, meshes) {
         for (var i = 0; i < orbits.length; i++) {
             var orbit = orbits[i];
-  
+
             var helioCoords = orbit.getPosAtTime(jed);
-  
+
             var mesh = meshes[i];
             mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
 
@@ -1036,48 +1064,34 @@ function RSimulate(opts) {
         }
     }
 
-    function addTestObject(event) {
-        event.stopPropagation();
-        // NOTE: send ephemeris without a name; the server will assign one
-        var cmd = 'create';
-        var ephemeris = {
-            ma: -2.47311027,
-            epoch: 2451545.0,
-            a:1.50000261,
-            e: 0.01671123,
-            i: 0.00101531,
-            w_bar: 102.93768193,
-            w: 102.93768193,
-            L: 100.46457166,
-            om: 0,
-            P: 365.256
-        };
-        var type = 'Probe';
-        var model = 'Magellan';
-        var objectId = 'None';
-        var data = {cmd: cmd, type: type, model: model, objectId: objectId, orbit: ephemeris};
-        var stringify = JSON.stringify(data).replace(/\"+/g, "\'");
-        console.log("Requesting new Object");
-        ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'Probe', " +
-                                        "'model': 'Magellan', 'data': "+stringify+'}'));
-    }
-
     function initUI() {
 
         // wipe object list on init to clean things that might have been left over from a refresh event
         $('.playerObject').remove();
 
-        // add listener to new object button
-        $('#add-object-button').click(addTestObject);
+        if (typeof $('#add-object-button')[0] == 'undefined') {
+            $('#add-object-button').on('click', addTestObject);
+        }
+        else if ($._data($('#add-object-button')[0]).events == undefined) {
+            $('#add-object-button').on('click', addTestObject);
+        }
+
+        //$('#add-object-button').off('click').on('click', addTestObject);
 
         // Remove Button
         $('#body-info-container').append("<div id='destroy-object-container'><br>" +
-        "<h3>" +
-        "<a id='destroy-object-button' href='#' style='color: red'>Remove this object</a>" +
-        "</h3 >" +
-        "</div>");
+            "<h3>" +
+            "<a id='destroy-object-button' href='#' style='color: red'>Remove this object</a>" +
+            "</h3 >" +
+            "</div>");
         $('#destroy-object-container').hide();
-        $('#destroy-object-button').click(removePlayerBody);
+
+        if (typeof $('#destroy-object-button')[0] == 'undefined') {
+            $('#destroy-object-button').on('click', removePlayerBody);
+        }
+        else if ($._data($('#destroy-object-button')[0]).events == undefined) {
+            $('#destroy-object-button').on('click', removePlayerBody);
+        }
     }
 
     function animate() {
@@ -1128,13 +1142,14 @@ if (SHOWING_ASTEROID_CLAIM){
     claimButt.addEventListener('click', claimButt_onClick, false);
 }
 
+
+
 var rSimulate;
 
 $(document).ready(function(){
     $("#body-info-container").hide();
     if ((playerObjects.length <= 0) && (ws.readyState == 1)) {
         initrSimulate();
-        ws.send(message('refresh','None'))
     }
 
     console.log("Refreshing webGL canvas")
@@ -1142,9 +1157,9 @@ $(document).ready(function(){
 
 // called once the webSocket makes a complete connection in webSocketSetup.js.tpl, or a refresh occurs
 function initrSimulate() {
-
     // refresh webGL
     rSimulate = new RSimulate({});
+
     ws.send(message('refresh','None'))
 }
 

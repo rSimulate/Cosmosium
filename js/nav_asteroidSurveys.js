@@ -2,12 +2,12 @@ document.getElementById('systemView-NEOs-link').addEventListener('click', functi
     e = e || window.event; 
     $('#content').load('/content?name=systemView');
     THREE.OrbitControls.enabled = true;
-    $('#systemBG').load('/searchNEOs');
+    $('#systemBG').load('/asteroidSearch?group=NEOs');
 }, false);
 
 document.getElementById('systemView-MainBelt-link').addEventListener('click', function (e){
     e = e || window.event; 
     $('#content').load('/content?name=systemView');
     THREE.OrbitControls.enabled = true;
-    $('#systemBG').load('/searchMainBelt');
+    $('#systemBG').load('/asteroidSearch?group=mainBelt');
 }, false);

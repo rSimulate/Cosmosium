@@ -24,8 +24,10 @@ class Settings(object):
         # set custom-specified settings:
         for kw in kwargs.keys():
             if eval('self.'+kw+'!=None'):
-                exec('self.'+kw+'='+str(kwargs[kw]))
-        
+                try:
+                    exec('self.'+kw+'='+str(kwargs[kw]))
+                except NameError: # this happens for strings (like the db filenames)
+                    exec('self.'+kw+'="'+str(kwargs[kw])+'"')
         
     def testSetup(self):
         self.ownersDB    = 'db/test_owners.js'
