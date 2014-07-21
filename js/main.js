@@ -98,7 +98,7 @@ function RSimulate(opts) {
         console.log("Called for removal of bodyID " + selectedBody);
         var rmObject;
         for (var i = 0; i < playerObjects.length; i++) {
-            if (playerObjects[i].orbit.name == selectedBody) {
+            if (cleanOrbitName(playerObjects[i].orbit.name) == selectedBody) {
                 rmObject = playerObjects[i];
                 break;
             }
@@ -457,10 +457,11 @@ function RSimulate(opts) {
             }
 
             var showButt = false;
-            var userName = readCookie('cosmosium_login');
+            //var userName = readCookie('cosmosium_login');
             for (var i = 0; i < playerObjects.length; i++) {
-                if ((mapFromMeshIdToBodyId[playerObjects[i].mesh.id] == bodyId)
-                        && (userName == playerObjects[i].owner)) {
+                if (mapFromMeshIdToBodyId[playerObjects[i].mesh.id] == bodyId) {
+                    // TODO: Only allow removal of owned objects
+                        //&& (userName == playerObjects[i].owner)) {
 
                     $('#destroy-object-container').show();
                     showButt = true;
@@ -811,7 +812,7 @@ function RSimulate(opts) {
     }
 
     function initPlanets() {
-
+		
         //var moonGeometry = new THREE.SphereGeometry( MOON_SIZE, 16, 16 );
         //var moonMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc} );
 
@@ -1063,8 +1064,6 @@ function RSimulate(opts) {
         }
     }
 
-
-
     function initUI() {
 
         // wipe object list on init to clean things that might have been left over from a refresh event
@@ -1151,7 +1150,6 @@ $(document).ready(function(){
     $("#body-info-container").hide();
     if ((playerObjects.length <= 0) && (ws.readyState == 1)) {
         initrSimulate();
-        // ensure that two listeners aren't bound due to webGL refreshes and add listener to new object button
     }
 
     console.log("Refreshing webGL canvas")
@@ -1163,6 +1161,5 @@ function initrSimulate() {
     rSimulate = new RSimulate({});
 
     ws.send(message('refresh','None'))
-
 }
 
