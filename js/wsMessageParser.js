@@ -8,13 +8,47 @@ function updateResources(newHTML){
     document.getElementById("resource-bar").innerHTML = newHTML;
 }
 
-function parsePlayerObject(objectStr) {
-    //{'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'data': data}
-    // clean string and parse everything but data. NOTE: Data should be the last item in the dict
+function cleanPlayerObjectRequest(objectStr) {
+    // clean string related to player object requests
     var str = objectStr.replace(/([\:\,\'\{\}\(\)])+/g, "");
     str = str.replace(/(UUID)+/g, "");
     str = str.replace(/([\(\)])+/g, "");
     var split = str.split(" ");
+
+    return split;
+}
+
+function parseObjectRemoval(str) {
+    var split = cleanPlayerObjectRequest(str);
+    // result result objectId uuid reason unknown
+    var result, objectId, reason;
+    for (var i = 0; i < split.length; i++) {
+        var s = split[i];
+        var next = i+1;
+        if (s == 'result') {
+            result = split[next];
+        }
+        else if (s == 'objectId') {
+            objectId = split[next];
+        }
+        else if (s == 'reason') {
+            reason = split[next];
+        }
+    }
+
+    // check
+    if ((result == undefined) || (objectId == undefined) || (reason == undefined)) {
+        console.log("ERROR parsing object removal request. Player object not removed");
+        return {result: false, objectId: objectId, reason: 'Removal request parsing failed.'};
+    }
+
+    return {result: result, objectId: objectId, reason: reason};
+}
+
+function parsePlayerObject(objectStr) {
+    //{'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'data': data}
+    // clean string and parse everything but data. NOTE: Data should be the last item in the dict
+    var split = cleanPlayerObjectRequest(objectStr);
     var owner, objectId, type, model, orbitData;
     for (var ii = 0; ii < split.length; ii++) {
         var s = split[ii];
@@ -135,7 +169,7 @@ function parseMessage(m) {
             console.log(object.orbit.name);
             var path = getPathForModel(object.model.toLocaleLowerCase());
             if (path != null) {
-                rSimulate.addBlenderPlayerObjectMesh(path, object.orbit);
+                rSimulate.addBlenderPlayerObjectMesh(path, object.orbit, object.objectId);
             }
             else {console.log("Could not find model path for object " + object.objectId)}
         }
@@ -145,8 +179,13 @@ function parseMessage(m) {
         // TODO: display template
 
     } else if (cmd == "pObjDestroyRequest") {
-        // TODO: do something with the result of the destroy request
-
+        var request = parseObjectRemoval(data);
+        if (request.result == 'True') {
+            removeBody(undefined, "playerObject", request.objectId);
+        }
+        else {
+            console.log("Destroy request for object " + request.objectId + " was denied because: " + request.reason);
+        }
     } else {
         console.log("ERR: unknown message to client: "+m);
     }

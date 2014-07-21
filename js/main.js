@@ -35,7 +35,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var orbits = [];
     var meshes = [];
     var ellipses = []; // {bodyId: id, ellipse: ellipse, type: (planet, asteroid, etc)}
-    var playerObjects = [];  // {mesh: mesh, orbit: orbit}
+    var playerObjects = [];  // {mesh: mesh, orbit: orbit, bodyId: id}
 
     // for each type of object, there is a list of indexes of orbits/meshes that match it
     // example: indexes["asteroid"] --> [2,3,5] and you can get the orbits at orbits[2], orbits[3], orbits[5]
@@ -51,6 +51,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var mapFromOwnerNameToColor = {};
     
     var selectedBody = '';
+    var removeBody;
 
 function RSimulate(opts) {
 
@@ -94,50 +95,58 @@ function RSimulate(opts) {
         
         nextEntityIndex++;
     }
-    function removePlayerBody(e) {
-        console.log("Called for removal of bodyID" + selectedBody);
-        removeBody(undefined, undefined, undefined);
-    };
-
-    function removeBody (parentScene, indexLabel, playerObjectName) {
-        if (indexLabel == undefined) { indexLabel = "playerObject"; }
-        if (parentScene == undefined) { parentScene = scene; }
-        if (playerObjectName == undefined) { playerObjectName = selectedBody; }
-        var playerObject;
+    function removePlayerBody(event) {
+        event.stopPropagation();
+        console.log("Called for removal of bodyID " + selectedBody);
+        var rmObject;
         for (var i = 0; i < playerObjects.length; i++) {
-            console.log(playerObjects[i].orbit.name);
             if (playerObjects[i].orbit.name == selectedBody) {
-                playerObject = playerObjects[i];
+                rmObject = playerObjects[i];
                 break;
             }
         }
+        ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + rmObject.objectId + "'}}"));
+    }
 
-        if (playerObject == undefined) {
+    removeBody = function (parentScene, indexLabel, objectId) {
+        // Removes a player body from the scene
+        if (parentScene == undefined) { parentScene = scene; }
+        var rmObject;
+        if (objectId != undefined) {
+            for (var i = 0; i < playerObjects.length; i++) {
+                if (playerObjects[i].objectId == objectId) {
+                    rmObject = playerObjects[i];
+                    break;
+                }
+            }
+        }
+
+        // TODO: add a way to remove asteroids
+        if (rmObject == undefined) {
             console.log("Error: Could not find object " + selectedBody + " to remove");
             return null;
         }
 
         for (var index in orbits) {
-            // TODO: Cannot read property 'name' of undefined. Line 109. Also move PlayerObjectView UI out of the way. Add expand/contract method
             if (orbits[index].hasOwnProperty('name')) {
-                if (orbits[index].name == playerObject.orbit.name) {
+                if (orbits[index].name == rmObject.orbit.name) {
                     orbits.splice(index, 1);
                     break;
                 }
             }
         }
         for (index in meshes) {
-            if (meshes[index] == playerObject.mesh) {
+            if (meshes[index] == rmObject.mesh) {
                 meshes.splice(index, 1);
                 break;
             }
         }
 
-        parentScene.remove(playerObject.mesh);
+        parentScene.remove(rmObject.mesh);
 
-        var ellipse = playerObject.orbit.getEllipse();
+        var ellipse = rmObject.orbit.getEllipse();
         for (var i = 0; i < ellipses.length; i++) {
-            if (ellipses[i].bodyId == mapFromMeshIdToBodyId[playerObject.mesh.id]) {
+            if (ellipses[i].bodyId == mapFromMeshIdToBodyId[rmObject.mesh.id]) {
                 ellipses.splice(i, 1);
                 break;
             }
@@ -146,20 +155,21 @@ function RSimulate(opts) {
         parentScene.remove(ellipse);
 
 
-        var bodyId = mapFromMeshIdToBodyId[playerObject.mesh];
+        var bodyId = mapFromMeshIdToBodyId[rmObject.mesh];
 
         for (index in indexes[indexLabel]) {
             if (indexes[indexLabel][index] == bodyId) {
                 indexes[indexLabel].splice(index, 1);
-                //nextEntityIndex--;
                 break;
             }
         }
 
         // remove div from player object list
-        $('#'+playerObject.orbit.name+"-button").remove();
+        if (indexLabel == "playerObject") {
+            $('#'+rmObject.orbit.name).remove();
+        }
 
-        // deselect body
+        // deselect body, if selected
         onBodyDeselected();
     }
 
@@ -173,7 +183,7 @@ function RSimulate(opts) {
 		return bodyMesh;
 	}
 
-    this.addBlenderPlayerObjectMesh = function (daePath, orbit) {
+    this.addBlenderPlayerObjectMesh = function (daePath, orbit, objectId) {
         var loader = new THREE.ColladaLoader();
         loader.options.convertUpAxis = true;
 
@@ -185,8 +195,11 @@ function RSimulate(opts) {
                 mesh.scale.x = mesh.scale.y = mesh.scale.z = 5;
                 mesh.updateMatrix();
 
+                // add to scene
                 addPlayerObject(orbit, mesh);
-                playerObjects.push({mesh: mesh, orbit: orbit});
+
+                // add to player object collection
+                playerObjects.push({mesh: mesh, orbit: orbit, objectId: objectId});
             }
             else {console.log("ERROR: Parsing blender model failed");}
         });
@@ -203,7 +216,7 @@ function RSimulate(opts) {
         textName = textName.replace(/(--)+/g, "\'");
 
         // append a new object specific button to the list
-        $("<li><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
+        $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
             textName + "</a></li>").appendTo('#object-list-container');
 
         // add listener to object specific div
@@ -317,11 +330,9 @@ function RSimulate(opts) {
 
         var orbit = orbits[bodyId];
         var mesh = meshes[bodyId];
-        console.log(bodyId);
         for (var i = 0; i < ellipses.length; i++) {
             if (ellipses[i].bodyId == bodyId) {
                 ellipses[i].ellipse.visible = true;
-                console.log(ellipses[i].type);
                 break;
             }
         }
@@ -1013,7 +1024,8 @@ function RSimulate(opts) {
         }
     }
 
-    function addTestObject() {
+    function addTestObject(event) {
+        event.stopPropagation();
         // NOTE: send ephemeris without a name; the server will assign one
         var cmd = 'create';
         var ephemeris = {
@@ -1033,7 +1045,7 @@ function RSimulate(opts) {
         var objectId = 'None';
         var data = {cmd: cmd, type: type, model: model, objectId: objectId, orbit: ephemeris};
         var stringify = JSON.stringify(data).replace(/\"+/g, "\'");
-
+        console.log("Adding new object request")
         ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'Probe', " +
                                         "'model': 'Magellan', 'data': "+stringify+'}'));
     }
@@ -1044,6 +1056,7 @@ function RSimulate(opts) {
         $('.playerObject').remove();
 
         // add listener to new object button
+        console.log($._data($('#add-object-button'), "events"));
         $('#add-object-button').click(addTestObject);
 
 

@@ -88,7 +88,7 @@ class Game(object):
                 uniqueId += 1
 
         orbit['full_name'] = name + "--s_" + model + "_" + objectType + "_" + str(uniqueId)
-        obj = {'owner': name, 'objectId': pUuid, 'type': objectType, 'model': model, 'orbit': orbit}
+        obj = {'owner': str(name), 'objectId': str(pUuid), 'type': objectType, 'model': model, 'orbit': orbit}
         print "added player object", obj['model'], "for owner", obj['owner'], "with objectId", obj['objectId']
         self.playerObjects.append(obj)
         return obj
@@ -112,8 +112,12 @@ class Game(object):
         :param objectId: The UUID of the object
         :return: False if removal fails, True if object was removed
         """
+        objectId = str(objectId)
+        fromUser = str(fromUser)
         rObject = None
         for object in self.playerObjects:
+            # print object['owner'], type(object['owner']), fromUser, type(fromUser)
+            # print object['objectId'], type(object['objectId']), objectId, type(objectId)
             if (object['objectId'] == objectId) & (object['owner'] == fromUser):
                 rObject = object
 
@@ -121,10 +125,14 @@ class Game(object):
             try:
                 self.playerObjects.remove(rObject)
             except ValueError:
+                print "Could not find objectId", objectId, "to remove"
                 return False
             finally:
                 return True
 
+        if rObject is None:
+            print "Player", fromUser, "tried to remove an object that they didn't own, " \
+                                      "or that we could not find in the list! DENIED."
         return False
 
     def inGame(self, uName):

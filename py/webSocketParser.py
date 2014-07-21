@@ -103,14 +103,16 @@ def playerObjectResponder(user, ws, data):
 
         elif cmdName == 'destroy':
             uuid = pData['uuid']
-            result = game.removePlayerObject(uuid, user)
+            result = game.removePlayerObject(uuid, user.name)
 
+            # TODO: provide an actual reason for failing to remove an object
+            # TODO: Send back success along with possible recovered res from destroyed object
+            obj = {'result': str(result), 'objectId': uuid, 'reason': str(result)}
             message = '{"cmd":"pObjDestroyRequest","data":"'
-            message += str(result)
+            message += str(obj)
             message += '"}'
 
             ws.send(message)
-            # TODO: Send back success along with possible recovered res from destroyed object
 
 def refreshResponder(user):
     user.game.synchronizeObjects(user)
