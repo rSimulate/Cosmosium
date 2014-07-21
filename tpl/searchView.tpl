@@ -45,7 +45,6 @@
         <div id="container"></div>
 
         <script src="js/vendor/three.ColladaLoader.js"></script>
-        <script src="js/vendor/three.ColladaLoader.js"></script>
         <div id="body-info-container">
             <br>
             <div id="body-info">foo</div>
