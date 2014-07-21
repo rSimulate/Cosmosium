@@ -42,9 +42,9 @@ var IO_SIZE       = scale(EARTH_SIZE ,.2861,.2861 );
 // exageration of moonar orbit distances
 var ORBIT_DIST    = scale(EARTH_SIZE ,1     ,.1    );
 // specific moon distance adjustments:
-var EARTH_MOON_EXAGGERATION   = scale(ORBIT_DIST,1,EARTH_SIZE  *1);
+var EARTH_MOON_EXAGGERATION   = scale(ORBIT_DIST,1,EARTH_SIZE);
 var MARS_MOON_EXAGGERATION    = scale(ORBIT_DIST,1,MARS_SIZE   *15);
-var JUPITER_MOON_EXAGGERATION = scale(ORBIT_DIST,1,JUPITER_SIZE*1);
+var JUPITER_MOON_EXAGGERATION = scale(ORBIT_DIST,1,JUPITER_SIZE);
 
 // ====================================
 

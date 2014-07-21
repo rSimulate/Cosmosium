@@ -2,6 +2,7 @@ from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
 from bottle import template
 from py.getAsteroid import byName
+from ast import literal_eval
 
 CHUNKS = chunks()
 
@@ -71,14 +72,73 @@ def researchResponder(user, ws, researchType):
             user=user)
     message+='"}'
     ws.send(message)
+
+def playerObjectResponder(user, ws, data):
+    """
+
+    :param user: the requesting user
+    :param ws:
+    :param data: data as a string
+    :return:
+    """
+    game = user.game
+    if game is not None:
+        # Data Example
+        # {'data': {'cmd': 'create', 'orbit': {'a': 1.00000261, 'om': 0, 'e': 0.01671123, 'i': 1.531e-05,
+        # 'L': 100.46457166, 'P': 365.256, 'epoch': 2451545, 'w': 102.93768193, 'w_bar': 102.93768193,
+        # 'ma': -2.47311027}}, 'model': 'magellan', 'cmd': 'pObjCreate', 'type': 'probe', 'objectId': None}
+        data = literal_eval(data)
+
+        pData = data['data']
+        cmdName = pData['cmd']
+        if cmdName == 'create':
+            # TODO: Check and see if there's enough resources to grant the request
+            objectType = pData['type']
+            model = pData['model']
+            orbit = pData['orbit']
+
+            message = '{"cmd":"pObjCreate","data":"'
+            message += str(game.addPlayerObject(objectType, model, orbit, user.name))
+            message += '"}'
+
+            ws.send(message)
+
+        elif cmdName == 'query':
+            uuid = pData['uuid']
+
+            message = '{"cmd":"pObjRequest","data":"'
+            message += str(game.getPlayerObject(uuid))
+            message += '"}'
+
+            ws.send(message)
+
+        elif cmdName == 'destroy':
+            uuid = pData['uuid']
+            result = game.removePlayerObject(uuid, user.name)
+
+            # TODO: provide an actual reason for failing to remove an object
+            # TODO: Send back success along with possible recovered res from destroyed object
+            obj = {'result': str(result), 'objectId': uuid, 'reason': str(result)}
+            message = '{"cmd":"pObjDestroyRequest","data":"'
+            message += str(obj)
+            message += '"}'
+
+            ws.send(message)
+
+def refreshResponder(user):
+    user.game.synchronizeObjects(user)
     
-def parse(cmd, data, user, websock, OOIs):
+def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     # takes appropriate action on the given command and data string
     if cmd == 'track':
         asteroidTrackResponder(data, user, websock, OOIs)
     elif cmd == 'hello':
         registerUserConnection(user, websock)
+    elif cmd == 'refresh':
+        refreshResponder(user)
     elif cmd == 'research':
         researchResponder(user, websock, data)
+    elif cmd == 'playerObject':
+        playerObjectResponder(user, websock, data)
     else:
         print "UNKNOWN CLIENT MESSAGE: cmd=",cmd,"data=",data," from user ",user

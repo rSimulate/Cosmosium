@@ -20,14 +20,13 @@
     this.particle_geometry = opts.particle_geometry;
     this.bigParticle = bigParticle;
 
-    this.CreateParticle(opts.jed, opts.texture_path);
-  }
+    this.CreateParticle(opts.jed);
+  };
 
   Orbit3D.prototype.CreateOrbit = function(jed) {
-    var pts;
     var points;
     var time = jed;
-    var pts = []
+    var pts = [];
     var limit = this.eph.P ? this.eph.P+1 : this.eph.per;
     var parts = this.eph.e > .20 ? 300 : 100;   // extra precision for high eccentricity
     var delta = Math.ceil(limit / parts);
@@ -53,7 +52,7 @@
     return line;
   }
 
-  Orbit3D.prototype.CreateParticle = function(jed, texture_path) {
+  Orbit3D.prototype.CreateParticle = function(jed) {
     if (!this.bigParticle && this.particle_geometry) {
       // dummy position for particle geometry
       var tmp_vec = new THREE.Vector3(0,0,0);

@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
-    <script type='text/javascript' src='/tpl/js/player.js'></script>
+    <script type="application/javascript">
 
+    </script>
+    <script type='text/javascript' src='/tpl/js/player.js'></script>
 
     <!-- use the webGL scene as bg -->
     % if config.showBG:
@@ -53,12 +55,15 @@
                     autoplay="false">
                 % end
               <source src="{{chunks.bg_music.link}}" />
-            </audio> 
+            </audio>
 
-            <!-- websocket connection --> 
+
+            <!-- websocket connection -->
+            <script type='text/javascript' src='/js/objectDB.js'></script>
             <script type='text/javascript' src='/js/wsMessageParser.js'></script>
             <script type='text/javascript' src='/js/createMessage.js'></script>
             <script type='text/javascript' src='/tpl/js/webSocketSetup.js'></script>
+
 
     </head>
     <body class="skin-black" style='background-color: black;'>

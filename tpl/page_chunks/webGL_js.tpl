@@ -2,6 +2,7 @@
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="js/vendor/ces-browser.min.js"></script>
 <script src="js/vendor/three.min.js"></script>
+<script src="js/vendor/three.ColladaLoader.js"></script>
 
 % if config.controlBG:
     <script src="js/vendor/OrbitControls.js"></script>

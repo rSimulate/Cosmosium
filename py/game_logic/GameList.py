@@ -36,24 +36,22 @@ class GameList(object):
         # connects given user object to best game
         # if user already in a game, returns that one
         # else finds open slot
-        game = self.__inGame(userObj)
+        game = self._inGame(userObj)
         if game:
             userObj.game = game
+            return game
         else:
-            self.__addToGame(userObj,self.__findOpenSlot(userObj))
+            game = self.__findOpenSlot(userObj)
+            game.addPlayer(userObj)
+            return game
             
-    def __addToGame(self, uObj,gObj):
-        # adds given user to given game and ensures all is properly linked
-        gObj.addPlayer(uObj)
-        uObj.setGame(gObj)
-            
-    def __inGame(self,user):
-        # returns game obj if user is in a game, else returns false
+    def _inGame(self,user):
+        # returns game obj if user is in a game, else returns None
         for game in self.games:
             if game.inGame(user.name):
                 return game
         else:
-            return False
+            return None
             
     def __findOpenSlot(self,user):
         # returns the best game for a new user to join
@@ -68,15 +66,4 @@ class GameList(object):
         # NOTE: just uses 1 game for now...
         selectedGame = self.games[0]
         selectedGame.addPlayer(user)
-        user.setGame(selectedGame)
         return selectedGame
-        
-    # DEPRECIATED
-    def inGame(self,userName):
-        # returns user obj if user is in a game, else returns false
-        for game in self.games:
-            user = game.inGame(userName)
-            if user:
-                return user, game
-        else:
-            return False
