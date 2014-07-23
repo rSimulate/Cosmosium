@@ -262,7 +262,6 @@ function RSimulate(opts) {
         }
 
         if (!exists) {
-            console.log("ADDINGDSIHFLJHSDFLN")
             // append a new object specific button to the list
             $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
                 textName + "</a></li>").appendTo('#object-list-container');
