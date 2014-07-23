@@ -12,7 +12,7 @@
             <div id="container"></div>
             % include('tpl/page_chunks/webGL_js')
         </div>
-    # end
+    % end
     <head>
         <meta charset="UTF-8">
         <title>Cosmosium | {{pageTitle}}</title>        
