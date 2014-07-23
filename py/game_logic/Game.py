@@ -68,6 +68,29 @@ class Game(object):
                 player.websocket.send(message)
         else:
             print "Cannot synchronize objects with user " + player.name + ". WebSocket is NoneType"
+
+    def synchronizeClientsForObject(self, obj):
+        print "syncronizing clients for addition of object", obj['objectId']
+        for player in self.players:
+            if player.websocket is not None:
+                message = '{"cmd":"pObjCreate","data":"'
+                message += str(obj)
+                message += '"}'
+                print "sending object", obj['objectId'], "to", player.name
+                player.websocket.send(message)
+            else:
+                print "Cannot update user " + player.name + " with new object.  Webocket is NoneType"
+
+    def synchronizeObjectRemoval(self, obj):
+        message = '{"cmd":"pObjDestroyRequest","data":"'
+        message += str(obj)
+        message += '"}'
+
+        for player in self.players:
+            if player.websocket is not None:
+                player.websocket.send(message)
+            else:
+                print "Cannot update user " + player.name + " with removal of an object.  WebSocket is NoneType"
         
     def addObject(self, object, ownerName=None):
         # adds object to track to OOIs
@@ -91,6 +114,7 @@ class Game(object):
         obj = {'owner': str(name), 'objectId': str(pUuid), 'type': objectType, 'model': model, 'orbit': orbit}
         print "added player object", obj['model'], "for owner", obj['owner'], "with objectId", obj['objectId']
         self.playerObjects.append(obj)
+        self.synchronizeClientsForObject(obj)
         return obj
 
     def getPlayerObject(self, uuid):

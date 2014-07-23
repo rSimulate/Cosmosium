@@ -51,6 +51,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
     var selectedBody = '';
     var removeBody;
+    var addTestObject;
 
 function RSimulate(opts) {
 
@@ -198,7 +199,7 @@ function RSimulate(opts) {
                 mesh.updateMatrix();
 
                 // add to scene
-                addPlayerObject(object.orbit, mesh);
+                addPlayerObject(object.orbit, mesh, object.orbit.name);
 
                 // add to player object collection
                 object.mesh = mesh;
@@ -206,7 +207,9 @@ function RSimulate(opts) {
             }
             else {console.log("ERROR: Parsing blender model failed");}
         });
+
     };
+
 
     function addPlanet(orbit, planetmesh) {
 		addBody( scene, "planet", orbit, planetmesh, true );
@@ -219,7 +222,7 @@ function RSimulate(opts) {
         return textName;
     }
 
-    function addTestObject (e) {
+    addTestObject = function () {
         // NOTE: send ephemeris without a name; the server will assign one
         var cmd = 'create';
         var ephemeris = {
@@ -242,23 +245,34 @@ function RSimulate(opts) {
         console.log("Requesting new Object");
         ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'Probe', " +
             "'model': 'Magellan', 'data': "+stringify+'}'));
-        e.stopPropagation();
-        e.preventDefault();
     }
 
-    function addPlayerObject(orbit, mesh) {
+    function addPlayerObject(orbit, mesh, orbitName) {
+
         addBody( scene, "playerObject", orbit, mesh, true);
 
         var textName = cleanOrbitName(orbit.name);
 
-        // append a new object specific button to the list
-        $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
-            textName + "</a></li>").appendTo('#object-list-container');
+        var exists = false;
+        for (var i = 0; i < playerObjects.length; i++) {
+            if (playerObjects[i].orbit.name == orbitName) {
+                exists = true;
+                break;
+            }
+        }
 
-        // add listener to object specific div
-        $('#'+orbit.name).click(function() {
-            orientToObject(mesh);
-        });
+        if (!exists) {
+            console.log("ADDINGDSIHFLJHSDFLN")
+            // append a new object specific button to the list
+            $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
+                textName + "</a></li>").appendTo('#object-list-container');
+
+            // add listener to object specific div
+            document.getElementById(orbit.name).addEventListener('click', function() {
+                orientToObject(mesh);
+            }, false);
+        }
+
     }
 
     function orientToObject(mesh) {
@@ -1069,15 +1083,6 @@ function RSimulate(opts) {
         // wipe object list on init to clean things that might have been left over from a refresh event
         $('.playerObject').remove();
 
-        if (typeof $('#add-object-button')[0] == 'undefined') {
-            $('#add-object-button').on('click', addTestObject);
-        }
-        else if ($._data($('#add-object-button')[0]).events == undefined) {
-            $('#add-object-button').on('click', addTestObject);
-        }
-
-        //$('#add-object-button').off('click').on('click', addTestObject);
-
         // Remove Button
         $('#body-info-container').append("<div id='destroy-object-container'><br>" +
             "<h3>" +
@@ -1160,6 +1165,6 @@ function initrSimulate() {
     // refresh webGL
     rSimulate = new RSimulate({});
 
-    ws.send(message('refresh','None'))
+    ws.send(message('refresh','None'));
 }
 

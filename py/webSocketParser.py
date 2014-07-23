@@ -118,12 +118,16 @@ def playerObjectResponder(user, ws, data):
 
             # TODO: provide an actual reason for failing to remove an object
             # TODO: Send back success along with possible recovered res from destroyed object
-            obj = {'result': str(result), 'objectId': uuid, 'reason': str(result)}
-            message = '{"cmd":"pObjDestroyRequest","data":"'
-            message += str(obj)
-            message += '"}'
-
-            ws.send(message)
+            if result:
+                obj = {'result': str(result), 'objectId': uuid, 'reason': str(result)}
+                print "syncronizing clients for removal of object", uuid
+                game.synchronizeObjectRemoval(obj)
+            else:
+                obj = {'result': str(result), 'objectId': uuid, 'reason': str(result)}
+                message = '{"cmd":"pObjDestroyRequest","data":"'
+                message += str(obj)
+                message += '"}'
+                ws.send(message)
 
 def refreshResponder(user):
     user.game.synchronizeObjects(user)

@@ -118,3 +118,10 @@ document.getElementById('timeline-link').addEventListener('click', function (e){
     $('#content').load('/content?name=timeline');
     
 }, false);
+
+document.getElementById('add-object-button').addEventListener('click', function (e) {
+    e = e || window.event;
+
+    addTestObject();
+
+}, false);
