@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html>
     <body class="skin-black">
-            % include('tpl/page_chunks/head') # implicitly passed: pageTitle
+            % include('tpl/page_chunks/content') # implicitly passed: pageTitle
 			
             % include('tpl/game_frame') # implicitly passed: chunks,messages,note_count,task_count,user,resources
             

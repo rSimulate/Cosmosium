@@ -2,71 +2,81 @@
  Ajax navigation controls for the sidebar.
 */
 
+var openContent = $('#dash');
+
+function switchContent(content) {
+    openContent.hide();
+    if (content != undefined) {
+        openContent = content;
+        openContent.show();
+    }
+}
+
 document.getElementById('asteroidSurveys-link').addEventListener('click', function (e){
     e = e || window.event; 
-    $('#content').load('/content?name=asteroidSurveys');
+    //$('#content').load('/content?name=asteroidSurveys');
 
 }, false);
 
 document.getElementById('dash-link').addEventListener('click', function (e){
     e = e || window.event;
-    
-    $('#content').load('/content?name=dash');
+
+    switchContent($('#dash'));
     
 }, false);
 
 document.getElementById('fuelNet-link').addEventListener('click', function (e){
     e = e || window.event;
-    $('#content').load('/content?name=fuelNet');
+    //$('#content').load('/content?name=fuelNet');
 }, false);
 
 document.getElementById('gov-link').addEventListener('click', function (e){
     e = e || window.event;
-    $('#content').load('/content?name=gov');
+    //$('#content').load('/content?name=gov');
 }, false);
 
 document.getElementById('launchpad-link').addEventListener('click', function (e){
     e = e || window.event;
     
-    $('#content').load('/content?name=launchpad');
+    //$('#content').load('/content?name=launchpad');
     
 }, false);
 
 document.getElementById('launchSys-link').addEventListener('click', function (e){
     e = e || window.event;
     
-    $('#content').load('/content?name=launchSys');
+    //$('#content').load('/content?name=launchSys');
     
 }, false);
 
 document.getElementById('missionControl-link').addEventListener('click', function (e){
     e = e || window.event;
     
-    $('#content').load('/content?name=missionControl');
+    //$('#content').load('/content?name=missionControl');
     
 }, false);
 
 document.getElementById('observatories-link').addEventListener('click', function (e){
     e = e || window.event;
     
-    $('#content').load('/content?name=observatories');
+    //$('#content').load('/content?name=observatories');
     
 }, false);
 
 document.getElementById('org-link').addEventListener('click', function (e){
     e = e || window.event;
-    $('#content').load('/content?name=org');
+    //$('#content').load('/content?name=org');
 }, false);
 
 document.getElementById('outreach-link').addEventListener('click', function (e){
     e = e || window.event;
-    $('#content').load('/content?name=outreach');
+    //$('#content').load('/content?name=outreach');
 }, false);
 
 document.getElementById('resMarket-link').addEventListener('click', function (e){
     e = e || window.event;
     
-    $('#content').load('/content?name=resMarket');
+    //$('#content').load('/content?name=resMarket');
     
 }, false);
 
@@ -81,35 +91,34 @@ document.getElementById('research_spaceIndustry-link').addEventListener('click',
 */
 document.getElementById('research_spaceIndustry-link').addEventListener('click', function (e){
     e = e || window.event;
-    $('#content').load('/content?name=research&section=spaceIndustry');
+    //$('#content').load('/content?name=research&section=spaceIndustry');
 }, false);
 document.getElementById('research_humanHabitation-link').addEventListener('click', function (e){
     e = e || window.event;
-    $('#content').load('/content?name=research&section=humanHabitation');
+    //$('#content').load('/content?name=research&section=humanHabitation');
 }, false);
 document.getElementById('research_robotics-link').addEventListener('click', function (e){
     e = e || window.event;
-    $('#content').load('/content?name=research&section=roboticsAndAI');
+    //$('#content').load('/content?name=research&section=roboticsAndAI');
 }, false);
 
 
 
 document.getElementById('spaceTourism-link').addEventListener('click', function (e){
     e = e || window.event;
-    $('#content').load('/content?name=spaceTourism');
+    //$('#content').load('/content?name=spaceTourism');
 }, false);
 
 document.getElementById('surveyEquip-link').addEventListener('click', function (e){
-    e = e || window.event; 
-    $('#content').load('/content?name=surveyEquip');
+    e = e || window.event;
+    //$('#content').load('/content?name=surveyEquip');
 
 }, false);
 
 document.getElementById('systemView-link').addEventListener('click', function (e){
-    e = e || window.event; 
-    $('#content').load('/content?name=systemView');
-    THREE.OrbitControls.enabled = true
-    $('#systemBG').load('/systemView');
+    e = e || window.event;
+    switchContent();
+    THREE.OrbitControls.enabled = true;
 }, false);
 
 document.getElementById('timeline-link').addEventListener('click', function (e){

@@ -79,7 +79,7 @@
                 width: 200px;
                 padding: 5px;
                 display: none;
-                z-index: 1;
+                z-index: 1000;
             }
             #claim-asteroid-button {
                 color: red;
@@ -87,17 +87,20 @@
 
             .sidebar-index {
                 display: inline;
-                z-index: 2;
+                z-index: 1010;
+                position: relative;
             }
 
             #dash {
-                display: inline;
-                z-index: 1;
+                display: inline-block;
+                z-index: 1000;
+                position: relative;
             }
 
             #canvas {
                 display: inline;
                 z-index: 0;
+                position: relative;
             }
 
 
@@ -111,15 +114,12 @@
                 overflow: hidden;
 
             }
+
         </style>
 
-        % include('tpl/page_chunks/webGL_shaders')
 
-        <div id="canvas"></div>
-
-        % include('tpl/page_chunks/webGL_js')
     </head>
-    <body class="skin-black" style='background-color: black;'>
+    <body class="skin-black" style='background-color: black'>
         <!-- top navigation bar -->
         % include('tpl/page_chunks/frame_top')
 
@@ -127,13 +127,14 @@
         % include('tpl/page_chunks/frame_left')
 
         <!-- Right side column. Contains the navbar and content of the page -->
-        <aside class="right-side">
+        <aside class="right-side skin-black" style="background-color: transparent">
             <br>
             <!-- Page Header and Resource Bar -->
             <section id="resource-bar" class="content-header" >
                 %   include('tpl/page_chunks/resourcebar')
             </section>
             <br>
+
 
             <!-- Dash -->
             %include('tpl/content/dash')
@@ -145,8 +146,12 @@
                 <div id="owner-info"><b>UNCLAIMED</b></div>
                 <div id="body-info">foo</div>
                 <h3><a id="claim-asteroid-button" href="#">Claim this asteroid</a></h3>
-            </div>
-            </section><!-- /.content -->
+            </div>>
+
+            <!-- webGL Canvas -->
+            % include('tpl/page_chunks/webGL_shaders')
+            <div id="canvas"></div>
+            % include('tpl/page_chunks/webGL_js')
         </aside><!-- /.right-side -->
 
         <!-- jQuery 2.0.2 -->

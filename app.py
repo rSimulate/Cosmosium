@@ -160,49 +160,6 @@ def error500(error):
         if you want to help us sort it out, please visit \
         <a href='https://github.com/rSimulate/Cosmosium/issues'>our issue tracker on github</a>."
 
-
-#=====================================#
-#            game content             #
-#=====================================#
-@app.route('/content')
-def makeContentHTML():
-    name=request.query.name # content page name
-    subDir = request.query.section=request.query.section # specific section of page (like type of research page)
-
-    # check for user login token in cookies
-    if request.get_cookie("cosmosium_login"):
-        userLoginToken = request.get_cookie("cosmosium_login")
-        try:
-            _user = USERS.getUserByToken(userLoginToken)
-        except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
-            redirect('/userLogin')
-
-        treeimg=''
-        if name == 'research': # then get research subDir info
-            if subDir=='spaceIndustry':
-                treeimg="img/space_industry_tech_tree_images.svg";
-            elif subDir=='humanHabitation':
-                treeimg="img/space_industry_tech_tree.svg";
-            elif subDir=='roboticsAndAI':
-                treeimg="img/space_industry_tech_tree_images.svg";
-            else:
-                return template('tpl/content/404') # error404('404')
-
-        fileName='tpl/content/'+name
-        if os.path.isfile(fileName+'.tpl'): #if file exists, use it
-            return template(fileName,
-                            tree_src=treeimg, #used only for research pages
-                            chunks=CHUNKS,
-                            user=_user,
-                            oois=GAMES.games[0].OOIs,
-                            config=Settings(MASTER_CONFIG),
-                            pageTitle=name)
-        else: # else show content under construction
-            print 'unknown content request: '+fileName
-            return template('tpl/content/under_construction')
-    else:
-        redirect('/userLogin')
-
 #=====================================#
 #           Splash Page               #
 #=====================================#
@@ -301,31 +258,6 @@ def asteroidSearch():
             return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/test_asteroids.js"))
         else:
             raise ValueError('unknown asteroid group request "'+str(group)+'"')
-
-
-@app.route('/systemView')
-def systemView():
-    _user = getLoggedInUser(request)
-    if _user != None:
-        return template('tpl/systemView',
-                        user=_user,
-                        chunks=CHUNKS,
-                        config=Settings('default',showFrame=False,showResources=False,showBG=False,controlBG=True),
-                        pageTitle="system View"
-                        )
-    else: 
-        redirect('/userLogin')
-    
-
-@app.route('/viewTest')
-def viewTest():
-    return template('tpl/systemView',
-                    user=User(),
-                    chunks=CHUNKS,
-                    config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),
-                    pageTitle="ViewTest"
-        )
-
 
 @app.route('/getAsteroids')
 def getOOIs():

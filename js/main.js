@@ -10,7 +10,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var using_webgl = true;
     var NUM_BIG_PARTICLES = 500;
 
-    var container, stats;
+    var stats;
     var camera, controls, scene, renderer;
     var mouse = new THREE.Vector2();
     var offset = new THREE.Vector3();
@@ -1017,8 +1017,7 @@ function RSimulate(opts) {
         renderer = new THREE.WebGLRenderer( { antialias: false } );
         renderer.setSize( window.innerWidth, window.innerHeight );
 
-        container = document.getElementById( 'container' );
-        container.appendChild( renderer.domElement );
+        $('#canvas').append( renderer.domElement);
 
         renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
         renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -1030,7 +1029,7 @@ function RSimulate(opts) {
         stats.domElement.style.position = 'absolute';
         stats.domElement.style.top = '0px';
         stats.domElement.style.zIndex = 100;
-        container.appendChild( stats.domElement );
+        $('#canvas').append( stats.domElement );
     }
 
     function onWindowResize() {
@@ -1136,10 +1135,7 @@ if (SHOWING_ASTEROID_CLAIM){
     // link to add the asteroid
     function claimButt_onClick(e){
         e = e || window.event;
-        
-        // this doesn't work...
-        //$('#content').load('/content/addAsteroid?name='+bodyName);
-        // so we'll have to use websockets instead:
+
         ws.send(message('track',selectedBody));
         
     }
@@ -1163,7 +1159,7 @@ $(document).ready(function(){
 function initrSimulate() {
     // refresh webGL
     rSimulate = new RSimulate({});
-
+    $('#dash').show();
     ws.send(message('refresh','None'));
 }
 

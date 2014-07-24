@@ -1,6 +1,6 @@
 <!-- header logo: style can be found in header.less -->
 
-<div class="wrapper row-offcanvas row-offcanvas-left">
+<div class="wrapper row-offcanvas row-offcanvas-left sidebar-index">
     <!-- Left side column. contains the logo and sidebar -->
     <aside class="left-side sidebar-offcanvas">
         <!-- sidebar: style can be found in sidebar.less -->
@@ -29,12 +29,12 @@
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
                 <li class="active">
-                    <a href="#dash" id='dash-link'>
+                    <a href="#" id='dash-link'>
                         <i class="fa fa-dashboard"></i> <span>{{chunks.button1_text}}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#systemView" id='systemView-link'>
+                    <a href="#" id='systemView-link'>
                         <i class="ion ion-ionic"></i> <span>{{chunks.button2_text}}</span> 
                         <small class="badge pull-right bg-red">{{chunks.button2_num}}</small>
                     </a>
