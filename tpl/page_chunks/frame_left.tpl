@@ -60,7 +60,7 @@
                     </a>
                     <ul class="treeview-menu">
                         <li><a href="#" id='asteroidSurveys-link'><i class="fa fa-angle-double-right"></i> Asteroid Surveys</a></li>
-                        <li><a href="#surveyEquip" id='surveyEquip-link'><i class="fa fa-angle-double-right"></i>Survey Equipment</a></li>
+                        <li><a href="#" id='surveyEquip-link'><i class="fa fa-angle-double-right"></i>Survey Equipment</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
@@ -69,9 +69,9 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#research?section=Space%20Industry" id='research_spaceIndustry-link'><i class="fa fa-angle-double-right"></i> Space Industry</a></li>
-                        <li><a href="#research?section=Human%20Habitation" id='research_humanHabitation-link'><i class="fa fa-angle-double-right"></i> Human Habitation</a></li>
-                        <li><a href="#research?section=Robotics%20and%20AI" id='research_robotics-link'><i class="fa fa-angle-double-right"></i> Robotics & AI</a></li>
+                        <li><a href="#" id='research_spaceIndustry-link'><i class="fa fa-angle-double-right"></i> Space Industry</a></li>
+                        <li><a href="#" id='research_humanHabitation-link'><i class="fa fa-angle-double-right"></i> Human Habitation</a></li>
+                        <li><a href="#" id='research_robotics-link'><i class="fa fa-angle-double-right"></i> Robotics & AI</a></li>
                     </ul>
                     </a>
                 </li>
@@ -82,10 +82,10 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#launchSys" id='launchSys-link'><i class="fa fa-angle-double-right"></i> Launch Systems</a></li>
-                        <li><a href="#resMarket" id='resMarket-link'><i class="fa fa-angle-double-right"></i> Resource Market</a></li>
-                        <li><a href="#fuelNet" id='fuelNet-link'><i class="fa fa-angle-double-right"></i> Fuel Network</a></li>
-                        <li><a href="#spaceTourism" id='spaceTourism-link'><i class="fa fa-angle-double-right"></i> Space Tourism</a></li>
+                        <li><a href="#" id='launchSys-link'><i class="fa fa-angle-double-right"></i> Launch Systems</a></li>
+                        <li><a href="#" id='resMarket-link'><i class="fa fa-angle-double-right"></i> Resource Market</a></li>
+                        <li><a href="#" id='fuelNet-link'><i class="fa fa-angle-double-right"></i> Fuel Network</a></li>
+                        <li><a href="#" id='spaceTourism-link'><i class="fa fa-angle-double-right"></i> Space Tourism</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
@@ -94,9 +94,9 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#outreach" id='outreach-link'><i class="fa fa-angle-double-right"></i> Outreach</a></li>
-                        <li><a href="#gov" id='gov-link'><i class="fa fa-angle-double-right"></i>Government</a></li>
-                        <li><a href="#org" id='org-link'><i class="fa fa-angle-double-right"></i> Organization</a></li>
+                        <li><a href="#" id='outreach-link'><i class="fa fa-angle-double-right"></i> Outreach</a></li>
+                        <li><a href="#" id='gov-link'><i class="fa fa-angle-double-right"></i>Government</a></li>
+                        <li><a href="#" id='org-link'><i class="fa fa-angle-double-right"></i> Organization</a></li>
                     </ul>
                 </li>
                 <li class="treeview">

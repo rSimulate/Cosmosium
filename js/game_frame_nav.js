@@ -81,12 +81,16 @@ document.getElementById('dash-link').addEventListener('click', function (e){
 
 document.getElementById('fuelNet-link').addEventListener('click', function (e){
     e = e || window.event;
-    //$('#content').load('/content?name=fuelNet');
+
+    switchContent($('#surveyEquip'));
+
 }, false);
 
 document.getElementById('gov-link').addEventListener('click', function (e){
     e = e || window.event;
-    //$('#content').load('/content?name=gov');
+
+    switchContent($('#surveyEquip'));
+
 }, false);
 
 document.getElementById('launchpad-link').addEventListener('click', function (e){
@@ -99,8 +103,8 @@ document.getElementById('launchpad-link').addEventListener('click', function (e)
 
 document.getElementById('launchSys-link').addEventListener('click', function (e){
     e = e || window.event;
-    
-    //$('#content').load('/content?name=launchSys');
+
+    switchContent($('#surveyEquip'));
     
 }, false);
 
@@ -121,44 +125,55 @@ document.getElementById('observatories-link').addEventListener('click', function
 
 document.getElementById('org-link').addEventListener('click', function (e){
     e = e || window.event;
-    //$('#content').load('/content?name=org');
+
+    switchContent($('#surveyEquip'));
+
 }, false);
 
 document.getElementById('outreach-link').addEventListener('click', function (e){
     e = e || window.event;
-    //$('#content').load('/content?name=outreach');
+
+    switchContent($('#surveyEquip'));
+
 }, false);
 
 document.getElementById('resMarket-link').addEventListener('click', function (e){
     e = e || window.event;
-    
-    //$('#content').load('/content?name=resMarket');
+
+    switchContent($('#surveyEquip'));
     
 }, false);
 
 document.getElementById('research_spaceIndustry-link').addEventListener('click', function (e){
     e = e || window.event;
-    //$('#content').load('/content?name=research&section=spaceIndustry');
+
+    switchContent($('#research'));
+
 }, false);
 document.getElementById('research_humanHabitation-link').addEventListener('click', function (e){
     e = e || window.event;
-    //$('#content').load('/content?name=research&section=humanHabitation');
+
+    switchContent($('#research'));
+
 }, false);
 document.getElementById('research_robotics-link').addEventListener('click', function (e){
     e = e || window.event;
-    //$('#content').load('/content?name=research&section=roboticsAndAI');
+
+    switchContent($('#research'));
+
 }, false);
 
 
 
 document.getElementById('spaceTourism-link').addEventListener('click', function (e){
     e = e || window.event;
-    //$('#content').load('/content?name=spaceTourism');
+
+    switchContent($('#surveyEquip'));
+
 }, false);
 
 document.getElementById('surveyEquip-link').addEventListener('click', function (e){
     e = e || window.event;
-    //$('#content').load('/content?name=surveyEquip');
 
     switchContent($('#surveyEquip'));
 

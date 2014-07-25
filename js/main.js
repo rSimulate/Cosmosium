@@ -1156,14 +1156,11 @@ var rSimulate;
 $(document).ready(function(){
     $("#body-info-container").hide();
     $("#dash").show();
-    if ((playerObjects.length <= 0) && (ws.readyState == 1)) {
-        initrSimulate();
-    }
 
     console.log("Refreshing webGL canvas")
 });
 
-// called once the webSocket makes a complete connection in webSocketSetup.js.tpl, or a refresh occurs
+// called once the webSocket makes a complete connection in webSocketSetup.js.tpl
 function initrSimulate() {
     // refresh webGL
     rSimulate = new RSimulate({});

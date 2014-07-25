@@ -160,6 +160,17 @@
                 z-index: 1010;
             }
 
+            #research {
+                display: none;
+                position: absolute;
+                top: 12%;
+                left: 17%;
+                width: 70%;
+                height: 80%;
+                z-index: 1010;
+                overflow-y: scroll;
+            }
+
             #resource-bar {
                 display: inline;
                 z-index: 1010;
@@ -244,6 +255,19 @@
                 <!-- Survey Equipment -->
                 % include('tpl/content/surveyEquipment')
 
+                <!-- Space Industry -->
+
+                % include('tpl/content/research')
+
+                <!-- Human Habitation -->
+                <!-- Robotics & AI -->
+                <!-- Launch Systems -->
+                <!-- Resource Market -->
+                <!-- Fuel Network -->
+                <!-- Space Tourism -->
+                <!-- Outreach -->
+                <!-- Government -->
+                <!-- Organization -->
                 <!-- object details pane -->
                 <div id="body-info-container">
                     <br>
