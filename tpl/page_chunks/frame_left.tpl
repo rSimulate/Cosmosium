@@ -46,11 +46,11 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#missionControl" id='missionControl-link'><i class="fa fa-angle-double-right"></i> Mission Control</a></li>
+                        <li><a href="#" id='missionControl-link'><i class="fa fa-angle-double-right"></i> Mission Control</a></li>
                         <li><a href="#" id='launchpad-link'><i class="fa fa-angle-double-right"></i>
                          Launchpad</a></li>
-                        <li><a href="#observatories" id='observatories-link'><i class="fa fa-angle-double-right"></i> Observatories</a></li>
-                        <li><a href="#timeline" id='timeline-link'><i class="fa fa-angle-double-right"></i> Timeline</a></li>
+                        <li><a href="#" id='observatories-link'><i class="fa fa-angle-double-right"></i> Observatories</a></li>
+                        <li><a href="#" id='timeline-link'><i class="fa fa-angle-double-right"></i> Timeline</a></li>
                     </ul>
                 </li>
                 <li class="treeview">

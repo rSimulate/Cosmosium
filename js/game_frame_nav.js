@@ -79,8 +79,8 @@ document.getElementById('launchSys-link').addEventListener('click', function (e)
 
 document.getElementById('missionControl-link').addEventListener('click', function (e){
     e = e || window.event;
-    
-    //$('#content').load('/content?name=missionControl');
+
+    switchContent($('#missionControl'));
     
 }, false);
 

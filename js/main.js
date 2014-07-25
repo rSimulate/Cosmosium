@@ -1155,6 +1155,7 @@ var rSimulate;
 
 $(document).ready(function(){
     $("#body-info-container").hide();
+    $("#dash").show();
     if ((playerObjects.length <= 0) && (ws.readyState == 1)) {
         initrSimulate();
     }

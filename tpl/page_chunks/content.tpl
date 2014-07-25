@@ -86,7 +86,7 @@
             }
 
             #dash {
-                display: inline;
+                display: none;
                 z-index: 1010;
                 position: absolute;
                 top: 20%;
@@ -107,6 +107,17 @@
                 left: 23%;
                 width: 40%;
                 height: 60%;
+                z-index: 1010;
+            }
+
+            #missionControl {
+                display: none;
+                position: absolute;
+                top: 20%;
+                left: 23%;
+                width: 40%;
+                height: 60%;
+                z-index: 1010;
             }
 
             #resource-bar {
@@ -174,6 +185,9 @@
                 </div>
                 <!-- Dash -->
                 % include('tpl/content/dash')
+
+                <!-- Mission Control -->
+                % include('tpl/content/missionControl')
 
                 <!-- Launchpad -->
                 % include('tpl/content/launchpad')

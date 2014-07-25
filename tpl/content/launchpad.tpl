@@ -46,5 +46,3 @@
 
        
     </section><!-- right col -->
-
-<script src='js/tiles/observatoryMap.js' type='text/javascript'></script>
