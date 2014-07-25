@@ -4,16 +4,21 @@
 <script src="js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
 					  
      <!-- right col (We are only adding the ID to make the widgets sortable)-->
-    <section class="col-lg">
+    <section id="launchpad" class="col-lg">
     
         <!-- Map box -->
         <div class="box box-primary">
             <div class="box-header">
-    
-                % include('tpl/tile_mapView')
-                
+
+                <i class="fa fa-map-marker"></i>
+                <h3 class="box-title">
+                    Launch Sites
+                </h3>
+                <div id="world-map" style="height: 400px"><!-- jVectorMap content in game_frame_nav.js --></div>
             </div>
-            <div class="box-footer">
+
+        </div>
+            <div class="box-footer" style="background-color: #f5f5f5">
                 
                 <div class="form-group">
                     <br>
@@ -35,6 +40,7 @@
                     </select>
                 </div>
                 <center> <button class="btn btn-primary btn-lg">Launch!</button> </center>
+                <br>
             </div>	
         </div><!-- /.box-body-->
 
