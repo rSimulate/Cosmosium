@@ -1,7 +1,3 @@
- <script type="text/javascript">
-    THREE.OrbitControls.enabled = false
-</script>
-
 <link href="/js/researchTree/tree_style.css" rel="stylesheet" type="text/css" />
 
 <!-- this row is fixed to the top... -->

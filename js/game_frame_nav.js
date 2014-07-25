@@ -6,8 +6,10 @@ var openContent = $('#dash');
 
 function switchContent(content) {
     openContent.hide();
+    controls.enabled = true;
     if (content != undefined) {
         openContent = content;
+        controls.enabled = false;
         openContent.show();
     }
 }
@@ -80,15 +82,6 @@ document.getElementById('resMarket-link').addEventListener('click', function (e)
     
 }, false);
 
-/* TODO: figure this out later
-document.getElementById('research_spaceIndustry-link').addEventListener('click', function (e)
-{
-    e = e || window.event;
-    
-    $('#content').load('/content?name=research');
-    
-}, false);
-*/
 document.getElementById('research_spaceIndustry-link').addEventListener('click', function (e){
     e = e || window.event;
     //$('#content').load('/content?name=research&section=spaceIndustry');
@@ -118,7 +111,6 @@ document.getElementById('surveyEquip-link').addEventListener('click', function (
 document.getElementById('systemView-link').addEventListener('click', function (e){
     e = e || window.event;
     switchContent();
-    THREE.OrbitControls.enabled = true;
 }, false);
 
 document.getElementById('timeline-link').addEventListener('click', function (e){

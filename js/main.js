@@ -10,7 +10,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var using_webgl = true;
     var NUM_BIG_PARTICLES = 500;
 
-    var stats;
+    var canvas, stats;
     var camera, controls, scene, renderer;
     var mouse = new THREE.Vector2();
     var offset = new THREE.Vector3();
@@ -329,7 +329,7 @@ function RSimulate(opts) {
                 plane.lookAt( camera.position );
 
             }
-            container.style.cursor = 'pointer';
+            canvas.style.cursor = 'pointer';
 
         } else {
 
@@ -337,7 +337,7 @@ function RSimulate(opts) {
 
             INTERSECTED = null;
 
-            container.style.cursor = 'auto';
+            canvas.style.cursor = 'auto';
 
         }
 
@@ -536,7 +536,7 @@ function RSimulate(opts) {
             plane.position.copy( INTERSECTED.position );
         }
 
-        container.style.cursor = 'auto';
+        canvas.style.cursor = 'auto';
 
     }
 
@@ -993,9 +993,6 @@ function RSimulate(opts) {
 
         camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, CAMERA_NEAR, CAMERA_FAR );
         camera.position.z = 500;
-
-        controls = new THREE.OrbitControls( camera );
-        controls.addEventListener( 'change', render );
     }
 
     function initLights() {
@@ -1017,7 +1014,17 @@ function RSimulate(opts) {
         renderer = new THREE.WebGLRenderer( { antialias: false } );
         renderer.setSize( window.innerWidth, window.innerHeight );
 
-        $('#canvas').append( renderer.domElement);
+        canvas = document.getElementById('canvas');
+
+        // adjust height for navbar and append
+        var navbarHeight = $('#topNavbar').height();
+        var diff = $(document.body).height() - navbarHeight - 1;
+        $('#canvas').append( renderer.domElement).css('height', diff).css('top', navbarHeight);
+        $( renderer.domElement).css('height', diff);
+
+
+        controls = new THREE.OrbitControls( camera, renderer.domElement );
+        controls.addEventListener( 'change', render );
 
         renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
         renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );

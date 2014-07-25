@@ -119,7 +119,7 @@
     <!-- /.row -->
 
     <!-- Main row -->
-    <div class="row">
+    <div id="welcome" class="row">
         % include('tpl/content/tiles/welcomeTile')
     </div><!-- /.row (main row) -->
 </span>

@@ -1,12 +1,12 @@
 <!-- header logo: style can be found in header.less -->
-<header class="header sidebar-index" style="position: absolute; left: 0px; top: 0px">
+<header class="header sidebar-index skin-black" style="position: absolute; left: 0px; top: 0px">
     <!-- TODO: new logo -->
     <a href="/" class="logo">
         <!-- Add the class icon to your logo image or logo icon to add the margining -->
         COSMOSIUM
     </a>
     <!-- Header Navbar: style can be found in header.less -->
-    <nav class="navbar navbar-static-top" role="navigation">
+    <nav id="topNavbar" class="navbar navbar-static-top" role="navigation">
         <!-- Sidebar toggle button-->
         <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
             <span class="sr-only">Toggle navigation</span>
