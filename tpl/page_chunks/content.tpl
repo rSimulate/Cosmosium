@@ -130,6 +130,16 @@
                 z-index: 1010;
             }
 
+            #timeline {
+                display: none;
+                position: absolute;
+                top: 7%;
+                left: 17%;
+                width: 70%;
+                height: 80%;
+                z-index: 1010;
+            }
+
             #resource-bar {
                 display: inline;
                 z-index: 1010;
@@ -204,6 +214,9 @@
 
                 <!-- Observatories -->
                 % include('tpl/content/observatories')
+
+                <!-- Timeline -->
+                % include('tpl/content/timeline')
 
                 <!-- object details pane -->
                 <div id="body-info-container">

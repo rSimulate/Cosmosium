@@ -168,8 +168,8 @@ document.getElementById('systemView-link').addEventListener('click', function (e
 
 document.getElementById('timeline-link').addEventListener('click', function (e){
     e = e || window.event;
-    
-    $('#content').load('/content?name=timeline');
+
+    switchContent($('#timeline'));
     
 }, false);
 
