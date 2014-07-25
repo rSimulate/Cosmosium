@@ -1170,4 +1170,3 @@ function initrSimulate() {
     $('#dash').show();
     ws.send(message('refresh','None'));
 }
-

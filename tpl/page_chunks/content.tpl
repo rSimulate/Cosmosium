@@ -120,6 +120,16 @@
                 z-index: 1010;
             }
 
+            #observatories {
+                display: none;
+                position: absolute;
+                top: 23%;
+                left: 32%;
+                width: 40%;
+                height: 60%;
+                z-index: 1010;
+            }
+
             #resource-bar {
                 display: inline;
                 z-index: 1010;
@@ -191,6 +201,9 @@
 
                 <!-- Launchpad -->
                 % include('tpl/content/launchpad')
+
+                <!-- Observatories -->
+                % include('tpl/content/observatories')
 
                 <!-- object details pane -->
                 <div id="body-info-container">
