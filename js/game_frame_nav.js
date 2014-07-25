@@ -66,8 +66,9 @@ function switchContent(content) {
 }
 
 document.getElementById('asteroidSurveys-link').addEventListener('click', function (e){
-    e = e || window.event; 
-    //$('#content').load('/content?name=asteroidSurveys');
+    e = e || window.event;
+
+    switchContent($('#asteroidSurveys'));
 
 }, false);
 
@@ -158,6 +159,8 @@ document.getElementById('spaceTourism-link').addEventListener('click', function 
 document.getElementById('surveyEquip-link').addEventListener('click', function (e){
     e = e || window.event;
     //$('#content').load('/content?name=surveyEquip');
+
+    switchContent($('#surveyEquip'));
 
 }, false);
 

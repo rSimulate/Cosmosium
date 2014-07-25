@@ -7,7 +7,7 @@
     resources
     pageTitle
         -->
-
+<section id="asteroidSurveys">
     <!-- Main row -->
     <div class='row'>
         <section class='col-lg-12 connectedSortable'>
@@ -52,14 +52,8 @@
             %   bttn_txt='Fund PHO Survey Program',
             %   text='A potentially hazardous object (PHO) is a near-Earth asteroid or comet with an orbit such that it has the potential to make close approaches to the Earth and is of a size large enough to cause significant regional damage in the event of impact. These are mostly asteroids in the Amor or Apollo families. If you are starting to feel nervous about these giant rocks zooming around, this is where you ought to invest your resources.')
         </section>
-        
-
     </div>
-    
-    <div class="row">
-        % include('tpl/content/tiles/welcomeTile')
-    </div><!-- /.row (main row) -->
-    
-    <script type='text/javascript' src='/js/nav_asteroidSurveys.js'></script>
 
+    <script type='text/javascript' src='/js/nav_asteroidSurveys.js'></script>
+</section>
 

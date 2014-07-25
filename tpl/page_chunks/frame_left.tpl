@@ -59,7 +59,7 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#asteroidSurveys" id='asteroidSurveys-link'><i class="fa fa-angle-double-right"></i> Asteroid Surveys</a></li>
+                        <li><a href="#" id='asteroidSurveys-link'><i class="fa fa-angle-double-right"></i> Asteroid Surveys</a></li>
                         <li><a href="#surveyEquip" id='surveyEquip-link'><i class="fa fa-angle-double-right"></i>Survey Equipment</a></li>
                     </ul>
                 </li>

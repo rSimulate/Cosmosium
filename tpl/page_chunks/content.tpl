@@ -140,6 +140,26 @@
                 z-index: 1010;
             }
 
+            #asteroidSurveys {
+                display: none;
+                position: absolute;
+                top: 12%;
+                left: 17%;
+                width: 70%;
+                height: 80%;
+                z-index: 1010;
+            }
+
+            #surveyEquip {
+                display: none;
+                position: absolute;
+                top: 20%;
+                left: 23%;
+                width: 40%;
+                height: 60%;
+                z-index: 1010;
+            }
+
             #resource-bar {
                 display: inline;
                 z-index: 1010;
@@ -217,6 +237,12 @@
 
                 <!-- Timeline -->
                 % include('tpl/content/timeline')
+
+                <!-- Asteroid Surveys -->
+                % include('tpl/content/asteroidSurveys')
+
+                <!-- Survey Equipment -->
+                % include('tpl/content/surveyEquipment')
 
                 <!-- object details pane -->
                 <div id="body-info-container">
