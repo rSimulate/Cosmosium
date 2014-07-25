@@ -57,7 +57,7 @@ event types specific to this application:
 % getUserColor=userColor()
 
 <!-- row -->
-<div class="row">                        
+<div id="timeline" class="row">
     <div class="col-md-12">
         <!-- The time line -->
         <ul class="timeline">
