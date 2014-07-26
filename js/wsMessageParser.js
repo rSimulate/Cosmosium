@@ -13,9 +13,8 @@ function cleanPlayerObjectRequest(objectStr) {
     var str = objectStr.replace(/([\:\,\'\{\}\(\)])+/g, "");
     str = str.replace(/(UUID)+/g, "");
     str = str.replace(/([\(\)])+/g, "");
-    var split = str.split(" ");
 
-    return split;
+    return str.split(" ");
 }
 
 function parseObjectRemoval(str) {
@@ -168,14 +167,14 @@ function parseMessage(m) {
             object.orbit.name = object.orbit.name.replace(/([\"])+/g, " ").trim();
             var path = getPathForModel(object.model.toLocaleLowerCase());
             if (path != null) {
-                rSimulate.addBlenderPlayerObjectMesh(path, object);
+                rSimulate.addBlenderObjectMesh(path, object);
             }
             else {console.log("Could not find model path for object " + object.objectId)}
         }
         else {console.log("Parsing failed for unknown object")}
 
     } else if (cmd == "pObjRequest") {
-        // TODO: display template
+        // TODO: display query template
 
     } else if (cmd == "pObjDestroyRequest") {
         var request = parseObjectRemoval(data);

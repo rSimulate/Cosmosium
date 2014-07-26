@@ -41,8 +41,7 @@
               <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
             <![endif]-->
         % end
-        
-        <!-- background music
+
         % chunks.bg_music.loadRand()
         <script type='text/javascript'>var audioAttrib = "{{chunks.bg_music.attrib}}"</script>
         <audio id="background_audio"
@@ -52,7 +51,7 @@
                 autoplay="false">
             % end
           <source src="{{chunks.bg_music.link}}" />
-        </audio> -->
+        </audio>
 
 
         <!-- websocket connection -->
@@ -175,7 +174,7 @@
                 display: inline;
                 z-index: 1010;
                 position: absolute;
-                right: 42%;
+                right: 40%;
                 background-color: transparent;
             }
 
@@ -183,7 +182,7 @@
                 display: inline;
                 z-index: 1010;
                 position: absolute;
-                right: 42%;
+                right: 35%;
             }
 
             #body-info-container {

@@ -15,14 +15,14 @@ function message(command,data){
     // returns a message string defining a message dictionary
     var uID = readCookie('cosmosium_login');
     var gID = 'testGame'; //TODO: use actual game info
-    var datStr='{'
-    datStr+='"uID":"'+uID+'"'
-    datStr+=','
-    datStr+='"gID":"'+gID+'"'
-    datStr+=','
-    datStr+='"cmd":"'+command+'"'
-    datStr+=','
-    datStr+='"dat":"'+data+'"'
-    datStr+='}'
+    var datStr='{';
+    datStr+='"uID":"'+uID+'"';
+    datStr+=',';
+    datStr+='"gID":"'+gID+'"';
+    datStr+=',';
+    datStr+='"cmd":"'+command+'"';
+    datStr+=',';
+    datStr+='"dat":"'+data+'"';
+    datStr+='}';
     return datStr;
 }
