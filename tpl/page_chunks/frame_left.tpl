@@ -1,6 +1,6 @@
 <!-- header logo: style can be found in header.less -->
 
-<div class="wrapper row-offcanvas row-offcanvas-left sidebar-index skin-black">
+<div id="left-sidebar" class="wrapper row-offcanvas row-offcanvas-left sidebar-index skin-black">
     <!-- Left side column. contains the logo and sidebar -->
     <aside class="left-side sidebar-offcanvas">
         <!-- sidebar: style can be found in sidebar.less -->

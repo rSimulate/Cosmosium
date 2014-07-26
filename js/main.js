@@ -11,7 +11,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var NUM_BIG_PARTICLES = 500;
 
     var canvas, stats;
-    var camera, controls, scene, renderer;
+    var camera, controls, scene, renderer, cameraOrigin;
     var mouse = new THREE.Vector2();
     var offset = new THREE.Vector3();
     var SELECTED;
@@ -245,7 +245,7 @@ function RSimulate(opts) {
         console.log("Requesting new Object");
         ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'Probe', " +
             "'model': 'Magellan', 'data': "+stringify+'}'));
-    }
+    };
 
     function addPlayerObject(orbit, mesh, orbitName) {
 
@@ -268,18 +268,10 @@ function RSimulate(opts) {
 
             // add listener to object specific div
             document.getElementById(orbit.name).addEventListener('click', function() {
-                orientToObject(mesh);
+                orbitCamera(mesh);
             }, false);
         }
 
-    }
-
-    function orientToObject(mesh) {
-        // TODO: Add a smooth translation callback to not disorient the player
-        camera.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
-        camera.translateY(300);
-        camera.translateX(300);
-        camera.lookAt(mesh.position);
     }
 
     function addAsteroid(orbit, mesh) {
@@ -294,12 +286,12 @@ function RSimulate(opts) {
 
         event.preventDefault();
 
-        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        mouse.x = ( event.clientX / $(canvas).width() ) * 2 - 1;
+        mouse.y = - ( event.clientY / $(canvas).height() ) * 2 + 1;
 
         //
 
-        var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
         projector.unprojectVector( vector, camera );
 
         var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
@@ -323,6 +315,7 @@ function RSimulate(opts) {
                 //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
 
                 INTERSECTED = intersects[ 0 ].object;
+                console.log(INTERSECTED.id);
                 //INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
 
                 plane.position.copy( INTERSECTED.position );
@@ -374,7 +367,15 @@ function RSimulate(opts) {
         }
     }
 
-    function onBodySelected(bodyId) {
+    function orbitCamera(newOrigin) {
+        if (cameraOrigin != undefined) {
+            cameraOrigin.remove(camera);
+        }
+        cameraOrigin = newOrigin;
+        cameraOrigin.add(camera);
+    }
+
+    function onBodySelected(bodyId, mesh) {
         hideAllAsteroidEllipses();
 
         var orbit = orbits[bodyId];
@@ -488,6 +489,10 @@ function RSimulate(opts) {
         $("#body-info-container").show();
 
         selectedBody = bodyName;
+
+        if (cameraOrigin.id != mesh.id) {
+            orbitCamera(mesh);
+        }
     }
 
     function onDocumentMouseDown( event ) {
@@ -499,6 +504,7 @@ function RSimulate(opts) {
         var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
 
         var intersects = raycaster.intersectObjects( meshes, true );
+        console.log(intersects.length);
 
         if ( intersects.length > 0 ) {
 
@@ -511,7 +517,7 @@ function RSimulate(opts) {
             var meshId = SELECTED.id;
             var bodyId = mapFromMeshIdToBodyId[meshId];
             if (bodyId) {
-                onBodySelected(bodyId);
+                onBodySelected(bodyId, SELECTED);
             } else {
                 console.log("no body id found for meshId = " + meshId);
             }
@@ -545,6 +551,7 @@ function RSimulate(opts) {
         $('#destroy-object-container').hide();
         SELECTED = null;
         selectedBody = '';
+        controls.target = new THREE.Vector3();
     }
 
     function init() {
@@ -799,8 +806,6 @@ function RSimulate(opts) {
             }
         };
 
-
-
         var vertexShaderText = document.getElementById("sun-vertex").textContent;
         var fragmentShaderText = document.getElementById("sun-fragment").textContent;
 
@@ -815,13 +820,14 @@ function RSimulate(opts) {
         sun = new THREE.Mesh( sphereGeometry, sunMaterial );
 		scene.add(sun);
 
+        orbitCamera(sun);
 		//Create SunFlare
         //var sunflare = lensFlare(0,0,0, SUN_SIZE*1.05, 'img/textures/lensflare0.png');
 
     }
 
     function animateSun() {
-        sun.material.uniforms['time'].value = clock.getElapsedTime();
+       sun.material.uniforms['time'].value = clock.getElapsedTime();
     }
 
     function initPlanets() {
@@ -1051,7 +1057,7 @@ function RSimulate(opts) {
     function update(deltaSeconds) {
         var timeAdvanced = jed_delta*deltaSeconds;
         jed += jed_delta*deltaSeconds;
-
+        jed = 0;
 
         updateBodies(timeAdvanced, orbits, meshes);
     }
@@ -1164,6 +1170,7 @@ $(document).ready(function(){
 function initrSimulate() {
     // refresh webGL
     rSimulate = new RSimulate({});
-    $('#dash').show();
+    jCanvas = $('#canvas');
+    renderer.setSize(jCanvas.width(), jCanvas.height());
     ws.send(message('refresh','None'));
 }
