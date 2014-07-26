@@ -50,6 +50,16 @@ function RSimulate(opts) {
         parent.add(mesh);
 
         if (orbit != undefined) {
+            for (var i = 0; i < objects.length; i++) {
+                var obj = objects[i];
+                if (obj.orbit != undefined) {
+                    if (obj.orbit.name == orbit.name) {
+                        console.log("Multiples of the same object sent to the client... Only granting access for one");
+                        return;
+                    }
+                }
+            }
+
             var ellipse = orbit.getEllipse();
             ellipse.visible = shouldAlwaysShowEllipse;
             parent.add(ellipse)
@@ -121,6 +131,7 @@ function RSimulate(opts) {
 	}
 
     this.addBlenderObjectMesh = function (daePath, object) {
+
         // object = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, // ADDING mesh: mesh}
 
         var loader = new THREE.ColladaLoader();
