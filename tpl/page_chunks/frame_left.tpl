@@ -1,8 +1,8 @@
 <!-- header logo: style can be found in header.less -->
 
-<div id="left-sidebar" class="wrapper row-offcanvas row-offcanvas-left sidebar-index skin-black">
+<div class="wrapper row-offcanvas row-offcanvas-left sidebar-index skin-black">
     <!-- Left side column. contains the logo and sidebar -->
-    <aside class="left-side sidebar-offcanvas">
+    <aside id="left-sidebar" class="left-side sidebar-offcanvas">
         <!-- sidebar: style can be found in sidebar.less -->
         <section class="sidebar">
             <!-- Sidebar user panel -->

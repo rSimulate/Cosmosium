@@ -10,15 +10,14 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var using_webgl = true;
     var NUM_BIG_PARTICLES = 500;
 
-    var canvas, stats;
-    var camera, controls, scene, renderer, cameraOrigin;
+    var canvas, stats, jCanvas;
+    var camera, controls, scene, renderer, cameraTarget;
     var mouse = new THREE.Vector2();
     var offset = new THREE.Vector3();
-    var SELECTED;
     var INTERSECTED;
     var projector;
     var clock;
-    var plane;
+   // var plane;
     var skybox;
     var sun;
 
@@ -30,26 +29,13 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var CAMERA_NEAR = 1;
     var CAMERA_FAR = 100000;
 
-    // orbits and meshes should have same length
-    var orbits = [];
-    var meshes = [];
-    var ellipses = []; // {bodyId: id, ellipse: ellipse, type: (planet, asteroid, etc)}
-    var playerObjects = [];  // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
+    var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
 
-    // for each type of object, there is a list of indexes of orbits/meshes that match it
-    // example: indexes["asteroid"] --> [2,3,5] and you can get the orbits at orbits[2], orbits[3], orbits[5]
-    var indexes = {
-        "asteroid": [],
-        "planet": [],
-        "moon" : [],
-        "playerObject": []
-    };
-    var mapFromMeshIdToBodyId = {};   // maps ids of three.js meshes to bodies they represent
     var nextEntityIndex = 0;
 
     var mapFromOwnerNameToColor = {};
 
-    var selectedBody = '';
+    var selectedObject = undefined;
     var removeBody;
     var addTestObject;
 
@@ -57,134 +43,82 @@ function RSimulate(opts) {
 
 
 
-    function addBody( parent, indexLabel, orbit, mesh, shouldAlwaysShowEllipse ) {
+    function addBody( parent, type, orbit, mesh, shouldAlwaysShowEllipse, objectId, model, owner ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
-        orbits.push(orbit);
-        meshes.push(mesh);
-        mapFromMeshIdToBodyId[mesh.id] = nextEntityIndex;
+        // TODO: Fix this to not assign an entity index in place of an objectId when the planets and asteroids migrate to the server
+        objectId = typeof objectId !== 'undefined' ? objectId : nextEntityIndex;
 
-        // recursively add children to root body id
-        var matchChildren = function(child) {
-            mapFromMeshIdToBodyId[child.id] = nextEntityIndex;
-            if (child.children.length > 0) {
-                for (var i = 0; i < child.children.length; i++) {
-                    matchChildren(child.children[i]);
-                }
-            }
-        };
-
-        if (mesh.children.length > 0) {
-            for  (var i = 0; i < mesh.children.length; i++) {
-               matchChildren(mesh.children[i]);
-            }
-        }
+        objects.push({owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh});
 
         parent.add(mesh);
 
-        var ellipse = orbit.getEllipse();
-
-        ellipses.push({bodyId: nextEntityIndex, ellipse: ellipse, type: indexLabel});
-        parent.add(ellipse);
-        ellipse.visible = shouldAlwaysShowEllipse;
-
-        if (typeof indexes[indexLabel] !== "object") {
-            indexes[indexLabel] = [];
-        }
-
-        indexes[indexLabel].push(nextEntityIndex);
+        if (orbit != undefined) {
+            var ellipse = orbit.getEllipse();
+            ellipse.visible = shouldAlwaysShowEllipse;
+            parent.add(ellipse)
+        };
 
         nextEntityIndex++;
-    }
-    function removePlayerBody(e) {
-        console.log("Called for removal of bodyID " + selectedBody);
-        var rmObject;
-        for (var i = 0; i < playerObjects.length; i++) {
-            if (cleanOrbitName(playerObjects[i].orbit.name) == selectedBody) {
-                rmObject = playerObjects[i];
-                break;
-            }
+
+        if (type == 'playerObject') {
+            // append a new object specific button to the list
+            var textName = cleanOrbitName(orbit.name);
+            $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
+                textName + "</a></li>").appendTo('#object-list-container');
+
+            // add listener to object specific div
+            document.getElementById(orbit.name).addEventListener('click', function() {
+                orbitCamera(mesh.position);
+            }, false);
         }
-        ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + rmObject.objectId + "'}}"));
+    }
+
+    function requestRemoveBody(e) {
+        console.log("Called for removal of objectID " + selectedObject.objectId);
+        ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + selectedObject.objectId + "'}}"));
         e.stopPropagation();
         e.preventDefault();
     }
 
-    removeBody = function (parentScene, indexLabel, objectId) {
-        // Removes a player body from the scene
+    removeBody = function (parentScene, type, objectId) {
+        // Removes a body from the scene
         if (parentScene == undefined) { parentScene = scene; }
         var rmObject;
         if (objectId != undefined) {
-            for (var i = 0; i < playerObjects.length; i++) {
-                if (playerObjects[i].objectId == objectId) {
-                    rmObject = playerObjects[i];
+            for (var i = 0; i < objects.length; i++) {
+                if (objects[i].objectId == objectId) {
+                    rmObject = objects[i];
                     break;
                 }
             }
         }
 
-        // TODO: add a way to remove asteroids
         if (rmObject == undefined) {
-            console.log("Error: Could not find object " + selectedBody + " to remove");
+            console.log("Error: Could not find object " + obj.objectId + " to remove");
             return null;
         }
 
-        for (var index in orbits) {
-            if (orbits[index].hasOwnProperty('name')) {
-                if (orbits[index].name == rmObject.orbit.name) {
-                    orbits.splice(index, 1);
-                    break;
-                }
-            }
-        }
-        for (index in meshes) {
-            if (meshes[index] == rmObject.mesh) {
-                meshes.splice(index, 1);
-                break;
-            }
-        }
-
         parentScene.remove(rmObject.mesh);
-
-        var ellipse = rmObject.orbit.getEllipse();
-        for (var i = 0; i < ellipses.length; i++) {
-            if (ellipses[i].bodyId == mapFromMeshIdToBodyId[rmObject.mesh.id]) {
-                ellipses.splice(i, 1);
-                break;
-            }
-        }
-
-        parentScene.remove(ellipse);
-
-
-        var bodyId = mapFromMeshIdToBodyId[rmObject.mesh];
-
-        for (index in indexes[indexLabel]) {
-            if (indexes[indexLabel][index] == bodyId) {
-                indexes[indexLabel].splice(index, 1);
-                break;
-            }
-        }
+        if (rmObject.orbit != undefined) parentScene.remove(rmObject.orbit.getEllipse());
 
         // remove div from player object list
-        if (indexLabel == "playerObject") {
+        if (type == "playerObject") {
             $('#'+rmObject.orbit.name).remove();
         }
 
         // deselect body, if selected
         onBodyDeselected();
-    }
+    };
 
 	function makeBodyMesh(size, texture){
 		var bodyGeometry = new THREE.SphereGeometry( size, 32, 32 );
 		var bodyTexture = THREE.ImageUtils.loadTexture(texture);
 		var bodyMaterial = new THREE.MeshLambertMaterial({ map: bodyTexture });
 
-		var bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
-
-		return bodyMesh;
+		return new THREE.Mesh(bodyGeometry, bodyMaterial);
 	}
 
-    this.addBlenderPlayerObjectMesh = function (daePath, object) {
+    this.addBlenderObjectMesh = function (daePath, object) {
         // object = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, // ADDING mesh: mesh}
 
         var loader = new THREE.ColladaLoader();
@@ -199,11 +133,11 @@ function RSimulate(opts) {
                 mesh.updateMatrix();
 
                 // add to scene
-                addPlayerObject(object.orbit, mesh, object.orbit.name);
+                addBody(scene, "playerObject", object.orbit, mesh, true, object.objectId, object.model, object.owner);
 
                 // add to player object collection
                 object.mesh = mesh;
-                playerObjects.push(object);
+                objects.push(object);
             }
             else {console.log("ERROR: Parsing blender model failed");}
         });
@@ -211,8 +145,8 @@ function RSimulate(opts) {
     };
 
 
-    function addPlanet(orbit, planetmesh) {
-		addBody( scene, "planet", orbit, planetmesh, true );
+    function addPlanet(orbit, planetmesh, objectId, model) {
+		addBody( scene, "planet", orbit, planetmesh, true, objectId, model, "Mankind" );
     }
 
     function cleanOrbitName(str) {
@@ -247,66 +181,27 @@ function RSimulate(opts) {
             "'model': 'Magellan', 'data': "+stringify+'}'));
     };
 
-    function addPlayerObject(orbit, mesh, orbitName) {
-
-        addBody( scene, "playerObject", orbit, mesh, true);
-
-        var textName = cleanOrbitName(orbit.name);
-
-        var exists = false;
-        for (var i = 0; i < playerObjects.length; i++) {
-            if (playerObjects[i].orbit.name == orbitName) {
-                exists = true;
-                break;
-            }
-        }
-
-        if (!exists) {
-            // append a new object specific button to the list
-            $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
-                textName + "</a></li>").appendTo('#object-list-container');
-
-            // add listener to object specific div
-            document.getElementById(orbit.name).addEventListener('click', function() {
-                orbitCamera(mesh);
-            }, false);
-        }
-
+    function addAsteroid(orbit, mesh, objectId, model, owner) {
+        addBody( scene, "asteroid", orbit, mesh, false, objectId, model, owner  );
     }
 
-    function addAsteroid(orbit, mesh) {
-        addBody( scene, "asteroid", orbit, mesh, false );
-    }
-
-    function addMoon(planetMesh, orbit, mesh) {
-        addBody( planetMesh, "moon", orbit, mesh, false );
+    function addMoon(planetMesh, orbit, mesh, objectId, model, owner) {
+        addBody( planetMesh, "moon", orbit, mesh, false, objectId, model, owner  );
     }
 
     function onDocumentMouseMove( event ) {
 
         event.preventDefault();
-
-        mouse.x = ( event.clientX / $(canvas).width() ) * 2 - 1;
-        mouse.y = - ( event.clientY / $(canvas).height() ) * 2 + 1;
-
-        //
+        mouse.x = ( event.offsetX / $(canvas).width() ) * 2 - 1;
+        mouse.y = - ( event.offsetY / $(canvas).height() ) * 2 + 1;
 
         var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
         projector.unprojectVector( vector, camera );
 
-        var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+        var raycaster = new THREE.Raycaster( camera.position,
+                        vector.sub( camera.position ).normalize() );
 
-
-        // TODO: What is this for? The player shouldn't be able to drag nodes around with the mouse. Depreciated..
-        if ( SELECTED ) {
-
-            //var intersects = raycaster.intersectObject( plane );
-            //SELECTED.position.copy( intersects[ 0 ].point.clone().sub( offset ) );
-            return;
-
-        }
-
-        var intersects = raycaster.intersectObjects( meshes, true );
+        var intersects = raycaster.intersectObjects( scene.children, true );
 
         if ( intersects.length > 0 ) {
 
@@ -315,11 +210,10 @@ function RSimulate(opts) {
                 //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
 
                 INTERSECTED = intersects[ 0 ].object;
-                console.log(INTERSECTED.id);
                 //INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
 
-                plane.position.copy( INTERSECTED.position );
-                plane.lookAt( camera.position );
+                //plane.position.copy( INTERSECTED.position );
+                //plane.lookAt( camera.position );
 
             }
             canvas.style.cursor = 'pointer';
@@ -358,175 +252,163 @@ function RSimulate(opts) {
     }
 
     function hideAllAsteroidEllipses() {
-        for (var i = 0; i < ellipses.length; i++) {
-            var obj = ellipses[i];
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
             // TODO: Should moons disappear on deselect as well?
             if (obj.type == 'asteroid' || obj.type == 'moon') {
-                obj.ellipse.visible = false;
+                obj.orbit.getEllipse().visible = false;
             }
         }
     }
 
     function orbitCamera(newOrigin) {
-        if (cameraOrigin != undefined) {
+        /*if (cameraOrigin != undefined) {
             cameraOrigin.remove(camera);
         }
         cameraOrigin = newOrigin;
-        cameraOrigin.add(camera);
+        cameraOrigin.add(camera);*/
+        cameraTarget = newOrigin;
+        controls.target = cameraTarget;
+        controls.update();
     }
 
-    function onBodySelected(bodyId, mesh) {
+    function onBodySelected(mesh) {
         hideAllAsteroidEllipses();
-
-        var orbit = orbits[bodyId];
-        var mesh = meshes[bodyId];
-        for (var i = 0; i < ellipses.length; i++) {
-            if (ellipses[i].bodyId == bodyId) {
-                ellipses[i].ellipse.visible = true;
-                break;
+        var obj = undefined;
+        for (var i = 0; i < objects.length; i++) {
+            console.log(objects[i].mesh.id, mesh.id);
+            if (objects[i].mesh.id == mesh.id) {
+                obj = objects[i];
             }
         }
-        var bodyName = "";
 
-        if (orbit && orbit.eph && orbit.eph.full_name) {
-            bodyName = cleanOrbitName(orbit.eph.full_name);
-        } else if (orbit && orbit.name) {
-            bodyName = cleanOrbitName(orbit.name);
+        if (obj == undefined) {
+            console.log("ERROR: Could not find selected object's ID");
+            return;
         }
-        var infoHTML = "<h3>" + bodyName + "</h3>";
-        // info to show in the window:
-        for (var key in orbit.eph) {
-            // excluded info:
-            if (key.slice(0, 6) == 'sigma_'
-                || key.slice(-6) == '_sigma'
-                || key == 'full_name'
-                || key == 'epoch_mjd'
-                || key == 'rms'
-                || key == 'neo'
-                || key == 'equinox'
-                || key == 'spkid'
-                || key == 'per'
-                || key == 'id'
-                || key == 'data_arc'
-                || key == 'condition_code'
-                || key == 'prov_des'
-                || key == 'moid_ld'
-                || key == 'orbit_id'
-                || key == 'two_body'
-                || key == 'G'
-                || key == 'e'
-                || key == 'class'
-                || key == 'a'
-                || key == 'name'
-                || key == 'i'
-                || key == 'tp'
 
-                /* i'm not sure what these next ones are... maybe they should be included and renamed? */
-                || key == 'K2'
-                || key == 'K1'
-                || key == 'M1'
-                || key == 'M2'
-                || key == 'DT'
-                || key == 'pha'
-                || key == 'PC'
-                || key == 'A1'
-                || key == 'A2'
-                || key == 'A3'
-                || key == 'ad'
-                || key == 'saved'
-                || key == 'per_y'
-                || key == 'epoch_cal'
-                || key == 'epoch'
-                || key == 'IR'
-                || key == 'extent'
-                || key == 'tp_cal'
-                || key == 'pdes'
-                || key == 't_jup'
-                || key == 'om'
-                || key == 'ma'
-                || key == 'prefix'
-                || key == 'q'
-                || key == 'w'
-                || key == 'n'
-                || key == 'n_del_obs_used'
-                || key == 'n_dop_obs_used'
-
-                ) {
-                continue
+        var orbit = obj.orbit;
+        if (orbit != undefined) {
+            orbit.getEllipse().visible = true;
+            if (orbit && orbit.eph && orbit.eph.full_name) {
+                bodyName = cleanOrbitName(orbit.eph.full_name);
+            } else if (orbit && orbit.name) {
+                bodyName = cleanOrbitName(orbit.name);
             }
-            infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
-        }
-        // make this display the owner name...
-        if (SHOWING_ASTEROID_OWNERSHIP) {
-            // TODO: May have to fix this due to the addition of player objects
-            var ownerName = owners[bodyId - 12]; // asteroid[i] is owned by owner[i], there are 12 non-asteroid objects in the system...
-            if (ownerName) {
-                var ownerColor = mapFromOwnerNameToColor[ownerName];
-                console.log('claimed by "' + ownerName + '", color=(' + ownerColor.b + ',' + ownerColor.g + ',' + ownerColor.r + ')');
-                $("#owner-info").html('claimed by <b>"' + ownerName + '"</b>');
-                $("#owner-info").attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')');  //NOTE: this doesn't seem to work.
-            } else {
-                $("#owner-info").html('<b>UNCLAIMED</b>');
-                $("#owner-info").attr("color", 'rgb(200,200,200)');   //NOTE: this doesn't seem to work.
-            }
+            var infoHTML = "<h3>" + bodyName + "</h3>";
+            // info to show in the window:
+            for (var key in orbit.eph) {
+                // excluded info:
+                if (key.slice(0, 6) == 'sigma_'
+                    || key.slice(-6) == '_sigma'
+                    || key == 'full_name'
+                    || key == 'epoch_mjd'
+                    || key == 'rms'
+                    || key == 'neo'
+                    || key == 'equinox'
+                    || key == 'spkid'
+                    || key == 'per'
+                    || key == 'id'
+                    || key == 'data_arc'
+                    || key == 'condition_code'
+                    || key == 'prov_des'
+                    || key == 'moid_ld'
+                    || key == 'orbit_id'
+                    || key == 'two_body'
+                    || key == 'G'
+                    || key == 'e'
+                    || key == 'class'
+                    || key == 'a'
+                    || key == 'name'
+                    || key == 'i'
+                    || key == 'tp'
 
-            var showButt = false;
-            //var userName = readCookie('cosmosium_login');
-            for (var i = 0; i < playerObjects.length; i++) {
-                if (mapFromMeshIdToBodyId[playerObjects[i].mesh.id] == bodyId) {
-                    // TODO: Only allow removal of owned objects
-                        //&& (userName == playerObjects[i].owner)) {
+                    /* i'm not sure what these next ones are... maybe they should be included and renamed? */
+                    || key == 'K2'
+                    || key == 'K1'
+                    || key == 'M1'
+                    || key == 'M2'
+                    || key == 'DT'
+                    || key == 'pha'
+                    || key == 'PC'
+                    || key == 'A1'
+                    || key == 'A2'
+                    || key == 'A3'
+                    || key == 'ad'
+                    || key == 'saved'
+                    || key == 'per_y'
+                    || key == 'epoch_cal'
+                    || key == 'epoch'
+                    || key == 'IR'
+                    || key == 'extent'
+                    || key == 'tp_cal'
+                    || key == 'pdes'
+                    || key == 't_jup'
+                    || key == 'om'
+                    || key == 'ma'
+                    || key == 'prefix'
+                    || key == 'q'
+                    || key == 'w'
+                    || key == 'n'
+                    || key == 'n_del_obs_used'
+                    || key == 'n_dop_obs_used'
+
+                    ) {
+                    continue
+                }
+                infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
+            }
+            // make this display the owner name...
+            if (SHOWING_ASTEROID_OWNERSHIP) {
+                // TODO: Reninstate Asteroid ownership colors
+                /*var ownerName = obj.owner;
+                 var ownerColor = mapFromOwnerNameToColor[ownerName];
+                 console.log('claimed by "' + ownerName + '", color=(' + ownerColor.b + ',' + ownerColor.g + ',' + ownerColor.r + ')');*/
+                $("#owner-info").html('claimed by <b>"' + obj.owner + '"</b>')
+                    //.attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')')
+                    .html('<b>' + obj.owner + '</b>').attr("color", 'rgb(200,200,200)');
+
+                //var userName = readCookie('cosmosium_login');
+                if (obj.type == 'Probe') {
+                    // TODO: Only display removal button of owned objects
 
                     $('#destroy-object-container').show();
-                    showButt = true;
+                }
+                else {
+                    $('#destroy-object-container').hide();
                 }
             }
-            if (!showButt) {
-                $('#destroy-object-container').hide();
-            }
+            $("#body-info").html(infoHTML);
         }
-        $("#body-info").html(infoHTML);
+        else {
+            $("#body-info").html(obj.model);
+        }
+
         $("#body-info-container").show();
 
-        selectedBody = bodyName;
+        selectedObject = obj;
 
-        if (cameraOrigin.id != mesh.id) {
-            orbitCamera(mesh);
-        }
+        orbitCamera(mesh.position);
     }
 
     function onDocumentMouseDown( event ) {
         event.preventDefault();
 
-        var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
         projector.unprojectVector( vector, camera );
 
-        var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+        var raycaster = new THREE.Raycaster( camera.position,
+            vector.sub( camera.position ).normalize() );
 
-        var intersects = raycaster.intersectObjects( meshes, true );
-        console.log(intersects.length);
+        var intersects = raycaster.intersectObjects( scene.children, true );
 
         if ( intersects.length > 0 ) {
 
-            controls.enabled = false;
+            controls.noRotate = true;
 
-            SELECTED = intersects[ 0 ].object;
-            var intersects = raycaster.intersectObject( plane );
-            offset.copy( intersects[ 0 ].point ).sub( plane.position );
-
-            var meshId = SELECTED.id;
-            var bodyId = mapFromMeshIdToBodyId[meshId];
-            if (bodyId) {
-                onBodySelected(bodyId, SELECTED);
-            } else {
-                console.log("no body id found for meshId = " + meshId);
-            }
+            onBodySelected(intersects[ 0 ].object);
 
         } else {
-            if (SELECTED != null) {
-                hideAllAsteroidEllipses();
-            }
-
             onBodyDeselected();
         }
     }
@@ -535,11 +417,11 @@ function RSimulate(opts) {
 
         event.preventDefault();
 
-        controls.enabled = true;
+        controls.noRotate = false;
 
         if ( INTERSECTED ) {
 
-            plane.position.copy( INTERSECTED.position );
+            //plane.position.copy( INTERSECTED.position );
         }
 
         canvas.style.cursor = 'auto';
@@ -547,11 +429,10 @@ function RSimulate(opts) {
     }
 
     function onBodyDeselected() {
+        hideAllAsteroidEllipses();
         $("#body-info-container").hide();
         $('#destroy-object-container').hide();
-        SELECTED = null;
-        selectedBody = '';
-        controls.target = new THREE.Vector3();
+        selectedObject = undefined;
     }
 
     function init() {
@@ -678,8 +559,8 @@ function RSimulate(opts) {
             var asteroid = asteroidsData[i];
             if (asteroid.H && asteroid.diameter != "") {
                 if (minH && maxH) {
-                    if (minH > asteroid.H) { minH = asteroid.H };
-                    if (maxH < asteroid.H) { maxH = asteroid.H };
+                    if (minH > asteroid.H) { minH = asteroid.H }
+                    if (maxH < asteroid.H) { maxH = asteroid.H }
                 } else {
                     minH = asteroid.H;
                     maxH = asteroid.H;
@@ -720,7 +601,7 @@ function RSimulate(opts) {
                 }
             }
 
-            var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid)
+            var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid);
 
             var asteroidOrbit = new Orbit3D(asteroid, {
               color: 0xcccccc,
@@ -754,8 +635,8 @@ function RSimulate(opts) {
                 Math.random() * 2.0 * Math.PI,
                 Math.random() * 2.0 * Math.PI);
 
-            addAsteroid(asteroidOrbit, asteroidMesh);
-
+            addAsteroid(asteroidOrbit, asteroidMesh, nextEntityIndex, "asteroid", "UNCLAIMED");
+            nextEntityIndex ++;
 
 
         }
@@ -818,9 +699,9 @@ function RSimulate(opts) {
         });
 
         sun = new THREE.Mesh( sphereGeometry, sunMaterial );
+        addBody(scene, 'star', undefined, sun, false, nextEntityIndex, "Sun", "Mankind");
 		scene.add(sun);
 
-        orbitCamera(sun);
 		//Create SunFlare
         //var sunflare = lensFlare(0,0,0, SUN_SIZE*1.05, 'img/textures/lensflare0.png');
 
@@ -849,7 +730,8 @@ function RSimulate(opts) {
         //var mercuryMesh = new THREE.Mesh(planetGeometry, MercuryMaterial);
 
 		var mercuryMesh = makeBodyMesh(MERCURY_SIZE, 'img/textures/mercury_small.jpg');
-		addPlanet(mercury, mercuryMesh);
+		addPlanet(mercury, mercuryMesh, nextEntityIndex, "Mercury");
+        nextEntityIndex++;
 
         var venus = new Orbit3D(Ephemeris.venus,
             {
@@ -863,7 +745,8 @@ function RSimulate(opts) {
         //var venusMesh = new THREE.Mesh(planetGeometry, planetMaterial);
 
 		var venusMesh = makeBodyMesh(VENUS_SIZE, 'img/textures/venus_small.jpg');
-		addPlanet(venus, venusMesh);
+		addPlanet(venus, venusMesh, nextEntityIndex, "Venus");
+        nextEntityIndex++;
 
         var earth = new Orbit3D(Ephemeris.earth,
             {
@@ -876,7 +759,8 @@ function RSimulate(opts) {
 
         //var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
 		var earthMesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg');
-		addPlanet(earth, earthMesh);
+		addPlanet(earth, earthMesh, nextEntityIndex, "Earth");
+        nextEntityIndex++;
 
         var luna = new Orbit3D(Ephemeris.luna,
             {
@@ -887,8 +771,8 @@ function RSimulate(opts) {
               name: 'Moon'
             }, !using_webgl);
         var lunaMesh = makeBodyMesh(LUNA_SIZE, 'img/textures/moon_small.jpg');
-		addMoon(earthMesh, luna, lunaMesh);
-
+		addMoon(earthMesh, luna, lunaMesh, nextEntityIndex, "Luna", "UNCLAIMED");
+        nextEntityIndex ++;
 
         var mars = new Orbit3D(Ephemeris.mars,
             {
@@ -899,12 +783,9 @@ function RSimulate(opts) {
               name: 'Mars'
             }, !using_webgl);
 
-        //var marsMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-        //addPlanet(mars, marsMesh);
-		//var marsSize = 0.9;
-		//orbit, size, texture
 		var marsMesh = makeBodyMesh(MARS_SIZE, 'img/textures/mars_small.jpg');
-		addPlanet(mars, marsMesh);
+		addPlanet(mars, marsMesh, nextEntityIndex, "Mars");
+        nextEntityIndex++;
 
 
         var phobos = new Orbit3D(Ephemeris.phobos,
@@ -916,7 +797,8 @@ function RSimulate(opts) {
               name: 'Phobos'
             }, !using_webgl);
         var phobosMesh = makeBodyMesh(PHOBOS_SIZE, 'img/textures/phobos_tiny.jpg');
-        addMoon(marsMesh, phobos, phobosMesh);
+        addMoon(marsMesh, phobos, phobosMesh, nextEntityIndex, "Phobos", "UNCLAIMED");
+        nextEntityIndex ++;
 
 
         var deimos = new Orbit3D(Ephemeris.deimos,
@@ -928,7 +810,8 @@ function RSimulate(opts) {
               name: 'Phobos'
             }, !using_webgl);
         var deimosMesh = makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg');
-        addMoon(marsMesh, deimos, deimosMesh);
+        addMoon(marsMesh, deimos, deimosMesh, nextEntityIndex, "Deimos", "UNCLAIMED");
+        nextEntityIndex ++;
 
 
 
@@ -946,7 +829,8 @@ function RSimulate(opts) {
 		//var jupiterSize = 6;
 		//orbit, size, texture
         var jupiterMesh = makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg');
-		addPlanet(jupiter, jupiterMesh);
+		addPlanet(jupiter, jupiterMesh, nextEntityIndex, "Jupiter");
+        nextEntityIndex++;
 
 
         var io = new Orbit3D(Ephemeris.io,
@@ -958,7 +842,8 @@ function RSimulate(opts) {
               name: 'Io'
             }, !using_webgl);
         var ioMesh = makeBodyMesh(IO_SIZE,'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, io, ioMesh);
+        addMoon(jupiterMesh, io, ioMesh, nextEntityIndex, "Io", "UNCLAIMED");
+        nextEntityIndex ++;
 
         var europa = new Orbit3D(Ephemeris.europa,
             {
@@ -969,7 +854,8 @@ function RSimulate(opts) {
               name: 'Europa'
             }, !using_webgl);
         var europaMesh = makeBodyMesh(EUROPA_SIZE, 'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, europa, europaMesh);
+        addMoon(jupiterMesh, europa, europaMesh, nextEntityIndex, "Europa", "UNCLAIMED");
+        nextEntityIndex ++;
 
         var ganymede = new Orbit3D(Ephemeris.ganymede,
             {
@@ -980,7 +866,8 @@ function RSimulate(opts) {
               name: 'Ganymede'
             }, !using_webgl);
         var ganymedeMesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, ganymede, ganymedeMesh);
+        addMoon(jupiterMesh, ganymede, ganymedeMesh, nextEntityIndex, "Ganymede", "UNCLAIMED");
+        nextEntityIndex ++;
 
         var callisto = new Orbit3D(Ephemeris.callisto,
             {
@@ -991,13 +878,14 @@ function RSimulate(opts) {
               name: 'Callisto'
             }, !using_webgl);
         var callistoMesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, callisto, callistoMesh);
+        addMoon(jupiterMesh, callisto, callistoMesh, nextEntityIndex, "Callisto", "UNCLAIMED");
+        nextEntityIndex ++;
 
     }
 
     function initCamera() {
 
-        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, CAMERA_NEAR, CAMERA_FAR );
+        camera = new THREE.PerspectiveCamera( 60, $(canvas).width() / $(canvas).height(), CAMERA_NEAR, CAMERA_FAR );
         camera.position.z = 500;
     }
 
@@ -1011,26 +899,27 @@ function RSimulate(opts) {
     }
 
     function initRenderer() {
-        plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true, wireframe: true } ) );
-        plane.visible = false;
-        scene.add( plane );
+        //plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true, wireframe: true } ) );
+        //plane.visible = false;
+        //scene.add( plane );
 
         projector = new THREE.Projector();
 
         renderer = new THREE.WebGLRenderer( { antialias: false } );
-        renderer.setSize( window.innerWidth, window.innerHeight );
+        //renderer.setSize( window.innerWidth, window.innerHeight );
 
         canvas = document.getElementById('canvas');
 
         // adjust height for navbar and append
         var navbarHeight = $('#topNavbar').height();
-        var diff = $(document.body).height() - navbarHeight - 1;
-        $('#canvas').append( renderer.domElement).css('height', diff).css('top', navbarHeight);
-        $( renderer.domElement).css('height', diff);
+        var hDiff = $(document.body).height() - navbarHeight - 1;
+        var sidebarWidth = $('#left-sidebar').width();
+        var wDiff = $(document.body).width() - sidebarWidth;
+        $('#canvas').append( renderer.domElement).css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
 
 
         controls = new THREE.OrbitControls( camera, renderer.domElement );
-        controls.addEventListener( 'change', render );
+        //controls.addEventListener( 'change', render );
 
         renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
         renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -1041,15 +930,15 @@ function RSimulate(opts) {
         stats = new Stats();
         stats.domElement.style.position = 'absolute';
         stats.domElement.style.top = '0px';
-        stats.domElement.style.zIndex = 100;
+        stats.domElement.style.zIndex = 1010;
         $('#canvas').append( stats.domElement );
     }
 
     function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.aspect = $(canvas).width() / $(canvas).height();
         camera.updateProjectionMatrix();
 
-        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setSize($(canvas).width(), $(canvas).height());
 
         render();
     }
@@ -1057,34 +946,34 @@ function RSimulate(opts) {
     function update(deltaSeconds) {
         var timeAdvanced = jed_delta*deltaSeconds;
         jed += jed_delta*deltaSeconds;
-        jed = 0;
 
-        updateBodies(timeAdvanced, orbits, meshes);
+        updateBodies(timeAdvanced, objects);
     }
 
-    function updateBodies(timeAdvanced, orbits, meshes) {
-        for (var i = 0; i < orbits.length; i++) {
-            var orbit = orbits[i];
+    function updateBodies(timeAdvanced, objects) {
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
+            var orbit = obj.orbit;
+            if (orbit != undefined) {
+                var helioCoords = orbit.getPosAtTime(jed);
+                var mesh = obj.mesh;
+                mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
 
-            var helioCoords = orbit.getPosAtTime(jed);
+                /*
+                 if (i != 2) {
+                 var centerOfGravityPosition = meshes[2].position;
 
-            var mesh = meshes[i];
-            mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
+                 meshes[i].position.add(centerOfGravityPosition);
+                 ellipses[i].position.copy(centerOfGravityPosition);
+                 }
+                 */
 
-            /*
-            if (i != 2) {
-                var centerOfGravityPosition = meshes[2].position;
-
-                meshes[i].position.add(centerOfGravityPosition);
-                ellipses[i].position.copy(centerOfGravityPosition);
-            }
-            */
-
-            if (orbit.eph && orbit.eph.rot_per) {
-                // we have an orbital period (in hours)
-                var rotationalPeriodInSeconds = orbit.eph.rot_per * 60 * 60;
-                var percentageRotated = timeAdvanced / rotationalPeriodInSeconds;
-                mesh.rotation.y += (percentageRotated * 2.0 * Math.PI);
+                if (orbit.eph && orbit.eph.rot_per) {
+                    // we have an orbital period (in hours)
+                    var rotationalPeriodInSeconds = orbit.eph.rot_per * 60 * 60;
+                    var percentageRotated = timeAdvanced / rotationalPeriodInSeconds;
+                    mesh.rotation.y += (percentageRotated * 2.0 * Math.PI);
+                }
             }
         }
     }
@@ -1102,12 +991,7 @@ function RSimulate(opts) {
             "</div>");
         $('#destroy-object-container').hide();
 
-        if (typeof $('#destroy-object-button')[0] == 'undefined') {
-            $('#destroy-object-button').on('click', removePlayerBody);
-        }
-        else if ($._data($('#destroy-object-button')[0]).events == undefined) {
-            $('#destroy-object-button').on('click', removePlayerBody);
-        }
+        $('#destroy-object-button').on('click', requestRemoveBody);
     }
 
     function animate() {
@@ -1118,6 +1002,7 @@ function RSimulate(opts) {
 
         render();
         stats.update();
+        controls.update();
     }
 
     function render() {
@@ -1148,8 +1033,8 @@ if (SHOWING_ASTEROID_CLAIM){
     // link to add the asteroid
     function claimButt_onClick(e){
         e = e || window.event;
-
-        ws.send(message('track',selectedBody));
+        e.stopPropagation();
+        ws.send(message('track',selectedB));
         
     }
     claimButt.addEventListener('click', claimButt_onClick, false);
@@ -1171,6 +1056,9 @@ function initrSimulate() {
     // refresh webGL
     rSimulate = new RSimulate({});
     jCanvas = $('#canvas');
+    $(renderer.domElement).css('height', '');
     renderer.setSize(jCanvas.width(), jCanvas.height());
+    camera.aspect = jCanvas.width() / jCanvas.height();
+    camera.updateProjectionMatrix();
     ws.send(message('refresh','None'));
 }

@@ -175,7 +175,7 @@
                 display: inline;
                 z-index: 1010;
                 position: absolute;
-                right: 42%;
+                right: 40%;
                 background-color: transparent;
             }
 
@@ -183,7 +183,7 @@
                 display: inline;
                 z-index: 1010;
                 position: absolute;
-                right: 42%;
+                right: 35%;
             }
 
             #body-info-container {
