@@ -17,7 +17,6 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var INTERSECTED;
     var projector;
     var clock;
-   // var plane;
     var skybox;
     var sun;
 
@@ -48,15 +47,17 @@ function RSimulate(opts) {
         // TODO: Fix this to not assign an entity index in place of an objectId when the planets and asteroids migrate to the server
         objectId = typeof objectId !== 'undefined' ? objectId : nextEntityIndex;
 
-        objects.push({owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh});
-
         parent.add(mesh);
 
         if (orbit != undefined) {
             var ellipse = orbit.getEllipse();
             ellipse.visible = shouldAlwaysShowEllipse;
             parent.add(ellipse)
-        };
+        }
+
+
+        var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh};
+        objects.push(obj);
 
         nextEntityIndex++;
 
@@ -68,7 +69,8 @@ function RSimulate(opts) {
 
             // add listener to object specific div
             document.getElementById(orbit.name).addEventListener('click', function() {
-                orbitCamera(mesh.position);
+                selectedObject = obj;
+                orbitCamera(selectedObject);
             }, false);
         }
     }
@@ -190,7 +192,6 @@ function RSimulate(opts) {
     }
 
     function onDocumentMouseMove( event ) {
-
         event.preventDefault();
         mouse.x = ( event.offsetX / $(canvas).width() ) * 2 - 1;
         mouse.y = - ( event.offsetY / $(canvas).height() ) * 2 + 1;
@@ -200,34 +201,20 @@ function RSimulate(opts) {
 
         var raycaster = new THREE.Raycaster( camera.position,
                         vector.sub( camera.position ).normalize() );
-
         var intersects = raycaster.intersectObjects( scene.children, true );
 
         if ( intersects.length > 0 ) {
-
             if ( INTERSECTED != intersects[ 0 ].object ) {
-
                 //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-
                 INTERSECTED = intersects[ 0 ].object;
                 //INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-
-                //plane.position.copy( INTERSECTED.position );
-                //plane.lookAt( camera.position );
-
             }
             canvas.style.cursor = 'pointer';
-
         } else {
-
             //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-
             INTERSECTED = null;
-
             canvas.style.cursor = 'auto';
-
         }
-
     }
 
     function rainbow(numOfSteps, step) {
@@ -251,34 +238,54 @@ function RSimulate(opts) {
         return new THREE.Color(r,g,b);
     }
 
-    function hideAllAsteroidEllipses() {
+    function hideAllConditionalEllipses() {
         for (var i = 0; i < objects.length; i++) {
             var obj = objects[i];
-            // TODO: Should moons disappear on deselect as well?
             if (obj.type == 'asteroid' || obj.type == 'moon') {
                 obj.orbit.getEllipse().visible = false;
             }
         }
     }
 
-    function orbitCamera(newOrigin) {
-        /*if (cameraOrigin != undefined) {
-            cameraOrigin.remove(camera);
+    function orbitCamera(originObj) {
+        var cameraTarget = undefined;
+        if (originObj.type == 'moon') {
+            cameraTarget = originObj.mesh.parent.position;
         }
-        cameraOrigin = newOrigin;
-        cameraOrigin.add(camera);*/
-        cameraTarget = newOrigin;
+        else {
+            cameraTarget = originObj.mesh.position;
+        }
         controls.target = cameraTarget;
         controls.update();
     }
 
     function onBodySelected(mesh) {
-        hideAllAsteroidEllipses();
+        hideAllConditionalEllipses();
         var obj = undefined;
+
+        var checkChildrenForId = function(children, id) {
+            for (var i = 0; i < children.length; i++){
+                var child = children[i];
+                if (child.id == id) {
+                    return true;
+                }
+                else if (child.children != undefined) {
+                    var result = checkChildrenForId(child.children, id);
+                    if (result == true) {
+                        return true;
+                    }
+                }
+            }
+        };
+
         for (var i = 0; i < objects.length; i++) {
-            console.log(objects[i].mesh.id, mesh.id);
-            if (objects[i].mesh.id == mesh.id) {
-                obj = objects[i];
+            var object = objects[i];
+            if (object.mesh.id == mesh.id) {
+                obj = object;
+            }
+            else if (object.mesh.children != undefined) {
+                var result = checkChildrenForId(object.mesh.children, mesh.id);
+                if (result == true) obj = object;
             }
         }
 
@@ -369,14 +376,11 @@ function RSimulate(opts) {
                     .html('<b>' + obj.owner + '</b>').attr("color", 'rgb(200,200,200)');
 
                 //var userName = readCookie('cosmosium_login');
-                if (obj.type == 'Probe') {
-                    // TODO: Only display removal button of owned objects
-
-                    $('#destroy-object-container').show();
-                }
-                else {
-                    $('#destroy-object-container').hide();
-                }
+                $('#destroy-object-container').hide();
+                $('#claim-asteroid-button').hide();
+                // TODO: Only display removal button of owned objects
+                if (obj.type == 'Probe') $('#destroy-object-container').show();
+                else if (obj.type == 'asteroid') $('#claim-asteroid-button').show();
             }
             $("#body-info").html(infoHTML);
         }
@@ -388,7 +392,7 @@ function RSimulate(opts) {
 
         selectedObject = obj;
 
-        orbitCamera(mesh.position);
+        orbitCamera(selectedObject);
     }
 
     function onDocumentMouseDown( event ) {
@@ -404,8 +408,6 @@ function RSimulate(opts) {
 
         if ( intersects.length > 0 ) {
 
-            controls.noRotate = true;
-
             onBodySelected(intersects[ 0 ].object);
 
         } else {
@@ -417,21 +419,15 @@ function RSimulate(opts) {
 
         event.preventDefault();
 
-        controls.noRotate = false;
-
-        if ( INTERSECTED ) {
-
-            //plane.position.copy( INTERSECTED.position );
-        }
-
         canvas.style.cursor = 'auto';
 
     }
 
     function onBodyDeselected() {
-        hideAllAsteroidEllipses();
+        hideAllConditionalEllipses();
         $("#body-info-container").hide();
         $('#destroy-object-container').hide();
+        $('#claim-asteroid-button').hide();
         selectedObject = undefined;
     }
 
@@ -899,10 +895,6 @@ function RSimulate(opts) {
     }
 
     function initRenderer() {
-        //plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true, wireframe: true } ) );
-        //plane.visible = false;
-        //scene.add( plane );
-
         projector = new THREE.Projector();
 
         renderer = new THREE.WebGLRenderer( { antialias: false } );
