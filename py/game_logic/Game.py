@@ -3,8 +3,10 @@
 from time import time
 from calendar import month_abbr
 import uuid
+from random import randint
 
 from py.OOIs import OOIs
+import py.AsteroidDB as asteroidDB
 from py.game_logic.mockEventList import getMockEventList
 
 GAME_LEN = 60 # max length of game in minutes
@@ -15,7 +17,21 @@ START_YEAR = 1969 # starting year of game
 class Game(object):
     def __init__(self):
         print "New game instance initializing..."
-        self.OOIs = OOIs()
+        # self.OOIs = OOIs()
+        # TODO: Replace this with MPO data
+        self.NEOs = list()
+        for asteroid in asteroidDB.getAsteroidSurvey('NEO'):
+            self.NEOs.append(self.cleanAsteroidObject(asteroid))
+
+        self.mainBelt = list()
+        for asteroid in asteroidDB.getAsteroidSurvey('MainBelt'):
+            self.mainBelt.append(self.cleanAsteroidObject(asteroid))
+
+        self.kuiperBelt = list()
+        for asteroid in asteroidDB.getAsteroidSurvey('KuiperBelt'):
+            self.kuiperBelt.append(self.cleanAsteroidObject(asteroid))
+
+        self.OOIs = self.NEOs + self.mainBelt + self.kuiperBelt
         self.id = uuid.uuid4()
         self.players = list()
         self.playerObjects = list()
@@ -34,6 +50,27 @@ class Game(object):
             'P': 365.256
         }
         self.addPlayerObject("Probe", "Magellan", ephemeris, "test_user")
+
+    def cleanAsteroidObject(self, asteroid):
+        H = asteroid['H']
+        diameter = asteroid['diameter']
+
+        if H == "":
+            H = "_"
+        if diameter == "":
+            diameter = "_"
+
+        cleaned = {
+            'type': 'asteroid',
+            'model': 'asteroid',
+            'objectId': str(uuid.uuid4()),
+            'owner': 'UNCLAIMED',
+            'orbitExtras': {'H': asteroid['H'], 'diameter': asteroid['diameter']},
+            'orbit': {'a': asteroid['a'], 'om': asteroid['om'], 'e': asteroid['e'], 'i': asteroid['i'],
+                      'L': asteroid['n'], 'P': asteroid['per'], 'epoch': asteroid['epoch'], 'w': asteroid['w'],
+                      'w_bar': (int(asteroid['w']) + int(asteroid['om'])), 'ma': asteroid['ma'],
+                      'full_name': asteroid['full_name'].split()[0] + '_' + asteroid['name']}}
+        return cleaned
         
     def time(self, t=None):
         # returns current in-game time representation as a string 
@@ -57,6 +94,39 @@ class Game(object):
         player.setGame(self)
         self.players.append(player)
 
+    def synchronizeSurvey(self, player, survey, amt):
+
+        def sendSurvey(asteroidList, amount, player):
+            if amount == 0:
+                amount = asteroidList.__len__()
+                for i in range(amount):
+                    message = '{"cmd":"addAsteroid","data":"'
+                    obj = asteroidList[i]
+                    message += str(obj)
+                    message += '"}'
+                    print "sending asteroid", obj['objectId'], '(',i+1, "out of", amount,')', "to", player.name
+                    player.websocket.send(message)
+            else:
+                for i in range(amount):
+                    message = '{"cmd":"addAsteroid","data":"'
+                    index = randint(0, asteroidList.__len__()-1)
+                    obj = asteroidList[index]
+                    message += str(obj)
+                    message += '"}'
+                    print "sending asteroid", obj['objectId'], '(',i+1, "out of", player.asteroidLimit,')', "to", player.name
+                    player.websocket.send(message)
+
+        if survey == 'NEO':
+            sendSurvey(self.NEOs, amt, player)
+        elif survey == 'MainBelt':
+            sendSurvey(self.mainBelt, amt, player)
+        elif survey == 'KuiperBelt':
+            sendSurvey(self.kuiperBelt, amt, player)
+        elif survey == 'SolarSystem':
+            sendSurvey(self.OOIs, amt, player)
+        else:
+            print "ERROR: Player", player.name, "requested an unknown asteroid survey"
+
     def synchronizeObjects(self, player):
         # send player objects in game instance
         if player.websocket is not None:
@@ -70,7 +140,7 @@ class Game(object):
             print "Cannot synchronize objects with user " + player.name + ". WebSocket is NoneType"
 
     def synchronizeClientsForObject(self, obj):
-        print "syncronizing clients for addition of object", obj['objectId']
+        print "synchronizing clients for object", obj['objectId']
         for player in self.players:
             if player.websocket is not None:
                 message = '{"cmd":"pObjCreate","data":"'

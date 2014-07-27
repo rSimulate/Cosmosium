@@ -129,13 +129,35 @@ def playerObjectResponder(user, ws, data):
                 message += '"}'
                 ws.send(message)
 
+def surveyResponder(data, user, websock):
+    # {'survey': 'MainBelt', 'amt': 0}
+    # Amt of 0 == all asteroids in survey
+    surveyData = literal_eval(data)
+    if surveyData['survey'] == 'NEO':
+        user.game.synchronizeSurvey(user, 'NEO', int(surveyData['amt']))
+
+    elif surveyData['survey'] == 'MainBelt':
+        user.game.synchronizeSurvey(user, 'MainBelt', int(surveyData['amt']))
+
+    elif surveyData['survey'] == 'KuiperBelt':
+        user.game.synchronizeSurvey(user, 'KuiperBelt', int(surveyData['amt']))
+
+    elif surveyData['survey'] == 'SolarSystem':
+        user.game.synchronizeSurvey(user, 'SolarSystem', int(surveyData['amt']))
+
+    else:
+        print "ERROR: Player", user.name, "requested an unknown asteroid survey"
+
 def refreshResponder(user):
     user.game.synchronizeObjects(user)
     
 def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     # takes appropriate action on the given command and data string
-    if cmd == 'track':
+    if cmd == 'claim':
         asteroidTrackResponder(data, user, websock, OOIs)
+        # TODO: Send asteroid limit for user on hello
+    elif cmd == 'getSurvey':
+        surveyResponder(data, user, websock)
     elif cmd == 'hello':
         registerUserConnection(user, websock)
     elif cmd == 'refresh':

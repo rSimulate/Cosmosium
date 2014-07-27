@@ -58,7 +58,6 @@
         <script type='text/javascript' src='/js/objectDB.js'></script>
         <script type='text/javascript' src='/js/wsMessageParser.js'></script>
         <script type='text/javascript' src='/js/createMessage.js'></script>
-        <script type='text/javascript' src='/tpl/js/webSocketSetup.js'></script>
 
 
         <style>
@@ -326,6 +325,7 @@
 
         <!-- for j-query based navigation -->
         <script src="/js/game_frame_nav.js" type="text/javascript"></script>
+        <script src="/js/nav_asteroidSurveys.js" type="text/javascript"></script>
 
         <script type="text/javascript" src='/tpl/js/webSocketSetup.js'></script>
     </body>

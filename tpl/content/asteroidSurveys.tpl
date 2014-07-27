@@ -25,7 +25,7 @@
             % include('tpl/content/tiles/buttonText', title='NEO Survey',
             %   color='blue',
             %   bttn_id='systemView-NEOs-link',
-            %   bttn_txt='Fund NEA Survey Program',
+            %   bttn_txt='Fund NEO Survey Program',
             %   text='A near-Earth object (NEO) is a Solar System object whose orbit brings it into proximity with Earth. They include a few thousand near-Earth asteroids (NEAs), near-Earth comets, a number of solar-orbiting spacecraft, and meteoroids large enough to be tracked in space before striking the Earth. It is now widely accepted that collisions in the past have had a significant role in shaping the geological and biological history of the planet. NEOs have become of increased interest because of increased awareness of the potential danger some of the asteroids or comets pose to Earth. These asteroids are generally not as large as some main-belt asteroids and make good candidates for asteroid mining because of the comparatively low amount of delta-v required to reach them.')
 
         </section>

@@ -44,11 +44,10 @@ function RSimulate(opts) {
 
     function addBody( parent, type, orbit, mesh, shouldAlwaysShowEllipse, objectId, model, owner ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
-        // TODO: Fix this to not assign an entity index in place of an objectId when the planets and asteroids migrate to the server
         objectId = typeof objectId !== 'undefined' ? objectId : nextEntityIndex;
-
         parent.add(mesh);
 
+        // orbit undefined for sun
         if (orbit != undefined) {
             for (var i = 0; i < objects.length; i++) {
                 var obj = objects[i];
@@ -92,7 +91,18 @@ function RSimulate(opts) {
         e.preventDefault();
     }
 
-    removeBody = function (parentScene, type, objectId) {
+    this.removeAsteroids = function() {
+        for(var i = objects.length; i--;) {
+            var obj = objects[i];
+            if(obj.type === 'asteroid') {
+                scene.remove(obj.mesh);
+                scene.remove(obj.orbit.getEllipse());
+                objects.splice(i, 1);
+            }
+        }
+    };
+
+    this.removeBody = function (parentScene, type, objectId) {
         // Removes a body from the scene
         if (parentScene == undefined) { parentScene = scene; }
         var rmObject;
@@ -100,6 +110,7 @@ function RSimulate(opts) {
             for (var i = 0; i < objects.length; i++) {
                 if (objects[i].objectId == objectId) {
                     rmObject = objects[i];
+                    objects.splice(i, 1);
                     break;
                 }
             }
@@ -117,7 +128,7 @@ function RSimulate(opts) {
         if (type == "playerObject") {
             $('#'+rmObject.orbit.name).remove();
         }
-
+        orbitCamera(sun);
         // deselect body, if selected
         onBodyDeselected();
     };
@@ -259,14 +270,13 @@ function RSimulate(opts) {
     }
 
     function orbitCamera(originObj) {
-        var cameraTarget = undefined;
+        cameraTarget = originObj;
         if (originObj.type == 'moon') {
-            cameraTarget = originObj.mesh.parent.position;
+            controls.target = originObj.mesh.parent.position;
         }
         else {
-            cameraTarget = originObj.mesh.position;
+            controls.target = originObj.mesh.position;
         }
-        controls.target = cameraTarget;
         controls.update();
     }
 
@@ -527,127 +537,88 @@ function RSimulate(opts) {
     function initSolarSystem() {
         initSun();
         initPlanets();
-
-        initAsteroids();
     }
 
-    function initAsteroids() {
+    this.addNewAsteroid = function(asteroid) {
 
         var geometry = new THREE.SphereGeometry( 1, 16, 16 );
 
-
         var lambertShader = THREE.ShaderLib['lambert'];
-        var basicShader = THREE.ShaderLib['basic'];
+        var uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
 
-        //var vertexShaderText = lambertShader.vertexShader;
         var vertexShaderText = document.getElementById("asteroid-vertex").textContent;
-        var fragmentShaderText;
-
-        var asteroidsData = TestAsteroids;
-        //var asteroidsData += OOIs[0];
-
-        var numAsteroids = asteroidsData.length;
+        var fragmentShaderText = lambertShader.fragmentShader;
 
         var useBigParticles = !using_webgl;
 
-        var numAsteroidOrbitsShown = NUM_BIG_PARTICLES;
-
-        if (numAsteroidOrbitsShown > numAsteroids) {
-            numAsteroidOrbitsShown = numAsteroids;
-        }
-
         // first iterate and find the range of values for magnitude (H)
-        var minH;
-        var maxH;
-        var sumH = 0;
-        var countH = 0;
+        var minH = asteroid.orbitExtras.H;
+        var maxH = asteroid.orbitExtras.H;
 
-        for (var i = 0; i < numAsteroidOrbitsShown; i++) {
-            var asteroid = asteroidsData[i];
-            if (asteroid.H && asteroid.diameter != "") {
-                if (minH && maxH) {
-                    if (minH > asteroid.H) { minH = asteroid.H }
-                    if (maxH < asteroid.H) { maxH = asteroid.H }
-                } else {
-                    minH = asteroid.H;
-                    maxH = asteroid.H;
-                }
 
-                sumH += asteroid.H;
-                countH ++;
-            }
+
+        var baseAsteroidSize = ASTEROID_SIZE;
+        if (asteroid.orbitExtras.diameter && asteroid.orbitExtras.diameter !== "_") {
+            baseAsteroidSize *= (asteroid.orbitExtras.diameter/100.0);
         }
 
-        for (var i = 0; i < numAsteroidOrbitsShown; i++) {
-            fragmentShaderText = lambertShader.fragmentShader;
-
-            var uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
-
-            var asteroid = asteroidsData[i];
-
-            var baseAsteroidSize = ASTEROID_SIZE;
-            if (asteroid.diameter && asteroid.diameter !== "") {
-                baseAsteroidSize *= (asteroid.diameter/100.0);
-            }
-
-            if (asteroid.H && asteroid.H !== "") {  // magnitude
-                var percentageDark = (asteroid.H - minH) / (maxH - minH);
-                uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);
-            }
-
-            // color asteroids based on ownership
-            if (SHOWING_ASTEROID_OWNERSHIP) {
-
-                var ownerName = owners[i]; // asteroid[i] is owned by owner[i]
-                if (ownerName) {
-                    var ownerColor = mapFromOwnerNameToColor[ownerName];
-
-                    fragmentShaderText = basicShader.fragmentShader;
-
-                    uniforms.diffuse.value = ownerColor;
-                }
-            }
-
-            var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid);
-
-            var asteroidOrbit = new Orbit3D(asteroid, {
-              color: 0xcccccc,
-              display_color: display_color,
-              width: 2,
-              object_size: i < NUM_BIG_PARTICLES ? 50 : 15, //1.5,
-              jed: jed,
-              particle_geometry: particle_system_geometry, // will add itself to this geometry
-              name: "asteroid"
-            }, useBigParticles);
-
-            var material = new THREE.ShaderMaterial({
-                uniforms: uniforms,
-                vertexShader: vertexShaderText,
-                fragmentShader: fragmentShaderText,
-                lights:true,
-                fog: true
-            });
-
-            var asteroidMesh = new THREE.Mesh( geometry, material );
-
-            // randomize the shape a tiny bit
-            asteroidMesh.scale.set(
-                baseAsteroidSize * (Math.random() + 0.5),
-                baseAsteroidSize * (Math.random() + 0.5),
-                baseAsteroidSize * (Math.random() + 0.5));
-
-            // give the asteroids a little random initial rotation so they don't look like eggs standing on end
-            asteroidMesh.rotation.set(
-                Math.random() * 2.0 * Math.PI,
-                Math.random() * 2.0 * Math.PI,
-                Math.random() * 2.0 * Math.PI);
-
-            addAsteroid(asteroidOrbit, asteroidMesh, nextEntityIndex, "asteroid", "UNCLAIMED");
-            nextEntityIndex ++;
-
-
+        if (asteroid.orbitExtras.H && asteroid.orbitExtras.H !== "_") {  // magnitude
+            var percentageDark = (asteroid.orbitExtras.H - minH) / (maxH - minH);
+            //uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);
+            uniforms.diffuse.value = new THREE.Color( 0x696969 );
         }
-    }
+
+        // color asteroids based on ownership
+        if (SHOWING_ASTEROID_OWNERSHIP) {
+
+            var ownerName = asteroid.owner;
+            // TODO: Assign colors for players by user
+            /*
+            if (ownerName) {
+                var ownerColor = mapFromOwnerNameToColor[ownerName];
+
+                fragmentShaderText = basicShader.fragmentShader;
+
+                uniforms.diffuse.value = ownerColor;
+            }*/
+        }
+
+        //var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid);
+        var asteroidOrbit = new Orbit3D(asteroid.orbit, {
+          color: 0xcccccc,
+          display_color: 0x00ff00,
+          width: 2,
+            //TODO: I'm not sure how the object_size needs to be configured
+          object_size: 1 < NUM_BIG_PARTICLES ? 50 : 15, //1.5,
+          jed: jed,
+          particle_geometry: particle_system_geometry, // will add itself to this geometry
+          name: asteroid.orbit.full_name
+        }, useBigParticles);
+
+        var material = new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: vertexShaderText,
+            fragmentShader: fragmentShaderText,
+            lights:true,
+            fog: true
+        });
+
+        var asteroidMesh = new THREE.Mesh( geometry, material );
+
+        // randomize the shape a tiny bit
+        asteroidMesh.scale.set(
+            baseAsteroidSize * (Math.random() + 0.5),
+            baseAsteroidSize * (Math.random() + 0.5),
+            baseAsteroidSize * (Math.random() + 0.5));
+
+        // give the asteroids a little random initial rotation so they don't look like eggs standing on end
+        asteroidMesh.rotation.set(
+            Math.random() * 2.0 * Math.PI,
+            Math.random() * 2.0 * Math.PI,
+            Math.random() * 2.0 * Math.PI);
+
+        addAsteroid(asteroidOrbit, asteroidMesh, asteroid.objectId, asteroid.type, asteroid.owner);
+    };
 
     function asteroidIsOwned(asteroid) {
         return (Math.random() > 0.5);
@@ -922,7 +893,6 @@ function RSimulate(opts) {
 
 
         controls = new THREE.OrbitControls( camera, renderer.domElement );
-        //controls.addEventListener( 'change', render );
 
         renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
         renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -1006,6 +976,10 @@ function RSimulate(opts) {
         render();
         stats.update();
         controls.update();
+        // ensure origin target keeps ellipse displayed
+        if (cameraTarget != undefined) {
+            if (cameraTarget.orbit != undefined) cameraTarget.orbit.getEllipse().visible = true;
+        }
     }
 
     function render() {
@@ -1037,7 +1011,7 @@ if (SHOWING_ASTEROID_CLAIM){
     function claimButt_onClick(e){
         e = e || window.event;
         e.stopPropagation();
-        ws.send(message('track',selectedB));
+        ws.send(message('claim',selectedObject));
         
     }
     claimButt.addEventListener('click', claimButt_onClick, false);

@@ -78,7 +78,7 @@ USERS = UserList()  # list of users on the server TODO: replace use of this w/ r
 MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
 
 # initial write of JSON files (to clear out old ones):
-GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
+# GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 
 #=====================================#
 #            Static Routing           #
@@ -234,42 +234,6 @@ def handle_websocket():
         except WebSocketError:
             print 'websocketerror encountered'
             break
-            
-
-#=====================================#
-#        Asteroid Views Routing       #
-#=====================================#
-@app.route('/asteroidSearch')
-@app.route('/asteroidSearch/')
-def asteroidSearch():
-    # returns systemView based on user data and given query
-    _user = getLoggedInUser(request)
-    if _user == None:
-        redirect('/userLogin')
-    else:
-        group = request.query.group
-        if group == 'mainBelt':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/MainBelt.js"))
-        elif group == 'NEOs':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB='db/NEOs.js'))
-        elif group == 'kuiper':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/KuiperBelt.js"))
-        elif group == 'test':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/test_asteroids.js"))
-        else:
-            raise ValueError('unknown asteroid group request "'+str(group)+'"')
-
-@app.route('/getAsteroids')
-def getOOIs():
-    GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
-    return Settings(MASTER_CONFIG).asteroidDB
-    
-@app.route('/asteroidReq')
-def processReq():
-    q = request.query.query
-    lim = request.query.limit
-    print 'q=',q,' l=',lim
-    return template('type: {{datatype}} (response {{res}})', datatype="asterank", res=asterankAPI(q,lim))
 
 #=====================================#
 #      SQLite for Basic UI Data       #

@@ -32,7 +32,8 @@ class User(object):
         
         ### USER GAME LOGIC DATA ###
         self.game = None # game instance in which this user is playing
-        
+
+        self.asteroidLimit = 100
         self.resources = Resources()          
         self.research  = Research()
         self.telescopes = list([Telescope(),Telescope()]) #start w/ 2 telescopes
