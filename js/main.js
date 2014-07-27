@@ -541,7 +541,11 @@ function RSimulate(opts) {
 
     this.addNewAsteroid = function(asteroid) {
 
-        var geometry = new THREE.SphereGeometry( 1, 16, 16 );
+        var geometry = [
+                [new THREE.SphereGeometry( 1, 24, 24 ), 150],
+                [new THREE.SphereGeometry( 1, 18, 18 ), 300],
+                [new THREE.SphereGeometry( 1, 4, 4 ), 1000],
+        ];
 
         var lambertShader = THREE.ShaderLib['lambert'];
         var uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
@@ -603,21 +607,31 @@ function RSimulate(opts) {
             fog: true
         });
 
-        var asteroidMesh = new THREE.Mesh( geometry, material );
+        var lod = new THREE.LOD();
 
         // randomize the shape a tiny bit
-        asteroidMesh.scale.set(
-            baseAsteroidSize * (Math.random() + 0.5),
-            baseAsteroidSize * (Math.random() + 0.5),
-            baseAsteroidSize * (Math.random() + 0.5));
+        var scale = [baseAsteroidSize * (Math.random() + 0.5),
+                baseAsteroidSize * (Math.random() + 0.5),
+                baseAsteroidSize * (Math.random() + 0.5)];
 
         // give the asteroids a little random initial rotation so they don't look like eggs standing on end
-        asteroidMesh.rotation.set(
-            Math.random() * 2.0 * Math.PI,
-            Math.random() * 2.0 * Math.PI,
-            Math.random() * 2.0 * Math.PI);
+        var rot = [
+                Math.random() * 2.0 * Math.PI,
+                Math.random() * 2.0 * Math.PI,
+                Math.random() * 2.0 * Math.PI];
 
-        addAsteroid(asteroidOrbit, asteroidMesh, asteroid.objectId, asteroid.type, asteroid.owner);
+        for (var i = 0; i < geometry.length; i++) {
+            var asteroidMesh = new THREE.Mesh( geometry[i][0], material );
+
+            asteroidMesh.scale.set(scale[0], scale[1], scale[2]);
+            asteroidMesh.rotation.set(rot[0], rot[1], rot[2]);
+
+            lod.addLevel( asteroidMesh, geometry[i][1]);
+        }
+
+
+
+        addAsteroid(asteroidOrbit, lod, asteroid.objectId, asteroid.type, asteroid.owner);
     };
 
     function asteroidIsOwned(asteroid) {
@@ -983,6 +997,8 @@ function RSimulate(opts) {
     }
 
     function render() {
+        scene.traverse( function ( node ) { if ( node instanceof THREE.LOD ) node.update( camera ) } );
+
         renderer.render( scene, camera );
     }
 
