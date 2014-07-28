@@ -45,7 +45,6 @@ function RSimulate(opts) {
     function addBody( parent, type, orbit, mesh, shouldAlwaysShowEllipse, objectId, model, owner ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
         objectId = typeof objectId !== 'undefined' ? objectId : nextEntityIndex;
-        parent.add(mesh);
 
         // orbit undefined for sun
         if (orbit != undefined) {
@@ -82,6 +81,7 @@ function RSimulate(opts) {
                 orbitCamera(selectedObject);
             }, false);
         }
+        parent.add(mesh);
     }
 
     function requestRemoveBody(e) {
@@ -542,9 +542,9 @@ function RSimulate(opts) {
     this.addNewAsteroid = function(asteroid) {
 
         var geometry = [
-                [new THREE.SphereGeometry( 1, 24, 24 ), 150],
-                [new THREE.SphereGeometry( 1, 18, 18 ), 300],
-                [new THREE.SphereGeometry( 1, 4, 4 ), 1000],
+            [new THREE.SphereGeometry( 1, 6, 6 ), 300],
+            [new THREE.SphereGeometry( 1, 5, 5 ), 600],
+            [new THREE.SphereGeometry( 1, 4, 4 ), 1000],
         ];
 
         var lambertShader = THREE.ShaderLib['lambert'];
