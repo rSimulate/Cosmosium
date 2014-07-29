@@ -128,7 +128,7 @@ function RSimulate(opts) {
         if (type == "playerObject") {
             $('#'+rmObject.orbit.name).remove();
         }
-        orbitCamera(sun);
+        orbitCamera(getSolarCentricObject());
         // deselect body, if selected
         onBodyDeselected();
     };
@@ -267,6 +267,20 @@ function RSimulate(opts) {
                 obj.orbit.getEllipse().visible = false;
             }
         }
+    }
+
+    function getSolarCentricObject() {
+        var obj;
+        for (var i = 0; i < objects.length; i++) {
+            if (objects[i].type == 'star') {
+                obj = objects[i];
+            }
+        }
+        if (obj) {
+            return obj;
+        }
+        // return current target if solar centric object doesn't exist
+        return cameraTarget;
     }
 
     function orbitCamera(originObj) {
@@ -418,20 +432,26 @@ function RSimulate(opts) {
 
     function onDocumentMouseDown( event ) {
         event.preventDefault();
+        console.log(event.button);
+        if (event.button == 0) {
+            var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+            projector.unprojectVector( vector, camera );
 
-        var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-        projector.unprojectVector( vector, camera );
+            var raycaster = new THREE.Raycaster( camera.position,
+                vector.sub( camera.position ).normalize() );
 
-        var raycaster = new THREE.Raycaster( camera.position,
-            vector.sub( camera.position ).normalize() );
+            var intersects = raycaster.intersectObjects( scene.children, true );
 
-        var intersects = raycaster.intersectObjects( scene.children, true );
+            if ( intersects.length > 0 ) {
 
-        if ( intersects.length > 0 ) {
+                onBodySelected(intersects[ 0 ].object);
 
-            onBodySelected(intersects[ 0 ].object);
-
-        } else {
+            } else {
+                onBodyDeselected();
+            }
+        }
+        else if (event.button == 2) {
+            orbitCamera(getSolarCentricObject());
             onBodyDeselected();
         }
     }
@@ -692,7 +712,6 @@ function RSimulate(opts) {
 
         sun = new THREE.Mesh( sphereGeometry, sunMaterial );
         addBody(scene, 'star', undefined, sun, false, nextEntityIndex, "Sun", "Mankind");
-		scene.add(sun);
 
 		//Create SunFlare
         //var sunflare = lensFlare(0,0,0, SUN_SIZE*1.05, 'img/textures/lensflare0.png');
@@ -1049,9 +1068,12 @@ function initrSimulate() {
     // refresh webGL
     rSimulate = new RSimulate({});
     jCanvas = $('#canvas');
+
+    // Configure webGL canvas to conform to parent div
     $(renderer.domElement).css('height', '');
     renderer.setSize(jCanvas.width(), jCanvas.height());
     camera.aspect = jCanvas.width() / jCanvas.height();
     camera.updateProjectionMatrix();
+
     ws.send(message('refresh','None'));
 }
