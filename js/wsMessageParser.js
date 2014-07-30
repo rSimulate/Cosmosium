@@ -185,6 +185,33 @@ function parseObject(objectStr) {
     }
 }
 
+function assignColor(data) {
+    // {player: playerName, color: THREE.Color}
+    var split = cleanObjectRequest(data);
+
+    var playerName, color;
+    for (var i = 0; i < split.length; i++) {
+        var s = split[i];
+        var next = i+1;
+
+        if (s == 'player') {
+            playerName = next;
+        }
+        else if (s == 'color') {
+            color = next
+        }
+    }
+
+    // Ensure player is not already in list
+    var exists = false;
+    for (var ii = 0; ii < players.length; ii++) {
+        if (players.player == playerName) exists = true;
+    }
+
+    if (!exists) players.push({player: playerName, color: new THREE.Color(color)});
+    console.log(playerName, color);
+}
+
 function parseMessage(m) {
     // interprets and carries out messages
 
@@ -234,6 +261,8 @@ function parseMessage(m) {
         else {
             console.log("Destroy request for object " + request.objectId + " was denied because: " + request.reason);
         }
+    } else if (cmd == "assignColor") {
+        assignColor(data);
     } else {
         console.log("ERR: unknown message to client: "+m);
     }

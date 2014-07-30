@@ -29,6 +29,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var CAMERA_FAR = 100000;
 
     var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
+    var players = []; // {player: playerName, color: THREE.Color}
 
     var nextEntityIndex = 0;
 
