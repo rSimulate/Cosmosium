@@ -286,10 +286,10 @@ function RSimulate(opts) {
     function orbitCamera(originObj) {
         cameraTarget = originObj;
         if (originObj.type == 'moon') {
-            controls.target = originObj.mesh.parent.position;
+            controls.target = originObj.mesh.parent.position.clone();
         }
         else {
-            controls.target = originObj.mesh.position;
+            controls.target = originObj.mesh.position.clone();
         }
         controls.update();
     }
