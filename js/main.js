@@ -29,6 +29,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     var CAMERA_FAR = 100000;
 
     var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
+    var players = []; // {player: playerName, color: THREE.Color}
 
     var nextEntityIndex = 0;
 
@@ -564,7 +565,7 @@ function RSimulate(opts) {
         var geometry = [
             [new THREE.SphereGeometry( 1, 6, 6 ), 300],
             [new THREE.SphereGeometry( 1, 5, 5 ), 600],
-            [new THREE.SphereGeometry( 1, 4, 4 ), 1000],
+            [new THREE.SphereGeometry( 1, 4, 4 ), 1000]
         ];
 
         var lambertShader = THREE.ShaderLib['lambert'];
@@ -578,8 +579,6 @@ function RSimulate(opts) {
         // first iterate and find the range of values for magnitude (H)
         var minH = asteroid.orbitExtras.H;
         var maxH = asteroid.orbitExtras.H;
-
-
 
         var baseAsteroidSize = ASTEROID_SIZE;
         if (asteroid.orbitExtras.diameter && asteroid.orbitExtras.diameter !== "_") {

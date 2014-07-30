@@ -51,6 +51,13 @@ class Game(object):
         }
         self.addPlayerObject("Probe", "Magellan", ephemeris, "test_user")
 
+        self.colors = list()
+        self.colors.append({'player': None, 'color': '0xff0000'})
+        self.colors.append({'player': None, 'color': '0x00ff00'})
+        self.colors.append({'player': None, 'color': '0x0000ff'})
+        self.colors.append({'player': None, 'color': '0xffff00'})
+        self.colors.append({'player': None, 'color': '0xff00ff'})
+
     def cleanAsteroidObject(self, asteroid):
         H = asteroid['H']
         diameter = asteroid['diameter']
@@ -88,11 +95,49 @@ class Game(object):
         return GAME_LEN*60/GAME_YEAR_SPAN  # real-time sec / 1 game_year
         
     def addPlayer(self, player):
-        # TODO: Make a more specific/useful log
         print "game instance", self.id, "is adding player", player.name
         # adds a player to the current game
         player.setGame(self)
         self.players.append(player)
+        self._assignColorToPlayer(player)
+
+
+    def _assignColorToPlayer(self, player):
+        newColor = None
+        name = ''.join(map(lambda x: x.encode('ascii'), player.name))
+        for color in self.colors:
+            if color['player'] is None or color['player'] == name:
+                color['player'] = name
+                newColor = color
+                print color
+                break
+        if newColor is None:
+            print "Another player is joining the server, " \
+                  "but we've ran out of solid colors to assign. Assigning random color"
+
+            def convertColor(i):
+                if i >= 10:
+                    i -= 10
+                    hex = list()
+                    hex.append('a')
+                    hex.append('b')
+                    hex.append('c')
+                    hex.append('d')
+                    hex.append('e')
+                    hex.append('f')
+                    return str(hex[i])
+                return str(i)
+            tmpColor = '0x' + convertColor(randint(0, 15))+convertColor(randint(0, 15)) + convertColor(randint(0, 15))+\
+                                convertColor(randint(0, 15)) + convertColor(randint(0, 15))+convertColor(randint(0, 15))
+            newColor = {'player': ''.join(map(lambda x: x.encode('ascii'), player.name)), 'color': tmpColor}
+            self.colors.append(newColor)
+
+        for player in self.players:
+            if player.websocket is not None:
+                message = '{"cmd":"assignColor","data":"'
+                message += str(newColor)
+                message += '"}'
+                player.websocket.send(message)
 
     def synchronizeSurvey(self, player, survey, amt):
 
@@ -136,6 +181,13 @@ class Game(object):
                 message += '"}'
                 print "sending object", obj['objectId'], "to", player.name
                 player.websocket.send(message)
+
+            for color in self.colors:
+                if color['player'] is not None:
+                    message = '{"cmd":"assignColor","data":"'
+                    message += str(color)
+                    message += '"}'
+                    player.websocket.send(message)
         else:
             print "Cannot synchronize objects with user " + player.name + ". WebSocket is NoneType"
 
