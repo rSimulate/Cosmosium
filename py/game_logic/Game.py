@@ -104,9 +104,10 @@ class Game(object):
 
     def _assignColorToPlayer(self, player):
         newColor = None
+        name = ''.join(map(lambda x: x.encode('ascii'), player.name))
         for color in self.colors:
-            if color['player'] is None:
-                color['player'] = ''.join(map(lambda x: x.encode('ascii'), player.name))
+            if color['player'] is None or color['player'] == name:
+                color['player'] = name
                 newColor = color
                 print color
                 break
