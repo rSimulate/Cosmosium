@@ -193,12 +193,11 @@ function assignColor(data) {
     for (var i = 0; i < split.length; i++) {
         var s = split[i];
         var next = i+1;
-
         if (s == 'player') {
-            playerName = next;
+            playerName = split[next];
         }
         else if (s == 'color') {
-            color = next
+            color = split[next]
         }
     }
 
@@ -208,8 +207,11 @@ function assignColor(data) {
         if (players.player == playerName) exists = true;
     }
 
-    if (!exists) players.push({player: playerName, color: new THREE.Color(color)});
-    console.log(playerName, color);
+    if (!exists) {
+        players.push({player: playerName, color: new THREE.Color(parseInt(color))});
+        console.log(playerName+"'s", "color is", color);
+        console.log(players);
+    }
 }
 
 function parseMessage(m) {
