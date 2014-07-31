@@ -212,8 +212,13 @@ function RSimulate(opts) {
 
     function onDocumentMouseMove( event ) {
         event.preventDefault();
-        mouse.x = ( event.offsetX / $(canvas).width() ) * 2 - 1;
-        mouse.y = - ( event.offsetY / $(canvas).height() ) * 2 + 1;
+
+        // Compatibility fix for Firefox; event.offsetX/Y is not supported in FF
+        var offsetX = event.offsetX == undefined ? event.layerX : event.offsetX;
+        var offsetY = event.offsetY == undefined ? event.layerY : event.offsetY;
+
+        mouse.x = ( offsetX / $(canvas).width() ) * 2 - 1;
+        mouse.y = - ( offsetY / $(canvas).height() ) * 2 + 1;
 
         var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
         projector.unprojectVector( vector, camera );
@@ -281,13 +286,28 @@ function RSimulate(opts) {
     }
 
     function orbitCamera(originObj) {
-        cameraTarget = originObj;
-        if (originObj.type == 'moon') {
-            controls.target = originObj.mesh.parent.position.clone();
+        if (originObj == undefined && cameraTarget != undefined) {
+            // Called from animate() to update every frame to keep origin position
+            if (cameraTarget.type == 'moon') {
+                controls.target = cameraTarget.mesh.parent.position.clone();
+            }
+            else {
+                controls.target = cameraTarget.mesh.position.clone();
+            }
         }
-        else {
-            controls.target = originObj.mesh.position.clone();
+        else if (originObj != undefined) {
+            cameraTarget = originObj;
+            if (originObj.type == 'moon') {
+                controls.target = originObj.mesh.parent.position.clone();
+            }
+            else {
+                controls.target = originObj.mesh.position.clone();
+            }
+
+            // ensure origin target keeps ellipse displayed
+            if (cameraTarget.orbit != undefined) cameraTarget.orbit.getEllipse().visible = true;
         }
+
         controls.update();
     }
 
@@ -432,6 +452,7 @@ function RSimulate(opts) {
         console.log(event.button);
         if (event.button == 0) {
             var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+            console.log(vector);
             projector.unprojectVector( vector, camera );
 
             var raycaster = new THREE.Raycaster( camera.position,
@@ -987,11 +1008,8 @@ function RSimulate(opts) {
 
         render();
         stats.update();
-        controls.update();
-        // ensure origin target keeps ellipse displayed
-        if (cameraTarget != undefined) {
-            if (cameraTarget.orbit != undefined) cameraTarget.orbit.getEllipse().visible = true;
-        }
+        orbitCamera(undefined);
+
     }
 
     function render() {
