@@ -452,7 +452,6 @@ function RSimulate(opts) {
         console.log(event.button);
         if (event.button == 0) {
             var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-            console.log(vector);
             projector.unprojectVector( vector, camera );
 
             var raycaster = new THREE.Raycaster( camera.position,
@@ -468,8 +467,12 @@ function RSimulate(opts) {
                 onBodyDeselected();
             }
         }
-        else if (event.button == 2) {
+        else if (event.button == 1) {
             orbitCamera(getSolarCentricObject());
+            onBodyDeselected();
+        }
+        else if (event.button == 2) {
+            cameraTarget = undefined;
             onBodyDeselected();
         }
     }
