@@ -80,7 +80,6 @@
             .sidebar-index {
                 display: inline;
                 z-index: 1020;
-                position: relative;
             }
 
             #dash {

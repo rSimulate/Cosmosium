@@ -33,15 +33,11 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
     var nextEntityIndex = 0;
 
-    var mapFromOwnerNameToColor = {};
-
     var selectedObject = undefined;
     var removeBody;
     var addTestObject;
 
 function RSimulate(opts) {
-
-
 
     function addBody( parent, type, orbit, mesh, shouldAlwaysShowEllipse, objectId, model, owner ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
@@ -503,22 +499,6 @@ function RSimulate(opts) {
         window.addEventListener( 'resize', onWindowResize, false );
 
         initUI();
-    }
-
-    function initOwners() {
-        if (owners) {
-
-            var uniqueOwners = owners.filter(onlyUnique);
-            var numUniqueOwners = uniqueOwners.length;
-
-
-            for (var i = 0; i < numUniqueOwners; i++) {
-                if (!mapFromOwnerNameToColor[uniqueOwners[i]]) {
-                    mapFromOwnerNameToColor[uniqueOwners[i]] = rainbow(numUniqueOwners, i);
-                }
-            }
-        }
-
     }
 
     function onlyUnique(value, index, self) {
