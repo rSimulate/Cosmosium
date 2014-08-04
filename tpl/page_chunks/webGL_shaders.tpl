@@ -286,6 +286,7 @@
         varying vec4 vShadowCoord[ MAX_SHADOWS ];
         uniform mat4 shadowMatrix[ MAX_SHADOWS ];
         #endif
+
         void main() {
         #if defined( USE_MAP ) || defined( USE_BUMPMAP ) || defined( USE_NORMALMAP ) || defined( USE_SPECULARMAP )
         vUv = uv * offsetRepeat.zw + offsetRepeat.xy;

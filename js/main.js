@@ -564,6 +564,13 @@ function RSimulate(opts) {
         initPlanets();
     }
 
+    function getColorForOwner(owner) {
+        for (var i = 0; i < players.length; i++) {
+            var player = players[i];
+            if (player.player == owner) return player.color;
+        }
+    }
+
     this.addNewAsteroid = function(asteroid) {
 
         var geometry = [
@@ -574,40 +581,25 @@ function RSimulate(opts) {
 
         var lambertShader = THREE.ShaderLib['lambert'];
         var uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
+        uniforms.map.value = THREE.ImageUtils.loadTexture('img/textures/asteroid_small.jpg');
 
         var vertexShaderText = document.getElementById("asteroid-vertex").textContent;
         var fragmentShaderText = lambertShader.fragmentShader;
 
         var useBigParticles = !using_webgl;
 
-        // first iterate and find the range of values for magnitude (H)
-        var minH = asteroid.orbitExtras.H;
-        var maxH = asteroid.orbitExtras.H;
-
         var baseAsteroidSize = ASTEROID_SIZE;
         if (asteroid.orbitExtras.diameter && asteroid.orbitExtras.diameter !== "_") {
             baseAsteroidSize *= (asteroid.orbitExtras.diameter/100.0);
         }
 
-        if (asteroid.orbitExtras.H && asteroid.orbitExtras.H !== "_") {  // magnitude
-            var percentageDark = (asteroid.orbitExtras.H - minH) / (maxH - minH);
-            //uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);
-            uniforms.diffuse.value = new THREE.Color( 0x696969 );
-        }
-
         // color asteroids based on ownership
+        uniforms.diffuse.value = new THREE.Color(0x313131);
         if (SHOWING_ASTEROID_OWNERSHIP) {
-
-            var ownerName = asteroid.owner;
-            // TODO: Assign colors for players by user
-            /*
-            if (ownerName) {
-                var ownerColor = mapFromOwnerNameToColor[ownerName];
-
-                fragmentShaderText = basicShader.fragmentShader;
-
-                uniforms.diffuse.value = ownerColor;
-            }*/
+            var color = getColorForOwner(asteroid.owner);
+            if (color) {
+                uniforms.emissive.value = color;
+            }
         }
 
         //var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid);
@@ -626,9 +618,10 @@ function RSimulate(opts) {
             uniforms: uniforms,
             vertexShader: vertexShaderText,
             fragmentShader: fragmentShaderText,
-            lights:true,
-            fog: true
+            fog: true,
+            lights: true
         });
+        material.map = true;
 
         var lod = new THREE.LOD();
 
