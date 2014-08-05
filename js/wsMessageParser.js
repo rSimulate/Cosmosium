@@ -210,8 +210,31 @@ function assignColor(data) {
     if (!exists) {
         players.push({player: playerName, color: new THREE.Color(parseInt(color))});
         console.log(playerName+"'s", "color is", color);
-        console.log(players);
     }
+}
+
+function claimResponder(data) {
+    // {result: str, owner: str, objectId: str}
+    console.log(data);
+    var split = cleanObjectRequest(data);
+
+    var result, owner, objectId;
+    for (var i = 0; i < split.length; i++) {
+        var s = split[i];
+        var next = i + 1;
+        if (s == 'result') result = split[next];
+        else if (s == 'owner') owner = split[next];
+        else if (s == 'objectId') objectId = split[next];
+    }
+
+    // check
+    if (result == undefined || objectId == undefined || owner == undefined) {
+        console.log("ERROR: Claim response from the server was malformed");
+        console.log(result, objectId, owner);
+    }
+
+    if (result == 'accepted') updateObjectOwnerById(owner, objectId);
+    else console.log("player", owner, "tried to claim an asteroid, but", result);
 }
 
 function parseMessage(m) {
@@ -265,6 +288,8 @@ function parseMessage(m) {
         }
     } else if (cmd == "assignColor") {
         assignColor(data);
+    } else if (cmd == "claim") {
+        claimResponder(data);
     } else {
         console.log("ERR: unknown message to client: "+m);
     }

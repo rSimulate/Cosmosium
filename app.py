@@ -229,8 +229,8 @@ def handle_websocket():
             # TODO: call message parser sort of like:
             #game_manager.parseMessage(message,wsock)
             # NOTE: message parser should probably be an attribute of the game
-            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, GAMES.games[0].OOIs)
             print "received :",cmd,'from',userID
+            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, GAMES.games[0].OOIs)
         except WebSocketError:
             print 'websocketerror encountered'
             break
