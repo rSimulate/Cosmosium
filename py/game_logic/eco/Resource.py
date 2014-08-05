@@ -11,7 +11,7 @@ class Cost(object):
       * 1-time value increase/decrease(cost)
       * recurring value increase/decrease
     '''
-    def __init__(self, oneTime, recurring):
+    def __init__(self, oneTime=0, recurring=0):
         self.oneTime = oneTime
         self.recurring = recurring
 

@@ -1,29 +1,11 @@
 from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
 from bottle import template
-from py.getAsteroid import byName
 from ast import literal_eval
 
+from asteroid_tracker import asteroid_track_request_responder
+
 CHUNKS = chunks()
-
-def asteroidTrackResponder(data, user):
-    # responds to asteroid track requests by sending html for a tile to be added to the content section
-    message = '{"cmd":"claim","data":"'
-    asteroid = literal_eval(data)
-    if user.purchase('asteroidTrack'):
-        print 'request to track', asteroid['orbitName'], 'by player', str(user.name), 'accepted.'
-
-        if user.game is not None:
-            user.game.changeAsteroidOwner(str(user.name), asteroid['objectId'], user)
-            result = "accepted"
-        else:
-            result = "Cannot_find_game_instance_for_player"
-    else:
-        result = "denied_for_lack_of_funds"
-
-    message += "{'result': "+result+", 'owner': "+str(user.name)+", objectId: "+asteroid['objectId']+"}"
-    message += '"}'
-    user.sendMessage(message)
     
 def registerUserConnection(user,ws):
     # saves user websocket connetion so that updates to the user object can push to the client
@@ -129,7 +111,7 @@ def refreshResponder(user):
 def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     # takes appropriate action on the given command and data string
     if cmd == 'claim':
-        asteroidTrackResponder(data, user)
+        asteroid_track_request_responder(data, user)
     elif cmd == 'getSurvey':
         surveyResponder(data, user, websock)
     # TODO: Send asteroid limit for user on hello

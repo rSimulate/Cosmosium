@@ -3,9 +3,25 @@ function prependContent(newContent){
     document.getElementById('content').innerHTML = newContent + document.getElementById('content').innerHTML;
 }
 
-function updateResources(newHTML){
-    // replaces resource bar HTML with fresh, updated code. 
-    document.getElementById("resource-bar").innerHTML = newHTML;
+function updateResources(resources_json_str){
+    /*
+    updates player resources using given dict/json string
+    */
+    eval("var vals = " + resources_json_str);
+
+    // update resource deltas
+    player.dScience = vals.dScience;
+    player.dWealth  = vals.dWealth;
+    player.dEnergy  = vals.dEnergy;
+    player.dMetal   = vals.dMetal;
+    player.dOrganic = vals.dOrganic;
+
+    // update resources
+    player.science= vals.science;
+    player.wealth=  vals.wealth;
+    player.energy=  vals.energy;
+    player.metal=   vals.metal;
+    player.organic=  vals.organic;
 }
 
 function cleanObjectRequest(objectStr) {

@@ -71,29 +71,47 @@ class User(object):
             and (item.energy.oneTime + self.resources.energy())>=0\
             and (item.metals.oneTime + self.resources.metals())>=0\
             and (item.organic.oneTime+ self.resources.organic())>=0
-              
-    def payFor(self,bal):
+
+    def get_resource_balance_dict(self):
+        """
+        :return: a dict (JSON) string representing the user's balance of resources
+        """
+        return dict(dScience=self.resources.getDeltaScience(self),
+                    dWealth=self.resources.getDeltaWealth(self),
+                    dEnergy=self.resources.getDeltaEnergy(self),
+                    dMetal=self.resources.getDeltaMetals(self),
+                    dOrganic=self.resources.getDeltaOrganic(self),
+
+                    science=self.resources.science(),
+                    wealth=self.resources.wealth(),
+                    energy=self.resources.energy(),
+                    metal=self.resources.metals(),
+                    organic=self.resources.organic()
+        )
+
+
+    def payFor(self, bal):
         # deducts item cost from resources,
         # returns true if purchase is sucessful 
         # assumes that user can afford item
             
         self.resources.applyBalance(bal)
-        
+
         if self.websocket is not None:
-            self.sendMessage(createMessage('updateResources',data=template('tpl/page_chunks/resourcebar',user=self)))
+            self.sendMessage(createMessage('updateResources', data=str(self.get_resource_balance_dict())))
             return True
         else:
-            print 'no websocket connected to user ',self.name
+            print 'no websocket connected to user ', self.name
 
-    def purchase(self,item=None, balance=None):
-        '''
+    def purchase(self, item=None, balance=None):
+        """
         checks if user can afford item 
          and deducts item cost from self.resources 
          and adds the item (or the purchases effects) to the user.
         returns true if purchased, returns false if not.
         Default usage is to use an item name from purchase.py.
         If a Balance object "balance" is given INSTEAD of "item", then it is used directly.
-        '''
+        """
         if item!= None:
             cost = purchases.getCost(item)
             if self.affords(cost):
