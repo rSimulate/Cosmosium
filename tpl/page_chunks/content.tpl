@@ -228,7 +228,7 @@
             % include('tpl/page_chunks/webGL_shaders')
             <div id="canvas">
                 <!-- Page Header and Resource Bar -->
-                <div id="resource-bar skin-black" class="content-header" >
+                <div id="resource-bar" class="content-header skin-black" >
                     % include('tpl/page_chunks/resourcebar')
                 </div>
                 <!-- Dash -->

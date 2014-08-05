@@ -6,49 +6,27 @@ from ast import literal_eval
 
 CHUNKS = chunks()
 
-def asteroidTrackResponder(asteroidName, user, webSock, OOIs):
+def asteroidTrackResponder(data, user):
     # responds to asteroid track requests by sending html for a tile to be added to the content section
-    message = '{"cmd":"addToContent","data":"'
-    
+    message = '{"cmd":"claim","data":"'
+    asteroid = literal_eval(data)
     if user.purchase('asteroidTrack'):
-        print 'request to track '+asteroidName+' accepted.'
+        print 'request to track', asteroid['orbitName'], 'by player', str(user.name), 'accepted.'
 
-        asteroidData=byName(asteroidName)
-
-        print asteroidData
-
-        print len(asteroidData)
-
-        if asteroidData == None or asteroidData == "" or asteroidData == '[]':
-            print 'problem getting '+str(asteroidName)+ ' from asterank'
-            message += template('tpl/content/tiles/uhoh',
-                text="Sorry, I couldn't add "+str(asteroidName)+". Maybe try again later?",
-                chunks=CHUNKS,
-                config=Settings('default'),
-                title='Something went terribly wrong tracking that asteroid!',
-                user=user)
+        if user.game is not None:
+            user.game.changeAsteroidOwner(asteroid['owner'], asteroid['objectId'], user)
+            result = "accepted"
         else:
-            OOIs.addObject(asteroidData, user.name)
-            # write the new js file(s)
-            OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
-            print 'object '+asteroidName+' added to OOIs'
-            message+= template('tpl/content/tiles/asteroidAdd',
-                objectName=asteroidName,
-                chunks=CHUNKS,
-                config=Settings('default'),
-                pageTitle='Asteroid Add Request Approved',
-                user=user)
+            result = "Cannot_find_game_instance_for_player"
     else:
-        print 'request to track '+asteroidName+' denied. insufficient funds.'
-        message+= template('tpl/content/tiles/insufficientFunds',
-            objectName=asteroidName,
-            chunks=CHUNKS,
-            config=Settings('default'),
-            pageTitle='Asteroid Add Request Denied',
-            user=user)
-    
-    message+='"}'
-    webSock.send(message)
+        result = "denied_for_lack_of_funds"
+
+    message += "{'result': "+result+", 'owner': "+str(user.name)+", objectId: "+asteroid['objectId']+"}"
+    message += '"}'
+    if user.websocket is not None:
+        user.websocket.send(message)
+    else:
+        print "ERROR: Cannot send asteroid track response to player", str(user.name)+". Client websocket does not exist"
     
 def registerUserConnection(user,ws):
     # saves user websocket connetion so that updates to the user object can push to the client
@@ -154,10 +132,10 @@ def refreshResponder(user):
 def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     # takes appropriate action on the given command and data string
     if cmd == 'claim':
-        asteroidTrackResponder(data, user, websock, OOIs)
-        # TODO: Send asteroid limit for user on hello
+        asteroidTrackResponder(data, user)
     elif cmd == 'getSurvey':
         surveyResponder(data, user, websock)
+    # TODO: Send asteroid limit for user on hello
     elif cmd == 'hello':
         registerUserConnection(user, websock)
     elif cmd == 'refresh':

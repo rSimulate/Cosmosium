@@ -101,6 +101,21 @@ class Game(object):
         self.players.append(player)
         self._assignColorToPlayer(player)
 
+    def changeAsteroidOwner(self, newOwner, objectId, user):
+        for asteroid in self.OOIs:
+            if asteroid['objectId'] == objectId:
+                asteroid['owner'] = newOwner
+
+                for player in self.players:
+                    if player is not user:
+                        if player.websocket is not None:
+                            player.websocket.send("{'cmd':'claim',data:{'result': 'accepted', 'owner': "+newOwner +
+                                                  ", 'objectId': "+objectId+"}}")
+                        else:
+                            print "Tried to send asteroid owner change request to", str(player.name) +\
+                                  ", but user has no websocket."
+
+                return asteroid['objectId']
 
     def _assignColorToPlayer(self, player):
         newColor = None
