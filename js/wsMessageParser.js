@@ -215,7 +215,6 @@ function assignColor(data) {
 
 function claimResponder(data) {
     // {result: str, owner: str, objectId: str}
-    console.log(data);
     var split = cleanObjectRequest(data);
 
     var result, owner, objectId;

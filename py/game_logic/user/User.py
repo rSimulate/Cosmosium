@@ -8,6 +8,7 @@ from py.game_logic.units.Miner import Miner
 from py.game_logic.eco.Resources import Resources
 from py.game_logic.eco import purchases
 from py.webSocketMessenger import createMessage
+from geventwebsocket import WebSocketError
 
 class User(object):
     def __init__(self, name='No Name'):
@@ -78,8 +79,8 @@ class User(object):
             
         self.resources.applyBalance(bal)
         
-        if self.websocket != None:
-            self.websocket.send(createMessage('updateResources',data=template('tpl/page_chunks/resourcebar',user=self)))
+        if self.websocket is not None:
+            self.sendMessage(createMessage('updateResources',data=template('tpl/page_chunks/resourcebar',user=self)))
             return True
         else:
             print 'no websocket connected to user ',self.name
@@ -125,7 +126,7 @@ class User(object):
         # advances to next research age...
         self.research.advance()
         if self.websocket != None:
-            self.websocket.send(createMessage('updateResources',data=template('tpl/page_chunks/resourcebar',user=self)))
+            self.sendMessage(createMessage('updateResources',data=template('tpl/page_chunks/resourcebar',user=self)))
             return True
         else:
             print 'no websocket connected to user ',self.name
@@ -161,6 +162,11 @@ class User(object):
     ### MORE ###
     def update(self):
         self.resources.update(self)
-    
 
-    
+    def sendMessage(self, message):
+        if self.websocket is not None:
+            try:
+                self.websocket.send(message)
+            except WebSocketError:
+                print self.name, "disconnected from the server"
+                self.websocket = None

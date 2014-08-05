@@ -215,7 +215,7 @@ def handle_websocket():
             try:
                 gameID = mesDict['gID']
                 userID = mesDict['uID']
-                cmd    = mesDict['cmd']                    
+                cmd    = mesDict['cmd']
                 data   = mesDict['dat']
             except KeyError:
                 print 'malformed message!'
@@ -232,7 +232,7 @@ def handle_websocket():
             print "received :",cmd,'from',userID
             webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, GAMES.games[0].OOIs)
         except WebSocketError:
-            print 'websocketerror encountered'
+            print 'client disconnected'
             break
 
 #=====================================#

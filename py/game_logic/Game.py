@@ -4,8 +4,8 @@ from time import time
 from calendar import month_abbr
 import uuid
 from random import randint
+from geventwebsocket import WebSocketError
 
-from py.OOIs import OOIs
 import py.AsteroidDB as asteroidDB
 from py.game_logic.mockEventList import getMockEventList
 
@@ -108,12 +108,8 @@ class Game(object):
 
                 for player in self.players:
                     if player is not user:
-                        if player.websocket is not None:
-                            player.websocket.send("{'cmd':'claim',data:{'result': 'accepted', 'owner': "+newOwner +
-                                                  ", 'objectId': "+objectId+"}}")
-                        else:
-                            print "Tried to send asteroid owner change request to", str(player.name) +\
-                                  ", but user has no websocket."
+                        player.sendMessage("{'cmd':'claim',data:{'result': 'accepted', 'owner': "+str(user.name)+
+                                                          ", 'objectId': "+objectId+"}}")
 
                 return asteroid['objectId']
 
@@ -148,11 +144,10 @@ class Game(object):
             self.colors.append(newColor)
 
         for player in self.players:
-            if player.websocket is not None:
-                message = '{"cmd":"assignColor","data":"'
-                message += str(newColor)
-                message += '"}'
-                player.websocket.send(message)
+            message = '{"cmd":"assignColor","data":"'
+            message += str(newColor)
+            message += '"}'
+            player.sendMessage(message)
 
     def synchronizeSurvey(self, player, survey, amt):
 
@@ -165,7 +160,7 @@ class Game(object):
                     message += str(obj)
                     message += '"}'
                     print "sending asteroid", obj['objectId'], '(',i+1, "out of", amount,')', "to", player.name
-                    player.websocket.send(message)
+                    player.sendMessage(message)
             else:
                 for i in range(amount):
                     message = '{"cmd":"addAsteroid","data":"'
@@ -174,7 +169,7 @@ class Game(object):
                     message += str(obj)
                     message += '"}'
                     print "sending asteroid", obj['objectId'], '(',i+1, "out of", player.asteroidLimit,')', "to", player.name
-                    player.websocket.send(message)
+                    player.sendMessage(message)
 
         if survey == 'NEO':
             sendSurvey(self.NEOs, amt, player)
@@ -189,34 +184,28 @@ class Game(object):
 
     def synchronizeObjects(self, player):
         # send player objects in game instance
-        if player.websocket is not None:
-            for obj in self.playerObjects:
-                message = '{"cmd":"pObjCreate","data":"'
-                message += str(obj)
-                message += '"}'
-                print "sending object", obj['objectId'], "to", player.name
-                player.websocket.send(message)
+        for obj in self.playerObjects:
+            message = '{"cmd":"pObjCreate","data":"'
+            message += str(obj)
+            message += '"}'
+            print "sending object", obj['objectId'], "to", player.name
+            player.sendMessage(message)
 
-            for color in self.colors:
-                if color['player'] is not None:
-                    message = '{"cmd":"assignColor","data":"'
-                    message += str(color)
-                    message += '"}'
-                    player.websocket.send(message)
-        else:
-            print "Cannot synchronize objects with user " + player.name + ". WebSocket is NoneType"
+        for color in self.colors:
+            if color['player'] is not None:
+                message = '{"cmd":"assignColor","data":"'
+                message += str(color)
+                message += '"}'
+                player.sendMessage(message)
 
     def synchronizeClientsForObject(self, obj):
         print "synchronizing clients for object", obj['objectId']
         for player in self.players:
-            if player.websocket is not None:
-                message = '{"cmd":"pObjCreate","data":"'
-                message += str(obj)
-                message += '"}'
-                print "sending object", obj['objectId'], "to", player.name
-                player.websocket.send(message)
-            else:
-                print "Cannot update user " + player.name + " with new object.  Webocket is NoneType"
+            message = '{"cmd":"pObjCreate","data":"'
+            message += str(obj)
+            message += '"}'
+            print "sending object", obj['objectId'], "to", player.name
+            player.sendMessage(message)
 
     def synchronizeObjectRemoval(self, obj):
         message = '{"cmd":"pObjDestroyRequest","data":"'
@@ -224,10 +213,7 @@ class Game(object):
         message += '"}'
 
         for player in self.players:
-            if player.websocket is not None:
-                player.websocket.send(message)
-            else:
-                print "Cannot update user " + player.name + " with removal of an object.  WebSocket is NoneType"
+            player.sendMessage(message)
         
     def addObject(self, object, ownerName=None):
         # adds object to track to OOIs
@@ -304,4 +290,3 @@ class Game(object):
                 return True
         else:
             return False
-        

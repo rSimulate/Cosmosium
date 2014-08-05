@@ -14,7 +14,7 @@ def asteroidTrackResponder(data, user):
         print 'request to track', asteroid['orbitName'], 'by player', str(user.name), 'accepted.'
 
         if user.game is not None:
-            user.game.changeAsteroidOwner(asteroid['owner'], asteroid['objectId'], user)
+            user.game.changeAsteroidOwner(str(user.name), asteroid['objectId'], user)
             result = "accepted"
         else:
             result = "Cannot_find_game_instance_for_player"
@@ -23,16 +23,13 @@ def asteroidTrackResponder(data, user):
 
     message += "{'result': "+result+", 'owner': "+str(user.name)+", objectId: "+asteroid['objectId']+"}"
     message += '"}'
-    if user.websocket is not None:
-        user.websocket.send(message)
-    else:
-        print "ERROR: Cannot send asteroid track response to player", str(user.name)+". Client websocket does not exist"
+    user.sendMessage(message)
     
 def registerUserConnection(user,ws):
     # saves user websocket connetion so that updates to the user object can push to the client
     user.websocket = ws
     
-def researchResponder(user, ws, researchType):
+def researchResponder(user, researchType):
     message = '{"cmd":"addToContent","data":"'
     
     if user.purchase('research_'+researchType):
@@ -49,7 +46,7 @@ def researchResponder(user, ws, researchType):
             pageTitle='research denied',
             user=user)
     message+='"}'
-    ws.send(message)
+    user.sendMessage(message)
 
 def playerObjectResponder(user, ws, data):
     """
@@ -79,7 +76,7 @@ def playerObjectResponder(user, ws, data):
             message += str(game.addPlayerObject(objectType, model, orbit, user.name))
             message += '"}'
 
-            ws.send(message)
+            user.sendMessage(message)
 
         elif cmdName == 'query':
             uuid = pData['uuid']
@@ -88,7 +85,7 @@ def playerObjectResponder(user, ws, data):
             message += str(game.getPlayerObject(uuid))
             message += '"}'
 
-            ws.send(message)
+            user.sendMessage(message)
 
         elif cmdName == 'destroy':
             uuid = pData['uuid']
@@ -105,7 +102,7 @@ def playerObjectResponder(user, ws, data):
                 message = '{"cmd":"pObjDestroyRequest","data":"'
                 message += str(obj)
                 message += '"}'
-                ws.send(message)
+                user.sendMessage(message)
 
 def surveyResponder(data, user, websock):
     # {'survey': 'MainBelt', 'amt': 0}
