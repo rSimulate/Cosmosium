@@ -7,6 +7,9 @@ Step-by-step Intallation Instructions
         * If you are operating on Ubuntu, or any distro of Linux for that matter, make sure you have the 
         python development package installed, called `python-dev` in most repositories.
         * If you run into any issues with gitPython, ensure that you have version `0.3.2.RC1` installed.
+        * If you run into any issues with numpy installing, 
+        there is a [known issue with pip](https://github.com/pypa/pip/issues/1137). Please install the numpy package
+        from a different source, e.g `sudo yum install numpy`.
 3. start the server
     * `python app.py` or `./startServer.sh`
         * NOTE: you need sudo to bind port 80
