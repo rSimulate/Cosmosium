@@ -1,40 +1,41 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-  var jed = toJED(new Date());    // julian date
+var jed = toJED(new Date());    // julian date
 
-    var jed_delta = 5;  // how many days per second to elapse
-    
-    // NOTE: relative scale (exaggeration) parameters now in ephemeris.js
+var jed_delta = 5;  // how many days per second to elapse
 
-    var particle_system_geometry = null;
-    var using_webgl = true;
-    var NUM_BIG_PARTICLES = 500;
+// NOTE: relative scale (exaggeration) parameters now in ephemeris.js
 
-    var canvas, stats, jCanvas;
-    var camera, controls, scene, renderer, cameraTarget;
-    var mouse = new THREE.Vector2();
-    var offset = new THREE.Vector3();
-    var INTERSECTED;
-    var projector;
-    var clock;
-    var skybox;
-    var sun;
+var particle_system_geometry = null;
+var using_webgl = true;
+var NUM_BIG_PARTICLES = 500;
 
-    var claimButt = document.getElementById('claim-asteroid-button');
+var canvas, stats, jCanvas;
+var camera, controls, scene, renderer, cameraTarget;
+var mouse = new THREE.Vector2();
+var offset = new THREE.Vector3();
+var INTERSECTED;
+var projector;
+var clock;
+var skybox;
+var sun;
 
-    var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
+var claimButt = document.getElementById('claim-asteroid-button');
 
-    var CAMERA_NEAR = 1;
-    var CAMERA_FAR = 100000;
+var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
 
-    var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
-    var players = []; // {player: playerName, color: THREE.Color}
+var CAMERA_NEAR = 1;
+var CAMERA_FAR = 100000;
 
-    var nextEntityIndex = 0;
+var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
+var players = []; // {player: playerName, color: THREE.Color}
 
-    var selectedObject = undefined;
-    var removeBody, updateObjectOwnerById;
-    var addTestObject;
+var nextEntityIndex = 0;
+
+var selectedObject = undefined;
+var removeBody, updateObjectOwnerById;
+var addTestObject;
+var SELECTING_TARGET, sourceTarget;
 
 function RSimulate(opts) {
 
@@ -111,6 +112,55 @@ function RSimulate(opts) {
         ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + selectedObject.objectId + "'}}"));
         e.stopPropagation();
         e.preventDefault();
+    }
+
+    function requestCourse(e) {
+        console.log("Requesting to set a new course");
+
+        sourceTarget = selectedObject;
+        SELECTING_TARGET = true;
+        $('#course-container').show();
+
+        onBodyDeselected();
+
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    function setCourseTarget(e) {
+        console.log("Attempting to set target for new course request");
+
+        SELECTING_TARGET = false;
+        setCourse(sourceTarget, selectedObject);
+        $('#course-container').hide();
+
+        onBodyDeselected();
+        sourceTarget = undefined;
+
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    function cancelCourse(e) {
+        console.log("Cancelling new course");
+
+        SELECTING_TARGET = false;
+        sourceTarget = undefined;
+        $('#course-container').hide();
+
+        onBodyDeselected();
+
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    function setCourse(sourceObj, destObj) {
+        console.log("Setting course");
+        orbitCamera(sourceObj);
+
+        // TODO: Get time range somehow for launch and arrival time
+
+        // TODO: Send request to server
     }
 
     this.removeAsteroids = function() {
@@ -372,7 +422,7 @@ function RSimulate(opts) {
             return;
         }
 
-        var orbit = obj.orbit;
+        var orbit = obj.orbit, courseTarget;
         if (orbit != undefined) {
             orbit.getEllipse().visible = true;
             if (orbit && orbit.eph && orbit.eph.full_name) {
@@ -449,10 +499,10 @@ function RSimulate(opts) {
                     //.attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')')
                     .html('<b>' + obj.owner + '</b>').attr("color", 'rgb(200,200,200)');
 
-                $('#destroy-object-container').hide();
+                $('#player-object-container').hide();
                 $('#claim-asteroid-button').hide();
                 // TODO: Only display removal button of owned objects
-                if (obj.type == 'Probe') $('#destroy-object-container').show();
+                if (obj.type == 'Probe') $('#player-object-container').show();
                 else if (obj.type == 'asteroid') $('#claim-asteroid-button').show();
             }
             $("#body-info").html(infoHTML);
@@ -508,7 +558,7 @@ function RSimulate(opts) {
     function onBodyDeselected() {
         hideAllConditionalEllipses();
         $("#body-info-container").hide();
-        $('#destroy-object-container').hide();
+        $('#player-object-container').hide();
         $('#claim-asteroid-button').hide();
         selectedObject = undefined;
     }
@@ -999,15 +1049,13 @@ function RSimulate(opts) {
         // wipe object list on init to clean things that might have been left over from a refresh event
         $('.playerObject').remove();
 
-        // Remove Button
-        $('#body-info-container').append("<div id='destroy-object-container'><br>" +
-            "<h3>" +
-            "<a id='destroy-object-button' href='#' style='color: red'>Remove this object</a>" +
-            "</h3 >" +
-            "</div>");
-        $('#destroy-object-container').hide();
+        $('#player-object-container').hide();
+        $('#course-container').hide();
 
         $('#destroy-object-button').on('click', requestRemoveBody);
+        $('#plot-course-button').on('click', requestCourse);
+        $('#set-target-button').on('click', setCourseTarget);
+        $('#cancel-course-button').on('click', cancelCourse);
     }
 
     function animate() {

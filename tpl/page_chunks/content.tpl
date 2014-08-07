@@ -253,7 +253,6 @@
                 % include('tpl/content/surveyEquipment')
 
                 <!-- Space Industry -->
-
                 % include('tpl/content/research')
 
                 <!-- Human Habitation -->
@@ -265,14 +264,10 @@
                 <!-- Outreach -->
                 <!-- Government -->
                 <!-- Organization -->
+
                 <!-- object details pane -->
-                <div id="body-info-container">
-                    <br>
-                    <br>
-                    <div id="owner-info"><b>UNCLAIMED</b></div>
-                    <div id="body-info">foo</div>
-                    <h3><a id="claim-asteroid-button" href="#">Claim this asteroid</a></h3>
-                </div>
+                % include('tpl/page_chunks/body-info')
+
             </div>
             % include('tpl/page_chunks/webGL_js')
         </aside><!-- /.right-side -->

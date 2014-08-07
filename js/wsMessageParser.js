@@ -34,7 +34,7 @@ function cleanObjectRequest(objectStr) {
 }
 
 function parseObjectRemoval(str) {
-    var split = cleanPlayerObjectRequest(str);
+    var split = cleanObjectRequest(str);
     // result result objectId uuid reason unknown
     var result, objectId, reason;
     for (var i = 0; i < split.length; i++) {
