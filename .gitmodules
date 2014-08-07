@@ -1,3 +1,6 @@
 [submodule "js/lib/techtreejs"]
 	path = js/lib/techtreejs
 	url = https://github.com/7yl4r/techtreejs
+[submodule "py/lib/PyKEP"]
+	path = py/lib/PyKEP
+	url = https://github.com/rSimulate/PyKEP
