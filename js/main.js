@@ -22,6 +22,7 @@ var projector;
 var clock;
 var skybox;
 var sun;
+var addPlanet;
 
 var claimButt = document.getElementById('claim-asteroid-button');
 
@@ -86,6 +87,7 @@ function RSimulate(opts) {
 
             var ellipse = orbit.getEllipse();
             ellipse.visible = shouldAlwaysShowEllipse;
+            console.log(orbit.name, parent, ellipse);
             parent.add(ellipse)
         }
 
@@ -232,11 +234,6 @@ function RSimulate(opts) {
         });
 
     };
-
-
-    function addPlanet(orbit, planetmesh, objectId, model) {
-		addBody( scene, "planet", orbit, planetmesh, true, objectId, model, "Mankind" );
-    }
 
     function cleanOrbitName(str) {
         var textName = str.replace(/(_)+/g, " ");
@@ -620,7 +617,6 @@ function RSimulate(opts) {
 
     function initSolarSystem() {
         initSun();
-        initPlanets();
     }
 
     function getColorForOwner(owner) {
@@ -775,177 +771,73 @@ function RSimulate(opts) {
        sun.material.uniforms['time'].value = clock.getElapsedTime();
     }
 
-    function initPlanets() {
-		
+    function getObjectByOrbitName(objName) {
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
+            if (obj.orbit) {
+                if (obj.orbit.name && obj.orbit.name == objName) return obj;
+                if (obj.orbit.full_name && obj.orbit.full_name == objName) return obj;
+            }
+        }
+        console.log("could not find", objName);
+    }
+
+    addPlanet = function(planet) {
         //var moonGeometry = new THREE.SphereGeometry( MOON_SIZE, 16, 16 );
         //var moonMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc} );
+        var mesh = undefined;
+        var parent = scene;
+        if (planet.type == 'planet') {
+            if (planet.model == 'Mercury') {
+                mesh = makeBodyMesh(MERCURY_SIZE, 'img/textures/mercury_small.jpg');
+            }
+            else if (planet.model == 'Venus') {
+                mesh = makeBodyMesh(VENUS_SIZE, 'img/textures/venus_small.jpg');
+            }
+            else if (planet.model == 'Earth') {
+                mesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg');
+            }
+            else if (planet.model == 'Mars') {
+                mesh = makeBodyMesh(MARS_SIZE, 'img/textures/mars_small.jpg');
+            }
+            else if (planet.model == 'Jupiter') {
+                mesh = makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg');
+            }
 
-        var mercury = new Orbit3D(Ephemeris.mercury,
-            {
-              color: 0x913CEE, width: 1, jed: jed, object_size: 1.1,
-              texture_path: opts.static_prefix + '/img/texture-mercury.jpg',
-              display_color: new THREE.Color(0x913CEE),
-              particle_geometry: particle_system_geometry,
-              name: 'Mercury'
-            }, !using_webgl);
-        if (!using_webgl)
-          scene.add(mercury.getParticle());
-
-        //var mercuryMesh = new THREE.Mesh(planetGeometry, MercuryMaterial);
-
-		var mercuryMesh = makeBodyMesh(MERCURY_SIZE, 'img/textures/mercury_small.jpg');
-		addPlanet(mercury, mercuryMesh, nextEntityIndex, "Mercury");
-        nextEntityIndex++;
-
-        var venus = new Orbit3D(Ephemeris.venus,
-            {
-              color: 0xFF7733, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-venus.jpg',
-              display_color: new THREE.Color(0xFF7733),
-              particle_geometry: particle_system_geometry,
-              name: 'Venus'
-            }, !using_webgl);
-
-        //var venusMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-
-		var venusMesh = makeBodyMesh(VENUS_SIZE, 'img/textures/venus_small.jpg');
-		addPlanet(venus, venusMesh, nextEntityIndex, "Venus");
-        nextEntityIndex++;
-
-        var earth = new Orbit3D(Ephemeris.earth,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Earth'
-            }, !using_webgl);
-
-        //var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-		var earthMesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg');
-		addPlanet(earth, earthMesh, nextEntityIndex, "Earth");
-        nextEntityIndex++;
-
-        var luna = new Orbit3D(Ephemeris.luna,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Moon'
-            }, !using_webgl);
-        var lunaMesh = makeBodyMesh(LUNA_SIZE, 'img/textures/moon_small.jpg');
-		addMoon(earthMesh, luna, lunaMesh, nextEntityIndex, "Luna", "UNCLAIMED");
-        nextEntityIndex ++;
-
-        var mars = new Orbit3D(Ephemeris.mars,
-            {
-              color: 0xA63A3A, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-mars.jpg',
-              display_color: new THREE.Color(0xA63A3A),
-              particle_geometry: particle_system_geometry,
-              name: 'Mars'
-            }, !using_webgl);
-
-		var marsMesh = makeBodyMesh(MARS_SIZE, 'img/textures/mars_small.jpg');
-		addPlanet(mars, marsMesh, nextEntityIndex, "Mars");
-        nextEntityIndex++;
-
-
-        var phobos = new Orbit3D(Ephemeris.phobos,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Phobos'
-            }, !using_webgl);
-        var phobosMesh = makeBodyMesh(PHOBOS_SIZE, 'img/textures/phobos_tiny.jpg');
-        addMoon(marsMesh, phobos, phobosMesh, nextEntityIndex, "Phobos", "UNCLAIMED");
-        nextEntityIndex ++;
-
-
-        var deimos = new Orbit3D(Ephemeris.deimos,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Phobos'
-            }, !using_webgl);
-        var deimosMesh = makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg');
-        addMoon(marsMesh, deimos, deimosMesh, nextEntityIndex, "Deimos", "UNCLAIMED");
-        nextEntityIndex ++;
-
-
-
-
-        var jupiter = new Orbit3D(Ephemeris.jupiter,
-            {
-              color: 0xFF7F50, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-jupiter.jpg',
-              display_color: new THREE.Color(0xFF7F50),
-              particle_geometry: particle_system_geometry,
-              name: 'Jupiter'
-            }, !using_webgl);
-
-        //var jupiterMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-		//var jupiterSize = 6;
-		//orbit, size, texture
-        var jupiterMesh = makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg');
-		addPlanet(jupiter, jupiterMesh, nextEntityIndex, "Jupiter");
-        nextEntityIndex++;
-
-
-        var io = new Orbit3D(Ephemeris.io,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + 'img/textures/moon_small.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Io'
-            }, !using_webgl);
-        var ioMesh = makeBodyMesh(IO_SIZE,'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, io, ioMesh, nextEntityIndex, "Io", "UNCLAIMED");
-        nextEntityIndex ++;
-
-        var europa = new Orbit3D(Ephemeris.europa,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Europa'
-            }, !using_webgl);
-        var europaMesh = makeBodyMesh(EUROPA_SIZE, 'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, europa, europaMesh, nextEntityIndex, "Europa", "UNCLAIMED");
-        nextEntityIndex ++;
-
-        var ganymede = new Orbit3D(Ephemeris.ganymede,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Ganymede'
-            }, !using_webgl);
-        var ganymedeMesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, ganymede, ganymedeMesh, nextEntityIndex, "Ganymede", "UNCLAIMED");
-        nextEntityIndex ++;
-
-        var callisto = new Orbit3D(Ephemeris.callisto,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Callisto'
-            }, !using_webgl);
-        var callistoMesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, callisto, callistoMesh, nextEntityIndex, "Callisto", "UNCLAIMED");
-        nextEntityIndex ++;
-
-    }
+            addBody(parent, planet.type, planet.orbit, mesh, true, planet.objectId, planet.model, planet.owner);
+        }
+        else if (planet.type == 'moon') {
+            if (planet.model == 'Moon') {
+                mesh = makeBodyMesh(LUNA_SIZE, 'img/textures/moon_small.jpg');
+                parent = getObjectByOrbitName('Earth').mesh;
+            }
+            else if (planet.model == 'Io') {
+                mesh = makeBodyMesh(IO_SIZE, 'img/textures/moon_small.jpg');
+                parent = getObjectByOrbitName('Jupiter').mesh;
+            }
+            else if (planet.model == 'Europa') {
+                mesh = makeBodyMesh(EUROPA_SIZE, 'img/textures/moon_small.jpg');
+                parent = getObjectByOrbitName('Jupiter').mesh;
+            }
+            else if (planet.model == 'Ganymede') {
+                mesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg');
+                parent = getObjectByOrbitName('Jupiter').mesh;
+            }
+            else if (planet.model == 'Callisto') {
+                mesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg');
+                parent = getObjectByOrbitName('Jupiter').mesh;
+            }
+            else if (planet.model == 'Phobos') {
+                mesh = makeBodyMesh(PHOBOS_SIZE, 'img/textures/phobos_tiny.jpg');
+                parent = getObjectByOrbitName('Mars').mesh;
+            }
+            else if (planet.model == 'Deimos') {
+                mesh = makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg');
+                parent = getObjectByOrbitName('Mars').mesh;
+            }
+            addBody(parent, planet.type, planet.orbit, mesh, false, planet.objectId, planet.model, planet.owner);
+        }
+    };
 
     function initCamera() {
 

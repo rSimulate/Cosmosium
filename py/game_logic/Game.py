@@ -1,7 +1,6 @@
 # defines a game instance, containing all information that might pass back and forth
 # between players of the game.
 from time import time as rTime
-from calendar import month_abbr
 from jdcal import gcal2jd
 import datetime
 from threading import Thread, Event
@@ -9,6 +8,7 @@ import uuid
 from random import randint
 
 import py.AsteroidDB as asteroidDB
+from py.BodyDB import BodyDB
 from py.game_logic.mockEventList import getMockEventList
 
 GAME_LEN = 60  # max length of game in minutes
@@ -21,6 +21,7 @@ TIME_UPDATE_FREQ = 1  # client clock sync frequency in seconds
 class Game(object):
     def __init__(self):
         print "New game instance initializing..."
+        self.bodies = BodyDB().getBodies()
         # self.OOIs = OOIs()
         # TODO: Replace this with MPO data
         self.NEOs = list()
@@ -207,7 +208,22 @@ class Game(object):
             print "ERROR: Player", player.name, "requested an unknown asteroid survey"
 
     def synchronizeObjects(self, player):
-        # send player objects in game instance
+        # Ensure planets are sent first
+        for body in self.bodies:
+            if body['type'] == 'planet':
+                message = '{"cmd":"bodyCreate","data":"'
+                message += str(body)
+                message += '"}'
+                print "sending body", body['orbit']['full_name'], "to", player.name
+                player.sendMessage(message)
+        for body in self.bodies:
+            if body['type'] == 'moon':
+                message = '{"cmd":"bodyCreate","data":"'
+                message += str(body)
+                message += '"}'
+                print "sending body", body['orbit']['full_name'], "to", player.name
+                player.sendMessage(message)
+
         for obj in self.playerObjects:
             message = '{"cmd":"pObjCreate","data":"'
             message += str(obj)

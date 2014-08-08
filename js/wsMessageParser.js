@@ -287,6 +287,12 @@ function updateTime(data) {
     year = yearServer;
 }
 
+function createBody(data) {
+    //{'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'data': data}
+    var body = parseObject(data);
+    addPlanet(body);
+}
+
 function parseMessage(m) {
     // interprets and carries out messages
 
@@ -296,7 +302,8 @@ function parseMessage(m) {
     if (cmd == "addToContent") {
         //prependContent(data)
         console.log("Server is trying to prepend content, and the prependContent function needs fixing before it will work");
-
+    } else if (cmd == 'bodyCreate') {
+        createBody(data);
     } else if (cmd == "updateResources") {
         updateResources(data)
 
