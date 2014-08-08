@@ -38,7 +38,7 @@ var nextEntityIndex = 0;
 var selectedObject = undefined;
 var removeBody, updateObjectOwnerById;
 var addTestObject;
-var SELECTING_TARGET, sourceTarget, requestRemoveBody, requestCourse, setCourseTarget, cancelCourse, setCourse;
+var SELECTING_TARGET, sourceTarget, requestRemoveBody, requestCourse, cancelCourse, setCourse;
 
 function RSimulate(opts) {
 
@@ -126,7 +126,6 @@ function RSimulate(opts) {
 
         onBodyDeselected();
 
-        e.stopPropagation();
         e.preventDefault();
     };
 
@@ -143,7 +142,7 @@ function RSimulate(opts) {
         e.preventDefault();
     };
 
-    setCourse = function(launchTime) {
+    setCourse = function() {
         console.log("Setting course");
         SELECTING_TARGET = false;
         var destTarget = selectedObject;
@@ -151,10 +150,10 @@ function RSimulate(opts) {
         onBodyDeselected();
 
         orbitCamera(sourceTarget);
-
-        // TODO: Get time range somehow for launch and arrival time
-
-        // TODO: Send request to server
+        var data = {source: {objectId: sourceTarget.objectId, type: sourceTarget.type},
+                    dest: {objectId: destTarget.objectId, type: destTarget.type}};
+        var stringify = JSON.stringify(data).replace(/\"+/g, "\'");
+        ws.send(message('requestTraj', stringify));
     };
 
     this.removeAsteroids = function() {
@@ -1049,7 +1048,6 @@ function RSimulate(opts) {
         // update top menu bar every second
         setInterval(function () {
             var el = document.getElementById('gametime');
-            console.log(day+' '+month+' '+year);
             el.innerHTML = day+' '+month+' '+year;
         }, 1000);
     }

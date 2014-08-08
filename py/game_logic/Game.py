@@ -264,7 +264,21 @@ class Game(object):
         self.synchronizeClientsForObject(obj)
         return obj
 
-    def getPlayerObject(self, uuid):
+    def getObject(self, objectId, type=None):
+        if type == 'Probe' or type is None:
+            for obj in self.playerObjects:
+                if obj['objectId'] == objectId:
+                    return obj
+
+        if type == 'asteroid' or type is None:
+            for obj in self.OOIs:
+                if obj['objectId'] == objectId:
+                    return obj
+
+        print "ERROR: Could not find object in game instance"
+        return None
+
+    def getPlayerObject(self, objectId):
         """
         gets player object from this instance
         :param uuid: The UUID of the object
@@ -272,7 +286,7 @@ class Game(object):
         """
 
         for obj in self.playerObjects:
-            if obj['objectId'] == uuid:
+            if obj['objectId'] == objectId:
                 return obj
 
         return None
