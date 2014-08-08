@@ -246,10 +246,45 @@ function claimResponder(data) {
     if (result == undefined || objectId == undefined || owner == undefined) {
         console.log("ERROR: Claim response from the server was malformed");
         console.log(result, objectId, owner);
+        return;
     }
 
     if (result == 'accepted') updateObjectOwnerById(owner, objectId);
     else console.log("player", owner, "tried to claim an asteroid, but", result);
+}
+
+function updateTime(data) {
+    // {'jed': daysPassed, 'gec': str(month-year)}
+    var split = cleanObjectRequest(data);
+
+    var jedServer, dayServer, monthServer, yearServer;
+    for (var i = 0; i < split.length; i++) {
+        var s = split[i];
+        var next = i + 1;
+        if (s == 'jed') jedServer = split[next];
+        else if (s == 'gec') {
+            var gec = split[next];
+            gec = gec.replace(/(-)+/g, " ");
+            var gecSplit = gec.split(" ");
+            dayServer = gecSplit[0];
+            monthServer = gecSplit[1];
+            yearServer = gecSplit[2];
+        }
+    }
+
+    // check
+    if (jedServer == undefined || dayServer == undefined || monthServer == undefined || yearServer == undefined) {
+        console.log("ERROR: Time update response from server was malformed");
+        console.log("jed", jedServer, "dayServer", dayServer, "monthServer", monthServer, "yearServer", yearServer);
+        return;
+    }
+
+    // TODO: May have to change this to interpolate over time if it produces noticeable changes
+    // For now, just do a hard-change to the client's jed
+    jed = Math.floor(jedServer);
+    day = dayServer;
+    month = monthServer;
+    year = yearServer;
 }
 
 function parseMessage(m) {
@@ -305,6 +340,8 @@ function parseMessage(m) {
         assignColor(data);
     } else if (cmd == "claim") {
         claimResponder(data);
+    } else if (cmd == 'timeSync') {
+        updateTime(data);
     } else {
         console.log("ERR: unknown message to client: "+m);
     }

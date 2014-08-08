@@ -1,17 +1,21 @@
 # defines a game instance, containing all information that might pass back and forth
 # between players of the game.
-from time import time
+from time import time as rTime
 from calendar import month_abbr
+from jdcal import gcal2jd
+import datetime
+from threading import Thread, Event
 import uuid
 from random import randint
-from geventwebsocket import WebSocketError
 
 import py.AsteroidDB as asteroidDB
 from py.game_logic.mockEventList import getMockEventList
 
-GAME_LEN = 60 # max length of game in minutes
-GAME_YEAR_SPAN = 200 # years spanned by a max-len game
-START_YEAR = 1969 # starting year of game
+GAME_LEN = 60  # max length of game in minutes
+DAYS_PER_SEC = 3  # how many days pass per second
+GAME_YEAR_SPAN = 200  # years spanned by a max-len game
+START_YEAR = 1969  # starting year of game
+TIME_UPDATE_FREQ = 1  # client clock sync frequency in seconds
 
 
 class Game(object):
@@ -36,7 +40,7 @@ class Game(object):
         self.players = list()
         self.playerObjects = list()
         self.eventList = getMockEventList()
-        self._epoch = int(time())  # real-time game start
+        self._epoch = int(rTime())  # real-time game start
         ephemeris = {
             'ma': -2.47311027,
             'epoch': 2451545.0,
@@ -57,6 +61,13 @@ class Game(object):
         self.colors.append({'player': None, 'color': '0x0000ff'})
         self.colors.append({'player': None, 'color': '0xffff00'})
         self.colors.append({'player': None, 'color': '0xff00ff'})
+
+        self.date = datetime.date(START_YEAR, 1, 1)
+
+        timer = Timer(1.0, self.timeSync)
+        timer.daemon = True
+        timer.start()
+
 
     def cleanAsteroidObject(self, asteroid):
         H = asteroid['H']
@@ -79,20 +90,33 @@ class Game(object):
                       'full_name': asteroid['full_name'].split()[0] + '_' + asteroid['name']}}
         return cleaned
         
-    def time(self, t=None):
-        # returns current in-game time representation as a string 
+    def timeSync(self, t=None):
+        # returns current in-game time representation as a string
         # if t is given, in-game time at given time t
         if t is None:
-            t = time()
+            t = rTime()
+
         secsPassed = int(t-self._epoch)  # real-time
-        yearsPassed = float(secsPassed)/self.getDeltaYearUpdate()  # game-time
-        month = int(yearsPassed%1*12)
-        year  = int(yearsPassed)+START_YEAR
-        return month_abbr[month+1]+' '+str(year)
-            
-    def getDeltaYearUpdate(self):
-        # returns time (in real seconds) between year changes in game-time
-        return GAME_LEN*60/GAME_YEAR_SPAN  # real-time sec / 1 game_year
+        self.date += datetime.timedelta(days=DAYS_PER_SEC)
+
+        if secsPassed % TIME_UPDATE_FREQ == 0:
+            for player in self.players:
+                message = '{"cmd":"timeSync","data":"'
+                message += str({'jed': self.time(jd=True),
+                                'gec': self.time(net=True)})
+                message += '"}'
+                player.sendMessage(message)
+
+    def time(self, jd=False, net=False):
+        # returns current in-game time representation as a string
+        delim = " "
+        if net is True:
+            delim = '-'
+
+        if jd is True:
+            return sum(gcal2jd(self.date.year, self.date.month, self.date.day))
+
+        return self.date.strftime('%d')+delim+self.date.strftime('%b')+delim+self.date.strftime('%Y')
         
     def addPlayer(self, player):
         print "game instance", self.id, "is adding player", player.name
@@ -290,3 +314,19 @@ class Game(object):
                 return True
         else:
             return False
+
+
+class Timer(Thread):
+    def __init__(self, secs, function):
+        Thread.__init__(self)
+        self.event = Event()
+        self.secs = secs
+        self.function = function
+
+    def run(self):
+        while not self.event.is_set():
+            self.function()
+            self.event.wait(self.secs)
+
+    def stop(self):
+        self.event.set()

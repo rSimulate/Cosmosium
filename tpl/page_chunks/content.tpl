@@ -310,9 +310,6 @@
         <!-- for updating the resource display -->
         <script src="/tpl/js/resourceUpdate.js" type="text/javascript" onload="setInterval(updateAll,1000)"></script>
 
-        <!-- for updating the game time display -->
-        <script src="/js/timeUpdater.js" type="text/javascript" onload="setInterval(uTime,{{user.game.getDeltaYearUpdate()}}000)"></script>
-
         <!-- jvectormap -->
         <script src="js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js" type="text/javascript"></script>
         <script src="js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js" type="text/javascript"></script>

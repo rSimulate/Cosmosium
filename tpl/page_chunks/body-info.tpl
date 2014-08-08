@@ -4,6 +4,8 @@
     <div id="owner-info"><b>UNCLAIMED</b></div>
     <div id="body-info">foo</div>
     <div id="course-container">
+        <span id="object-deltav">Δv = 1 km/s</span>
+        <br>
         <h3><a id='set-target-button' href='#' style='color: #f5f5f5'>Set as Course Target</a></h3>
         <h3><a id='cancel-course-button' href='#' style='color: #f5f5f5'>Cancel New Course</a></h3>
     </div>

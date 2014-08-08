@@ -1,8 +1,11 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
+var day = 'Mon';
+var month = 'Jan';
+var year = '1969';
 var jed = toJED(new Date());    // julian date
 
-var jed_delta = 5;  // how many days per second to elapse
+var jed_delta = 3;  // how many days per second to elapse
 
 // NOTE: relative scale (exaggeration) parameters now in ephemeris.js
 
@@ -35,7 +38,7 @@ var nextEntityIndex = 0;
 var selectedObject = undefined;
 var removeBody, updateObjectOwnerById;
 var addTestObject;
-var SELECTING_TARGET, sourceTarget;
+var SELECTING_TARGET, sourceTarget, requestRemoveBody, requestCourse, setCourseTarget, cancelCourse, setCourse;
 
 function RSimulate(opts) {
 
@@ -107,14 +110,14 @@ function RSimulate(opts) {
         parent.add(mesh);
     }
 
-    function requestRemoveBody(e) {
+    requestRemoveBody = function (e) {
         console.log("Called for removal of objectID " + selectedObject.objectId);
         ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + selectedObject.objectId + "'}}"));
         e.stopPropagation();
         e.preventDefault();
-    }
+    };
 
-    function requestCourse(e) {
+    requestCourse = function (e) {
         console.log("Requesting to set a new course");
 
         sourceTarget = selectedObject;
@@ -125,23 +128,9 @@ function RSimulate(opts) {
 
         e.stopPropagation();
         e.preventDefault();
-    }
+    };
 
-    function setCourseTarget(e) {
-        console.log("Attempting to set target for new course request");
-
-        SELECTING_TARGET = false;
-        setCourse(sourceTarget, selectedObject);
-        $('#course-container').hide();
-
-        onBodyDeselected();
-        sourceTarget = undefined;
-
-        e.stopPropagation();
-        e.preventDefault();
-    }
-
-    function cancelCourse(e) {
+    cancelCourse = function(e) {
         console.log("Cancelling new course");
 
         SELECTING_TARGET = false;
@@ -152,16 +141,21 @@ function RSimulate(opts) {
 
         e.stopPropagation();
         e.preventDefault();
-    }
+    };
 
-    function setCourse(sourceObj, destObj) {
+    setCourse = function(launchTime) {
         console.log("Setting course");
-        orbitCamera(sourceObj);
+        SELECTING_TARGET = false;
+        var destTarget = selectedObject;
+        $('#course-container').hide();
+        onBodyDeselected();
+
+        orbitCamera(sourceTarget);
 
         // TODO: Get time range somehow for launch and arrival time
 
         // TODO: Send request to server
-    }
+    };
 
     this.removeAsteroids = function() {
         for(var i = objects.length; i--;) {
@@ -1052,10 +1046,12 @@ function RSimulate(opts) {
         $('#player-object-container').hide();
         $('#course-container').hide();
 
-        $('#destroy-object-button').on('click', requestRemoveBody);
-        $('#plot-course-button').on('click', requestCourse);
-        $('#set-target-button').on('click', setCourseTarget);
-        $('#cancel-course-button').on('click', cancelCourse);
+        // update top menu bar every second
+        setInterval(function () {
+            var el = document.getElementById('gametime');
+            console.log(day+' '+month+' '+year);
+            el.innerHTML = day+' '+month+' '+year;
+        }, 1000);
     }
 
     function animate() {
