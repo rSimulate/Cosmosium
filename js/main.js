@@ -820,7 +820,6 @@ function RSimulate(opts) {
             else if (planet.model == 'Ganymede') {
                 mesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg');
                 parent = getObjectByOrbitName('Jupiter').mesh;
-                console.log(planet.orbit);
             }
             else if (planet.model == 'Callisto') {
                 mesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg');

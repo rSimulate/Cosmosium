@@ -185,7 +185,6 @@ function parseObject(objectStr) {
     var ephemeris = {full_name: full_name, ma: parseFloat(ma), epoch: parseFloat(epoch), a: parseFloat(a),
                         e: parseFloat(e), i: parseFloat(i), w_bar: parseFloat(w_bar), w: parseFloat(w),
                         L: parseFloat(L), om: parseFloat(om), P: parseFloat(P)};
-    console.log(ephemeris);
 
     if (type == 'asteroid') {
         return {owner: owner, objectId: objectId, type: type, model: model, orbit: ephemeris, orbitExtras: orbitExtras};
