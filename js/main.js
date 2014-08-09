@@ -71,7 +71,6 @@ function RSimulate(opts) {
 
     function addBody( parent, type, orbit, mesh, shouldAlwaysShowEllipse, objectId, model, owner ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
-        objectId = typeof objectId !== 'undefined' ? objectId : nextEntityIndex;
 
         // orbit undefined for sun
         if (orbit != undefined) {
@@ -87,8 +86,7 @@ function RSimulate(opts) {
 
             var ellipse = orbit.getEllipse();
             ellipse.visible = shouldAlwaysShowEllipse;
-            console.log(orbit.name, parent, ellipse);
-            parent.add(ellipse)
+            parent.add(ellipse);
         }
 
 
@@ -822,6 +820,7 @@ function RSimulate(opts) {
             else if (planet.model == 'Ganymede') {
                 mesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg');
                 parent = getObjectByOrbitName('Jupiter').mesh;
+                console.log(planet.orbit);
             }
             else if (planet.model == 'Callisto') {
                 mesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg');

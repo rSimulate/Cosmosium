@@ -209,7 +209,6 @@ class BodyDB(object):
         self.bodies.append(venus)
 
         for body in self.bodies:
-            print body
             if body['orbit']['w_bar'] is not None and body['orbit']['L'] is not None:
                 body['orbit']['ma'] = body['orbit']['L'] - body['orbit']['w_bar']
         

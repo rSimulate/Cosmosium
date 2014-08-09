@@ -182,8 +182,10 @@ function parseObject(objectStr) {
 
     full_name = full_name.replace(/(\")+/g, "");
 
-    var ephemeris = {full_name: full_name, ma: ma, epoch: epoch, a: a, e: e,
-                        i: i, w_bar: w_bar, w: w, L: L, om: om, P: P};
+    var ephemeris = {full_name: full_name, ma: parseFloat(ma), epoch: parseFloat(epoch), a: parseFloat(a),
+                        e: parseFloat(e), i: parseFloat(i), w_bar: parseFloat(w_bar), w: parseFloat(w),
+                        L: parseFloat(L), om: parseFloat(om), P: parseFloat(P)};
+    console.log(ephemeris);
 
     if (type == 'asteroid') {
         return {owner: owner, objectId: objectId, type: type, model: model, orbit: ephemeris, orbitExtras: orbitExtras};
