@@ -868,6 +868,11 @@ function RSimulate(opts) {
                 mesh.add(ring);
                 mesh.rotation.x = Math.PI / 6;
             }
+            else if (planet.model == 'Uranus') {
+                var meshMaterial = new THREE.MeshLambertMaterial({color: 0xB7DDE0});
+                var bodyGeometry = new THREE.SphereGeometry( URANUS_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+            }
 
             addBody(parent, planet.type, planet.orbit, mesh, true, planet.objectId, planet.model, planet.owner);
         }

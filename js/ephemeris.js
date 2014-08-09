@@ -34,6 +34,7 @@ var DEIMOS_SIZE = scale(MOON_SIZE, .12, .12);
 
 var JUPITER_SIZE = scale(EARTH_SIZE, 11, 2);
 var SATURN_SIZE = scale(EARTH_SIZE, 9.14, 2);
+var URANUS_SIZE = scale(EARTH_SIZE, 4, 1);
 var CALLISTO_SIZE = scale(EARTH_SIZE, .3785, .383);
 var GANYMEDE_SIZE = scale(EARTH_SIZE, .4132, .4132);
 var EUROPA_SIZE = scale(EARTH_SIZE, .2451, .2451);
