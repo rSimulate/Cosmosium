@@ -873,6 +873,9 @@ function RSimulate(opts) {
                 var bodyGeometry = new THREE.SphereGeometry( URANUS_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
             }
+            else if (planet.model == 'Neptune') {
+                mesh = makeBodyMesh(NEPTUNE_SIZE, 'img/textures/neptune_small.jpg');
+            }
 
             addBody(parent, planet.type, planet.orbit, mesh, true, planet.objectId, planet.model, planet.owner);
         }

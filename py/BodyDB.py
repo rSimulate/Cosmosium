@@ -121,6 +121,19 @@ class BodyDB(object):
                       'P': 30687.15},
             'objectId': str(uuid4()),
             'type': 'planet'}
+        neptune = {
+            'orbit': {'full_name': 'Neptune',
+                      'epoch': 2451545.0,
+                      'a': 30.06992276,
+                      'e': 0.00859048,
+                      'i': 1.77004347,
+                      'w_bar': 44.96476227,
+                      'w': 273.219414,
+                      'L': -55.12002969,
+                      'om': 131.78422574,
+                      'P': 60190.03},
+            'objectId': str(uuid4()),
+            'type': 'planet'}
         luna = {
             'orbit': {'full_name': 'Moon',
                     'ma': 135.27,
@@ -235,6 +248,7 @@ class BodyDB(object):
         self.bodies.append(phobos)
         self.bodies.append(venus)
         self.bodies.append(uranus)
+        self.bodies.append(neptune)
 
         for body in self.bodies:
             if body['orbit']['w_bar'] is not None and body['orbit']['L'] is not None:
