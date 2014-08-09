@@ -95,6 +95,19 @@ class BodyDB(object):
                     'P': 4332.589},
             'objectId': str(uuid4()),
             'type': 'planet'}
+        saturn = {
+            'orbit': {'full_name': 'Saturn',
+                      'epoch': 2451545.0,
+                      'a': 9.53667594,
+                      'e': 0.05386179,
+                      'i': 2.48599187,
+                      'w_bar': 92.59887831,
+                      'w': -23.98613,
+                      'L': 49.95424423,
+                      'om': 113.66242448,
+                      'P': 10759.22},
+            'objectId': str(uuid4()),
+            'type': 'planet'}
         luna = {
             'orbit': {'full_name': 'Moon',
                     'ma': 135.27,
@@ -193,7 +206,7 @@ class BodyDB(object):
                     'P': 16.69},
             'objectId': str(uuid4()),
             'type': 'moon'
-            }
+        }
 
         self.bodies.append(mercury)
         self.bodies.append(callisto)
@@ -203,6 +216,7 @@ class BodyDB(object):
         self.bodies.append(ganymede)
         self.bodies.append(io)
         self.bodies.append(jupiter)
+        self.bodies.append(saturn)
         self.bodies.append(luna)
         self.bodies.append(mars)
         self.bodies.append(phobos)

@@ -31,6 +31,7 @@ var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
 var CAMERA_NEAR = 1;
 var CAMERA_FAR = 100000;
 
+var LOD_DIST = {ONE: 300, TWO: 600, THREE: 1000};
 var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
 var players = []; // {player: playerName, color: THREE.Color}
 
@@ -627,10 +628,11 @@ function RSimulate(opts) {
     this.addNewAsteroid = function(asteroid) {
 
         var geometry = [
-            [new THREE.SphereGeometry( 1, 6, 6 ), 300],
-            [new THREE.SphereGeometry( 1, 5, 5 ), 600],
-            [new THREE.SphereGeometry( 1, 4, 4 ), 1000]
+            [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.ONE],
+            [new THREE.SphereGeometry( 1, 5, 5 ), LOD_DIST.TWO],
+            [new THREE.SphereGeometry( 1, 4, 4 ), LOD_DIST.THREE]
         ];
+
 
         var lambertShader = THREE.ShaderLib['lambert'];
         var uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
@@ -665,6 +667,62 @@ function RSimulate(opts) {
           name: asteroid.orbit.full_name
         }, useBigParticles);
 
+        var rot, scale;
+        if (asteroid.orbit.full_name.indexOf('Ceres') >= 0) {
+            geometry = [
+                [new THREE.SphereGeometry( 1, 10, 10 ), LOD_DIST.ONE],
+                [new THREE.SphereGeometry( 1, 8, 8 ), LOD_DIST.TWO],
+                [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.THREE]
+            ];
+            vertexShaderText = lambertShader.vertexShader;
+            scale = [baseAsteroidSize, baseAsteroidSize, baseAsteroidSize];
+            rot = [0,0,0];
+        }
+        else if (asteroid.orbit.full_name.indexOf('Pallas') >= 0) {
+            geometry = [
+                [new THREE.SphereGeometry( 1, 10, 10 ), LOD_DIST.ONE],
+                [new THREE.SphereGeometry( 1, 8, 8 ), LOD_DIST.TWO],
+                [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.THREE]
+            ];
+            vertexShaderText = lambertShader.vertexShader;
+            scale = [baseAsteroidSize + (Math.random() + 0.2), baseAsteroidSize, baseAsteroidSize];
+            rot = [0,0,0];
+        }
+        else if (asteroid.orbit.full_name.indexOf('Vesta') >= 0) {
+            geometry = [
+                [new THREE.SphereGeometry( 1, 10, 10 ), LOD_DIST.ONE],
+                [new THREE.SphereGeometry( 1, 8, 8 ), LOD_DIST.TWO],
+                [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.THREE]
+            ];
+            vertexShaderText = lambertShader.vertexShader;
+            scale = [baseAsteroidSize + (Math.random() + 0.5), baseAsteroidSize * (Math.random() + 0.7),
+                        baseAsteroidSize];
+            rot = [0,0,0];
+        }
+        else if (asteroid.orbit.full_name.indexOf('Euphrosyne') >= 0) {
+            geometry = [
+                [new THREE.SphereGeometry( 1, 10, 10 ), LOD_DIST.ONE],
+                [new THREE.SphereGeometry( 1, 8, 8 ), LOD_DIST.TWO],
+                [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.THREE]
+            ];
+            vertexShaderText = lambertShader.vertexShader;
+            scale = [baseAsteroidSize, baseAsteroidSize,
+                baseAsteroidSize];
+            rot = [0,0,0];
+        }
+        else {
+            // randomize the shape a tiny bit
+            scale = [baseAsteroidSize * (Math.random() + 0.5),
+                    baseAsteroidSize * (Math.random() + 0.5),
+                    baseAsteroidSize * (Math.random() + 0.5)];
+
+            // give the asteroids a little random initial rotation so they don't look like eggs standing on end
+            rot = [
+                    Math.random() * 2.0 * Math.PI,
+                    Math.random() * 2.0 * Math.PI,
+                    Math.random() * 2.0 * Math.PI];
+        }
+
         var material = new THREE.ShaderMaterial({
             uniforms: uniforms,
             vertexShader: vertexShaderText,
@@ -676,16 +734,7 @@ function RSimulate(opts) {
 
         var lod = new THREE.LOD();
 
-        // randomize the shape a tiny bit
-        var scale = [baseAsteroidSize * (Math.random() + 0.5),
-                baseAsteroidSize * (Math.random() + 0.5),
-                baseAsteroidSize * (Math.random() + 0.5)];
 
-        // give the asteroids a little random initial rotation so they don't look like eggs standing on end
-        var rot = [
-                Math.random() * 2.0 * Math.PI,
-                Math.random() * 2.0 * Math.PI,
-                Math.random() * 2.0 * Math.PI];
 
         for (var i = 0; i < geometry.length; i++) {
             var asteroidMesh = new THREE.Mesh( geometry[i][0], material );
@@ -800,6 +849,24 @@ function RSimulate(opts) {
             }
             else if (planet.model == 'Jupiter') {
                 mesh = makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg');
+            }
+            else if (planet.model == 'Saturn') {
+                mesh = makeBodyMesh(SATURN_SIZE, 'img/textures/saturn_medium.jpg');
+                var ringMaterial = new THREE.MeshPhongMaterial({
+                    ambient		: 0xFFFFFF,
+                    color		: 0xDDDDDD,
+                    shininess	: 150,
+                    specular	: 0x000000,
+                    shading		: THREE.SmoothShading,
+                    map		: THREE.ImageUtils.loadTexture('img/textures/saturn_rings_small.png'),
+                    transparent: true,
+                    side: THREE.DoubleSide
+                });
+                var ringGeometry = new THREE.RingGeometry(4, 100, 180, 1, 0, Math.PI * 2);
+                var ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.rotation.x = Math.PI / 2;
+                mesh.add(ring);
+                mesh.rotation.x = Math.PI / 6;
             }
 
             addBody(parent, planet.type, planet.orbit, mesh, true, planet.objectId, planet.model, planet.owner);
