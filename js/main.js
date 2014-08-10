@@ -830,8 +830,7 @@ function RSimulate(opts) {
     }
 
     addPlanet = function(planet) {
-        //var moonGeometry = new THREE.SphereGeometry( MOON_SIZE, 16, 16 );
-        //var moonMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc} );
+        //
         var mesh = undefined;
         var parent = scene;
         if (planet.type == 'planet') {
@@ -907,6 +906,33 @@ function RSimulate(opts) {
             else if (planet.model == 'Deimos') {
                 mesh = makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg');
                 parent = getObjectByOrbitName('Mars').mesh;
+            }
+            else if (planet.model == 'Titan') {
+                var meshMaterial = new THREE.MeshLambertMaterial({color: 0xEACA51});
+                var bodyGeometry = new THREE.SphereGeometry( TITAN_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+                parent = getObjectByOrbitName('Saturn').mesh;
+            }
+            else if (planet.model == 'Rhea') {
+                mesh = makeBodyMesh(RHEA_SIZE, 'img/textures/asteroid_small.jpg');
+                parent = getObjectByOrbitName('Saturn').mesh;
+            }
+            else if (planet.model == 'Iapetus') {
+                mesh = makeBodyMesh(IAPETUS_SIZE, 'img/textures/iapetus_small.jpg');
+                parent = getObjectByOrbitName('Saturn').mesh;
+            }
+            else if (planet.model == 'Dione') {
+                mesh = makeBodyMesh(DIONE_SIZE, 'img/textures/asteroid_small.jpg');
+                parent = getObjectByOrbitName('Saturn').mesh;
+            }
+            else if (planet.model == 'Tethys') {
+                var meshMaterial = new THREE.MeshLambertMaterial({
+                    color: 0xCBAF97,
+                    map: THREE.ImageLoader('img/textures/asteroid_small.jpg')
+                });
+                var bodyGeometry = new THREE.SphereGeometry( TETHYS_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+                parent = getObjectByOrbitName('Saturn').mesh;
             }
             addBody(parent, planet.type, planet.orbit, mesh, false, planet.objectId, planet.model, planet.owner);
         }

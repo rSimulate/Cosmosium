@@ -39,5 +39,11 @@ var NEPTUNE_SIZE = scale(EARTH_SIZE, 3.8, 1);
 var CALLISTO_SIZE = scale(EARTH_SIZE, .3785, .383);
 var GANYMEDE_SIZE = scale(EARTH_SIZE, .4132, .4132);
 var EUROPA_SIZE = scale(EARTH_SIZE, .2451, .2451);
-var IO_SIZE = scale(EARTH_SIZE, .2861, .2861);
+
+// Saturn Satellites
+var TITAN_SIZE = scale(EARTH_SIZE, .4043, .4043);
+var RHEA_SIZE = scale(EARTH_SIZE, .1197, .1197);
+var IAPETUS_SIZE = scale(EARTH_SIZE, .1152, .1152);
+var DIONE_SIZE = scale(EARTH_SIZE, .088, .088);
+var TETHYS_SIZE = scale(EARTH_SIZE, .0833, .0833);
 // ====================================
