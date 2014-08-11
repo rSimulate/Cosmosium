@@ -199,10 +199,20 @@ function RSimulate(opts) {
         onBodyDeselected();
     };
 
-	function makeBodyMesh(size, texture){
+	function makeBodyMesh(size, texture, normal){
 		var bodyGeometry = new THREE.SphereGeometry( size, 32, 32 );
 		var bodyTexture = THREE.ImageUtils.loadTexture(texture);
-		var bodyMaterial = new THREE.MeshLambertMaterial({ map: bodyTexture });
+		var bodyMaterial = new THREE.MeshLambertMaterial({
+            map: bodyTexture
+        });
+
+        if (normal != undefined) {
+            var normalTexture = THREE.ImageUtils.loadTexture(normal);
+            bodyMaterial = new THREE.MeshPhongMaterial({
+                map: bodyTexture,
+                normalMap: normalTexture
+            });
+        }
 
 		return new THREE.Mesh(bodyGeometry, bodyMaterial);
 	}
@@ -652,7 +662,7 @@ function RSimulate(opts) {
         uniforms.diffuse.value = new THREE.Color(0x313131);
         var color = getColorForOwner(asteroid.owner);
         if (color) {
-            uniforms.emissive.value = color;
+            uniforms.specular.value = color;
         }
 
         //var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid);
@@ -724,6 +734,7 @@ function RSimulate(opts) {
         }
 
         var material = new THREE.ShaderMaterial({
+            defines: {'USE_NORMAL_MAP': true},
             uniforms: uniforms,
             vertexShader: vertexShaderText,
             fragmentShader: fragmentShaderText,
@@ -733,8 +744,6 @@ function RSimulate(opts) {
         material.map = true;
 
         var lod = new THREE.LOD();
-
-
 
         for (var i = 0; i < geometry.length; i++) {
             var asteroidMesh = new THREE.Mesh( geometry[i][0], material );
@@ -835,16 +844,17 @@ function RSimulate(opts) {
         var parent = scene;
         if (planet.type == 'planet') {
             if (planet.model == 'Mercury') {
-                mesh = makeBodyMesh(MERCURY_SIZE, 'img/textures/mercury_small.jpg');
+                mesh = makeBodyMesh(MERCURY_SIZE, 'img/textures/mercury_small.jpg',
+                                                    'img/textures/mercury_small_normal.jpg');
             }
             else if (planet.model == 'Venus') {
-                mesh = makeBodyMesh(VENUS_SIZE, 'img/textures/venus_small.jpg');
+                mesh = makeBodyMesh(VENUS_SIZE, 'img/textures/venus_small.jpg', 'img/textures/venus_small_normal.jpg');
             }
             else if (planet.model == 'Earth') {
-                mesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg');
+                mesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg', 'img/textures/earth_small_normal.jpg');
             }
             else if (planet.model == 'Mars') {
-                mesh = makeBodyMesh(MARS_SIZE, 'img/textures/mars_small.jpg');
+                mesh = makeBodyMesh(MARS_SIZE, 'img/textures/mars_small.jpg', 'img/textures/mars_small_normal.jpg');
             }
             else if (planet.model == 'Jupiter') {
                 mesh = makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg');
@@ -917,7 +927,8 @@ function RSimulate(opts) {
                 parent = getObjectByOrbitName('Saturn').mesh;
             }
             else if (planet.model == 'Rhea') {
-                mesh = makeBodyMesh(RHEA_SIZE, 'img/textures/asteroid_small.jpg');
+                mesh = makeBodyMesh(RHEA_SIZE, 'img/textures/asteroid_small.jpg',
+                                                'img/textures/asteroid_small_normal.jpg');
                 parent = getObjectByOrbitName('Saturn').mesh;
             }
             else if (planet.model == 'Iapetus') {
@@ -925,13 +936,15 @@ function RSimulate(opts) {
                 parent = getObjectByOrbitName('Saturn').mesh;
             }
             else if (planet.model == 'Dione') {
-                mesh = makeBodyMesh(DIONE_SIZE, 'img/textures/asteroid_small.jpg');
+                mesh = makeBodyMesh(DIONE_SIZE, 'img/textures/asteroid_small.jpg',
+                                                'img/textures/asteroid_small_normal.jpg');
                 parent = getObjectByOrbitName('Saturn').mesh;
             }
             else if (planet.model == 'Tethys') {
-                var meshMaterial = new THREE.MeshLambertMaterial({
+                var meshMaterial = new THREE.MeshPhongMaterial({
                     color: 0xCBAF97,
-                    map: THREE.ImageLoader('img/textures/asteroid_small.jpg')
+                    map: THREE.ImageUtils.loadTexture('img/textures/asteroid_small.jpg'),
+                    normalMap: THREE.ImageUtils.loadTexture('img/textures/asteroid_small_normal.jpg')
                 });
                 var bodyGeometry = new THREE.SphereGeometry( TETHYS_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
@@ -939,30 +952,35 @@ function RSimulate(opts) {
             }
             // Uranus' satellites
             else if (planet.model == 'Miranda') {
-                mesh = makeBodyMesh(MIRANDA_SIZE, 'img/textures/asteroid_small.jpg');
+                mesh = makeBodyMesh(MIRANDA_SIZE, 'img/textures/asteroid_small.jpg',
+                                                    'img/textures/asteroid_small_normal.jpg');
                 parent = getObjectByOrbitName('Uranus').mesh;
             }
             else if (planet.model == 'Ariel') {
-                mesh = makeBodyMesh(ARIEL_SIZE, 'img/textures/asteroid_small.jpg');
+                mesh = makeBodyMesh(ARIEL_SIZE, 'img/textures/asteroid_small.jpg',
+                                                'img/textures/asteroid_small_normal.jpg');
                 parent = getObjectByOrbitName('Uranus').mesh;
             }
             else if (planet.model == 'Umbriel') {
-                mesh = makeBodyMesh(UMBRIEL_SIZE, 'img/textures/asteroid_small.jpg');
+                mesh = makeBodyMesh(UMBRIEL_SIZE, 'img/textures/asteroid_small.jpg',
+                                                    'img/textures/asteroid_small_normal.jpg');
                 parent = getObjectByOrbitName('Uranus').mesh;
             }
             else if (planet.model == 'Titania') {
-                var meshMaterial = new THREE.MeshLambertMaterial({
+                var meshMaterial = new THREE.MeshPhongMaterial({
                     color: 0xC0B7A8,
-                    map: THREE.ImageLoader('img/textures/asteroid_small.jpg')
+                    map: THREE.ImageUtils.loadTexture('img/textures/asteroid_small.jpg'),
+                    normalMap: THREE.ImageUtils.loadTexture('img/textures/asteroid_small_normal.jpg')
                 });
                 var bodyGeometry = new THREE.SphereGeometry( TITANIA_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
                 parent = getObjectByOrbitName('Uranus').mesh;
             }
             else if (planet.model == 'Oberon') {
-                var meshMaterial = new THREE.MeshLambertMaterial({
+                var meshMaterial = new THREE.MeshPhongMaterial({
                     color: 0xC0B7A8,
-                    map: THREE.ImageLoader('img/textures/asteroid_small.jpg')
+                    map: THREE.ImageUtils.loadTexture('img/textures/asteroid_small.jpg'),
+                    normalMap: THREE.ImageUtils.loadTexture('img/textures/asteroid_small_normal.jpg')
                 });
                 var bodyGeometry = new THREE.SphereGeometry( OBERON_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
@@ -970,19 +988,23 @@ function RSimulate(opts) {
             }
             //Neptune's satellites
             else if (planet.model == 'Proteus') {
-                mesh = makeBodyMesh(PROTEUS_SIZE, 'img/textures/asteroid_small.jpg');
+                mesh = makeBodyMesh(PROTEUS_SIZE, 'img/textures/asteroid_small.jpg',
+                                                    'img/textures/asteroid_small_normal.jpg');
                 parent = getObjectByOrbitName('Neptune').mesh;
             }
             else if (planet.model == 'Triton') {
-                var meshMaterial = new THREE.MeshLambertMaterial({
+                var meshMaterial = new THREE.MeshPhongMaterial({
                     color: 0xC0B7A8,
-                    map: THREE.ImageLoader('img/textures/asteroid_small.jpg')
+                    map: THREE.ImageUtils.loadTexture('img/textures/asteroid_small.jpg'),
+                    normalMap: THREE.ImageUtils.loadTexture('img/textures/asteroid_small_normal.jpg')
                 });
                 var bodyGeometry = new THREE.SphereGeometry( TRITON_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+                parent = getObjectByOrbitName('Neptune').mesh;
             }
             else if (planet.model == 'Nereid') {
-                mesh = makeBodyMesh(NEREID_SIZE, 'img/textures/asteroid_small.jpg');
+                mesh = makeBodyMesh(NEREID_SIZE, 'img/textures/asteroid_small.jpg',
+                                                    'img/textures/asteroid_small_normal.jpg');
                 parent = getObjectByOrbitName('Neptune').mesh;
             }
             addBody(parent, planet.type, planet.orbit, mesh, false, planet.objectId, planet.model, planet.owner);
