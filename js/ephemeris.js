@@ -15,6 +15,7 @@ function scale(class_scale, real_scale, ideal_scale) {
 
 var PLANET_SIZE = scale(.1, 1, 250); // = earth size in view scene length units
 var EARTH_SIZE = PLANET_SIZE;
+var LUNA_SIZE = scale(EARTH_SIZE, 0.28, .28);
 
 // diameter adjustments by body class:
 var ASTEROID_SIZE = scale(EARTH_SIZE, .001, .5);
@@ -23,27 +24,29 @@ var SUN_SIZE = scale(EARTH_SIZE, 109, 2);
 
 // diameter adjustments by specific bodies:
 var MERCURY_SIZE = scale(EARTH_SIZE, .383, .5);
-
 var VENUS_SIZE = scale(EARTH_SIZE, .95, .95);
-
-var LUNA_SIZE = scale(EARTH_SIZE, 0.28, .28);
-
 var MARS_SIZE = scale(EARTH_SIZE, .53, .53);
-var PHOBOS_SIZE = scale(MOON_SIZE, .15, .15);
-var DEIMOS_SIZE = scale(MOON_SIZE, .12, .12);
 
 var JUPITER_SIZE = scale(EARTH_SIZE, 11, 2);
-var SATURN_SIZE = scale(EARTH_SIZE, 9.14, 2);
-var URANUS_SIZE = scale(EARTH_SIZE, 4, 1);
-var NEPTUNE_SIZE = scale(EARTH_SIZE, 3.8, 1);
-var CALLISTO_SIZE = scale(EARTH_SIZE, .3785, .383);
-var GANYMEDE_SIZE = scale(EARTH_SIZE, .4132, .4132);
-var EUROPA_SIZE = scale(EARTH_SIZE, .2451, .2451);
+var PHOBOS_SIZE = scale(MOON_SIZE, .15, .15);
+var DEIMOS_SIZE = scale(MOON_SIZE, .12, .12);
+var CALLISTO_SIZE = scale(MOON_SIZE, .3785, .383);
+var GANYMEDE_SIZE = scale(MOON_SIZE, .4132, .4132);
+var EUROPA_SIZE = scale(MOON_SIZE, .2451, .2451);
+var IO_SIZE = scale(MOON_SIZE, .2861, .2861);
 
-// Saturn Satellites
-var TITAN_SIZE = scale(EARTH_SIZE, .4043, .4043);
-var RHEA_SIZE = scale(EARTH_SIZE, .1197, .1197);
-var IAPETUS_SIZE = scale(EARTH_SIZE, .1152, .1152);
-var DIONE_SIZE = scale(EARTH_SIZE, .088, .088);
-var TETHYS_SIZE = scale(EARTH_SIZE, .0833, .0833);
-// ====================================
+var SATURN_SIZE = scale(EARTH_SIZE, 9.14, 2);
+var TITAN_SIZE = scale(MOON_SIZE, .4043, .4043);
+var RHEA_SIZE = scale(MOON_SIZE, .1197, .1197);
+var IAPETUS_SIZE = scale(MOON_SIZE, .1152, .1152);
+var DIONE_SIZE = scale(MOON_SIZE, .088, .088);
+var TETHYS_SIZE = scale(MOON_SIZE, .0833, .0833);
+
+var URANUS_SIZE = scale(EARTH_SIZE, 4, 1);
+var MIRANDA_SIZE = scale(MOON_SIZE, 0.1195, 0.1195);
+var ARIEL_SIZE = scale(MOON_SIZE, 0.0908, 0.0908);
+var UMBRIEL_SIZE = scale(MOON_SIZE, 0.0917, 0.0917);
+var TITANIA_SIZE = scale(MOON_SIZE, 0.1237, 0.1237);
+var OBERON_SIZE = scale(MOON_SIZE, 0.1195, 0.1195);
+
+var NEPTUNE_SIZE = scale(EARTH_SIZE, 3.8, 1);

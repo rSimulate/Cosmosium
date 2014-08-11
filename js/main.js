@@ -934,6 +934,36 @@ function RSimulate(opts) {
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
                 parent = getObjectByOrbitName('Saturn').mesh;
             }
+            else if (planet.model == 'Miranda') {
+                mesh = makeBodyMesh(MIRANDA_SIZE, 'img/textures/asteroid_small.jpg');
+                parent = getObjectByOrbitName('Uranus').mesh;
+            }
+            else if (planet.model == 'Ariel') {
+                mesh = makeBodyMesh(ARIEL_SIZE, 'img/textures/asteroid_small.jpg');
+                parent = getObjectByOrbitName('Uranus').mesh;
+            }
+            else if (planet.model == 'Umbriel') {
+                mesh = makeBodyMesh(UMBRIEL_SIZE, 'img/textures/asteroid_small.jpg');
+                parent = getObjectByOrbitName('Uranus').mesh;
+            }
+            else if (planet.model == 'Titania') {
+                var meshMaterial = new THREE.MeshLambertMaterial({
+                    color: 0xC0B7A8,
+                    map: THREE.ImageLoader('img/textures/asteroid_small.jpg')
+                });
+                var bodyGeometry = new THREE.SphereGeometry( TITANIA_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+                parent = getObjectByOrbitName('Uranus').mesh;
+            }
+            else if (planet.model == 'Oberon') {
+                var meshMaterial = new THREE.MeshLambertMaterial({
+                    color: 0xC0B7A8,
+                    map: THREE.ImageLoader('img/textures/asteroid_small.jpg')
+                });
+                var bodyGeometry = new THREE.SphereGeometry( OBERON_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+                parent = getObjectByOrbitName('Uranus').mesh;
+            }
             addBody(parent, planet.type, planet.orbit, mesh, false, planet.objectId, planet.model, planet.owner);
         }
     };

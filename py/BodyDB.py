@@ -24,6 +24,8 @@ EARTH_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, EARTH_SIZE)
 MARS_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, MARS_SIZE * 15)
 JUPITER_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, JUPITER_SIZE)
 SATURN_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, SATURN_SIZE)
+URANUS_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, URANUS_SIZE * 3)
+NEPTUNE_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, NEPTUNE_SIZE)
 
 
 class BodyDB(object):
@@ -213,7 +215,7 @@ class BodyDB(object):
             'objectId': str(uuid4()),
             'type': 'moon'}
 
-        # Saturn Keplerian Elements retrieved and calculated from ftp://ftp.mpe.mpg.de/pub/LB_chapter_4.2._final.pdf
+        # Keplerian Elements retrieved and calculated from ftp://ftp.mpe.mpg.de/pub/LB_chapter_4.2._final.pdf
         # Page 15
         # Orbital periods, P, retrieved from wikipedia.org
         titan = {
@@ -276,6 +278,66 @@ class BodyDB(object):
                       'P': 1.887802},
             'objectId': str(uuid4()),
             'type': 'moon'}
+        miranda = {
+            'orbit': {'full_name': 'Miranda',
+                      'epoch': 2451545.0,
+                      'a': 0.000868327867 * URANUS_MOON_EXAGGERATION,
+                      'e': 0.0013,
+                      'i': 4.338,
+                      'w': 68.312,
+                      'L': 706.08,  # M = 311.330
+                      'om': 326.438,
+                      'P': 1.413479},
+            'objectId': str(uuid4()),
+            'type': 'moon'}
+        ariel = {
+            'orbit': {'full_name': 'Ariel',
+                      'epoch': 2451545.0,
+                      'a': 0.00127608768 * URANUS_MOON_EXAGGERATION,
+                      'e': 0.0012,
+                      'i': 0.041,
+                      'w': 115.349,
+                      'L': 177.224,  # M = 39.481
+                      'om': 22.394,
+                      'P': 2.520},
+            'objectId': str(uuid4()),
+            'type': 'moon'}
+        umbriel = {
+            'orbit': {'full_name': 'Umbriel',
+                      'epoch': 2451545.0,
+                      'a': 0.00177810017 * URANUS_MOON_EXAGGERATION,
+                      'e': 0.0039,
+                      'i': 0.128,
+                      'w': 84.709,
+                      'L': 130.663,  # M = 12.469
+                      'om': 33.485,
+                      'P': 4.144},
+            'objectId': str(uuid4()),
+            'type': 'moon'}
+        titania = {
+            'orbit': {'full_name': 'Titania',
+                      'epoch': 2451545.0,
+                      'a': 0.00291648536 * URANUS_MOON_EXAGGERATION,
+                      'e': 0.0011,
+                      'i': 1.079,
+                      'w': 284.400,
+                      'L': 404.785,  # M = 24.614
+                      'om': 99.771,
+                      'P': 8.706234},
+            'objectId': str(uuid4()),
+            'type': 'moon'}
+        oberon = {
+            'orbit': {'full_name': 'Oberon',
+                      'epoch': 2451545.0,
+                      'a': 0.00390045659 * URANUS_MOON_EXAGGERATION,
+                      'e': 0.0014,
+                      'i': 0.068,
+                      'w': 104.400,
+                      'L': 667.259,  # M = 283.088
+                      'om': 279.771,
+                      'P': 13.463234},
+            'objectId': str(uuid4()),
+            'type': 'moon'}
 
         self.bodies.append(mercury)
         self.bodies.append(callisto)
@@ -297,6 +359,11 @@ class BodyDB(object):
         self.bodies.append(iapetus)
         self.bodies.append(dione)
         self.bodies.append(tethys)
+        self.bodies.append(miranda)
+        self.bodies.append(ariel)
+        self.bodies.append(umbriel)
+        self.bodies.append(titania)
+        self.bodies.append(oberon)
 
         for body in self.bodies:
             if body['orbit']['w'] is not None and body['orbit']['om'] is not None:
