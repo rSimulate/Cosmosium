@@ -35,7 +35,6 @@ class BodyDB(object):
         self.bodies = list()
         mercury = {
             'orbit': {'full_name': 'Mercury',
-                      'epoch': 2451545.0,
                       'a': 0.38709927,
                       'e': 0.20563593,
                       'i': 7.00497902,
@@ -47,7 +46,6 @@ class BodyDB(object):
             'type': 'planet'}
         venus = {
             'orbit': {'full_name': 'Venus',
-                    'epoch': 2451545.0,
                     'a': 0.72333566,
                     'e': 0.00677672,
                     'i': 3.39467605,
@@ -59,7 +57,6 @@ class BodyDB(object):
             'type': 'planet'}
         earth = {
             'orbit': {'full_name': 'Earth',
-                    'epoch': 2451545.0,
                     'a': 1.00000261,
                     'e': 0.01671123,
                     'i': 0.00001531,
@@ -72,7 +69,6 @@ class BodyDB(object):
             'type': 'planet'}
         mars = {
             'orbit': {'full_name': 'Mars',
-                    'epoch': 2451545.0,
                     'a': 1.52371034,
                     'e': 0.09339410,
                     'i': 1.84969142,
@@ -84,7 +80,6 @@ class BodyDB(object):
             'type': 'planet'}
         jupiter = {
             'orbit': {'full_name': 'Jupiter',
-                    'epoch': 2451545.0,
                     'a': 5.20288700,
                     'e': 0.04838624,
                     'i': 1.30439695,
@@ -96,7 +91,6 @@ class BodyDB(object):
             'type': 'planet'}
         saturn = {
             'orbit': {'full_name': 'Saturn',
-                      'epoch': 2451545.0,
                       'a': 9.53667594,
                       'e': 0.05386179,
                       'i': 2.48599187,
@@ -108,7 +102,6 @@ class BodyDB(object):
             'type': 'planet'}
         uranus = {
             'orbit': {'full_name': 'Uranus',
-                      'epoch': 2451545.0,
                       'a': 19.18916464,
                       'e': 0.04725744,
                       'i': 0.77263783,
@@ -120,7 +113,6 @@ class BodyDB(object):
             'type': 'planet'}
         neptune = {
             'orbit': {'full_name': 'Neptune',
-                      'epoch': 2451545.0,
                       'a': 30.06992276,
                       'e': 0.00859048,
                       'i': 1.77004347,
@@ -132,7 +124,6 @@ class BodyDB(object):
             'type': 'planet'}
         luna = {
             'orbit': {'full_name': 'Moon',
-                    'epoch': 2451545.0,
                     'a': 0.00256955529 * EARTH_MOON_EXAGGERATION,  # exaggerating distance for visibility
                     'e': 0.0554,
                     'i': 5.16,
@@ -144,7 +135,6 @@ class BodyDB(object):
             'type': 'moon'}
         phobos = {
             'orbit': {'full_name': 'Phobos',
-                    'epoch': 2451545.0,
                     'a': 6.26746889e-5 * MARS_MOON_EXAGGERATION,  # exaggerating distance for visibility
                     'e': 0.0151,
                     'i': 1.075,
@@ -156,7 +146,6 @@ class BodyDB(object):
             'type': 'moon'}
         deimos = {
             'orbit': {'full_name': 'Deimos',
-                    'epoch': 2451545.0,
                     'a': 0.000156807045 * MARS_MOON_EXAGGERATION,  # exaggerating distance for visibility
                     'e': 0.0002,
                     'i': 1.788,
@@ -168,7 +157,6 @@ class BodyDB(object):
             'type': 'moon'}
         ganymede = {
             'orbit': {'full_name': 'Ganymede',
-                    'epoch': 2451545.0,
                     'a': 0.00715518206 * JUPITER_MOON_EXAGGERATION,  # exaggerating distance for visibility
                     'e': 0.0013,
                     'i': 0.177,
@@ -180,7 +168,6 @@ class BodyDB(object):
             'type': 'moon'}
         io = {
             'orbit': {'full_name': 'Io',
-                    'epoch': 2451545.0,
                     'a': 0.00281955885 * JUPITER_MOON_EXAGGERATION,  # exaggerating distance for visibility
                     'e': 0.0041,
                     'i': 0.036,
@@ -192,7 +179,6 @@ class BodyDB(object):
             'type': 'moon'}
         europa = {
             'orbit': {'full_name': 'Europa',
-                    'epoch': 2451545.0,
                     'a': 0.00448602642 * JUPITER_MOON_EXAGGERATION,  # exaggerating distance for visibility
                     'e': 0.0094,
                     'i': 0.466,
@@ -204,7 +190,6 @@ class BodyDB(object):
             'type': 'moon'}
         callisto = {
             'orbit': {'full_name': 'Callisto',
-                      'epoch': 2451545.0,
                       'a': 0.0125850722 * JUPITER_MOON_EXAGGERATION,  # exaggerating distance for visibility
                       'e': 0.0074,
                       'i': 0.192,
@@ -220,7 +205,6 @@ class BodyDB(object):
         # Orbital periods, P, retrieved from wikipedia.org
         titan = {
             'orbit': {'full_name': 'Titan',
-                      'epoch': 2451545.0,
                       'a': 0.00816769647 * SATURN_MOON_EXAGGERATION,  # a was converted from km -> au
                       'e': 0.0288,
                       'i': 0.312,
@@ -232,7 +216,6 @@ class BodyDB(object):
             'type': 'moon'}
         rhea = {
             'orbit': {'full_name': 'Rhea',
-                      'epoch': 2451545.0,
                       'a': 0.00352349935 * SATURN_MOON_EXAGGERATION,
                       'e': 0.001,
                       'i': 0.331,
@@ -244,7 +227,6 @@ class BodyDB(object):
             'type': 'moon'}
         iapetus = {
             'orbit': {'full_name': 'Iapetus',
-                      'epoch': 2451545.0,
                       'a': 0.0238026115 * SATURN_MOON_EXAGGERATION,
                       'e': 0.0283,
                       'i': 7.489,
@@ -256,7 +238,6 @@ class BodyDB(object):
             'type': 'moon'}
         dione = {
             'orbit': {'full_name': 'Dione',
-                      'epoch': 2451545.0,
                       'a': 0.00252273644 * SATURN_MOON_EXAGGERATION,
                       'e': 0.0022,
                       'i': 0.028,
@@ -268,7 +249,6 @@ class BodyDB(object):
             'type': 'moon'}
         tethys = {
             'orbit': {'full_name': 'Tethys',
-                      'epoch': 2451545.0,
                       'a': 0.00196940637 * SATURN_MOON_EXAGGERATION,
                       'e': 0.0001,
                       'i': 1.091,
@@ -280,7 +260,6 @@ class BodyDB(object):
             'type': 'moon'}
         miranda = {
             'orbit': {'full_name': 'Miranda',
-                      'epoch': 2451545.0,
                       'a': 0.000868327867 * URANUS_MOON_EXAGGERATION,
                       'e': 0.0013,
                       'i': 4.338,
@@ -292,7 +271,6 @@ class BodyDB(object):
             'type': 'moon'}
         ariel = {
             'orbit': {'full_name': 'Ariel',
-                      'epoch': 2451545.0,
                       'a': 0.00127608768 * URANUS_MOON_EXAGGERATION,
                       'e': 0.0012,
                       'i': 0.041,
@@ -304,7 +282,6 @@ class BodyDB(object):
             'type': 'moon'}
         umbriel = {
             'orbit': {'full_name': 'Umbriel',
-                      'epoch': 2451545.0,
                       'a': 0.00177810017 * URANUS_MOON_EXAGGERATION,
                       'e': 0.0039,
                       'i': 0.128,
@@ -316,7 +293,6 @@ class BodyDB(object):
             'type': 'moon'}
         titania = {
             'orbit': {'full_name': 'Titania',
-                      'epoch': 2451545.0,
                       'a': 0.00291648536 * URANUS_MOON_EXAGGERATION,
                       'e': 0.0011,
                       'i': 1.079,
@@ -328,7 +304,6 @@ class BodyDB(object):
             'type': 'moon'}
         oberon = {
             'orbit': {'full_name': 'Oberon',
-                      'epoch': 2451545.0,
                       'a': 0.00390045659 * URANUS_MOON_EXAGGERATION,
                       'e': 0.0014,
                       'i': 0.068,
@@ -336,6 +311,39 @@ class BodyDB(object):
                       'L': 667.259,  # M = 283.088
                       'om': 279.771,
                       'P': 13.463234},
+            'objectId': str(uuid4()),
+            'type': 'moon'}
+        proteus = {
+            'orbit': {'full_name': 'Proteus',
+                      'a': 0.000786421621 * URANUS_MOON_EXAGGERATION,
+                      'e': 0.0005,
+                      'i': 0.026,
+                      'w': 301.706,
+                      'L': 581.446,  # M = 117.050
+                      'om': 162.690,
+                      'P': 1.12231477},
+            'objectId': str(uuid4()),
+            'type': 'moon'}
+        triton = {
+            'orbit': {'full_name': 'Triton',
+                      'a': 0.00237169151 * URANUS_MOON_EXAGGERATION,
+                      'e': 0.0,  # Yes, it's really 0.0
+                      'i': 156.834,
+                      'w': 344.046,
+                      'L': 781.311,  # M = 264.834
+                      'om': 172.431,
+                      'P': -5.876854},
+            'objectId': str(uuid4()),
+            'type': 'moon'}
+        nereid = {
+            'orbit': {'full_name': 'Nereid',
+                      'a': 0.0368548026 * URANUS_MOON_EXAGGERATION,
+                      'e': 0.7512,
+                      'i': 7.232,
+                      'w': 280.830,
+                      'L': 974.933,  # M = 359.341
+                      'om': 334.762,
+                      'P': 360.1362},
             'objectId': str(uuid4()),
             'type': 'moon'}
 
@@ -364,8 +372,14 @@ class BodyDB(object):
         self.bodies.append(umbriel)
         self.bodies.append(titania)
         self.bodies.append(oberon)
+        self.bodies.append(proteus)
+        self.bodies.append(triton)
+        self.bodies.append(nereid)
 
         for body in self.bodies:
+            if not 'epoch' in body['orbit']:
+                body['orbit']['epoch'] = 2451545.0
+                
             if body['orbit']['w'] is not None and body['orbit']['om'] is not None:
                 body['orbit']['w_bar'] = body['orbit']['w'] + body['orbit']['om']
 

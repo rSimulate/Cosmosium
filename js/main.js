@@ -883,6 +883,7 @@ function RSimulate(opts) {
                 mesh = makeBodyMesh(LUNA_SIZE, 'img/textures/moon_small.jpg');
                 parent = getObjectByOrbitName('Earth').mesh;
             }
+            // Jupiter's satellites
             else if (planet.model == 'Io') {
                 mesh = makeBodyMesh(IO_SIZE, 'img/textures/moon_small.jpg');
                 parent = getObjectByOrbitName('Jupiter').mesh;
@@ -899,6 +900,7 @@ function RSimulate(opts) {
                 mesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg');
                 parent = getObjectByOrbitName('Jupiter').mesh;
             }
+            // Mars' satellites
             else if (planet.model == 'Phobos') {
                 mesh = makeBodyMesh(PHOBOS_SIZE, 'img/textures/phobos_tiny.jpg');
                 parent = getObjectByOrbitName('Mars').mesh;
@@ -907,6 +909,7 @@ function RSimulate(opts) {
                 mesh = makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg');
                 parent = getObjectByOrbitName('Mars').mesh;
             }
+            // Saturn's satellites
             else if (planet.model == 'Titan') {
                 var meshMaterial = new THREE.MeshLambertMaterial({color: 0xEACA51});
                 var bodyGeometry = new THREE.SphereGeometry( TITAN_SIZE, 32, 32 );
@@ -934,6 +937,7 @@ function RSimulate(opts) {
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
                 parent = getObjectByOrbitName('Saturn').mesh;
             }
+            // Uranus' satellites
             else if (planet.model == 'Miranda') {
                 mesh = makeBodyMesh(MIRANDA_SIZE, 'img/textures/asteroid_small.jpg');
                 parent = getObjectByOrbitName('Uranus').mesh;
@@ -963,6 +967,23 @@ function RSimulate(opts) {
                 var bodyGeometry = new THREE.SphereGeometry( OBERON_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
                 parent = getObjectByOrbitName('Uranus').mesh;
+            }
+            //Neptune's satellites
+            else if (planet.model == 'Proteus') {
+                mesh = makeBodyMesh(PROTEUS_SIZE, 'img/textures/asteroid_small.jpg');
+                parent = getObjectByOrbitName('Neptune').mesh;
+            }
+            else if (planet.model == 'Triton') {
+                var meshMaterial = new THREE.MeshLambertMaterial({
+                    color: 0xC0B7A8,
+                    map: THREE.ImageLoader('img/textures/asteroid_small.jpg')
+                });
+                var bodyGeometry = new THREE.SphereGeometry( TRITON_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+            }
+            else if (planet.model == 'Nereid') {
+                mesh = makeBodyMesh(NEREID_SIZE, 'img/textures/asteroid_small.jpg');
+                parent = getObjectByOrbitName('Neptune').mesh;
             }
             addBody(parent, planet.type, planet.orbit, mesh, false, planet.objectId, planet.model, planet.owner);
         }
