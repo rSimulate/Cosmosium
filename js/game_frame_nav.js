@@ -197,3 +197,31 @@ document.getElementById('add-object-button').addEventListener('click', function 
     addTestObject();
 
 }, false);
+
+document.getElementById('destroy-object-button').addEventListener('click', function (e) {
+    e = e || window.event;
+
+    requestRemoveBody();
+
+}, false);
+
+document.getElementById('set-target-button').addEventListener('click', function (e) {
+    e = e || window.event;
+
+    setCourse();
+
+}, false);
+
+document.getElementById('plot-course-button').addEventListener('click', function (e) {
+    e = e || window.event;
+
+    requestCourse();
+
+}, false);
+
+document.getElementById('cancel-course-button').addEventListener('click', function (e) {
+    e = e || window.event;
+
+    cancelCourse();
+
+}, false);

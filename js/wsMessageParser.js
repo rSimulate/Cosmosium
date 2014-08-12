@@ -1,3 +1,5 @@
+var nextColor = 1;
+
 function prependContent(newContent){
     // adds new content HTML to the beginning of the content section
     document.getElementById('content').innerHTML = newContent + document.getElementById('content').innerHTML;
@@ -34,7 +36,7 @@ function cleanObjectRequest(objectStr) {
 }
 
 function parseObjectRemoval(str) {
-    var split = cleanPlayerObjectRequest(str);
+    var split = cleanObjectRequest(str);
     // result result objectId uuid reason unknown
     var result, objectId, reason;
     for (var i = 0; i < split.length; i++) {
@@ -182,8 +184,9 @@ function parseObject(objectStr) {
 
     full_name = full_name.replace(/(\")+/g, "");
 
-    var ephemeris = {full_name: full_name, ma: ma, epoch: epoch, a: a, e: e,
-                        i: i, w_bar: w_bar, w: w, L: L, om: om, P: P};
+    var ephemeris = {full_name: full_name, ma: parseFloat(ma), epoch: parseFloat(epoch), a: parseFloat(a),
+                        e: parseFloat(e), i: parseFloat(i), w_bar: parseFloat(w_bar), w: parseFloat(w),
+                        L: parseFloat(L), om: parseFloat(om), P: parseFloat(P)};
 
     if (type == 'asteroid') {
         return {owner: owner, objectId: objectId, type: type, model: model, orbit: ephemeris, orbitExtras: orbitExtras};
@@ -191,12 +194,13 @@ function parseObject(objectStr) {
     else {
         var orbit = new Orbit3D(ephemeris,
             {
-                color: 0xff0000, width: 1, jed: rSimulate.jed, object_size: 1.7,
-                display_color: new THREE.Color(0xff0000),
+                color: rainbow(30, nextColor).getHex(), width: 1, jed: rSimulate.jed, object_size: 1.7,
+                display_color: rainbow(30, nextColor),
                 particle_geometry: particle_system_geometry,
                 name: full_name
             }, !using_webgl);
 
+        nextColor ++;
         return {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit};
     }
 }
@@ -246,10 +250,51 @@ function claimResponder(data) {
     if (result == undefined || objectId == undefined || owner == undefined) {
         console.log("ERROR: Claim response from the server was malformed");
         console.log(result, objectId, owner);
+        return;
     }
 
     if (result == 'accepted') updateObjectOwnerById(owner, objectId);
     else console.log("player", owner, "tried to claim an asteroid, but", result);
+}
+
+function updateTime(data) {
+    // {'jed': daysPassed, 'gec': str(month-year)}
+    var split = cleanObjectRequest(data);
+
+    var jedServer, dayServer, monthServer, yearServer;
+    for (var i = 0; i < split.length; i++) {
+        var s = split[i];
+        var next = i + 1;
+        if (s == 'jed') jedServer = split[next];
+        else if (s == 'gec') {
+            var gec = split[next];
+            gec = gec.replace(/(-)+/g, " ");
+            var gecSplit = gec.split(" ");
+            dayServer = gecSplit[0];
+            monthServer = gecSplit[1];
+            yearServer = gecSplit[2];
+        }
+    }
+
+    // check
+    if (jedServer == undefined || dayServer == undefined || monthServer == undefined || yearServer == undefined) {
+        console.log("ERROR: Time update response from server was malformed");
+        console.log("jed", jedServer, "dayServer", dayServer, "monthServer", monthServer, "yearServer", yearServer);
+        return;
+    }
+
+    // TODO: May have to change this to interpolate over time if it produces noticeable changes
+    // For now, just do a hard-change to the client's jed
+    jed = Math.floor(jedServer);
+    day = dayServer;
+    month = monthServer;
+    year = yearServer;
+}
+
+function createBody(data) {
+    //{'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'data': data}
+    var body = parseObject(data);
+    addPlanet(body);
 }
 
 function parseMessage(m) {
@@ -261,7 +306,8 @@ function parseMessage(m) {
     if (cmd == "addToContent") {
         //prependContent(data)
         console.log("Server is trying to prepend content, and the prependContent function needs fixing before it will work");
-
+    } else if (cmd == 'bodyCreate') {
+        createBody(data);
     } else if (cmd == "updateResources") {
         updateResources(data)
 
@@ -305,6 +351,8 @@ function parseMessage(m) {
         assignColor(data);
     } else if (cmd == "claim") {
         claimResponder(data);
+    } else if (cmd == 'timeSync') {
+        updateTime(data);
     } else {
         console.log("ERR: unknown message to client: "+m);
     }

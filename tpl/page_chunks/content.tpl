@@ -253,7 +253,6 @@
                 % include('tpl/content/surveyEquipment')
 
                 <!-- Space Industry -->
-
                 % include('tpl/content/research')
 
                 <!-- Human Habitation -->
@@ -265,14 +264,10 @@
                 <!-- Outreach -->
                 <!-- Government -->
                 <!-- Organization -->
+
                 <!-- object details pane -->
-                <div id="body-info-container">
-                    <br>
-                    <br>
-                    <div id="owner-info"><b>UNCLAIMED</b></div>
-                    <div id="body-info">foo</div>
-                    <h3><a id="claim-asteroid-button" href="#">Claim this asteroid</a></h3>
-                </div>
+                % include('tpl/page_chunks/body-info')
+
             </div>
             % include('tpl/page_chunks/webGL_js')
         </aside><!-- /.right-side -->
@@ -314,9 +309,6 @@
 
         <!-- for updating the resource display -->
         <script src="/tpl/js/resourceUpdate.js" type="text/javascript" onload="setInterval(updateAll,1000)"></script>
-
-        <!-- for updating the game time display -->
-        <script src="/js/timeUpdater.js" type="text/javascript" onload="setInterval(uTime,{{user.game.getDeltaYearUpdate()}}000)"></script>
 
         <!-- jvectormap -->
         <script src="js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js" type="text/javascript"></script>

@@ -2,6 +2,7 @@ from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
 from bottle import template
 from ast import literal_eval
+from lib.PyKEP import getTraj
 
 from asteroid_tracker import asteroid_track_request_responder
 
@@ -30,7 +31,7 @@ def researchResponder(user, researchType):
     message+='"}'
     user.sendMessage(message)
 
-def playerObjectResponder(user, ws, data):
+def playerObjectResponder(user, data):
     """
 
     :param user: the requesting user
@@ -86,7 +87,7 @@ def playerObjectResponder(user, ws, data):
                 message += '"}'
                 user.sendMessage(message)
 
-def surveyResponder(data, user, websock):
+def surveyResponder(data, user):
     # {'survey': 'MainBelt', 'amt': 0}
     # Amt of 0 == all asteroids in survey
     surveyData = literal_eval(data)
@@ -107,21 +108,40 @@ def surveyResponder(data, user, websock):
 
 def refreshResponder(user):
     user.game.synchronizeObjects(user)
+
+def trajRequestResponder(user, data):
+    # {'dest': {'type': 'planet', 'objectId': 'objectId'}, 'source': {'type': 'Probe', 'objectId': 'objectId'}}
+    trajData = literal_eval(data)
+
+    if trajData['source']['type'] != 'Probe':
+        print "ERROR: Trajectory request came from a non-player object"
+        return
+
+    if user.game is not None:
+        source = user.game.getObject(trajData['source']['objectId'], type=trajData['source']['type'])
+        dest = user.game.getObject(trajData['dest']['objectId'], type=trajData['dest']['type'])
+
+        if source is not None and dest is not None:
+            # getTraj()
+            print "Source and destination is not none. Getting trajectory."
+
     
 def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     # takes appropriate action on the given command and data string
     if cmd == 'claim':
         asteroid_track_request_responder(data, user)
     elif cmd == 'getSurvey':
-        surveyResponder(data, user, websock)
+        surveyResponder(data, user)
     # TODO: Send asteroid limit for user on hello
     elif cmd == 'hello':
         registerUserConnection(user, websock)
     elif cmd == 'refresh':
         refreshResponder(user)
     elif cmd == 'research':
-        researchResponder(user, websock, data)
+        researchResponder(user, data)
     elif cmd == 'playerObject':
-        playerObjectResponder(user, websock, data)
+        playerObjectResponder(user, data)
+    elif cmd == 'requestTraj':
+        trajRequestResponder(user, data)
     else:
         print "UNKNOWN CLIENT MESSAGE: cmd=",cmd,"data=",data," from user ",user
