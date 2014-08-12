@@ -21,7 +21,8 @@ TIME_UPDATE_FREQ = 1  # client clock sync frequency in seconds
 class Game(object):
     def __init__(self):
         print "New game instance initializing..."
-        self.bodies = BodyDB().getBodies()
+        # Instantiate the body database with the moons adjusted by DAYS_PER_SEC*2 deviated from zero
+        self.bodies = BodyDB(DAYS_PER_SEC*2).getBodies()
         # self.OOIs = OOIs()
         # TODO: Replace this with MPO data
         self.NEOs = list()

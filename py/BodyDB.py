@@ -2,7 +2,6 @@ from uuid import uuid4
 
 REALNESS = 0
 
-
 def scale(class_scale, real_scale, ideal_scale):
     return class_scale * (real_scale * REALNESS + ideal_scale * (1 - REALNESS))
 
@@ -29,9 +28,14 @@ NEPTUNE_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, NEPTUNE_SIZE)
 
 
 class BodyDB(object):
-    def __init__(self):
+    """
+    Initializes a new BodyDB
+    :param moonPerMod: A modifier to alter the period of planet's moons
+    """
+    def __init__(self, moonPerMod):
         # http':#nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html
         # http':#ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf
+        self.moonPerMod = moonPerMod
         self.bodies = list()
         mercury = {
             'orbit': {'full_name': 'Mercury',
@@ -385,6 +389,12 @@ class BodyDB(object):
 
             if body['orbit']['w_bar'] is not None and body['orbit']['L'] is not None:
                 body['orbit']['ma'] = body['orbit']['L'] - body['orbit']['w_bar']
+
+            if body['orbit']['P'] is not None and body['type'] == 'moon':
+                if body['orbit']['P'] > 0:
+                    body['orbit']['P'] += self.moonPerMod
+                else:
+                    body['orbit']['P'] -= self.moonPerMod
         
             body['model'] = body['orbit']['full_name']
             body['owner'] = 'Mankind'

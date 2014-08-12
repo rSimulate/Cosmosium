@@ -339,7 +339,7 @@ function RSimulate(opts) {
     function hideAllConditionalEllipses() {
         for (var i = 0; i < objects.length; i++) {
             var obj = objects[i];
-            if (obj.type == 'asteroid' || obj.type == 'moon') {
+            if (obj.type == 'asteroid') {
                 obj.orbit.getEllipse().visible = false;
             }
         }
@@ -857,17 +857,20 @@ function RSimulate(opts) {
                 mesh = makeBodyMesh(MARS_SIZE, 'img/textures/mars_small.jpg', 'img/textures/mars_small_normal.jpg');
             }
             else if (planet.model == 'Jupiter') {
-                mesh = makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg');
+                mesh = makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg',
+                                                    'img/textures/jupiter_small_normal.jpg');
             }
             else if (planet.model == 'Saturn') {
-                mesh = makeBodyMesh(SATURN_SIZE, 'img/textures/saturn_medium.jpg');
+                mesh = makeBodyMesh(SATURN_SIZE, 'img/textures/saturn_medium.jpg',
+                                                    'img/textures/saturn_medium_normal.jpg');
                 var ringMaterial = new THREE.MeshPhongMaterial({
                     ambient		: 0xFFFFFF,
                     color		: 0xDDDDDD,
                     shininess	: 150,
                     specular	: 0x000000,
                     shading		: THREE.SmoothShading,
-                    map		: THREE.ImageUtils.loadTexture('img/textures/saturn_rings_small.png'),
+                    map		    : THREE.ImageUtils.loadTexture('img/textures/saturn_rings_small.png'),
+                    normalMap   : THREE.ImageUtils.loadTexture('img/textures/saturn_rings_small_normal.png'),
                     transparent: true,
                     side: THREE.DoubleSide
                 });
@@ -883,40 +886,41 @@ function RSimulate(opts) {
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
             }
             else if (planet.model == 'Neptune') {
-                mesh = makeBodyMesh(NEPTUNE_SIZE, 'img/textures/neptune_small.jpg');
+                mesh = makeBodyMesh(NEPTUNE_SIZE, 'img/textures/neptune_small.jpg',
+                                                    'img/textures/neptune_small_normal.jpg');
             }
 
             addBody(parent, planet.type, planet.orbit, mesh, true, planet.objectId, planet.model, planet.owner);
         }
         else if (planet.type == 'moon') {
             if (planet.model == 'Moon') {
-                mesh = makeBodyMesh(LUNA_SIZE, 'img/textures/moon_small.jpg');
+                mesh = makeBodyMesh(LUNA_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
                 parent = getObjectByOrbitName('Earth').mesh;
             }
             // Jupiter's satellites
             else if (planet.model == 'Io') {
-                mesh = makeBodyMesh(IO_SIZE, 'img/textures/moon_small.jpg');
+                mesh = makeBodyMesh(IO_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
                 parent = getObjectByOrbitName('Jupiter').mesh;
             }
             else if (planet.model == 'Europa') {
-                mesh = makeBodyMesh(EUROPA_SIZE, 'img/textures/moon_small.jpg');
+                mesh = makeBodyMesh(EUROPA_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
                 parent = getObjectByOrbitName('Jupiter').mesh;
             }
             else if (planet.model == 'Ganymede') {
-                mesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg');
+                mesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
                 parent = getObjectByOrbitName('Jupiter').mesh;
             }
             else if (planet.model == 'Callisto') {
-                mesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg');
+                mesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
                 parent = getObjectByOrbitName('Jupiter').mesh;
             }
             // Mars' satellites
             else if (planet.model == 'Phobos') {
-                mesh = makeBodyMesh(PHOBOS_SIZE, 'img/textures/phobos_tiny.jpg');
+                mesh = makeBodyMesh(PHOBOS_SIZE, 'img/textures/phobos_tiny.jpg', 'img/textures/phobos_tiny_normal.jpg');
                 parent = getObjectByOrbitName('Mars').mesh;
             }
             else if (planet.model == 'Deimos') {
-                mesh = makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg');
+                mesh = makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg', 'img/textures/deimos_tiny_normal.jpg');
                 parent = getObjectByOrbitName('Mars').mesh;
             }
             // Saturn's satellites
@@ -932,7 +936,7 @@ function RSimulate(opts) {
                 parent = getObjectByOrbitName('Saturn').mesh;
             }
             else if (planet.model == 'Iapetus') {
-                mesh = makeBodyMesh(IAPETUS_SIZE, 'img/textures/iapetus_small.jpg');
+                mesh = makeBodyMesh(IAPETUS_SIZE, 'img/textures/iapetus_small.jpg', 'img/textures/iapetus_small.jpg');
                 parent = getObjectByOrbitName('Saturn').mesh;
             }
             else if (planet.model == 'Dione') {
@@ -1007,7 +1011,7 @@ function RSimulate(opts) {
                                                     'img/textures/asteroid_small_normal.jpg');
                 parent = getObjectByOrbitName('Neptune').mesh;
             }
-            addBody(parent, planet.type, planet.orbit, mesh, false, planet.objectId, planet.model, planet.owner);
+            addBody(parent, planet.type, planet.orbit, mesh, true, planet.objectId, planet.model, planet.owner);
         }
     };
 
