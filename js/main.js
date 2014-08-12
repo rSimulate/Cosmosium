@@ -38,7 +38,7 @@ var players = []; // {player: playerName, color: THREE.Color}
 var nextEntityIndex = 0;
 
 var selectedObject = undefined;
-var removeBody, updateObjectOwnerById;
+var removeBody, updateObjectOwnerById, rainbow;
 var addTestObject;
 var SELECTING_TARGET, sourceTarget, requestRemoveBody, requestCourse, cancelCourse, setCourse;
 
@@ -315,7 +315,7 @@ function RSimulate(opts) {
         }
     }
 
-    function rainbow(numOfSteps, step) {
+    rainbow = function(numOfSteps, step) {
         // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
         // Adam Cole, 2011-Sept-14
         // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript

@@ -1,3 +1,5 @@
+var nextColor = 1;
+
 function prependContent(newContent){
     // adds new content HTML to the beginning of the content section
     document.getElementById('content').innerHTML = newContent + document.getElementById('content').innerHTML;
@@ -192,12 +194,13 @@ function parseObject(objectStr) {
     else {
         var orbit = new Orbit3D(ephemeris,
             {
-                color: 0xff0000, width: 1, jed: rSimulate.jed, object_size: 1.7,
-                display_color: new THREE.Color(0xff0000),
+                color: rainbow(30, nextColor).getHex(), width: 1, jed: rSimulate.jed, object_size: 1.7,
+                display_color: rainbow(30, nextColor),
                 particle_geometry: particle_system_geometry,
                 name: full_name
             }, !using_webgl);
 
+        nextColor ++;
         return {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit};
     }
 }
