@@ -40,7 +40,7 @@ var nextEntityIndex = 0;
 var selectedObject = undefined;
 var removeBody, updateObjectOwnerById, rainbow;
 var addTestObject;
-var SELECTING_TARGET, sourceTarget, requestRemoveBody, requestCourse, cancelCourse, setCourse;
+var SELECTING_TARGET, sourceTarget, requestRemoveBody, requestCourse, cancelCourse, setCourse, composer;
 
 function RSimulate(opts) {
 
@@ -334,7 +334,7 @@ function RSimulate(opts) {
         }
 
         return new THREE.Color(r,g,b);
-    }
+    };
 
     function hideAllConditionalEllipses() {
         for (var i = 0; i < objects.length; i++) {
@@ -1036,6 +1036,45 @@ function RSimulate(opts) {
         renderer = new THREE.WebGLRenderer( { antialias: false } );
         //renderer.setSize( window.innerWidth, window.innerHeight );
 
+        composer = new THREE.EffectComposer( renderer );
+
+        var scenePass = new THREE.RenderPass( scene, camera );
+        //scenePass.renderToScreen = false;
+        composer.addPass( scenePass );
+
+        var bokehPass = new THREE.BokehPass( scene, camera, {
+
+            shaderFocus: {type: 'i', value: 1},
+            focusCoords: {type: 'v2', value: new THREE.Vector2(0.5, 0.5)},
+            znear: {type: 'f', value: parseFloat(CAMERA_NEAR)},
+            zfar: {type: 'f', value: parseFloat(CAMERA_FAR)},
+
+            fstop: {type: 'f', value: 2.2},
+            maxblur: {type: 'f', value: 1.0},
+
+            showFocus: {type: 'i', value: 0},
+            focalDepth: {type: 'f', value: 2.8},
+            manualdof: {type: 'i', value: 0},
+            vignetting: {type: 'i', value: 1},
+            depthblur: {type: 'i', value: 0},
+
+            threshold: {type: 'f', value: 0.5},
+            gain: {type: 'f', value: 2.0},
+            bias: {type: 'f', value: 0.5},
+            fringe: {type: 'f', value: 0.7},
+
+            focalLength: {type: 'i', value: 35},
+            noise: {type: 'i', value: 1},
+            pentagon: {type: 'i', value: 0},
+            samples: {type: 'i', value: 4},
+            rings: {type: 'i', value: 4},
+            dithering: {type: 'f', value: 0.0001}
+        } );
+        bokehPass.renderToScreen = true;
+        composer.addPass( bokehPass );
+        composer.addPass ( new THREE.ShaderPass( THREE.CopyShader ));
+
+
         canvas = document.getElementById('canvas');
 
         // adjust height for navbar and append
@@ -1133,9 +1172,11 @@ function RSimulate(opts) {
     }
 
     function render() {
+        // Update LODs based on distance
         scene.traverse( function ( node ) { if ( node instanceof THREE.LOD ) node.update( camera ) } );
 
-        renderer.render( scene, camera );
+        composer.render( 0.1 );
+        //renderer.render( scene, camera );
     }
 
     init();
