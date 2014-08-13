@@ -199,7 +199,7 @@ function parseObject(objectStr) {
                 particle_geometry: particle_system_geometry,
                 name: full_name
             }, !using_webgl);
-
+        //console.log(nextColor);
         nextColor ++;
         return {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit};
     }
