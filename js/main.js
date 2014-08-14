@@ -1,190 +1,224 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-  var jed = toJED(new Date());    // julian date
+var day = 'Mon';
+var month = 'Jan';
+var year = '1969';
+var jed = toJED(new Date());    // julian date
 
-    var jed_delta = 5;  // how many days per second to elapse
-    
-    // NOTE: relative scale (exaggeration) parameters now in ephemeris.js
+var jed_delta = 3;  // how many days per second to elapse
 
-    var particle_system_geometry = null;
-    var using_webgl = true;
-    var NUM_BIG_PARTICLES = 500;
+// NOTE: relative scale (exaggeration) parameters now in ephemeris.js
 
-    var container, stats;
-    var camera, controls, scene, renderer;
-    var mouse = new THREE.Vector2();
-    var offset = new THREE.Vector3();
-    var SELECTED;
-    var INTERSECTED;
-    var projector;
-    var clock;
-    var plane;
-    var skybox;
-    var sun;
+var particle_system_geometry = null;
+var using_webgl = true;
+var NUM_BIG_PARTICLES = 500;
 
-    var claimButt = document.getElementById('claim-asteroid-button');
+var canvas, stats, jCanvas;
+var camera, controls, scene, renderer, cameraTarget;
+var mouse = new THREE.Vector2();
+var offset = new THREE.Vector3();
+var INTERSECTED;
+var projector;
+var clock;
+var skybox;
+var sun;
+var addPlanet;
 
-    var SHOWING_ASTEROID_OWNERSHIP = (typeof owners === "object");
-    var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
+var claimButt = document.getElementById('claim-asteroid-button');
 
-    var CAMERA_NEAR = 1;
-    var CAMERA_FAR = 100000;
+var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
 
-    // orbits and meshes should have same length
-    var orbits = [];
-    var meshes = [];
-    var ellipses = []; // {bodyId: id, ellipse: ellipse, type: (planet, asteroid, etc)}
-    var playerObjects = [];  // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
+var CAMERA_NEAR = 1;
+var CAMERA_FAR = 100000;
 
-    // for each type of object, there is a list of indexes of orbits/meshes that match it
-    // example: indexes["asteroid"] --> [2,3,5] and you can get the orbits at orbits[2], orbits[3], orbits[5]
-    var indexes = {
-        "asteroid": [],
-        "planet": [],
-        "moon" : [],
-        "playerObject": []
-    };
-    var mapFromMeshIdToBodyId = {};   // maps ids of three.js meshes to bodies they represent
-    var nextEntityIndex = 0;
+var LOD_DIST = {ONE: 300, TWO: 600, THREE: 1000};
+var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
+var players = []; // {player: playerName, color: THREE.Color}
 
-    var mapFromOwnerNameToColor = {};
+var nextEntityIndex = 0;
 
-    var selectedBody = '';
-    var removeBody;
-    var addTestObject;
+var selectedObject = undefined;
+var removeBody, updateObjectOwnerById, rainbow;
+var addTestObject;
+var SELECTING_TARGET, sourceTarget, requestRemoveBody, requestCourse, cancelCourse, setCourse;
 
 function RSimulate(opts) {
 
-
-
-    function addBody( parent, indexLabel, orbit, mesh, shouldAlwaysShowEllipse ) {
-        shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
-        orbits.push(orbit);
-        meshes.push(mesh);
-        mapFromMeshIdToBodyId[mesh.id] = nextEntityIndex;
-
-        // recursively add children to root body id
-        var matchChildren = function(child) {
-            mapFromMeshIdToBodyId[child.id] = nextEntityIndex;
-            if (child.children.length > 0) {
-                for (var i = 0; i < child.children.length; i++) {
-                    matchChildren(child.children[i]);
-                }
-            }
-        };
-
-        if (mesh.children.length > 0) {
-            for  (var i = 0; i < mesh.children.length; i++) {
-               matchChildren(mesh.children[i]);
-            }
-        }
-
-        parent.add(mesh);
-
-        var ellipse = orbit.getEllipse();
-
-        ellipses.push({bodyId: nextEntityIndex, ellipse: ellipse, type: indexLabel});
-        parent.add(ellipse);
-        ellipse.visible = shouldAlwaysShowEllipse;
-
-        if (typeof indexes[indexLabel] !== "object") {
-            indexes[indexLabel] = [];
-        }
-
-        indexes[indexLabel].push(nextEntityIndex);
-
-        nextEntityIndex++;
-    }
-    function removePlayerBody(e) {
-        console.log("Called for removal of bodyID " + selectedBody);
-        var rmObject;
-        for (var i = 0; i < playerObjects.length; i++) {
-            if (cleanOrbitName(playerObjects[i].orbit.name) == selectedBody) {
-                rmObject = playerObjects[i];
+    updateObjectOwnerById = function (newOwner, objectId) {
+        // returns objectId if successful
+        var object = undefined;
+        for (var i = 0; i < objects.length; i++) {
+            if (objectId == objects[i].objectId) {
+                objects[i].owner = newOwner;
+                object = objects[i];
                 break;
             }
         }
-        ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + rmObject.objectId + "'}}"));
-        e.stopPropagation();
-        e.preventDefault();
+        if (object != undefined) {
+            console.log("ObjectId", objectId, "changed to owner", newOwner);
+
+            var color = getColorForOwner(newOwner);
+            if (color) {
+                for (var u = 0; u < object.mesh.objects.length; u++) {
+                    // Mesh is nested in LOD object
+                    var mesh = object.mesh.objects[u].object;
+                    mesh.material.uniforms['emissive'].value = color;
+                }
+            }
+            else console.log("Tried to add color to asteroid, but color does not exist for owner", newOwner);
+        }
+        else console.log(newOwner, "claimed an object, but objectId", objectId, "was not found in client array");
+    };
+
+    function addBody( parent, type, orbit, mesh, shouldAlwaysShowEllipse, objectId, model, owner ) {
+        shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
+
+        // orbit undefined for sun
+        if (orbit != undefined) {
+            for (var i = 0; i < objects.length; i++) {
+                var obj = objects[i];
+                if (obj.orbit != undefined) {
+                    if (obj.orbit.name == orbit.name) {
+                        console.log("Multiples of the same object sent to the client... Only granting access for one");
+                        return;
+                    }
+                }
+            }
+
+            var ellipse = orbit.getEllipse();
+            ellipse.visible = shouldAlwaysShowEllipse;
+            parent.add(ellipse);
+        }
+
+
+        var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh};
+        objects.push(obj);
+
+        nextEntityIndex++;
+
+        if (type == 'playerObject') {
+            // append a new object specific button to the list
+            var textName = cleanOrbitName(orbit.name);
+            $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
+                textName + "</a></li>").appendTo('#object-list-container');
+
+            // add listener to object specific div
+            document.getElementById(orbit.name).addEventListener('click', function() {
+                selectedObject = obj;
+                orbitCamera(selectedObject);
+            }, false);
+        }
+        parent.add(mesh);
     }
 
-    removeBody = function (parentScene, indexLabel, objectId) {
-        // Removes a player body from the scene
+    requestRemoveBody = function (e) {
+        console.log("Called for removal of objectID " + selectedObject.objectId);
+        ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + selectedObject.objectId + "'}}"));
+        e.stopPropagation();
+        e.preventDefault();
+    };
+
+    requestCourse = function (e) {
+        console.log("Requesting to set a new course");
+
+        sourceTarget = selectedObject;
+        SELECTING_TARGET = true;
+        $('#course-container').show();
+
+        onBodyDeselected();
+
+        e.preventDefault();
+    };
+
+    cancelCourse = function(e) {
+        console.log("Cancelling new course");
+
+        SELECTING_TARGET = false;
+        sourceTarget = undefined;
+        $('#course-container').hide();
+
+        onBodyDeselected();
+
+        e.stopPropagation();
+        e.preventDefault();
+    };
+
+    setCourse = function() {
+        console.log("Setting course");
+        SELECTING_TARGET = false;
+        var destTarget = selectedObject;
+        $('#course-container').hide();
+        onBodyDeselected();
+
+        orbitCamera(sourceTarget);
+        var data = {source: {objectId: sourceTarget.objectId, type: sourceTarget.type},
+                    dest: {objectId: destTarget.objectId, type: destTarget.type}};
+        var stringify = JSON.stringify(data).replace(/\"+/g, "\'");
+        ws.send(message('requestTraj', stringify));
+    };
+
+    this.removeAsteroids = function() {
+        for(var i = objects.length; i--;) {
+            var obj = objects[i];
+            if(obj.type === 'asteroid') {
+                scene.remove(obj.mesh);
+                scene.remove(obj.orbit.getEllipse());
+                objects.splice(i, 1);
+            }
+        }
+    };
+
+    this.removeBody = function (parentScene, type, objectId) {
+        // Removes a body from the scene
         if (parentScene == undefined) { parentScene = scene; }
         var rmObject;
         if (objectId != undefined) {
-            for (var i = 0; i < playerObjects.length; i++) {
-                if (playerObjects[i].objectId == objectId) {
-                    rmObject = playerObjects[i];
+            for (var i = 0; i < objects.length; i++) {
+                if (objects[i].objectId == objectId) {
+                    rmObject = objects[i];
+                    objects.splice(i, 1);
                     break;
                 }
             }
         }
 
-        // TODO: add a way to remove asteroids
         if (rmObject == undefined) {
-            console.log("Error: Could not find object " + selectedBody + " to remove");
+            console.log("Error: Could not find object " + obj.objectId + " to remove");
             return null;
         }
 
-        for (var index in orbits) {
-            if (orbits[index].hasOwnProperty('name')) {
-                if (orbits[index].name == rmObject.orbit.name) {
-                    orbits.splice(index, 1);
-                    break;
-                }
-            }
-        }
-        for (index in meshes) {
-            if (meshes[index] == rmObject.mesh) {
-                meshes.splice(index, 1);
-                break;
-            }
-        }
-
         parentScene.remove(rmObject.mesh);
-
-        var ellipse = rmObject.orbit.getEllipse();
-        for (var i = 0; i < ellipses.length; i++) {
-            if (ellipses[i].bodyId == mapFromMeshIdToBodyId[rmObject.mesh.id]) {
-                ellipses.splice(i, 1);
-                break;
-            }
-        }
-
-        parentScene.remove(ellipse);
-
-
-        var bodyId = mapFromMeshIdToBodyId[rmObject.mesh];
-
-        for (index in indexes[indexLabel]) {
-            if (indexes[indexLabel][index] == bodyId) {
-                indexes[indexLabel].splice(index, 1);
-                break;
-            }
-        }
+        if (rmObject.orbit != undefined) parentScene.remove(rmObject.orbit.getEllipse());
 
         // remove div from player object list
-        if (indexLabel == "playerObject") {
+        if (type == "playerObject") {
             $('#'+rmObject.orbit.name).remove();
         }
-
+        orbitCamera(getSolarCentricObject());
         // deselect body, if selected
         onBodyDeselected();
-    }
+    };
 
-	function makeBodyMesh(size, texture){
+	function makeBodyMesh(size, texture, normal){
 		var bodyGeometry = new THREE.SphereGeometry( size, 32, 32 );
 		var bodyTexture = THREE.ImageUtils.loadTexture(texture);
-		var bodyMaterial = new THREE.MeshLambertMaterial({ map: bodyTexture });
+		var bodyMaterial = new THREE.MeshLambertMaterial({
+            map: bodyTexture
+        });
 
-		var bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        if (normal != undefined) {
+            var normalTexture = THREE.ImageUtils.loadTexture(normal);
+            bodyMaterial = new THREE.MeshPhongMaterial({
+                map: bodyTexture,
+                normalMap: normalTexture
+            });
+        }
 
-		return bodyMesh;
+		return new THREE.Mesh(bodyGeometry, bodyMaterial);
 	}
 
-    this.addBlenderPlayerObjectMesh = function (daePath, object) {
+    this.addBlenderObjectMesh = function (daePath, object) {
+
         // object = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, // ADDING mesh: mesh}
 
         var loader = new THREE.ColladaLoader();
@@ -199,21 +233,16 @@ function RSimulate(opts) {
                 mesh.updateMatrix();
 
                 // add to scene
-                addPlayerObject(object.orbit, mesh, object.orbit.name);
+                addBody(scene, "playerObject", object.orbit, mesh, true, object.objectId, object.model, object.owner);
 
                 // add to player object collection
                 object.mesh = mesh;
-                playerObjects.push(object);
+                objects.push(object);
             }
             else {console.log("ERROR: Parsing blender model failed");}
         });
 
     };
-
-
-    function addPlanet(orbit, planetmesh) {
-		addBody( scene, "planet", orbit, planetmesh, true );
-    }
 
     function cleanOrbitName(str) {
         var textName = str.replace(/(_)+/g, " ");
@@ -245,105 +274,48 @@ function RSimulate(opts) {
         console.log("Requesting new Object");
         ws.send(message('playerObject', "{'cmd': 'pObjCreate', 'objectId': None, 'type': 'Probe', " +
             "'model': 'Magellan', 'data': "+stringify+'}'));
+    };
+
+    function addAsteroid(orbit, mesh, objectId, model, owner) {
+        addBody( scene, "asteroid", orbit, mesh, false, objectId, model, owner  );
     }
 
-    function addPlayerObject(orbit, mesh, orbitName) {
-
-        addBody( scene, "playerObject", orbit, mesh, true);
-
-        var textName = cleanOrbitName(orbit.name);
-
-        var exists = false;
-        for (var i = 0; i < playerObjects.length; i++) {
-            if (playerObjects[i].orbit.name == orbitName) {
-                exists = true;
-                break;
-            }
-        }
-
-        if (!exists) {
-            // append a new object specific button to the list
-            $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
-                textName + "</a></li>").appendTo('#object-list-container');
-
-            // add listener to object specific div
-            document.getElementById(orbit.name).addEventListener('click', function() {
-                orientToObject(mesh);
-            }, false);
-        }
-
-    }
-
-    function orientToObject(mesh) {
-        // TODO: Add a smooth translation callback to not disorient the player
-        camera.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
-        camera.translateY(300);
-        camera.translateX(300);
-        camera.lookAt(mesh.position);
-    }
-
-    function addAsteroid(orbit, mesh) {
-        addBody( scene, "asteroid", orbit, mesh, false );
-    }
-
-    function addMoon(planetMesh, orbit, mesh) {
-        addBody( planetMesh, "moon", orbit, mesh, false );
+    function addMoon(planetMesh, orbit, mesh, objectId, model, owner) {
+        addBody( planetMesh, "moon", orbit, mesh, false, objectId, model, owner  );
     }
 
     function onDocumentMouseMove( event ) {
-
         event.preventDefault();
 
-        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        // Compatibility fix for Firefox; event.offsetX/Y is not supported in FF
+        var offsetX = event.offsetX == undefined ? event.layerX : event.offsetX;
+        var offsetY = event.offsetY == undefined ? event.layerY : event.offsetY;
 
-        //
+        mouse.x = ( offsetX / $(canvas).width() ) * 2 - 1;
+        mouse.y = - ( offsetY / $(canvas).height() ) * 2 + 1;
 
-        var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
         projector.unprojectVector( vector, camera );
 
-        var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
-
-
-        // TODO: What is this for? The player shouldn't be able to drag nodes around with the mouse. Depreciated..
-        if ( SELECTED ) {
-
-            //var intersects = raycaster.intersectObject( plane );
-            //SELECTED.position.copy( intersects[ 0 ].point.clone().sub( offset ) );
-            return;
-
-        }
-
-        var intersects = raycaster.intersectObjects( meshes, true );
+        var raycaster = new THREE.Raycaster( camera.position,
+                        vector.sub( camera.position ).normalize() );
+        var intersects = raycaster.intersectObjects( scene.children, true );
 
         if ( intersects.length > 0 ) {
-
             if ( INTERSECTED != intersects[ 0 ].object ) {
-
                 //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-
                 INTERSECTED = intersects[ 0 ].object;
                 //INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-
-                plane.position.copy( INTERSECTED.position );
-                plane.lookAt( camera.position );
-
             }
-            container.style.cursor = 'pointer';
-
+            canvas.style.cursor = 'pointer';
         } else {
-
             //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-
             INTERSECTED = null;
-
-            container.style.cursor = 'auto';
-
+            canvas.style.cursor = 'auto';
         }
-
     }
 
-    function rainbow(numOfSteps, step) {
+    rainbow = function(numOfSteps, step) {
         // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
         // Adam Cole, 2011-Sept-14
         // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
@@ -364,163 +336,212 @@ function RSimulate(opts) {
         return new THREE.Color(r,g,b);
     }
 
-    function hideAllAsteroidEllipses() {
-        for (var i = 0; i < ellipses.length; i++) {
-            var obj = ellipses[i];
-            // TODO: Should moons disappear on deselect as well?
-            if (obj.type == 'asteroid' || obj.type == 'moon') {
-                obj.ellipse.visible = false;
+    function hideAllConditionalEllipses() {
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
+            if (obj.type == 'asteroid') {
+                obj.orbit.getEllipse().visible = false;
             }
         }
     }
 
-    function onBodySelected(bodyId) {
-        hideAllAsteroidEllipses();
-
-        var orbit = orbits[bodyId];
-        var mesh = meshes[bodyId];
-        for (var i = 0; i < ellipses.length; i++) {
-            if (ellipses[i].bodyId == bodyId) {
-                ellipses[i].ellipse.visible = true;
-                break;
+    function getSolarCentricObject() {
+        var obj;
+        for (var i = 0; i < objects.length; i++) {
+            if (objects[i].type == 'star') {
+                obj = objects[i];
             }
         }
-        var bodyName = "";
-
-        if (orbit && orbit.eph && orbit.eph.full_name) {
-            bodyName = cleanOrbitName(orbit.eph.full_name);
-        } else if (orbit && orbit.name) {
-            bodyName = cleanOrbitName(orbit.name);
+        if (obj) {
+            return obj;
         }
-        var infoHTML = "<h3>" + bodyName + "</h3>";
-        // info to show in the window:
-        for (var key in orbit.eph) {
-            // excluded info:
-            if (key.slice(0, 6) == 'sigma_'
-                || key.slice(-6) == '_sigma'
-                || key == 'full_name'
-                || key == 'epoch_mjd'
-                || key == 'rms'
-                || key == 'neo'
-                || key == 'equinox'
-                || key == 'spkid'
-                || key == 'per'
-                || key == 'id'
-                || key == 'data_arc'
-                || key == 'condition_code'
-                || key == 'prov_des'
-                || key == 'moid_ld'
-                || key == 'orbit_id'
-                || key == 'two_body'
-                || key == 'G'
-                || key == 'e'
-                || key == 'class'
-                || key == 'a'
-                || key == 'name'
-                || key == 'i'
-                || key == 'tp'
+        // return current target if solar centric object doesn't exist
+        return cameraTarget;
+    }
 
-                /* i'm not sure what these next ones are... maybe they should be included and renamed? */
-                || key == 'K2'
-                || key == 'K1'
-                || key == 'M1'
-                || key == 'M2'
-                || key == 'DT'
-                || key == 'pha'
-                || key == 'PC'
-                || key == 'A1'
-                || key == 'A2'
-                || key == 'A3'
-                || key == 'ad'
-                || key == 'saved'
-                || key == 'per_y'
-                || key == 'epoch_cal'
-                || key == 'epoch'
-                || key == 'IR'
-                || key == 'extent'
-                || key == 'tp_cal'
-                || key == 'pdes'
-                || key == 't_jup'
-                || key == 'om'
-                || key == 'ma'
-                || key == 'prefix'
-                || key == 'q'
-                || key == 'w'
-                || key == 'n'
-                || key == 'n_del_obs_used'
-                || key == 'n_dop_obs_used'
-
-                ) {
-                continue
+    function orbitCamera(originObj) {
+        if (originObj == undefined && cameraTarget != undefined) {
+            // Called from animate() to update every frame to keep origin position
+            if (cameraTarget.type == 'moon') {
+                controls.target = cameraTarget.mesh.parent.position.clone();
             }
-            infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
+            else {
+                controls.target = cameraTarget.mesh.position.clone();
+            }
         }
-        // make this display the owner name...
-        if (SHOWING_ASTEROID_OWNERSHIP) {
-            // TODO: May have to fix this due to the addition of player objects
-            var ownerName = owners[bodyId - 12]; // asteroid[i] is owned by owner[i], there are 12 non-asteroid objects in the system...
-            if (ownerName) {
-                var ownerColor = mapFromOwnerNameToColor[ownerName];
-                console.log('claimed by "' + ownerName + '", color=(' + ownerColor.b + ',' + ownerColor.g + ',' + ownerColor.r + ')');
-                $("#owner-info").html('claimed by <b>"' + ownerName + '"</b>');
-                $("#owner-info").attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')');  //NOTE: this doesn't seem to work.
-            } else {
-                $("#owner-info").html('<b>UNCLAIMED</b>');
-                $("#owner-info").attr("color", 'rgb(200,200,200)');   //NOTE: this doesn't seem to work.
+        else if (originObj != undefined) {
+            cameraTarget = originObj;
+            if (originObj.type == 'moon') {
+                controls.target = originObj.mesh.parent.position.clone();
+            }
+            else {
+                controls.target = originObj.mesh.position.clone();
             }
 
-            var showButt = false;
-            //var userName = readCookie('cosmosium_login');
-            for (var i = 0; i < playerObjects.length; i++) {
-                if (mapFromMeshIdToBodyId[playerObjects[i].mesh.id] == bodyId) {
-                    // TODO: Only allow removal of owned objects
-                        //&& (userName == playerObjects[i].owner)) {
+        }
 
-                    $('#destroy-object-container').show();
-                    showButt = true;
+        // ensure origin target keeps ellipse displayed
+        if (cameraTarget && cameraTarget.orbit) cameraTarget.orbit.getEllipse().visible = true;
+
+        controls.update();
+    }
+
+    function onBodySelected(mesh) {
+        hideAllConditionalEllipses();
+        var obj = undefined;
+
+        var checkChildrenForId = function(children, id) {
+            for (var i = 0; i < children.length; i++){
+                var child = children[i];
+                if (child.id == id) {
+                    return true;
+                }
+                else if (child.children != undefined) {
+                    var result = checkChildrenForId(child.children, id);
+                    if (result == true) {
+                        return true;
+                    }
                 }
             }
-            if (!showButt) {
-                $('#destroy-object-container').hide();
+        };
+
+        for (var i = 0; i < objects.length; i++) {
+            var object = objects[i];
+            if (object.mesh.id == mesh.id) {
+                obj = object;
+            }
+            else if (object.mesh.children != undefined) {
+                var result = checkChildrenForId(object.mesh.children, mesh.id);
+                if (result == true) obj = object;
             }
         }
-        $("#body-info").html(infoHTML);
+
+        if (obj == undefined) {
+            console.log("ERROR: Could not find selected object's ID");
+            return;
+        }
+
+        var orbit = obj.orbit, courseTarget;
+        if (orbit != undefined) {
+            orbit.getEllipse().visible = true;
+            if (orbit && orbit.eph && orbit.eph.full_name) {
+                bodyName = cleanOrbitName(orbit.eph.full_name);
+            } else if (orbit && orbit.name) {
+                bodyName = cleanOrbitName(orbit.name);
+            }
+            var infoHTML = "<h3>" + bodyName + "</h3>";
+            // info to show in the window:
+            for (var key in orbit.eph) {
+                // excluded info:
+                if (key.slice(0, 6) == 'sigma_'
+                    || key.slice(-6) == '_sigma'
+                    || key == 'full_name'
+                    || key == 'epoch_mjd'
+                    || key == 'rms'
+                    || key == 'neo'
+                    || key == 'equinox'
+                    || key == 'spkid'
+                    || key == 'per'
+                    || key == 'id'
+                    || key == 'data_arc'
+                    || key == 'condition_code'
+                    || key == 'prov_des'
+                    || key == 'moid_ld'
+                    || key == 'orbit_id'
+                    || key == 'two_body'
+                    || key == 'G'
+                    || key == 'e'
+                    || key == 'class'
+                    || key == 'a'
+                    || key == 'name'
+                    || key == 'i'
+                    || key == 'tp'
+
+                    /* i'm not sure what these next ones are... maybe they should be included and renamed? */
+                    || key == 'K2'
+                    || key == 'K1'
+                    || key == 'M1'
+                    || key == 'M2'
+                    || key == 'DT'
+                    || key == 'pha'
+                    || key == 'PC'
+                    || key == 'A1'
+                    || key == 'A2'
+                    || key == 'A3'
+                    || key == 'ad'
+                    || key == 'saved'
+                    || key == 'per_y'
+                    || key == 'epoch_cal'
+                    || key == 'epoch'
+                    || key == 'IR'
+                    || key == 'extent'
+                    || key == 'tp_cal'
+                    || key == 'pdes'
+                    || key == 't_jup'
+                    || key == 'om'
+                    || key == 'ma'
+                    || key == 'prefix'
+                    || key == 'q'
+                    || key == 'w'
+                    || key == 'n'
+                    || key == 'n_del_obs_used'
+                    || key == 'n_dop_obs_used'
+
+                    ) {
+                    continue
+                }
+                infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
+            }
+            // make this display the owner name...
+            if (obj.type == 'Probe' || obj.type == 'asteroid') {
+                $("#owner-info").html('claimed by <b>"' + obj.owner + '"</b>')
+                    //.attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')')
+                    .html('<b>' + obj.owner + '</b>').attr("color", 'rgb(200,200,200)');
+
+                $('#player-object-container').hide();
+                $('#claim-asteroid-button').hide();
+                // TODO: Only display removal button of owned objects
+                if (obj.type == 'Probe') $('#player-object-container').show();
+                else if (obj.type == 'asteroid') $('#claim-asteroid-button').show();
+            }
+            $("#body-info").html(infoHTML);
+        }
+        else {
+            $("#body-info").html(obj.model);
+        }
+
         $("#body-info-container").show();
 
-        selectedBody = bodyName;
+        selectedObject = obj;
+
+        orbitCamera(selectedObject);
     }
 
     function onDocumentMouseDown( event ) {
         event.preventDefault();
+        if (event.button == 0) {
+            var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+            projector.unprojectVector( vector, camera );
 
-        var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
-        projector.unprojectVector( vector, camera );
+            var raycaster = new THREE.Raycaster( camera.position,
+                vector.sub( camera.position ).normalize() );
 
-        var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+            var intersects = raycaster.intersectObjects( scene.children, true );
 
-        var intersects = raycaster.intersectObjects( meshes, true );
+            if ( intersects.length > 0 ) {
 
-        if ( intersects.length > 0 ) {
+                onBodySelected(intersects[ 0 ].object);
 
-            controls.enabled = false;
-
-            SELECTED = intersects[ 0 ].object;
-            var intersects = raycaster.intersectObject( plane );
-            offset.copy( intersects[ 0 ].point ).sub( plane.position );
-
-            var meshId = SELECTED.id;
-            var bodyId = mapFromMeshIdToBodyId[meshId];
-            if (bodyId) {
-                onBodySelected(bodyId);
             } else {
-                console.log("no body id found for meshId = " + meshId);
+                onBodyDeselected();
             }
-
-        } else {
-            if (SELECTED != null) {
-                hideAllAsteroidEllipses();
-            }
-
+        }
+        else if (event.button == 1) {
+            orbitCamera(getSolarCentricObject());
+            onBodyDeselected();
+        }
+        else if (event.button == 2) {
+            cameraTarget = undefined;
             onBodyDeselected();
         }
     }
@@ -529,22 +550,16 @@ function RSimulate(opts) {
 
         event.preventDefault();
 
-        controls.enabled = true;
-
-        if ( INTERSECTED ) {
-
-            plane.position.copy( INTERSECTED.position );
-        }
-
-        container.style.cursor = 'auto';
+        canvas.style.cursor = 'auto';
 
     }
 
     function onBodyDeselected() {
+        hideAllConditionalEllipses();
         $("#body-info-container").hide();
-        $('#destroy-object-container').hide();
-        SELECTED = null;
-        selectedBody = '';
+        $('#player-object-container').hide();
+        $('#claim-asteroid-button').hide();
+        selectedObject = undefined;
     }
 
     function init() {
@@ -556,10 +571,6 @@ function RSimulate(opts) {
         clock.start();
 
         // world
-
-        if (SHOWING_ASTEROID_OWNERSHIP) {
-            initOwners();
-        }
 
         initGeometry();
 
@@ -577,22 +588,6 @@ function RSimulate(opts) {
         window.addEventListener( 'resize', onWindowResize, false );
 
         initUI();
-    }
-
-    function initOwners() {
-        if (owners) {
-
-            var uniqueOwners = owners.filter(onlyUnique);
-            var numUniqueOwners = uniqueOwners.length;
-
-
-            for (var i = 0; i < numUniqueOwners; i++) {
-                if (!mapFromOwnerNameToColor[uniqueOwners[i]]) {
-                    mapFromOwnerNameToColor[uniqueOwners[i]] = rainbow(numUniqueOwners, i);
-                }
-            }
-        }
-
     }
 
     function onlyUnique(value, index, self) {
@@ -631,128 +626,138 @@ function RSimulate(opts) {
 
     function initSolarSystem() {
         initSun();
-        initPlanets();
-
-        initAsteroids();
     }
 
-    function initAsteroids() {
+    function getColorForOwner(owner) {
+        for (var i = 0; i < players.length; i++) {
+            var player = players[i];
+            if (player.player == owner) return player.color;
+        }
+    }
 
-        var geometry = new THREE.SphereGeometry( 1, 16, 16 );
+    this.addNewAsteroid = function(asteroid) {
+
+        var geometry = [
+            [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.ONE],
+            [new THREE.SphereGeometry( 1, 5, 5 ), LOD_DIST.TWO],
+            [new THREE.SphereGeometry( 1, 4, 4 ), LOD_DIST.THREE]
+        ];
 
 
         var lambertShader = THREE.ShaderLib['lambert'];
-        var basicShader = THREE.ShaderLib['basic'];
+        var uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
+        uniforms.map.value = THREE.ImageUtils.loadTexture('img/textures/asteroid_small.jpg');
 
-        //var vertexShaderText = lambertShader.vertexShader;
         var vertexShaderText = document.getElementById("asteroid-vertex").textContent;
-        var fragmentShaderText;
-
-        var asteroidsData = TestAsteroids;
-        //var asteroidsData += OOIs[0];
-
-        var numAsteroids = asteroidsData.length;
+        var fragmentShaderText = lambertShader.fragmentShader;
 
         var useBigParticles = !using_webgl;
 
-        var numAsteroidOrbitsShown = NUM_BIG_PARTICLES;
-
-        if (numAsteroidOrbitsShown > numAsteroids) {
-            numAsteroidOrbitsShown = numAsteroids;
+        var baseAsteroidSize = ASTEROID_SIZE;
+        if (asteroid.orbitExtras.diameter && asteroid.orbitExtras.diameter !== "_") {
+            baseAsteroidSize *= (asteroid.orbitExtras.diameter/100.0);
         }
 
-        // first iterate and find the range of values for magnitude (H)
-        var minH;
-        var maxH;
-        var sumH = 0;
-        var countH = 0;
-
-        for (var i = 0; i < numAsteroidOrbitsShown; i++) {
-            var asteroid = asteroidsData[i];
-            if (asteroid.H && asteroid.diameter != "") {
-                if (minH && maxH) {
-                    if (minH > asteroid.H) { minH = asteroid.H };
-                    if (maxH < asteroid.H) { maxH = asteroid.H };
-                } else {
-                    minH = asteroid.H;
-                    maxH = asteroid.H;
-                }
-
-                sumH += asteroid.H;
-                countH ++;
-            }
+        // color asteroids based on ownership
+        uniforms.diffuse.value = new THREE.Color(0x313131);
+        var color = getColorForOwner(asteroid.owner);
+        if (color) {
+            uniforms.specular.value = color;
         }
 
-        for (var i = 0; i < numAsteroidOrbitsShown; i++) {
-            fragmentShaderText = lambertShader.fragmentShader;
+        //var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid);
+        var asteroidOrbit = new Orbit3D(asteroid.orbit, {
+          color: 0xcccccc,
+          display_color: 0x00ff00,
+          width: 2,
+            //TODO: I'm not sure how the object_size needs to be configured
+          object_size: 1 < NUM_BIG_PARTICLES ? 50 : 15, //1.5,
+          jed: jed,
+          particle_geometry: particle_system_geometry, // will add itself to this geometry
+          name: asteroid.orbit.full_name
+        }, useBigParticles);
 
-            var uniforms = THREE.UniformsUtils.clone(lambertShader.uniforms);
-
-            var asteroid = asteroidsData[i];
-
-            var baseAsteroidSize = ASTEROID_SIZE;
-            if (asteroid.diameter && asteroid.diameter !== "") {
-                baseAsteroidSize *= (asteroid.diameter/100.0);
-            }
-
-            if (asteroid.H && asteroid.H !== "") {  // magnitude
-                var percentageDark = (asteroid.H - minH) / (maxH - minH);
-                uniforms.diffuse.value = new THREE.Color(percentageDark, percentageDark, percentageDark);
-            }
-
-            // color asteroids based on ownership
-            if (SHOWING_ASTEROID_OWNERSHIP) {
-
-                var ownerName = owners[i]; // asteroid[i] is owned by owner[i]
-                if (ownerName) {
-                    var ownerColor = mapFromOwnerNameToColor[ownerName];
-
-                    fragmentShaderText = basicShader.fragmentShader;
-
-                    uniforms.diffuse.value = ownerColor;
-                }
-            }
-
-            var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid)
-
-            var asteroidOrbit = new Orbit3D(asteroid, {
-              color: 0xcccccc,
-              display_color: display_color,
-              width: 2,
-              object_size: i < NUM_BIG_PARTICLES ? 50 : 15, //1.5,
-              jed: jed,
-              particle_geometry: particle_system_geometry, // will add itself to this geometry
-              name: "asteroid"
-            }, useBigParticles);
-
-            var material = new THREE.ShaderMaterial({
-                uniforms: uniforms,
-                vertexShader: vertexShaderText,
-                fragmentShader: fragmentShaderText,
-                lights:true,
-                fog: true
-            });
-
-            var asteroidMesh = new THREE.Mesh( geometry, material );
-
+        var rot, scale;
+        if (asteroid.orbit.full_name.indexOf('Ceres') >= 0) {
+            geometry = [
+                [new THREE.SphereGeometry( 1, 10, 10 ), LOD_DIST.ONE],
+                [new THREE.SphereGeometry( 1, 8, 8 ), LOD_DIST.TWO],
+                [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.THREE]
+            ];
+            vertexShaderText = lambertShader.vertexShader;
+            scale = [baseAsteroidSize, baseAsteroidSize, baseAsteroidSize];
+            rot = [0,0,0];
+        }
+        else if (asteroid.orbit.full_name.indexOf('Pallas') >= 0) {
+            geometry = [
+                [new THREE.SphereGeometry( 1, 10, 10 ), LOD_DIST.ONE],
+                [new THREE.SphereGeometry( 1, 8, 8 ), LOD_DIST.TWO],
+                [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.THREE]
+            ];
+            vertexShaderText = lambertShader.vertexShader;
+            scale = [baseAsteroidSize + (Math.random() + 0.2), baseAsteroidSize, baseAsteroidSize];
+            rot = [0,0,0];
+        }
+        else if (asteroid.orbit.full_name.indexOf('Vesta') >= 0) {
+            geometry = [
+                [new THREE.SphereGeometry( 1, 10, 10 ), LOD_DIST.ONE],
+                [new THREE.SphereGeometry( 1, 8, 8 ), LOD_DIST.TWO],
+                [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.THREE]
+            ];
+            vertexShaderText = lambertShader.vertexShader;
+            scale = [baseAsteroidSize + (Math.random() + 0.5), baseAsteroidSize * (Math.random() + 0.7),
+                        baseAsteroidSize];
+            rot = [0,0,0];
+        }
+        else if (asteroid.orbit.full_name.indexOf('Euphrosyne') >= 0) {
+            geometry = [
+                [new THREE.SphereGeometry( 1, 10, 10 ), LOD_DIST.ONE],
+                [new THREE.SphereGeometry( 1, 8, 8 ), LOD_DIST.TWO],
+                [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.THREE]
+            ];
+            vertexShaderText = lambertShader.vertexShader;
+            scale = [baseAsteroidSize, baseAsteroidSize,
+                baseAsteroidSize];
+            rot = [0,0,0];
+        }
+        else {
             // randomize the shape a tiny bit
-            asteroidMesh.scale.set(
-                baseAsteroidSize * (Math.random() + 0.5),
-                baseAsteroidSize * (Math.random() + 0.5),
-                baseAsteroidSize * (Math.random() + 0.5));
+            scale = [baseAsteroidSize * (Math.random() + 0.5),
+                    baseAsteroidSize * (Math.random() + 0.5),
+                    baseAsteroidSize * (Math.random() + 0.5)];
 
             // give the asteroids a little random initial rotation so they don't look like eggs standing on end
-            asteroidMesh.rotation.set(
-                Math.random() * 2.0 * Math.PI,
-                Math.random() * 2.0 * Math.PI,
-                Math.random() * 2.0 * Math.PI);
-
-            addAsteroid(asteroidOrbit, asteroidMesh);
-
-
-
+            rot = [
+                    Math.random() * 2.0 * Math.PI,
+                    Math.random() * 2.0 * Math.PI,
+                    Math.random() * 2.0 * Math.PI];
         }
-    }
+
+        var material = new THREE.ShaderMaterial({
+            defines: {'USE_NORMAL_MAP': true},
+            uniforms: uniforms,
+            vertexShader: vertexShaderText,
+            fragmentShader: fragmentShaderText,
+            fog: true,
+            lights: true
+        });
+        material.map = true;
+
+        var lod = new THREE.LOD();
+
+        for (var i = 0; i < geometry.length; i++) {
+            var asteroidMesh = new THREE.Mesh( geometry[i][0], material );
+
+            asteroidMesh.scale.set(scale[0], scale[1], scale[2]);
+            asteroidMesh.rotation.set(rot[0], rot[1], rot[2]);
+
+            lod.addLevel( asteroidMesh, geometry[i][1]);
+        }
+
+
+
+        addAsteroid(asteroidOrbit, lod, asteroid.objectId, asteroid.type, asteroid.owner);
+    };
 
     function asteroidIsOwned(asteroid) {
         return (Math.random() > 0.5);
@@ -799,8 +804,6 @@ function RSimulate(opts) {
             }
         };
 
-
-
         var vertexShaderText = document.getElementById("sun-vertex").textContent;
         var fragmentShaderText = document.getElementById("sun-fragment").textContent;
 
@@ -813,7 +816,7 @@ function RSimulate(opts) {
         });
 
         sun = new THREE.Mesh( sphereGeometry, sunMaterial );
-		scene.add(sun);
+        addBody(scene, 'star', undefined, sun, false, nextEntityIndex, "Sun", "Mankind");
 
 		//Create SunFlare
         //var sunflare = lensFlare(0,0,0, SUN_SIZE*1.05, 'img/textures/lensflare0.png');
@@ -821,181 +824,201 @@ function RSimulate(opts) {
     }
 
     function animateSun() {
-        sun.material.uniforms['time'].value = clock.getElapsedTime();
+       sun.material.uniforms['time'].value = clock.getElapsedTime();
     }
 
-    function initPlanets() {
-		
-        //var moonGeometry = new THREE.SphereGeometry( MOON_SIZE, 16, 16 );
-        //var moonMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc} );
-
-        var mercury = new Orbit3D(Ephemeris.mercury,
-            {
-              color: 0x913CEE, width: 1, jed: jed, object_size: 1.1,
-              texture_path: opts.static_prefix + '/img/texture-mercury.jpg',
-              display_color: new THREE.Color(0x913CEE),
-              particle_geometry: particle_system_geometry,
-              name: 'Mercury'
-            }, !using_webgl);
-        if (!using_webgl)
-          scene.add(mercury.getParticle());
-
-        //var mercuryMesh = new THREE.Mesh(planetGeometry, MercuryMaterial);
-
-		var mercuryMesh = makeBodyMesh(MERCURY_SIZE, 'img/textures/mercury_small.jpg');
-		addPlanet(mercury, mercuryMesh);
-
-        var venus = new Orbit3D(Ephemeris.venus,
-            {
-              color: 0xFF7733, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-venus.jpg',
-              display_color: new THREE.Color(0xFF7733),
-              particle_geometry: particle_system_geometry,
-              name: 'Venus'
-            }, !using_webgl);
-
-        //var venusMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-
-		var venusMesh = makeBodyMesh(VENUS_SIZE, 'img/textures/venus_small.jpg');
-		addPlanet(venus, venusMesh);
-
-        var earth = new Orbit3D(Ephemeris.earth,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Earth'
-            }, !using_webgl);
-
-        //var earthMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-		var earthMesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg');
-		addPlanet(earth, earthMesh);
-
-        var luna = new Orbit3D(Ephemeris.luna,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Moon'
-            }, !using_webgl);
-        var lunaMesh = makeBodyMesh(LUNA_SIZE, 'img/textures/moon_small.jpg');
-		addMoon(earthMesh, luna, lunaMesh);
-
-
-        var mars = new Orbit3D(Ephemeris.mars,
-            {
-              color: 0xA63A3A, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-mars.jpg',
-              display_color: new THREE.Color(0xA63A3A),
-              particle_geometry: particle_system_geometry,
-              name: 'Mars'
-            }, !using_webgl);
-
-        //var marsMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-        //addPlanet(mars, marsMesh);
-		//var marsSize = 0.9;
-		//orbit, size, texture
-		var marsMesh = makeBodyMesh(MARS_SIZE, 'img/textures/mars_small.jpg');
-		addPlanet(mars, marsMesh);
-
-
-        var phobos = new Orbit3D(Ephemeris.phobos,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Phobos'
-            }, !using_webgl);
-        var phobosMesh = makeBodyMesh(PHOBOS_SIZE, 'img/textures/phobos_tiny.jpg');
-        addMoon(marsMesh, phobos, phobosMesh);
-
-
-        var deimos = new Orbit3D(Ephemeris.deimos,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Phobos'
-            }, !using_webgl);
-        var deimosMesh = makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg');
-        addMoon(marsMesh, deimos, deimosMesh);
-
-
-
-
-        var jupiter = new Orbit3D(Ephemeris.jupiter,
-            {
-              color: 0xFF7F50, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-jupiter.jpg',
-              display_color: new THREE.Color(0xFF7F50),
-              particle_geometry: particle_system_geometry,
-              name: 'Jupiter'
-            }, !using_webgl);
-
-        //var jupiterMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-		//var jupiterSize = 6;
-		//orbit, size, texture
-        var jupiterMesh = makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg');
-		addPlanet(jupiter, jupiterMesh);
-
-
-        var io = new Orbit3D(Ephemeris.io,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + 'img/textures/moon_small.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Io'
-            }, !using_webgl);
-        var ioMesh = makeBodyMesh(IO_SIZE,'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, io, ioMesh);
-
-        var europa = new Orbit3D(Ephemeris.europa,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Europa'
-            }, !using_webgl);
-        var europaMesh = makeBodyMesh(EUROPA_SIZE, 'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, europa, europaMesh);
-
-        var ganymede = new Orbit3D(Ephemeris.ganymede,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Ganymede'
-            }, !using_webgl);
-        var ganymedeMesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, ganymede, ganymedeMesh);
-
-        var callisto = new Orbit3D(Ephemeris.callisto,
-            {
-              color: 0x009ACD, width: 1, jed: jed, object_size: 1.7,
-              texture_path: opts.static_prefix + '/img/texture-earth.jpg',
-              display_color: new THREE.Color(0x009ACD),
-              particle_geometry: particle_system_geometry,
-              name: 'Callisto'
-            }, !using_webgl);
-        var callistoMesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg');
-        addMoon(jupiterMesh, callisto, callistoMesh);
-
+    function getObjectByOrbitName(objName) {
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
+            if (obj.orbit) {
+                if (obj.orbit.name && obj.orbit.name == objName) return obj;
+                if (obj.orbit.full_name && obj.orbit.full_name == objName) return obj;
+            }
+        }
+        console.log("could not find", objName);
     }
+
+    addPlanet = function(planet) {
+        //
+        var mesh = undefined;
+        var parent = scene;
+        if (planet.type == 'planet') {
+            if (planet.model == 'Mercury') {
+                mesh = makeBodyMesh(MERCURY_SIZE, 'img/textures/mercury_small.jpg',
+                                                    'img/textures/mercury_small_normal.jpg');
+            }
+            else if (planet.model == 'Venus') {
+                mesh = makeBodyMesh(VENUS_SIZE, 'img/textures/venus_small.jpg', 'img/textures/venus_small_normal.jpg');
+            }
+            else if (planet.model == 'Earth') {
+                mesh = makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg', 'img/textures/earth_small_normal.jpg');
+            }
+            else if (planet.model == 'Mars') {
+                mesh = makeBodyMesh(MARS_SIZE, 'img/textures/mars_small.jpg', 'img/textures/mars_small_normal.jpg');
+            }
+            else if (planet.model == 'Jupiter') {
+                mesh = makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg',
+                                                    'img/textures/jupiter_small_normal.jpg');
+            }
+            else if (planet.model == 'Saturn') {
+                mesh = makeBodyMesh(SATURN_SIZE, 'img/textures/saturn_medium.jpg',
+                                                    'img/textures/saturn_medium_normal.jpg');
+                var ringMaterial = new THREE.MeshPhongMaterial({
+                    ambient		: 0xFFFFFF,
+                    color		: 0xDDDDDD,
+                    shininess	: 150,
+                    specular	: 0x000000,
+                    shading		: THREE.SmoothShading,
+                    map		    : THREE.ImageUtils.loadTexture('img/textures/saturn_rings_small.png'),
+                    normalMap   : THREE.ImageUtils.loadTexture('img/textures/saturn_rings_small_normal.png'),
+                    transparent: true,
+                    side: THREE.DoubleSide
+                });
+                var ringGeometry = new THREE.RingGeometry(4, 100, 180, 1, 0, Math.PI * 2);
+                var ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.rotation.x = Math.PI / 2;
+                mesh.add(ring);
+                mesh.rotation.x = Math.PI / 6;
+            }
+            else if (planet.model == 'Uranus') {
+                var meshMaterial = new THREE.MeshLambertMaterial({color: 0xB7DDE0});
+                var bodyGeometry = new THREE.SphereGeometry( URANUS_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+            }
+            else if (planet.model == 'Neptune') {
+                mesh = makeBodyMesh(NEPTUNE_SIZE, 'img/textures/neptune_small.jpg',
+                                                    'img/textures/neptune_small_normal.jpg');
+            }
+
+            addBody(parent, planet.type, planet.orbit, mesh, true, planet.objectId, planet.model, planet.owner);
+        }
+        else if (planet.type == 'moon') {
+            if (planet.model == 'Moon') {
+                mesh = makeBodyMesh(LUNA_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
+                parent = getObjectByOrbitName('Earth').mesh;
+            }
+            // Jupiter's satellites
+            else if (planet.model == 'Io') {
+                mesh = makeBodyMesh(IO_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
+                parent = getObjectByOrbitName('Jupiter').mesh;
+            }
+            else if (planet.model == 'Europa') {
+                mesh = makeBodyMesh(EUROPA_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
+                parent = getObjectByOrbitName('Jupiter').mesh;
+            }
+            else if (planet.model == 'Ganymede') {
+                mesh = makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
+                parent = getObjectByOrbitName('Jupiter').mesh;
+            }
+            else if (planet.model == 'Callisto') {
+                mesh = makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
+                parent = getObjectByOrbitName('Jupiter').mesh;
+            }
+            // Mars' satellites
+            else if (planet.model == 'Phobos') {
+                mesh = makeBodyMesh(PHOBOS_SIZE, 'img/textures/phobos_tiny.jpg', 'img/textures/phobos_tiny_normal.jpg');
+                parent = getObjectByOrbitName('Mars').mesh;
+            }
+            else if (planet.model == 'Deimos') {
+                mesh = makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg', 'img/textures/deimos_tiny_normal.jpg');
+                parent = getObjectByOrbitName('Mars').mesh;
+            }
+            // Saturn's satellites
+            else if (planet.model == 'Titan') {
+                var meshMaterial = new THREE.MeshLambertMaterial({color: 0xEACA51});
+                var bodyGeometry = new THREE.SphereGeometry( TITAN_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+                parent = getObjectByOrbitName('Saturn').mesh;
+            }
+            else if (planet.model == 'Rhea') {
+                mesh = makeBodyMesh(RHEA_SIZE, 'img/textures/asteroid_small.jpg',
+                                                'img/textures/asteroid_small_normal.jpg');
+                parent = getObjectByOrbitName('Saturn').mesh;
+            }
+            else if (planet.model == 'Iapetus') {
+                mesh = makeBodyMesh(IAPETUS_SIZE, 'img/textures/iapetus_small.jpg', 'img/textures/iapetus_small.jpg');
+                parent = getObjectByOrbitName('Saturn').mesh;
+            }
+            else if (planet.model == 'Dione') {
+                mesh = makeBodyMesh(DIONE_SIZE, 'img/textures/asteroid_small.jpg',
+                                                'img/textures/asteroid_small_normal.jpg');
+                parent = getObjectByOrbitName('Saturn').mesh;
+            }
+            else if (planet.model == 'Tethys') {
+                var meshMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xCBAF97,
+                    map: THREE.ImageUtils.loadTexture('img/textures/asteroid_small.jpg'),
+                    normalMap: THREE.ImageUtils.loadTexture('img/textures/asteroid_small_normal.jpg')
+                });
+                var bodyGeometry = new THREE.SphereGeometry( TETHYS_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+                parent = getObjectByOrbitName('Saturn').mesh;
+            }
+            // Uranus' satellites
+            else if (planet.model == 'Miranda') {
+                mesh = makeBodyMesh(MIRANDA_SIZE, 'img/textures/asteroid_small.jpg',
+                                                    'img/textures/asteroid_small_normal.jpg');
+                parent = getObjectByOrbitName('Uranus').mesh;
+            }
+            else if (planet.model == 'Ariel') {
+                mesh = makeBodyMesh(ARIEL_SIZE, 'img/textures/asteroid_small.jpg',
+                                                'img/textures/asteroid_small_normal.jpg');
+                parent = getObjectByOrbitName('Uranus').mesh;
+            }
+            else if (planet.model == 'Umbriel') {
+                mesh = makeBodyMesh(UMBRIEL_SIZE, 'img/textures/asteroid_small.jpg',
+                                                    'img/textures/asteroid_small_normal.jpg');
+                parent = getObjectByOrbitName('Uranus').mesh;
+            }
+            else if (planet.model == 'Titania') {
+                var meshMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xC0B7A8,
+                    map: THREE.ImageUtils.loadTexture('img/textures/asteroid_small.jpg'),
+                    normalMap: THREE.ImageUtils.loadTexture('img/textures/asteroid_small_normal.jpg')
+                });
+                var bodyGeometry = new THREE.SphereGeometry( TITANIA_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+                parent = getObjectByOrbitName('Uranus').mesh;
+            }
+            else if (planet.model == 'Oberon') {
+                var meshMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xC0B7A8,
+                    map: THREE.ImageUtils.loadTexture('img/textures/asteroid_small.jpg'),
+                    normalMap: THREE.ImageUtils.loadTexture('img/textures/asteroid_small_normal.jpg')
+                });
+                var bodyGeometry = new THREE.SphereGeometry( OBERON_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+                parent = getObjectByOrbitName('Uranus').mesh;
+            }
+            //Neptune's satellites
+            else if (planet.model == 'Proteus') {
+                mesh = makeBodyMesh(PROTEUS_SIZE, 'img/textures/asteroid_small.jpg',
+                                                    'img/textures/asteroid_small_normal.jpg');
+                parent = getObjectByOrbitName('Neptune').mesh;
+            }
+            else if (planet.model == 'Triton') {
+                var meshMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xC0B7A8,
+                    map: THREE.ImageUtils.loadTexture('img/textures/asteroid_small.jpg'),
+                    normalMap: THREE.ImageUtils.loadTexture('img/textures/asteroid_small_normal.jpg')
+                });
+                var bodyGeometry = new THREE.SphereGeometry( TRITON_SIZE, 32, 32 );
+                mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
+                parent = getObjectByOrbitName('Neptune').mesh;
+            }
+            else if (planet.model == 'Nereid') {
+                mesh = makeBodyMesh(NEREID_SIZE, 'img/textures/asteroid_small.jpg',
+                                                    'img/textures/asteroid_small_normal.jpg');
+                parent = getObjectByOrbitName('Neptune').mesh;
+            }
+            addBody(parent, planet.type, planet.orbit, mesh, true, planet.objectId, planet.model, planet.owner);
+        }
+    };
 
     function initCamera() {
 
-        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, CAMERA_NEAR, CAMERA_FAR );
+        camera = new THREE.PerspectiveCamera( 60, $(canvas).width() / $(canvas).height(), CAMERA_NEAR, CAMERA_FAR );
         camera.position.z = 500;
-
-        controls = new THREE.OrbitControls( camera );
-        controls.addEventListener( 'change', render );
     }
 
     function initLights() {
@@ -1008,17 +1031,22 @@ function RSimulate(opts) {
     }
 
     function initRenderer() {
-        plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true, wireframe: true } ) );
-        plane.visible = false;
-        scene.add( plane );
-
         projector = new THREE.Projector();
 
         renderer = new THREE.WebGLRenderer( { antialias: false } );
-        renderer.setSize( window.innerWidth, window.innerHeight );
+        //renderer.setSize( window.innerWidth, window.innerHeight );
 
-        container = document.getElementById( 'container' );
-        container.appendChild( renderer.domElement );
+        canvas = document.getElementById('canvas');
+
+        // adjust height for navbar and append
+        var navbarHeight = $('#topNavbar').height();
+        var hDiff = $(document.body).height() - navbarHeight - 1;
+        var sidebarWidth = $('#left-sidebar').width();
+        var wDiff = $(document.body).width() - sidebarWidth;
+        $('#canvas').append( renderer.domElement).css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
+
+
+        controls = new THREE.OrbitControls( camera, renderer.domElement );
 
         renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
         renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -1029,15 +1057,15 @@ function RSimulate(opts) {
         stats = new Stats();
         stats.domElement.style.position = 'absolute';
         stats.domElement.style.top = '0px';
-        stats.domElement.style.zIndex = 100;
-        container.appendChild( stats.domElement );
+        stats.domElement.style.zIndex = 1010;
+        $('#canvas').append( stats.domElement );
     }
 
     function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.aspect = $(canvas).width() / $(canvas).height();
         camera.updateProjectionMatrix();
 
-        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setSize($(canvas).width(), $(canvas).height());
 
         render();
     }
@@ -1046,33 +1074,33 @@ function RSimulate(opts) {
         var timeAdvanced = jed_delta*deltaSeconds;
         jed += jed_delta*deltaSeconds;
 
-
-        updateBodies(timeAdvanced, orbits, meshes);
+        updateBodies(timeAdvanced, objects);
     }
 
-    function updateBodies(timeAdvanced, orbits, meshes) {
-        for (var i = 0; i < orbits.length; i++) {
-            var orbit = orbits[i];
+    function updateBodies(timeAdvanced, objects) {
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
+            var orbit = obj.orbit;
+            if (orbit != undefined) {
+                var helioCoords = orbit.getPosAtTime(jed);
+                var mesh = obj.mesh;
+                mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
 
-            var helioCoords = orbit.getPosAtTime(jed);
+                /*
+                 if (i != 2) {
+                 var centerOfGravityPosition = meshes[2].position;
 
-            var mesh = meshes[i];
-            mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
+                 meshes[i].position.add(centerOfGravityPosition);
+                 ellipses[i].position.copy(centerOfGravityPosition);
+                 }
+                 */
 
-            /*
-            if (i != 2) {
-                var centerOfGravityPosition = meshes[2].position;
-
-                meshes[i].position.add(centerOfGravityPosition);
-                ellipses[i].position.copy(centerOfGravityPosition);
-            }
-            */
-
-            if (orbit.eph && orbit.eph.rot_per) {
-                // we have an orbital period (in hours)
-                var rotationalPeriodInSeconds = orbit.eph.rot_per * 60 * 60;
-                var percentageRotated = timeAdvanced / rotationalPeriodInSeconds;
-                mesh.rotation.y += (percentageRotated * 2.0 * Math.PI);
+                if (orbit.eph && orbit.eph.rot_per) {
+                    // we have an orbital period (in hours)
+                    var rotationalPeriodInSeconds = orbit.eph.rot_per * 60 * 60;
+                    var percentageRotated = timeAdvanced / rotationalPeriodInSeconds;
+                    mesh.rotation.y += (percentageRotated * 2.0 * Math.PI);
+                }
             }
         }
     }
@@ -1082,20 +1110,14 @@ function RSimulate(opts) {
         // wipe object list on init to clean things that might have been left over from a refresh event
         $('.playerObject').remove();
 
-        // Remove Button
-        $('#body-info-container').append("<div id='destroy-object-container'><br>" +
-            "<h3>" +
-            "<a id='destroy-object-button' href='#' style='color: red'>Remove this object</a>" +
-            "</h3 >" +
-            "</div>");
-        $('#destroy-object-container').hide();
+        $('#player-object-container').hide();
+        $('#course-container').hide();
 
-        if (typeof $('#destroy-object-button')[0] == 'undefined') {
-            $('#destroy-object-button').on('click', removePlayerBody);
-        }
-        else if ($._data($('#destroy-object-button')[0]).events == undefined) {
-            $('#destroy-object-button').on('click', removePlayerBody);
-        }
+        // update top menu bar every second
+        setInterval(function () {
+            var el = document.getElementById('gametime');
+            el.innerHTML = day+' '+month+' '+year;
+        }, 1000);
     }
 
     function animate() {
@@ -1106,9 +1128,13 @@ function RSimulate(opts) {
 
         render();
         stats.update();
+        orbitCamera(undefined);
+
     }
 
     function render() {
+        scene.traverse( function ( node ) { if ( node instanceof THREE.LOD ) node.update( camera ) } );
+
         renderer.render( scene, camera );
     }
 
@@ -1136,11 +1162,10 @@ if (SHOWING_ASTEROID_CLAIM){
     // link to add the asteroid
     function claimButt_onClick(e){
         e = e || window.event;
-        
-        // this doesn't work...
-        //$('#content').load('/content/addAsteroid?name='+bodyName);
-        // so we'll have to use websockets instead:
-        ws.send(message('track',selectedBody));
+        e.stopPropagation();
+        var obj = {owner: selectedObject.owner, objectId: selectedObject.objectId, orbitName: selectedObject.orbit.name};
+        var stringify = JSON.stringify(obj).replace(/\"+/g, "\'");
+        ws.send(message('claim',stringify));
         
     }
     claimButt.addEventListener('click', claimButt_onClick, false);
@@ -1152,18 +1177,22 @@ var rSimulate;
 
 $(document).ready(function(){
     $("#body-info-container").hide();
-    if ((playerObjects.length <= 0) && (ws.readyState == 1)) {
-        initrSimulate();
-    }
+    $("#dash").show();
 
     console.log("Refreshing webGL canvas")
 });
 
-// called once the webSocket makes a complete connection in webSocketSetup.js.tpl, or a refresh occurs
+// called once the webSocket makes a complete connection in webSocketSetup.js.tpl
 function initrSimulate() {
     // refresh webGL
     rSimulate = new RSimulate({});
+    jCanvas = $('#canvas');
+
+    // Configure webGL canvas to conform to parent div
+    $(renderer.domElement).css('height', '');
+    renderer.setSize(jCanvas.width(), jCanvas.height());
+    camera.aspect = jCanvas.width() / jCanvas.height();
+    camera.updateProjectionMatrix();
 
     ws.send(message('refresh','None'));
 }
-

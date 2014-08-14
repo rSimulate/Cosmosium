@@ -1,60 +1,18 @@
 from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
 from bottle import template
-from py.getAsteroid import byName
 from ast import literal_eval
+from lib.PyKEP import getTraj
+
+from asteroid_tracker import asteroid_track_request_responder
 
 CHUNKS = chunks()
-
-def asteroidTrackResponder(asteroidName, user, webSock, OOIs):
-    # responds to asteroid track requests by sending html for a tile to be added to the content section
-    message = '{"cmd":"addToContent","data":"'
-    
-    if user.purchase('asteroidTrack'):
-        print 'request to track '+asteroidName+' accepted.'
-
-        asteroidData=byName(asteroidName)
-
-        print asteroidData
-
-        print len(asteroidData)
-
-        if asteroidData == None or asteroidData == "" or asteroidData == '[]':
-            print 'problem getting '+str(asteroidName)+ ' from asterank'
-            message += template('tpl/content/tiles/uhoh',
-                text="Sorry, I couldn't add "+str(asteroidName)+". Maybe try again later?",
-                chunks=CHUNKS,
-                config=Settings('default'),
-                title='Something went terribly wrong tracking that asteroid!',
-                user=user)
-        else:
-            OOIs.addObject(asteroidData, user.name)
-            # write the new js file(s)
-            OOIs.write2JSON(Settings('default').asteroidDB,Settings('default').ownersDB)
-            print 'object '+asteroidName+' added to OOIs'
-            message+= template('tpl/content/tiles/asteroidAdd',
-                objectName=asteroidName,
-                chunks=CHUNKS,
-                config=Settings('default'),
-                pageTitle='Asteroid Add Request Approved',
-                user=user)
-    else:
-        print 'request to track '+asteroidName+' denied. insufficient funds.'
-        message+= template('tpl/content/tiles/insufficientFunds',
-            objectName=asteroidName,
-            chunks=CHUNKS,
-            config=Settings('default'),
-            pageTitle='Asteroid Add Request Denied',
-            user=user)
-    
-    message+='"}'
-    webSock.send(message)
     
 def registerUserConnection(user,ws):
     # saves user websocket connetion so that updates to the user object can push to the client
     user.websocket = ws
     
-def researchResponder(user, ws, researchType):
+def researchResponder(user, researchType):
     message = '{"cmd":"addToContent","data":"'
     
     if user.purchase('research_'+researchType):
@@ -71,9 +29,9 @@ def researchResponder(user, ws, researchType):
             pageTitle='research denied',
             user=user)
     message+='"}'
-    ws.send(message)
+    user.sendMessage(message)
 
-def playerObjectResponder(user, ws, data):
+def playerObjectResponder(user, data):
     """
 
     :param user: the requesting user
@@ -101,7 +59,7 @@ def playerObjectResponder(user, ws, data):
             message += str(game.addPlayerObject(objectType, model, orbit, user.name))
             message += '"}'
 
-            ws.send(message)
+            user.sendMessage(message)
 
         elif cmdName == 'query':
             uuid = pData['uuid']
@@ -110,7 +68,7 @@ def playerObjectResponder(user, ws, data):
             message += str(game.getPlayerObject(uuid))
             message += '"}'
 
-            ws.send(message)
+            user.sendMessage(message)
 
         elif cmdName == 'destroy':
             uuid = pData['uuid']
@@ -127,22 +85,63 @@ def playerObjectResponder(user, ws, data):
                 message = '{"cmd":"pObjDestroyRequest","data":"'
                 message += str(obj)
                 message += '"}'
-                ws.send(message)
+                user.sendMessage(message)
+
+def surveyResponder(data, user):
+    # {'survey': 'MainBelt', 'amt': 0}
+    # Amt of 0 == all asteroids in survey
+    surveyData = literal_eval(data)
+    if surveyData['survey'] == 'NEO':
+        user.game.synchronizeSurvey(user, 'NEO', int(surveyData['amt']))
+
+    elif surveyData['survey'] == 'MainBelt':
+        user.game.synchronizeSurvey(user, 'MainBelt', int(surveyData['amt']))
+
+    elif surveyData['survey'] == 'KuiperBelt':
+        user.game.synchronizeSurvey(user, 'KuiperBelt', int(surveyData['amt']))
+
+    elif surveyData['survey'] == 'SolarSystem':
+        user.game.synchronizeSurvey(user, 'SolarSystem', int(surveyData['amt']))
+
+    else:
+        print "ERROR: Player", user.name, "requested an unknown asteroid survey"
 
 def refreshResponder(user):
     user.game.synchronizeObjects(user)
+
+def trajRequestResponder(user, data):
+    # {'dest': {'type': 'planet', 'objectId': 'objectId'}, 'source': {'type': 'Probe', 'objectId': 'objectId'}}
+    trajData = literal_eval(data)
+
+    if trajData['source']['type'] != 'Probe':
+        print "ERROR: Trajectory request came from a non-player object"
+        return
+
+    if user.game is not None:
+        source = user.game.getObject(trajData['source']['objectId'], type=trajData['source']['type'])
+        dest = user.game.getObject(trajData['dest']['objectId'], type=trajData['dest']['type'])
+
+        if source is not None and dest is not None:
+            # getTraj()
+            print "Source and destination is not none. Getting trajectory."
+
     
 def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     # takes appropriate action on the given command and data string
-    if cmd == 'track':
-        asteroidTrackResponder(data, user, websock, OOIs)
+    if cmd == 'claim':
+        asteroid_track_request_responder(data, user)
+    elif cmd == 'getSurvey':
+        surveyResponder(data, user)
+    # TODO: Send asteroid limit for user on hello
     elif cmd == 'hello':
         registerUserConnection(user, websock)
     elif cmd == 'refresh':
         refreshResponder(user)
     elif cmd == 'research':
-        researchResponder(user, websock, data)
+        researchResponder(user, data)
     elif cmd == 'playerObject':
-        playerObjectResponder(user, websock, data)
+        playerObjectResponder(user, data)
+    elif cmd == 'requestTraj':
+        trajRequestResponder(user, data)
     else:
         print "UNKNOWN CLIENT MESSAGE: cmd=",cmd,"data=",data," from user ",user

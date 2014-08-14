@@ -1,25 +1,42 @@
+var nextColor = 1;
+
 function prependContent(newContent){
     // adds new content HTML to the beginning of the content section
     document.getElementById('content').innerHTML = newContent + document.getElementById('content').innerHTML;
 }
 
-function updateResources(newHTML){
-    // replaces resource bar HTML with fresh, updated code. 
-    document.getElementById("resource-bar").innerHTML = newHTML;
+function updateResources(resources_json_str){
+    /*
+    updates player resources using given dict/json string
+    */
+    eval("var vals = " + resources_json_str);
+
+    // update resource deltas
+    player.dScience = vals.dScience;
+    player.dWealth  = vals.dWealth;
+    player.dEnergy  = vals.dEnergy;
+    player.dMetal   = vals.dMetal;
+    player.dOrganic = vals.dOrganic;
+
+    // update resources
+    player.science= vals.science;
+    player.wealth=  vals.wealth;
+    player.energy=  vals.energy;
+    player.metal=   vals.metal;
+    player.organic=  vals.organic;
 }
 
-function cleanPlayerObjectRequest(objectStr) {
+function cleanObjectRequest(objectStr) {
     // clean string related to player object requests
     var str = objectStr.replace(/([\:\,\'\{\}\(\)])+/g, "");
     str = str.replace(/(UUID)+/g, "");
     str = str.replace(/([\(\)])+/g, "");
-    var split = str.split(" ");
 
-    return split;
+    return str.split(" ");
 }
 
 function parseObjectRemoval(str) {
-    var split = cleanPlayerObjectRequest(str);
+    var split = cleanObjectRequest(str);
     // result result objectId uuid reason unknown
     var result, objectId, reason;
     for (var i = 0; i < split.length; i++) {
@@ -38,18 +55,18 @@ function parseObjectRemoval(str) {
 
     // check
     if ((result == undefined) || (objectId == undefined) || (reason == undefined)) {
-        console.log("ERROR parsing object removal request. Player object not removed");
+        console.log("ERROR parsing object removal request. Object not removed");
         return {result: false, objectId: objectId, reason: 'Removal request parsing failed.'};
     }
 
     return {result: result, objectId: objectId, reason: reason};
 }
 
-function parsePlayerObject(objectStr) {
+function parseObject(objectStr) {
     //{'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'data': data}
     // clean string and parse everything but data. NOTE: Data should be the last item in the dict
-    var split = cleanPlayerObjectRequest(objectStr);
-    var owner, objectId, type, model, orbitData;
+    var split = cleanObjectRequest(objectStr);
+    var owner, objectId, type, model, orbitExtrasData, orbitData;
     for (var ii = 0; ii < split.length; ii++) {
         var s = split[ii];
         var next = ii+1;
@@ -65,6 +82,9 @@ function parsePlayerObject(objectStr) {
         else if (s == 'model') {
             model = split[next];
         }
+        else if (s == 'orbitExtras') {
+            orbitExtrasData = split.slice(next, next+4);
+        }
         else if (s == 'orbit') {
             orbitData = split.slice(next, next+22);
         }
@@ -73,10 +93,38 @@ function parsePlayerObject(objectStr) {
     // info check
     if ((owner == undefined) || (objectId == undefined) || (type == undefined)
                              || (model == undefined) || (orbitData == undefined)) {
-        console.log("ERROR parsing player object data returned from server. objectId: " + objectId);
+        console.log("ERROR parsing object data returned from server. objectId: " + objectId);
         console.log("owner " + owner + " type " + type + " model " + model + " orbit " + orbitData);
         return null;
     }
+
+    // parse orbitExtras
+    var orbitExtras;
+    if (orbitExtrasData != undefined) {
+        var H, diameter;
+        for (var c = 0; c < orbitExtrasData.length; c++) {
+            var strin = orbitExtrasData[c];
+            var g = c+1;
+            if (strin == 'H') {
+                H = orbitExtrasData[g];
+            }
+            else if (strin == 'diameter') {
+                diameter = orbitExtrasData[g];
+            }
+        }
+
+        // orbitExtrasData check
+        if ((H == undefined) || (diameter == undefined)) {
+            console.log("ERROR parsing asteroid orbitExtras for objectId " + objectId);
+            console.log("H: " + H + " diameter: " + diameter);
+            return null;
+        }
+        orbitExtras = {H: H, diameter: diameter};
+    }
+    else if (type == 'asteroid') {
+        console.log("ERROR parsing asteroid orbitExtras for objectId " + objectId);
+    }
+
 
     // parse orbit
     var ma, epoch, a, e, i, w_bar, w, L, om, P, full_name;
@@ -123,26 +171,130 @@ function parsePlayerObject(objectStr) {
             || (ma == undefined) || (a == undefined) || (i == undefined) || (w_bar == undefined)
             || (w == undefined) || (L == undefined) || (om == undefined)
             || (P == undefined)) {
-        console.log("ERROR parsing player object data returned from server. objectId: " + objectId);
-        console.log("a " + a + " om " + om + " full_name " + full_name + " i " + i + " L " + L + " P " + P +
-                    " epoch " + epoch + " w " + w + " w_bar " + w_bar + " ma " + ma);
-        return null;
+        if (w_bar == undefined) {
+            w_bar = 0;
+        }
+        else {
+            console.log("ERROR parsing object data returned from server. objectId: " + objectId);
+            console.log("a " + a + " om " + om + " full_name " + full_name + " i " + i + " L " + L + " P " + P +
+                " epoch " + epoch + " w " + w + " w_bar " + w_bar + " ma " + ma);
+            return null;
+        }
     }
 
     full_name = full_name.replace(/(\")+/g, "");
 
-    var ephemeris = {full_name: full_name, ma: ma, epoch: epoch, a: a, e: e,
-                        i: i, w_bar: w_bar, w: w, L: L, om: om, P: P};
+    var ephemeris = {full_name: full_name, ma: parseFloat(ma), epoch: parseFloat(epoch), a: parseFloat(a),
+                        e: parseFloat(e), i: parseFloat(i), w_bar: parseFloat(w_bar), w: parseFloat(w),
+                        L: parseFloat(L), om: parseFloat(om), P: parseFloat(P)};
 
-    var orbit = new Orbit3D(ephemeris,
-        {
-            color: 0xff0000, width: 1, jed: rSimulate.jed, object_size: 1.7,
-            display_color: new THREE.Color(0xff0000),
-            particle_geometry: particle_system_geometry,
-            name: full_name
-        }, !using_webgl);
+    if (type == 'asteroid') {
+        return {owner: owner, objectId: objectId, type: type, model: model, orbit: ephemeris, orbitExtras: orbitExtras};
+    }
+    else {
+        var orbit = new Orbit3D(ephemeris,
+            {
+                color: rainbow(30, nextColor).getHex(), width: 1, jed: rSimulate.jed, object_size: 1.7,
+                display_color: rainbow(30, nextColor),
+                particle_geometry: particle_system_geometry,
+                name: full_name
+            }, !using_webgl);
+        //console.log(nextColor);
+        nextColor ++;
+        return {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit};
+    }
+}
 
-    return {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit};
+function assignColor(data) {
+    // {player: playerName, color: THREE.Color}
+    var split = cleanObjectRequest(data);
+
+    var playerName, color;
+    for (var i = 0; i < split.length; i++) {
+        var s = split[i];
+        var next = i+1;
+        if (s == 'player') {
+            playerName = split[next];
+        }
+        else if (s == 'color') {
+            color = split[next]
+        }
+    }
+
+    // Ensure player is not already in list
+    var exists = false;
+    for (var ii = 0; ii < players.length; ii++) {
+        if (players.player == playerName) exists = true;
+    }
+
+    if (!exists) {
+        players.push({player: playerName, color: new THREE.Color(parseInt(color))});
+        console.log(playerName+"'s", "color is", color);
+    }
+}
+
+function claimResponder(data) {
+    // {result: str, owner: str, objectId: str}
+    var split = cleanObjectRequest(data);
+
+    var result, owner, objectId;
+    for (var i = 0; i < split.length; i++) {
+        var s = split[i];
+        var next = i + 1;
+        if (s == 'result') result = split[next];
+        else if (s == 'owner') owner = split[next];
+        else if (s == 'objectId') objectId = split[next];
+    }
+
+    // check
+    if (result == undefined || objectId == undefined || owner == undefined) {
+        console.log("ERROR: Claim response from the server was malformed");
+        console.log(result, objectId, owner);
+        return;
+    }
+
+    if (result == 'accepted') updateObjectOwnerById(owner, objectId);
+    else console.log("player", owner, "tried to claim an asteroid, but", result);
+}
+
+function updateTime(data) {
+    // {'jed': daysPassed, 'gec': str(month-year)}
+    var split = cleanObjectRequest(data);
+
+    var jedServer, dayServer, monthServer, yearServer;
+    for (var i = 0; i < split.length; i++) {
+        var s = split[i];
+        var next = i + 1;
+        if (s == 'jed') jedServer = split[next];
+        else if (s == 'gec') {
+            var gec = split[next];
+            gec = gec.replace(/(-)+/g, " ");
+            var gecSplit = gec.split(" ");
+            dayServer = gecSplit[0];
+            monthServer = gecSplit[1];
+            yearServer = gecSplit[2];
+        }
+    }
+
+    // check
+    if (jedServer == undefined || dayServer == undefined || monthServer == undefined || yearServer == undefined) {
+        console.log("ERROR: Time update response from server was malformed");
+        console.log("jed", jedServer, "dayServer", dayServer, "monthServer", monthServer, "yearServer", yearServer);
+        return;
+    }
+
+    // TODO: May have to change this to interpolate over time if it produces noticeable changes
+    // For now, just do a hard-change to the client's jed
+    jed = Math.floor(jedServer);
+    day = dayServer;
+    month = monthServer;
+    year = yearServer;
+}
+
+function createBody(data) {
+    //{'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'data': data}
+    var body = parseObject(data);
+    addPlanet(body);
 }
 
 function parseMessage(m) {
@@ -152,8 +304,10 @@ function parseMessage(m) {
     var data = m.split(',"data":"')[1].slice(0, -2); // this assumes "data" is listed last
 
     if (cmd == "addToContent") {
-        prependContent(data)
-
+        //prependContent(data)
+        console.log("Server is trying to prepend content, and the prependContent function needs fixing before it will work");
+    } else if (cmd == 'bodyCreate') {
+        createBody(data);
     } else if (cmd == "updateResources") {
         updateResources(data)
 
@@ -162,29 +316,43 @@ function parseMessage(m) {
         techtree.completeResearch(data);
         // TODO: add user notification?
 
+    } else if (cmd == "addAsteroid") {
+        var asteroid = parseObject(data);
+        if (asteroid != null) {
+            asteroid.orbit.name = asteroid.orbit.full_name.replace(/([\"])+/g, " ").trim();
+            rSimulate.addNewAsteroid(asteroid);
+        }
+        else {console.log("Parsing failed for unknown asteroid")}
+
     } else if (cmd == "pObjCreate") {
-        var object = parsePlayerObject(data);
+        var object = parseObject(data);
         if (object != null) {
             object.orbit.name = object.orbit.name.replace(/([\"])+/g, " ").trim();
             var path = getPathForModel(object.model.toLocaleLowerCase());
             if (path != null) {
-                rSimulate.addBlenderPlayerObjectMesh(path, object);
+                rSimulate.addBlenderObjectMesh(path, object);
             }
             else {console.log("Could not find model path for object " + object.objectId)}
         }
         else {console.log("Parsing failed for unknown object")}
 
     } else if (cmd == "pObjRequest") {
-        // TODO: display template
+        // TODO: display query template
 
     } else if (cmd == "pObjDestroyRequest") {
         var request = parseObjectRemoval(data);
         if (request.result == 'True') {
-            removeBody(undefined, "playerObject", request.objectId);
+            rSimulate.removeBody(undefined, "playerObject", request.objectId);
         }
         else {
             console.log("Destroy request for object " + request.objectId + " was denied because: " + request.reason);
         }
+    } else if (cmd == "assignColor") {
+        assignColor(data);
+    } else if (cmd == "claim") {
+        claimResponder(data);
+    } else if (cmd == 'timeSync') {
+        updateTime(data);
     } else {
         console.log("ERR: unknown message to client: "+m);
     }

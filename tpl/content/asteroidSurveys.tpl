@@ -7,7 +7,7 @@
     resources
     pageTitle
         -->
-
+<section id="asteroidSurveys">
     <!-- Main row -->
     <div class='row'>
         <section class='col-lg-12 connectedSortable'>
@@ -25,7 +25,7 @@
             % include('tpl/content/tiles/buttonText', title='NEO Survey',
             %   color='blue',
             %   bttn_id='systemView-NEOs-link',
-            %   bttn_txt='Fund NEA Survey Program',
+            %   bttn_txt='Fund NEO Survey Program',
             %   text='A near-Earth object (NEO) is a Solar System object whose orbit brings it into proximity with Earth. They include a few thousand near-Earth asteroids (NEAs), near-Earth comets, a number of solar-orbiting spacecraft, and meteoroids large enough to be tracked in space before striking the Earth. It is now widely accepted that collisions in the past have had a significant role in shaping the geological and biological history of the planet. NEOs have become of increased interest because of increased awareness of the potential danger some of the asteroids or comets pose to Earth. These asteroids are generally not as large as some main-belt asteroids and make good candidates for asteroid mining because of the comparatively low amount of delta-v required to reach them.')
 
         </section>
@@ -52,14 +52,8 @@
             %   bttn_txt='Fund PHO Survey Program',
             %   text='A potentially hazardous object (PHO) is a near-Earth asteroid or comet with an orbit such that it has the potential to make close approaches to the Earth and is of a size large enough to cause significant regional damage in the event of impact. These are mostly asteroids in the Amor or Apollo families. If you are starting to feel nervous about these giant rocks zooming around, this is where you ought to invest your resources.')
         </section>
-        
-
     </div>
-    
-    <div class="row">
-        % include('tpl/content/tiles/welcomeTile')
-    </div><!-- /.row (main row) -->
-    
-    <script type='text/javascript' src='/js/nav_asteroidSurveys.js'></script>
 
+    <script type='text/javascript' src='/js/nav_asteroidSurveys.js'></script>
+</section>
 

@@ -9,6 +9,7 @@
         -->
 
     <!-- this row is fixed to the top... -->
+<span id="dash">
     <div class="row">
         <!-- User tech summary -->
         %include('tpl/tile_overview'
@@ -118,7 +119,8 @@
     <!-- /.row -->
 
     <!-- Main row -->
-    <div class="row">
+    <div id="welcome" class="row">
         % include('tpl/content/tiles/welcomeTile')
     </div><!-- /.row (main row) -->
+</span>
 

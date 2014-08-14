@@ -3,10 +3,6 @@
 
   var pi = Math.PI;
   var PIXELS_PER_AU = 250;
-  var USE_REAL_ELLIPSE = true;
-
-  var attributes
-  var uniforms;
 
   var Orbit3D = function(eph, opts, bigParticle) {
     opts = opts || {};
@@ -50,7 +46,7 @@
         gapSize: 0.5
       }), THREE.LineStrip);
     return line;
-  }
+  };
 
   Orbit3D.prototype.CreateParticle = function(jed) {
     if (!this.bigParticle && this.particle_geometry) {
@@ -81,12 +77,12 @@
       //this.particle.scale.x = -1; // flip so texture shows up oriented correctly
       this.particle.position.set(pos[0], pos[1], pos[2]);
     }
-  }
+  };
 
   Orbit3D.prototype.MoveParticle = function(time_jed) {
     var pos = this.getPosAtTime(time_jed);
     this.MoveParticleToPosition(pos);
-  }
+  };
 
   Orbit3D.prototype.MoveParticleToPosition = function(pos) {
     if (this.bigParticle) {
@@ -98,7 +94,7 @@
       vertex_particle.y = pos[1];
       vertex_particle.z = pos[2];
     }
-  }
+  };
 
   Orbit3D.prototype.getPosAtTime = function(jed) {
     // Note: this must match the vertex shader.
@@ -141,25 +137,25 @@
     var r = a * (1 - e*e) / (1 + e * cos(v)) * PIXELS_PER_AU;
 
     // heliocentric coords
-    var X = r * (cos(o) * cos(v + p - o) - sin(o) * sin(v + p - o) * cos(i))
-    var Y = r * (sin(o) * cos(v + p - o) + cos(o) * sin(v + p - o) * cos(i))
-    var Z = r * (sin(v + p - o) * sin(i))
+    var X = r * (cos(o) * cos(v + p - o) - sin(o) * sin(v + p - o) * cos(i));
+    var Y = r * (sin(o) * cos(v + p - o) + cos(o) * sin(v + p - o) * cos(i));
+    var Z = r * (sin(v + p - o) * sin(i));
  
     // NOTE: I've switched Y and Z in the return to work better with three.js
  
     var ret = [X, Z, Y];
     return ret;
-  }
+  };
 
   Orbit3D.prototype.getEllipse = function() {
     if (!this.ellipse)
       this.ellipse = this.CreateOrbit(this.opts.jed);
     return this.ellipse;
-  }
+  };
 
   Orbit3D.prototype.getParticle = function() {
     return this.particle;
-  }
+  };
 
   window.Orbit3D = Orbit3D;
 })();

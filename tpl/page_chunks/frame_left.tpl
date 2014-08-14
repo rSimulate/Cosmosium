@@ -1,8 +1,8 @@
 <!-- header logo: style can be found in header.less -->
 
-<div class="wrapper row-offcanvas row-offcanvas-left">
+<div class="wrapper row-offcanvas row-offcanvas-left sidebar-index skin-black">
     <!-- Left side column. contains the logo and sidebar -->
-    <aside class="left-side sidebar-offcanvas">
+    <aside id="left-sidebar" class="left-side sidebar-offcanvas">
         <!-- sidebar: style can be found in sidebar.less -->
         <section class="sidebar">
             <!-- Sidebar user panel -->
@@ -29,12 +29,12 @@
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
                 <li class="active">
-                    <a href="#dash" id='dash-link'>
+                    <a href="#" id='dash-link'>
                         <i class="fa fa-dashboard"></i> <span>{{chunks.button1_text}}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#systemView" id='systemView-link'>
+                    <a href="#" id='systemView-link'>
                         <i class="ion ion-ionic"></i> <span>{{chunks.button2_text}}</span> 
                         <small class="badge pull-right bg-red">{{chunks.button2_num}}</small>
                     </a>
@@ -46,11 +46,11 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#missionControl" id='missionControl-link'><i class="fa fa-angle-double-right"></i> Mission Control</a></li>
-                        <li><a href="#launchpad" id='launchpad-link'><i class="fa fa-angle-double-right"></i>
+                        <li><a href="#" id='missionControl-link'><i class="fa fa-angle-double-right"></i> Mission Control</a></li>
+                        <li><a href="#" id='launchpad-link'><i class="fa fa-angle-double-right"></i>
                          Launchpad</a></li>
-                        <li><a href="#observatories" id='observatories-link'><i class="fa fa-angle-double-right"></i> Observatories</a></li>
-                        <li><a href="#timeline" id='timeline-link'><i class="fa fa-angle-double-right"></i> Timeline</a></li>
+                        <li><a href="#" id='observatories-link'><i class="fa fa-angle-double-right"></i> Observatories</a></li>
+                        <li><a href="#" id='timeline-link'><i class="fa fa-angle-double-right"></i> Timeline</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
@@ -59,8 +59,8 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#asteroidSurveys" id='asteroidSurveys-link'><i class="fa fa-angle-double-right"></i> Asteroid Surveys</a></li>
-                        <li><a href="#surveyEquip" id='surveyEquip-link'><i class="fa fa-angle-double-right"></i>Survey Equipment</a></li>
+                        <li><a href="#" id='asteroidSurveys-link'><i class="fa fa-angle-double-right"></i> Asteroid Surveys</a></li>
+                        <li><a href="#" id='surveyEquip-link'><i class="fa fa-angle-double-right"></i>Survey Equipment</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
@@ -69,9 +69,9 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#research?section=Space%20Industry" id='research_spaceIndustry-link'><i class="fa fa-angle-double-right"></i> Space Industry</a></li>
-                        <li><a href="#research?section=Human%20Habitation" id='research_humanHabitation-link'><i class="fa fa-angle-double-right"></i> Human Habitation</a></li>
-                        <li><a href="#research?section=Robotics%20and%20AI" id='research_robotics-link'><i class="fa fa-angle-double-right"></i> Robotics & AI</a></li>
+                        <li><a href="#" id='research_spaceIndustry-link'><i class="fa fa-angle-double-right"></i> Space Industry</a></li>
+                        <li><a href="#" id='research_humanHabitation-link'><i class="fa fa-angle-double-right"></i> Human Habitation</a></li>
+                        <li><a href="#" id='research_robotics-link'><i class="fa fa-angle-double-right"></i> Robotics & AI</a></li>
                     </ul>
                     </a>
                 </li>
@@ -82,10 +82,10 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#launchSys" id='launchSys-link'><i class="fa fa-angle-double-right"></i> Launch Systems</a></li>
-                        <li><a href="#resMarket" id='resMarket-link'><i class="fa fa-angle-double-right"></i> Resource Market</a></li>
-                        <li><a href="#fuelNet" id='fuelNet-link'><i class="fa fa-angle-double-right"></i> Fuel Network</a></li>
-                        <li><a href="#spaceTourism" id='spaceTourism-link'><i class="fa fa-angle-double-right"></i> Space Tourism</a></li>
+                        <li><a href="#" id='launchSys-link'><i class="fa fa-angle-double-right"></i> Launch Systems</a></li>
+                        <li><a href="#" id='resMarket-link'><i class="fa fa-angle-double-right"></i> Resource Market</a></li>
+                        <li><a href="#" id='fuelNet-link'><i class="fa fa-angle-double-right"></i> Fuel Network</a></li>
+                        <li><a href="#" id='spaceTourism-link'><i class="fa fa-angle-double-right"></i> Space Tourism</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
@@ -94,9 +94,9 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="#outreach" id='outreach-link'><i class="fa fa-angle-double-right"></i> Outreach</a></li>
-                        <li><a href="#gov" id='gov-link'><i class="fa fa-angle-double-right"></i>Government</a></li>
-                        <li><a href="#org" id='org-link'><i class="fa fa-angle-double-right"></i> Organization</a></li>
+                        <li><a href="#" id='outreach-link'><i class="fa fa-angle-double-right"></i> Outreach</a></li>
+                        <li><a href="#" id='gov-link'><i class="fa fa-angle-double-right"></i>Government</a></li>
+                        <li><a href="#" id='org-link'><i class="fa fa-angle-double-right"></i> Organization</a></li>
                     </ul>
                 </li>
                 <li class="treeview">

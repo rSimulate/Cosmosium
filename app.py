@@ -80,7 +80,7 @@ USERS = UserList()  # list of users on the server TODO: replace use of this w/ r
 MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
 
 # initial write of JSON files (to clear out old ones):
-GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
+# GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 
 #=====================================#
 #            Static Routing           #
@@ -162,49 +162,6 @@ def error500(error):
         if you want to help us sort it out, please visit \
         <a href='https://github.com/rSimulate/Cosmosium/issues'>our issue tracker on github</a>."
 
-
-#=====================================#
-#            game content             #
-#=====================================#
-@app.route('/content')
-def makeContentHTML():
-    name=request.query.name # content page name
-    subDir = request.query.section=request.query.section # specific section of page (like type of research page)
-
-    # check for user login token in cookies
-    if request.get_cookie("cosmosium_login"):
-        userLoginToken = request.get_cookie("cosmosium_login")
-        try:
-            _user = USERS.getUserByToken(userLoginToken)
-        except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
-            redirect('/userLogin')
-
-        treeimg=''
-        if name == 'research': # then get research subDir info
-            if subDir=='spaceIndustry':
-                treeimg="img/space_industry_tech_tree_images.svg";
-            elif subDir=='humanHabitation':
-                treeimg="img/space_industry_tech_tree.svg";
-            elif subDir=='roboticsAndAI':
-                treeimg="img/space_industry_tech_tree_images.svg";
-            else:
-                return template('tpl/content/404') # error404('404')
-
-        fileName='tpl/content/'+name
-        if os.path.isfile(fileName+'.tpl'): #if file exists, use it
-            return template(fileName,
-                            tree_src=treeimg, #used only for research pages
-                            chunks=CHUNKS,
-                            user=_user,
-                            oois=GAMES.games[0].OOIs,
-                            config=Settings(MASTER_CONFIG),
-                            pageTitle=name)
-        else: # else show content under construction
-            print 'unknown content request: '+fileName
-            return template('tpl/content/under_construction')
-    else:
-        redirect('/userLogin')
-
 #=====================================#
 #           Splash Page               #
 #=====================================#
@@ -260,7 +217,7 @@ def handle_websocket():
             try:
                 gameID = mesDict['gID']
                 userID = mesDict['uID']
-                cmd    = mesDict['cmd']                    
+                cmd    = mesDict['cmd']
                 data   = mesDict['dat']
             except KeyError:
                 print 'malformed message!'
@@ -274,72 +231,11 @@ def handle_websocket():
             # TODO: call message parser sort of like:
             #game_manager.parseMessage(message,wsock)
             # NOTE: message parser should probably be an attribute of the game
-            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, GAMES.games[0].OOIs)
             print "received :",cmd,'from',userID
+            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, GAMES.games[0].OOIs)
         except WebSocketError:
-            print 'websocketerror encountered'
+            print 'client disconnected'
             break
-            
-
-#=====================================#
-#        Asteroid Views Routing       #
-#=====================================#
-@app.route('/asteroidSearch')
-@app.route('/asteroidSearch/')
-def asteroidSearch():
-    # returns systemView based on user data and given query
-    _user = getLoggedInUser(request)
-    if _user == None:
-        redirect('/userLogin')
-    else:
-        group = request.query.group
-        if group == 'mainBelt':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/MainBelt.js"))
-        elif group == 'NEOs':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB='db/NEOs.js'))
-        elif group == 'kuiper':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/KuiperBelt.js"))
-        elif group == 'test':
-            return template('tpl/searchView', config=Settings(MASTER_CONFIG, asteroidDB="db/test_asteroids.js"))
-        else:
-            raise ValueError('unknown asteroid group request "'+str(group)+'"')
-
-
-@app.route('/systemView')
-def systemView():
-    _user = getLoggedInUser(request)
-    if _user != None:
-        return template('tpl/systemView',
-                        user=_user,
-                        chunks=CHUNKS,
-                        config=Settings('default',showFrame=False,showResources=False,showBG=False,controlBG=True),
-                        pageTitle="system View"
-                        )
-    else: 
-        redirect('/userLogin')
-    
-
-@app.route('/viewTest')
-def viewTest():
-    return template('tpl/systemView',
-                    user=User(),
-                    chunks=CHUNKS,
-                    config=Settings('test',showFrame=False,showResources=False,showBG=False,controlBG=True),
-                    pageTitle="ViewTest"
-        )
-
-
-@app.route('/getAsteroids')
-def getOOIs():
-    GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
-    return Settings(MASTER_CONFIG).asteroidDB
-    
-@app.route('/asteroidReq')
-def processReq():
-    q = request.query.query
-    lim = request.query.limit
-    print 'q=',q,' l=',lim
-    return template('type: {{datatype}} (response {{res}})', datatype="asterank", res=asterankAPI(q,lim))
 
 #=====================================#
 #      SQLite for Basic UI Data       #

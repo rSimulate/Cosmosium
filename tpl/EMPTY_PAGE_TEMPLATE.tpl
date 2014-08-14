@@ -8,19 +8,4 @@
     pageTitle
         -->
 
-% include('tpl/page_chunks/head') # implicitly passed: pageTitle
-			
-            
-
-
-            
-            
-<!-- YOUR CONTENT HERE -->
-
-
-
-
-
-                
-
-% include('tpl/page_chunks/foot')
+% include('tpl/page_chunks/content') # implicitly passed: pageTitle

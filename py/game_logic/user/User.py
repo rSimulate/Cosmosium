@@ -8,6 +8,7 @@ from py.game_logic.units.Miner import Miner
 from py.game_logic.eco.Resources import Resources
 from py.game_logic.eco import purchases
 from py.webSocketMessenger import createMessage
+from geventwebsocket import WebSocketError
 
 class User(object):
     def __init__(self, name='No Name'):
@@ -32,7 +33,8 @@ class User(object):
         
         ### USER GAME LOGIC DATA ###
         self.game = None # game instance in which this user is playing
-        
+
+        self.asteroidLimit = 100
         self.resources = Resources()          
         self.research  = Research()
         self.telescopes = list([Telescope(),Telescope()]) #start w/ 2 telescopes
@@ -69,29 +71,47 @@ class User(object):
             and (item.energy.oneTime + self.resources.energy())>=0\
             and (item.metals.oneTime + self.resources.metals())>=0\
             and (item.organic.oneTime+ self.resources.organic())>=0
-              
-    def payFor(self,bal):
+
+    def get_resource_balance_dict(self):
+        """
+        :return: a dict (JSON) string representing the user's balance of resources
+        """
+        return dict(dScience=self.resources.getDeltaScience(self),
+                    dWealth=self.resources.getDeltaWealth(self),
+                    dEnergy=self.resources.getDeltaEnergy(self),
+                    dMetal=self.resources.getDeltaMetals(self),
+                    dOrganic=self.resources.getDeltaOrganic(self),
+
+                    science=self.resources.science(),
+                    wealth=self.resources.wealth(),
+                    energy=self.resources.energy(),
+                    metal=self.resources.metals(),
+                    organic=self.resources.organic()
+        )
+
+
+    def payFor(self, bal):
         # deducts item cost from resources,
         # returns true if purchase is sucessful 
         # assumes that user can afford item
             
         self.resources.applyBalance(bal)
-        
-        if self.websocket != None:
-            self.websocket.send(createMessage('updateResources',data=template('tpl/page_chunks/resourcebar',user=self)))
+
+        if self.websocket is not None:
+            self.sendMessage(createMessage('updateResources', data=str(self.get_resource_balance_dict())))
             return True
         else:
-            print 'no websocket connected to user ',self.name
+            print 'no websocket connected to user ', self.name
 
-    def purchase(self,item=None, balance=None):
-        '''
+    def purchase(self, item=None, balance=None):
+        """
         checks if user can afford item 
          and deducts item cost from self.resources 
          and adds the item (or the purchases effects) to the user.
         returns true if purchased, returns false if not.
         Default usage is to use an item name from purchase.py.
         If a Balance object "balance" is given INSTEAD of "item", then it is used directly.
-        '''
+        """
         if item!= None:
             cost = purchases.getCost(item)
             if self.affords(cost):
@@ -124,7 +144,7 @@ class User(object):
         # advances to next research age...
         self.research.advance()
         if self.websocket != None:
-            self.websocket.send(createMessage('updateResources',data=template('tpl/page_chunks/resourcebar',user=self)))
+            self.sendMessage(createMessage('updateResources',data=template('tpl/page_chunks/resourcebar',user=self)))
             return True
         else:
             print 'no websocket connected to user ',self.name
@@ -160,6 +180,11 @@ class User(object):
     ### MORE ###
     def update(self):
         self.resources.update(self)
-    
 
-    
+    def sendMessage(self, message):
+        if self.websocket is not None:
+            try:
+                self.websocket.send(message)
+            except WebSocketError:
+                print self.name, "disconnected from the server"
+                self.websocket = None
