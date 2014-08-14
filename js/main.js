@@ -15,6 +15,7 @@ var NUM_BIG_PARTICLES = 500;
 
 var canvas, stats, jCanvas;
 var camera, controls, scene, renderer, cameraTarget;
+var FOCAL_LENGTH = 60;
 var mouse = new THREE.Vector2();
 var offset = new THREE.Vector3();
 var INTERSECTED;
@@ -28,8 +29,8 @@ var claimButt = document.getElementById('claim-asteroid-button');
 
 var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
 
-var CAMERA_NEAR = 1;
-var CAMERA_FAR = 100000;
+var CAMERA_NEAR = 2000;
+var CAMERA_FAR = 1000000;
 
 var LOD_DIST = {ONE: 300, TWO: 600, THREE: 1000};
 var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
@@ -41,6 +42,7 @@ var selectedObject = undefined;
 var removeBody, updateObjectOwnerById, rainbow;
 var addTestObject;
 var SELECTING_TARGET, sourceTarget, requestRemoveBody, requestCourse, cancelCourse, setCourse, composer;
+var bokehPass, sceneCamera;//, sceneTarget, sceneTargetPass;
 
 function RSimulate(opts) {
 
@@ -379,11 +381,22 @@ function RSimulate(opts) {
             }
 
         }
+        else cameraTarget = getSolarCentricObject();
 
         // ensure origin target keeps ellipse displayed
         if (cameraTarget && cameraTarget.orbit) cameraTarget.orbit.getEllipse().visible = true;
 
         controls.update();
+        sceneCamera.position = camera.position;
+    }
+
+    function getFocalDepth(distanceFromCamera) {
+        var zfar = camera.far;
+        var znear = camera.near;
+        var saturate = Math.max(0, Math.min(1, (distanceFromCamera - znear) / (zfar - znear)));
+        var smooth = saturate * saturate * (3 - 2 * saturate);
+        var sdist = 1-smooth;
+        return -zfar * znear / (sdist * (zfar - znear) - zfar);
     }
 
     function onBodySelected(mesh) {
@@ -1017,8 +1030,10 @@ function RSimulate(opts) {
 
     function initCamera() {
 
-        camera = new THREE.PerspectiveCamera( 60, $(canvas).width() / $(canvas).height(), CAMERA_NEAR, CAMERA_FAR );
+        camera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(), 1, CAMERA_NEAR );
+        sceneCamera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(), 1, CAMERA_FAR );
         camera.position.z = 500;
+        sceneCamera.position = camera.position;
     }
 
     function initLights() {
@@ -1038,42 +1053,62 @@ function RSimulate(opts) {
 
         composer = new THREE.EffectComposer( renderer );
 
-        var scenePass = new THREE.RenderPass( scene, camera );
-        //scenePass.renderToScreen = false;
-        composer.addPass( scenePass );
+        var farPass = new THREE.RenderPass( scene, sceneCamera);
+        composer.addPass( farPass );
 
-        var bokehPass = new THREE.BokehPass( scene, camera, {
+        var copyPass = new THREE.ShaderPass( THREE.CopyShader );
+        copyPass.renderToScreen = false;
+        composer.addPass ( copyPass );
 
+        bokehPass = new THREE.Bokeh2Pass( scene, sceneCamera, {
             shaderFocus: {type: 'i', value: 1},
             focusCoords: {type: 'v2', value: new THREE.Vector2(0.5, 0.5)},
             znear: {type: 'f', value: parseFloat(CAMERA_NEAR)},
             zfar: {type: 'f', value: parseFloat(CAMERA_FAR)},
 
-            fstop: {type: 'f', value: 2.2},
-            maxblur: {type: 'f', value: 1.0},
+            fstop: {type: 'f', value: 1.2},
+            maxblur: {type: 'f', value: 0.001},
 
             showFocus: {type: 'i', value: 0},
-            focalDepth: {type: 'f', value: 2.8},
             manualdof: {type: 'i', value: 0},
             vignetting: {type: 'i', value: 1},
-            depthblur: {type: 'i', value: 0},
+            depthblur: {type: 'i', value: 1},
 
-            threshold: {type: 'f', value: 0.5},
-            gain: {type: 'f', value: 2.0},
-            bias: {type: 'f', value: 0.5},
-            fringe: {type: 'f', value: 0.7},
+            threshold: {type: 'f', value: 1.0},
+            gain: {type: 'f', value: 0.2},
+            bias: {type: 'f', value: 1.0},
+            fringe: {type: 'f', value: 0.002},
 
-            focalLength: {type: 'i', value: 35},
+            focalLength: {type: 'f', value: parseFloat(FOCAL_LENGTH)},
             noise: {type: 'i', value: 1},
             pentagon: {type: 'i', value: 0},
             samples: {type: 'i', value: 4},
             rings: {type: 'i', value: 4},
-            dithering: {type: 'f', value: 0.0001}
+            dithering: {type: 'f', value: 0.0002}
         } );
-        bokehPass.renderToScreen = true;
-        composer.addPass( bokehPass );
-        composer.addPass ( new THREE.ShaderPass( THREE.CopyShader ));
+        /*
+         bokehPass = new THREE.BokehPass( scene, camera, {
+         focus: 1.0,
+         aspect: 1.0,
+         aperture: 0.025,
+         maxblur: 1.0
+         });*/
+        bokehPass.renderToScreen = false;
 
+        bokehPass.clear = false;
+        composer.addPass( bokehPass );
+
+        copyPass.renderToScreen = false;
+        composer.addPass( copyPass );
+
+        var nearPass = new THREE.RenderPass( scene, camera );
+        nearPass.renderToScreen = false;
+        nearPass.clear = false;
+        composer.addPass( nearPass );
+
+        var finalPass = new THREE.ShaderPass( THREE.CopyShader );
+        finalPass.renderToScreen = true;
+        composer.addPass( finalPass );
 
         canvas = document.getElementById('canvas');
 
@@ -1102,7 +1137,9 @@ function RSimulate(opts) {
 
     function onWindowResize() {
         camera.aspect = $(canvas).width() / $(canvas).height();
+        sceneCamera.aspect = $(canvas).width() / $(canvas).height();
         camera.updateProjectionMatrix();
+        sceneCamera.updateProjectionMatrix();
 
         renderer.setSize($(canvas).width(), $(canvas).height());
 
@@ -1232,8 +1269,10 @@ function initrSimulate() {
     // Configure webGL canvas to conform to parent div
     $(renderer.domElement).css('height', '');
     renderer.setSize(jCanvas.width(), jCanvas.height());
-    camera.aspect = jCanvas.width() / jCanvas.height();
+    camera.aspect = $(canvas).width() / $(canvas).height();
+    sceneCamera.aspect = $(canvas).width() / $(canvas).height();
     camera.updateProjectionMatrix();
+    sceneCamera.updateProjectionMatrix();
 
     ws.send(message('refresh','None'));
 }
