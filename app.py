@@ -40,7 +40,7 @@ import random
 import pymongo # import Connection
 
 from bottle import static_file, template, request, Bottle, response, redirect, abort
-
+from Crypto.Hash import SHA256
 
 # OAuth components
 import rauth
@@ -64,6 +64,8 @@ from py.game_logic.GameList import GameList
 from py.game_logic.UserList import UserList
 
 from py.getAsteroid import asterankAPI
+
+
 
 #=====================================#
 #              GLOBALS                #
@@ -462,11 +464,22 @@ def setLoginCookie():
     rem = request.forms.get('remember_me')
     db=client.users
 
+    hash_pass = SHA256.new(pw).digest()#hash user input password
+    hash_pass_uni=hash_pass.decode('latin-1') #convert to unicode
+
+    salt=db.test_user.find_one({"user":uid},{"salt": 1,"_id":0}) #pull user salt
+    salt_uni=salt['salt']#pull single salt unicode element
+
+    password=db.test_user.find_one({"user":uid},{"password": 1,"_id":0})#pull user password
+    password_uni=password['password']#pull single password unicode element
+
+
+
     if str(db.test_user.find_one({"user":uid})) == 'None':
 
         return "User not Found"
     else:
-        if str(db.test_user.find_one({"user":uid},{"password": 1,"_id":0})) == str("{u'password': u'"+pw+"'}"): #matches input password to db password, probably better way to pull out just the password value
+        if password_uni==salt_uni+hash_pass_uni: #matches input password to db password
             _user = USERS.getUserByName(uid) # TODO: replace this with db lookup
  
             loginToken = uid+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
@@ -511,8 +524,22 @@ def setLoginCookie():
 
         if pw == rpw:                                       #check that passwords match
 
+            #salt_ascii=os.urandom(32)
+            #salt_dec=salt_ascii.decode('latin-1')
+            #salt=salt_dec.encode('utf8')
+            #pw_hash=str(salt)+SHA256.new(pw).hexdigest()
+
+            salt=os.urandom(32)
+            hash_pass=SHA256.new(pw).digest()
+            salt_hash_pass=salt+hash_pass
+            shp_dec=salt_hash_pass.decode('latin-1')
+            salt_dec=salt.decode('latin-1')
+            password=shp_dec.encode('utf8')
+
+
             data={"user":uid,                               #make new user document
-            "password":pw,
+            "password":shp_dec,
+            "salt":salt_dec,
             "org":org,
             "quote":quote,
             "date":datetime.datetime.utcnow()}
