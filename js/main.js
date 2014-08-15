@@ -389,6 +389,11 @@ function RSimulate(opts) {
         controls.update();
         farCamera.position = camera.position.clone();
         farCamera.rotation = camera.rotation.clone();
+
+        if ( bokehPass && cameraTarget ) {
+            bokehPass.materialBokeh.uniforms.focalDepth.value =
+                                                        Math.abs(cameraTarget.mesh.position.distanceTo(camera.position));
+        }
     }
 
     function getFocalDepth(distanceFromCamera) {
@@ -1065,16 +1070,16 @@ function RSimulate(opts) {
         bokehPass = new THREE.Bokeh2Pass( scene, farCamera, {
             shaderFocus: {type: 'i', value: 0},
             focusCoords: {type: 'v2', value: new THREE.Vector2(0.5, 0.5)},
-            znear: {type: 'f', value: 1.0},
+            znear: {type: 'f', value: parseFloat(CAMERA_NEAR)},
             zfar: {type: 'f', value: parseFloat(CAMERA_FAR)},
 
-            fstop: {type: 'f', value: 2.2},
-            maxblur: {type: 'f', value: 0.0015},
+            fstop: {type: 'f', value: 3.2},
+            maxblur: {type: 'f', value: 0.015},
 
             showFocus: {type: 'i', value: 0},
             manualdof: {type: 'i', value: 0},
             vignetting: {type: 'i', value: 0},
-            depthblur: {type: 'i', value: 1},
+            depthblur: {type: 'i', value: 0},
 
             threshold: {type: 'f', value: 1.0},
             gain: {type: 'f', value: 5.2},
