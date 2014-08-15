@@ -29,7 +29,7 @@ var claimButt = document.getElementById('claim-asteroid-button');
 
 var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
 
-var CAMERA_NEAR = 1000;
+var CAMERA_NEAR = 75;
 var CAMERA_FAR = 1000000;
 
 var LOD_DIST = {ONE: 300, TWO: 600, THREE: 1000};
@@ -391,8 +391,21 @@ function RSimulate(opts) {
         farCamera.rotation = camera.rotation.clone();
 
         if ( bokehPass && cameraTarget ) {
-            bokehPass.materialBokeh.uniforms.focalDepth.value =
-                                                        Math.abs(cameraTarget.mesh.position.distanceTo(camera.position));
+            var dist = Math.abs(cameraTarget.mesh.position.distanceTo(camera.position));
+            var cullDist = dist+ cameraTarget.mesh.geometry.boundingSphere.radius;
+
+            // adjust bokeh culling to be past target object
+            if (dist < 400) {
+                CAMERA_NEAR = dist;
+                camera.far = cullDist;
+                farCamera.near = cullDist;
+                camera.updateProjectionMatrix();
+                farCamera.updateProjectionMatrix();
+            }
+            // Distance check to remove aberrations from the bokeh shader
+            if (dist >= 400) dist = 400;
+            bokehPass.materialBokeh.uniforms.focalDepth.value = dist;
+
         }
     }
 
@@ -1037,7 +1050,8 @@ function RSimulate(opts) {
     function initCamera() {
 
         camera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(), 1, CAMERA_NEAR );
-        farCamera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(), CAMERA_NEAR, CAMERA_FAR );
+        farCamera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(),
+                                                                                        CAMERA_NEAR - 1, CAMERA_FAR );
         camera.position.z = 500;
         farCamera.position = camera.position.clone();
         farCamera.rotation = camera.rotation.clone();
@@ -1073,24 +1087,24 @@ function RSimulate(opts) {
             znear: {type: 'f', value: parseFloat(CAMERA_NEAR)},
             zfar: {type: 'f', value: parseFloat(CAMERA_FAR)},
 
-            fstop: {type: 'f', value: 3.2},
-            maxblur: {type: 'f', value: 0.015},
+            fstop: {type: 'f', value: CAMERA_NEAR / 10},
+            maxblur: {type: 'f', value: 0.04},
 
             showFocus: {type: 'i', value: 0},
             manualdof: {type: 'i', value: 0},
-            vignetting: {type: 'i', value: 0},
-            depthblur: {type: 'i', value: 0},
+            vignetting: {type: 'i', value: 1},
+            depthblur: {type: 'i', value: 1},
 
-            threshold: {type: 'f', value: 1.0},
+            threshold: {type: 'f', value: 0.5},
             gain: {type: 'f', value: 5.2},
             bias: {type: 'f', value: 1.0},
             fringe: {type: 'f', value: 0.002},
 
             focalLength: {type: 'f', value: parseFloat(FOCAL_LENGTH)},
-            noise: {type: 'i', value: 1},
+            noise: {type: 'i', value: 0},
             pentagon: {type: 'i', value: 0},
-            samples: {type: 'i', value: 4},
-            rings: {type: 'i', value: 4},
+            samples: {type: 'i', value: 8},
+            rings: {type: 'i', value: 1},
             dithering: {type: 'f', value: 0.0002}
         } );
         /*
