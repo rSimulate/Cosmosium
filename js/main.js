@@ -29,7 +29,7 @@ var claimButt = document.getElementById('claim-asteroid-button');
 
 var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
 
-var CAMERA_NEAR = 2000;
+var CAMERA_NEAR = 1000;
 var CAMERA_FAR = 1000000;
 
 var LOD_DIST = {ONE: 300, TWO: 600, THREE: 1000};
@@ -42,7 +42,7 @@ var selectedObject = undefined;
 var removeBody, updateObjectOwnerById, rainbow;
 var addTestObject;
 var SELECTING_TARGET, sourceTarget, requestRemoveBody, requestCourse, cancelCourse, setCourse, composer;
-var bokehPass, sceneCamera;//, sceneTarget, sceneTargetPass;
+var bokehPass, farCamera;//, sceneTarget, sceneTargetPass;
 
 function RSimulate(opts) {
 
@@ -387,7 +387,8 @@ function RSimulate(opts) {
         if (cameraTarget && cameraTarget.orbit) cameraTarget.orbit.getEllipse().visible = true;
 
         controls.update();
-        sceneCamera.position = camera.position;
+        farCamera.position = camera.position.clone();
+        farCamera.rotation = camera.rotation.clone();
     }
 
     function getFocalDepth(distanceFromCamera) {
@@ -1031,9 +1032,10 @@ function RSimulate(opts) {
     function initCamera() {
 
         camera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(), 1, CAMERA_NEAR );
-        sceneCamera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(), 1, CAMERA_FAR );
+        farCamera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(), CAMERA_NEAR, CAMERA_FAR );
         camera.position.z = 500;
-        sceneCamera.position = camera.position;
+        farCamera.position = camera.position.clone();
+        farCamera.rotation = camera.rotation.clone();
     }
 
     function initLights() {
@@ -1049,33 +1051,33 @@ function RSimulate(opts) {
         projector = new THREE.Projector();
 
         renderer = new THREE.WebGLRenderer( { antialias: false } );
-        //renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.autoClear = false;
 
         composer = new THREE.EffectComposer( renderer );
 
-        var farPass = new THREE.RenderPass( scene, sceneCamera);
+        var farPass = new THREE.RenderPass( scene, farCamera);
         composer.addPass( farPass );
 
         var copyPass = new THREE.ShaderPass( THREE.CopyShader );
         copyPass.renderToScreen = false;
         composer.addPass ( copyPass );
 
-        bokehPass = new THREE.Bokeh2Pass( scene, sceneCamera, {
-            shaderFocus: {type: 'i', value: 1},
+        bokehPass = new THREE.Bokeh2Pass( scene, farCamera, {
+            shaderFocus: {type: 'i', value: 0},
             focusCoords: {type: 'v2', value: new THREE.Vector2(0.5, 0.5)},
-            znear: {type: 'f', value: parseFloat(CAMERA_NEAR)},
+            znear: {type: 'f', value: 1.0},
             zfar: {type: 'f', value: parseFloat(CAMERA_FAR)},
 
-            fstop: {type: 'f', value: 1.2},
-            maxblur: {type: 'f', value: 0.001},
+            fstop: {type: 'f', value: 2.2},
+            maxblur: {type: 'f', value: 0.0015},
 
             showFocus: {type: 'i', value: 0},
             manualdof: {type: 'i', value: 0},
-            vignetting: {type: 'i', value: 1},
+            vignetting: {type: 'i', value: 0},
             depthblur: {type: 'i', value: 1},
 
             threshold: {type: 'f', value: 1.0},
-            gain: {type: 'f', value: 0.2},
+            gain: {type: 'f', value: 5.2},
             bias: {type: 'f', value: 1.0},
             fringe: {type: 'f', value: 0.002},
 
@@ -1094,8 +1096,7 @@ function RSimulate(opts) {
          maxblur: 1.0
          });*/
         bokehPass.renderToScreen = false;
-
-        bokehPass.clear = false;
+        bokehPass.needsSwap = true;
         composer.addPass( bokehPass );
 
         copyPass.renderToScreen = false;
@@ -1104,6 +1105,8 @@ function RSimulate(opts) {
         var nearPass = new THREE.RenderPass( scene, camera );
         nearPass.renderToScreen = false;
         nearPass.clear = false;
+        nearPass.clearDepth = true;
+
         composer.addPass( nearPass );
 
         var finalPass = new THREE.ShaderPass( THREE.CopyShader );
@@ -1137,9 +1140,9 @@ function RSimulate(opts) {
 
     function onWindowResize() {
         camera.aspect = $(canvas).width() / $(canvas).height();
-        sceneCamera.aspect = $(canvas).width() / $(canvas).height();
+        farCamera.aspect = $(canvas).width() / $(canvas).height();
         camera.updateProjectionMatrix();
-        sceneCamera.updateProjectionMatrix();
+        farCamera.updateProjectionMatrix();
 
         renderer.setSize($(canvas).width(), $(canvas).height());
 
@@ -1270,9 +1273,9 @@ function initrSimulate() {
     $(renderer.domElement).css('height', '');
     renderer.setSize(jCanvas.width(), jCanvas.height());
     camera.aspect = $(canvas).width() / $(canvas).height();
-    sceneCamera.aspect = $(canvas).width() / $(canvas).height();
+    farCamera.aspect = $(canvas).width() / $(canvas).height();
     camera.updateProjectionMatrix();
-    sceneCamera.updateProjectionMatrix();
+    farCamera.updateProjectionMatrix();
 
     ws.send(message('refresh','None'));
 }

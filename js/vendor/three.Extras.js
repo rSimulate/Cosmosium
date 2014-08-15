@@ -298,6 +298,7 @@ THREE.RenderPass = function ( scene, camera, overrideMaterial, clearColor, clear
     this.enabled = true;
     this.clear = true;
     this.needsSwap = false;
+    this.clearDepth = false;
 };
 THREE.RenderPass.prototype = {
     render: function ( renderer, writeBuffer, readBuffer, delta ) {
@@ -306,6 +307,9 @@ THREE.RenderPass.prototype = {
             this.oldClearColor.copy( renderer.getClearColor() );
             this.oldClearAlpha = renderer.getClearAlpha();
             renderer.setClearColor( this.clearColor, this.clearAlpha );
+        }
+        if ( this.clearDepth ) {
+            renderer.clear(false, true, false);
         }
         renderer.render( this.scene, this.camera, readBuffer, this.clear );
         if ( this.clearColor ) {
