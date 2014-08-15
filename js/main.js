@@ -42,7 +42,7 @@ var selectedObject = undefined;
 var removeBody, updateObjectOwnerById, rainbow;
 var addTestObject;
 var SELECTING_TARGET, sourceTarget, requestRemoveBody, requestCourse, cancelCourse, setCourse, composer;
-var bokehPass, farCamera;//, sceneTarget, sceneTargetPass;
+var bokehPass, farCamera;
 
 function RSimulate(opts) {
 
