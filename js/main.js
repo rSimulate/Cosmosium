@@ -96,6 +96,11 @@ function RSimulate(opts) {
         var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh};
         objects.push(obj);
 
+        // orbit sun at start of game
+        if (obj.model == 'Sun') {
+            sun = obj;
+        }
+
         nextEntityIndex++;
 
         if (type == 'playerObject') {
@@ -381,16 +386,17 @@ function RSimulate(opts) {
             }
 
         }
-        else cameraTarget = getSolarCentricObject();
+
 
         // ensure origin target keeps ellipse displayed
         if (cameraTarget && cameraTarget.orbit) cameraTarget.orbit.getEllipse().visible = true;
 
         controls.update();
-        farCamera.position = camera.position.clone();
-        farCamera.rotation = camera.rotation.clone();
+        farCamera.position.copy(camera.position);
+        farCamera.rotation.copy(camera.rotation);
 
         if ( bokehPass && cameraTarget ) {
+            bokehPass.enabled = true;
             var dist = Math.abs(cameraTarget.mesh.position.distanceTo(camera.position));
             var cullDist = dist+ cameraTarget.mesh.geometry.boundingSphere.radius;
 
@@ -405,8 +411,8 @@ function RSimulate(opts) {
             // Distance check to remove aberrations from the bokeh shader
             if (dist >= 400) dist = 400;
             bokehPass.materialBokeh.uniforms.focalDepth.value = dist;
-
         }
+        else if ( bokehPass && cameraTarget == undefined) bokehPass.enabled = false;
     }
 
     function getFocalDepth(distanceFromCamera) {
@@ -620,6 +626,7 @@ function RSimulate(opts) {
         window.addEventListener( 'resize', onWindowResize, false );
 
         initUI();
+        orbitCamera(sun);
     }
 
     function onlyUnique(value, index, self) {
@@ -645,7 +652,7 @@ function RSimulate(opts) {
         skybox = new THREE.Mesh(geometry, material);
         skybox.scale.set(-1, 1, 1);
         skybox.eulerOrder = 'XZY';
-        //skybox.rotation.z = Math.PI/2.0;
+        skybox.rotation.z = Math.PI/3.0;
         skybox.rotation.x = Math.PI;
         skybox.renderDepth = 1000.0;
         scene.add(skybox);
@@ -847,16 +854,15 @@ function RSimulate(opts) {
             fog: true
         });
 
-        sun = new THREE.Mesh( sphereGeometry, sunMaterial );
+        var sun = new THREE.Mesh( sphereGeometry, sunMaterial );
         addBody(scene, 'star', undefined, sun, false, nextEntityIndex, "Sun", "Mankind");
 
 		//Create SunFlare
         //var sunflare = lensFlare(0,0,0, SUN_SIZE*1.05, 'img/textures/lensflare0.png');
-
     }
 
     function animateSun() {
-       sun.material.uniforms['time'].value = clock.getElapsedTime();
+       sun.mesh.material.uniforms['time'].value = clock.getElapsedTime();
     }
 
     function getObjectByOrbitName(objName) {
@@ -1173,6 +1179,8 @@ function RSimulate(opts) {
         jed += jed_delta*deltaSeconds;
 
         updateBodies(timeAdvanced, objects);
+
+        orbitCamera();
     }
 
     function updateBodies(timeAdvanced, objects) {
@@ -1226,7 +1234,6 @@ function RSimulate(opts) {
 
         render();
         stats.update();
-        orbitCamera(undefined);
 
     }
 
