@@ -1,35 +1,26 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 function RSimulate(opts) {
+    var _this = this;
+    this.cosmosUI = new CosmosUI();
+    this.cosmosScene = new CosmosScene(this.cosmosUI);
+    this.cosmosRender = new CosmosRender(this.cosmosScene, this.cosmosUI);
 
     function init() {
-        CosmosScene.init();
-        CosmosRender.init();
-        CosmosUI.init();
+        _this.cosmosRender.init();
+        _this.cosmosScene.init(_this.cosmosRender);
+        _this.cosmosUI.init(_this.cosmosRender, _this.cosmosScene);
 
         window.addEventListener( 'resize', onWindowResize, false );
 
-        CosmosScene.orbitCamera(CosmosScene.sun);
-    }
-    function animate() {
-        CosmosRender.render();
-    }
-
-    function onWindowResize() {
-        camera.aspect = $(canvas).width() / $(canvas).height();
-        farCamera.aspect = $(canvas).width() / $(canvas).height();
-        camera.updateProjectionMatrix();
-        farCamera.updateProjectionMatrix();
-
-        renderer.setSize($(canvas).width(), $(canvas).height());
-
-        render();
+        _this.cosmosRender.orbitCamera(this.CosmosScene.sun);
     }
 
     init();
-    animate();
+    this.cosmosRender.animate();
 }
 
+// TODO: Do we need this listener anymore?
 
 // the following is needed to have relative URLs to different ports
 // delegate event for performance, and save attaching a million events to each anchor
@@ -59,15 +50,5 @@ $(document).ready(function(){
 function initrSimulate() {
     // refresh webGL
     rSimulate = new RSimulate({});
-    jCanvas = $('#canvas');
-
-    // Configure webGL canvas to conform to parent div
-    $(renderer.domElement).css('height', '');
-    renderer.setSize(jCanvas.width(), jCanvas.height());
-    camera.aspect = $(canvas).width() / $(canvas).height();
-    farCamera.aspect = $(canvas).width() / $(canvas).height();
-    camera.updateProjectionMatrix();
-    farCamera.updateProjectionMatrix();
-
     ws.send(message('refresh','None'));
 }
