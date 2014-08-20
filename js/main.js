@@ -8,13 +8,12 @@ function RSimulate(opts) {
 
     function init() {
         _this.cosmosRender.init();
-        console.log(_this.cosmosRender.getClock());
-        _this.cosmosScene.init(_this.cosmosRender.CAMERA_FAR, _this.cosmosRender.getClock());
-        _this.cosmosUI.init(_this.cosmosRender, _this.cosmosScene);
+        _this.cosmosScene.init(_this.cosmosRender);
+        _this.cosmosUI.init(_this.cosmosScene, _this.cosmosRender);
 
-        window.addEventListener( 'resize', onWindowResize, false );
+        window.addEventListener( 'resize', _this.cosmosRender.onWindowResize, false );
 
-        _this.cosmosRender.orbitCamera(this.CosmosScene.sun);
+        _this.cosmosRender.orbitCamera(_this.cosmosScene.getSolarCentricObject());
     }
 
     init();

@@ -61,7 +61,7 @@
 
 
         <style>
-            html,body { height: 100%; margin: 0; padding: 0; overflow-y: hidden}
+            html,body { height: 100%; margin: 0; padding: 0; overflow: hidden;}
             #info {
                 color:#000;
                 position: absolute;
@@ -145,6 +145,8 @@
                 width: 70%;
                 height: 80%;
                 z-index: 1010;
+                overflow: hidden;
+                overflow-y: auto;
             }
 
             #surveyEquip {
@@ -165,7 +167,8 @@
                 width: 70%;
                 height: 80%;
                 z-index: 1010;
-                overflow-y: scroll;
+                overflow: hidden;
+                overflow-y: auto;
             }
 
             #resource-bar {

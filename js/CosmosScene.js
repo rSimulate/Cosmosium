@@ -1,24 +1,21 @@
 
 
-var CosmosScene = new function (cosmosUI) {
+var CosmosScene = function (cosmosUI) {
     var _this = this;
     var NUM_BIG_PARTICLES = 500;
     var particle_system_geometry = null;
 
-
     var LOD_DIST = {ONE: 300, TWO: 600, THREE: 1000};
     var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
     var players = []; // {player: playerName, color: THREE.Color}
-    var scene, cameraFar, renderClock;
+    var scene = new THREE.Scene();
+    var cosmosRender;
+    var selectedObject;
 
-    var init = new function(_cameraFar, _renderClock) {
-        cameraFar = _cameraFar;
-        renderClock = _renderClock;
-
-        scene = new THREE.Scene();
-
+    this.init = function(_cosmosRender) {
+        cosmosRender = _cosmosRender;
         initLights();
-        initSkybox();
+        initSkybox(cosmosRender.getMaxCullDist());
         initSun();
     };
 
@@ -31,8 +28,8 @@ var CosmosScene = new function (cosmosUI) {
         scene.add( light );
     }
 
-    function initSkybox() {
-        var geometry = new THREE.SphereGeometry(cameraFar / 2.0, 60, 40);
+    function initSkybox(cullDist) {
+        var geometry = new THREE.SphereGeometry(cullDist / 2.0, 60, 40);
 
         var uniforms = {
             texture: {
@@ -47,20 +44,20 @@ var CosmosScene = new function (cosmosUI) {
             fragmentShader: document.getElementById('sky-fragment').textContent
         });
 
-        this.skybox = new THREE.Mesh(geometry, material);
-        this.skybox.scale.set(-1, 1, 1);
-        this.skybox.eulerOrder = 'XZY';
-        this.skybox.rotation.z = Math.PI/3.0;
-        this.skybox.rotation.x = Math.PI;
-        this.skybox.renderDepth = 1000.0;
-        scene.add(this.skybox);
+        var skybox = new THREE.Mesh(geometry, material);
+        skybox.scale.set(-1, 1, 1);
+        skybox.eulerOrder = 'XZY';
+        skybox.rotation.z = Math.PI/3.0;
+        skybox.rotation.x = Math.PI;
+        skybox.renderDepth = 1000.0;
+        scene.add(skybox);
     }
 
     function initSun() {
         //Create Sun Model
         var sphereGeometry = new THREE.SphereGeometry( SUN_SIZE, 32, 32 );
         //var sunTexture = THREE.ImageUtils.loadTexture('img/textures/sun_small.jpg');
-        var time = renderClock.getElapsedTime();
+        var time = cosmosRender.getClock().getElapsedTime();
         var uniforms = {
             texture: {
                 type: 't',
@@ -91,7 +88,10 @@ var CosmosScene = new function (cosmosUI) {
         _this.addBody(scene, 'star', undefined, sun, false, 1, "Sun", "Mankind");
     }
 
-    this.addBody = new function( parent, type, orbit, mesh, shouldAlwaysShowEllipse, objectId, model, owner ) {
+    this.getPlayers = function () {return players;};
+    this.getParticleSystemGeometry = function () {return particle_system_geometry;};
+
+    this.addBody = function( parent, type, orbit, mesh, shouldAlwaysShowEllipse, objectId, model, owner ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
 
         // orbit undefined for sun
@@ -129,20 +129,20 @@ var CosmosScene = new function (cosmosUI) {
             // add listener to object specific div
             document.getElementById(orbit.name).addEventListener('click', function() {
                 selectedObject = obj;
-                orbitCamera(selectedObject);
+                cosmosRender.orbitCamera(selectedObject);
             }, false);
         }
         parent.add(mesh);
     };
 
-    this.requestRemoveBody = new function (e) {
+    this.requestRemoveBody = function (e) {
         console.log("Called for removal of objectID " + selectedObject.objectId);
         ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + selectedObject.objectId + "'}}"));
         e.stopPropagation();
         e.preventDefault();
     };
 
-    this.removeAsteroids = new function() {
+    this.removeAsteroids = function() {
         for(var i = objects.length; i--;) {
             var obj = objects[i];
             if(obj.type === 'asteroid') {
@@ -153,7 +153,7 @@ var CosmosScene = new function (cosmosUI) {
         }
     };
 
-    this.removeBody = new function (parentScene, type, objectId) {
+    this.removeBody = function (parentScene, type, objectId) {
         // Removes a body from the scene
         if (parentScene == undefined) { parentScene = scene; }
         var rmObject;
@@ -179,12 +179,12 @@ var CosmosScene = new function (cosmosUI) {
         if (type == "playerObject") {
             $('#'+rmObject.orbit.name).remove();
         }
-        this.orbitCamera(this.getSolarCentricObject());
+        cosmosRender.orbitCamera(this.getSolarCentricObject());
         // deselect body, if selected
         cosmosUI.onBodyDeselected();
     };
 
-    this.makeBodyMesh = new function(size, texture, normal){
+    this.makeBodyMesh = function(size, texture, normal){
         var bodyGeometry = new THREE.SphereGeometry( size, 32, 32 );
         var bodyTexture = THREE.ImageUtils.loadTexture(texture);
         var bodyMaterial = new THREE.MeshLambertMaterial({
@@ -202,7 +202,42 @@ var CosmosScene = new function (cosmosUI) {
         return new THREE.Mesh(bodyGeometry, bodyMaterial);
     };
 
-    this.addBlenderObjectMesh = new function (daePath, object) {
+    this.hideAllConditionalEllipses = function () {
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
+            if (obj.type == 'asteroid') {
+                obj.orbit.getEllipse().visible = false;
+            }
+        }
+    };
+
+    this.updateObjectOwnerById = function (newOwner, objectId) {
+        // returns objectId if successful
+        var object = undefined;
+        for (var i = 0; i < objects.length; i++) {
+            if (objectId == objects[i].objectId) {
+                objects[i].owner = newOwner;
+                object = objects[i];
+                break;
+            }
+        }
+        if (object != undefined) {
+            console.log("ObjectId", objectId, "changed to owner", newOwner);
+
+            var color = getColorForOwner(newOwner);
+            if (color) {
+                for (var u = 0; u < object.mesh.objects.length; u++) {
+                    // Mesh is nested in LOD object
+                    var mesh = object.mesh.objects[u].object;
+                    mesh.material.uniforms['emissive'].value = color;
+                }
+            }
+            else console.log("Tried to add color to asteroid, but color does not exist for owner", newOwner);
+        }
+        else console.log(newOwner, "claimed an object, but objectId", objectId, "was not found in client array");
+    };
+
+    this.addBlenderObjectMesh = function (daePath, object) {
 
         // object = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, // ADDING mesh: mesh}
 
@@ -210,18 +245,19 @@ var CosmosScene = new function (cosmosUI) {
         loader.options.convertUpAxis = true;
 
         // If you had animations, you would add to the second argument function below
-        var mesh;
+        var obj3d;
         loader.load(daePath, function (collada) {
-            mesh = collada.scene;
-            if (mesh != undefined) {
-                mesh.scale.x = mesh.scale.y = mesh.scale.z = 5;
-                mesh.updateMatrix();
+            obj3d = collada.scene;
+            if (obj3d != undefined) {
+                obj3d.scale.x = obj3d.scale.y = obj3d.scale.z = 5;
+                obj3d.updateMatrix();
+                obj3d.userData = {boundingBox: new THREE.Box3().setFromObject(obj3d)};
 
                 // add to scene
-                _this.addBody(scene, "playerObject", object.orbit, mesh, true, object.objectId, object.model, object.owner);
+                _this.addBody(scene, "playerObject", object.orbit, obj3d, true, object.objectId, object.model, object.owner);
 
                 // add to player object collection
-                object.mesh = mesh;
+                object.mesh = obj3d;
                 objects.push(object);
             }
             else {console.log("ERROR: Parsing blender model failed");}
@@ -229,7 +265,7 @@ var CosmosScene = new function (cosmosUI) {
 
     };
 
-    this.addTestObject = new function () {
+    this.addTestObject = function () {
         // NOTE: send ephemeris without a name; the server will assign one
         var cmd = 'create';
         var ephemeris = {
@@ -254,17 +290,17 @@ var CosmosScene = new function (cosmosUI) {
             "'model': 'Magellan', 'data': "+stringify+'}'));
     };
 
-    this.addAsteroid = new function (orbit, mesh, objectId, model, owner) {
+    this.addAsteroid = function (orbit, mesh, objectId, model, owner) {
         _this.addBody( scene, "asteroid", orbit, mesh, false, objectId, model, owner );
     };
 
-    this.addMoon = new function (planetMesh, orbit, mesh, objectId, model, owner) {
+    this.addMoon = function (planetMesh, orbit, mesh, objectId, model, owner) {
         _this.addBody( planetMesh, "moon", orbit, mesh, false, objectId, model, owner  );
     };
 
-    this.getScene = new function () {return this.scene;};
+    this.getScene = function () {return scene;};
 
-    this.getSolarCentricObject = new function () {
+    this.getSolarCentricObject = function () {
         var obj;
         for (var i = 0; i < objects.length; i++) {
             if (objects[i].type == 'star') {
@@ -278,7 +314,7 @@ var CosmosScene = new function (cosmosUI) {
         return cameraTarget;
     };
 
-    this.addNewAsteroid = new function(asteroid) {
+    this.addNewAsteroid = function(asteroid) {
 
         var geometry = [
             [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.ONE],
@@ -294,7 +330,7 @@ var CosmosScene = new function (cosmosUI) {
         var vertexShaderText = document.getElementById("asteroid-vertex").textContent;
         var fragmentShaderText = lambertShader.fragmentShader;
 
-        var useBigParticles = !using_webgl;
+        var useBigParticles = !cosmosRender.isUsingWebGL();
 
         var baseAsteroidSize = ASTEROID_SIZE;
         if (asteroid.orbitExtras.diameter && asteroid.orbitExtras.diameter !== "_") {
@@ -313,9 +349,9 @@ var CosmosScene = new function (cosmosUI) {
             color: 0xcccccc,
             display_color: 0x00ff00,
             width: 2,
-            //TODO: I'm not sure how the object_size needs to be configured
+            //TODO: not sure how the object_size needs to be configured
             object_size: 1 < NUM_BIG_PARTICLES ? 50 : 15, //1.5,
-            jed: jed,
+            jed: cosmosRender.getJED(),
             particle_geometry: particle_system_geometry, // will add itself to this geometry
             name: asteroid.orbit.full_name
         }, useBigParticles);
@@ -402,7 +438,7 @@ var CosmosScene = new function (cosmosUI) {
         _this.addAsteroid(asteroidOrbit, lod, asteroid.objectId, asteroid.type, asteroid.owner);
     };
 
-    this.addPlanet = new function(planet) {
+    this.addPlanet = function(planet) {
         //
         var mesh = undefined;
         var parent = scene;
@@ -459,54 +495,54 @@ var CosmosScene = new function (cosmosUI) {
         else if (planet.type == 'moon') {
             if (planet.model == 'Moon') {
                 mesh = _this.makeBodyMesh(LUNA_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
-                parent = getObjectByOrbitName('Earth').mesh;
+                parent = _this.getObjectByOrbitName('Earth').mesh;
             }
             // Jupiter's satellites
             else if (planet.model == 'Io') {
                 mesh = _this.makeBodyMesh(IO_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
-                parent = getObjectByOrbitName('Jupiter').mesh;
+                parent = _this.getObjectByOrbitName('Jupiter').mesh;
             }
             else if (planet.model == 'Europa') {
                 mesh = _this.makeBodyMesh(EUROPA_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
-                parent = getObjectByOrbitName('Jupiter').mesh;
+                parent = _this.getObjectByOrbitName('Jupiter').mesh;
             }
             else if (planet.model == 'Ganymede') {
                 mesh = _this.makeBodyMesh(GANYMEDE_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
-                parent = getObjectByOrbitName('Jupiter').mesh;
+                parent = _this.getObjectByOrbitName('Jupiter').mesh;
             }
             else if (planet.model == 'Callisto') {
                 mesh = _this.makeBodyMesh(CALLISTO_SIZE, 'img/textures/moon_small.jpg', 'img/textures/moon_small_normal.jpg');
-                parent = getObjectByOrbitName('Jupiter').mesh;
+                parent = _this.getObjectByOrbitName('Jupiter').mesh;
             }
             // Mars' satellites
             else if (planet.model == 'Phobos') {
                 mesh = _this.makeBodyMesh(PHOBOS_SIZE, 'img/textures/phobos_tiny.jpg', 'img/textures/phobos_tiny_normal.jpg');
-                parent = getObjectByOrbitName('Mars').mesh;
+                parent = _this.getObjectByOrbitName('Mars').mesh;
             }
             else if (planet.model == 'Deimos') {
                 mesh = _this.makeBodyMesh(DEIMOS_SIZE, 'img/textures/deimos_tiny.jpg', 'img/textures/deimos_tiny_normal.jpg');
-                parent = getObjectByOrbitName('Mars').mesh;
+                parent = _this.getObjectByOrbitName('Mars').mesh;
             }
             // Saturn's satellites
             else if (planet.model == 'Titan') {
                 var meshMaterial = new THREE.MeshLambertMaterial({color: 0xEACA51});
                 var bodyGeometry = new THREE.SphereGeometry( TITAN_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
-                parent = getObjectByOrbitName('Saturn').mesh;
+                parent = _this.getObjectByOrbitName('Saturn').mesh;
             }
             else if (planet.model == 'Rhea') {
                 mesh = _this.makeBodyMesh(RHEA_SIZE, 'img/textures/asteroid_small.jpg',
                     'img/textures/asteroid_small_normal.jpg');
-                parent = getObjectByOrbitName('Saturn').mesh;
+                parent = _this.getObjectByOrbitName('Saturn').mesh;
             }
             else if (planet.model == 'Iapetus') {
                 mesh = _this.makeBodyMesh(IAPETUS_SIZE, 'img/textures/iapetus_small.jpg', 'img/textures/iapetus_small.jpg');
-                parent = getObjectByOrbitName('Saturn').mesh;
+                parent = _this.getObjectByOrbitName('Saturn').mesh;
             }
             else if (planet.model == 'Dione') {
                 mesh = _this.makeBodyMesh(DIONE_SIZE, 'img/textures/asteroid_small.jpg',
                     'img/textures/asteroid_small_normal.jpg');
-                parent = getObjectByOrbitName('Saturn').mesh;
+                parent = _this.getObjectByOrbitName('Saturn').mesh;
             }
             else if (planet.model == 'Tethys') {
                 var meshMaterial = new THREE.MeshPhongMaterial({
@@ -516,23 +552,23 @@ var CosmosScene = new function (cosmosUI) {
                 });
                 var bodyGeometry = new THREE.SphereGeometry( TETHYS_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
-                parent = getObjectByOrbitName('Saturn').mesh;
+                parent = _this.getObjectByOrbitName('Saturn').mesh;
             }
             // Uranus' satellites
             else if (planet.model == 'Miranda') {
                 mesh = _this.makeBodyMesh(MIRANDA_SIZE, 'img/textures/asteroid_small.jpg',
                     'img/textures/asteroid_small_normal.jpg');
-                parent = getObjectByOrbitName('Uranus').mesh;
+                parent = _this.getObjectByOrbitName('Uranus').mesh;
             }
             else if (planet.model == 'Ariel') {
                 mesh = _this.makeBodyMesh(ARIEL_SIZE, 'img/textures/asteroid_small.jpg',
                     'img/textures/asteroid_small_normal.jpg');
-                parent = getObjectByOrbitName('Uranus').mesh;
+                parent = _this.getObjectByOrbitName('Uranus').mesh;
             }
             else if (planet.model == 'Umbriel') {
                 mesh = _this.makeBodyMesh(UMBRIEL_SIZE, 'img/textures/asteroid_small.jpg',
                     'img/textures/asteroid_small_normal.jpg');
-                parent = getObjectByOrbitName('Uranus').mesh;
+                parent = _this.getObjectByOrbitName('Uranus').mesh;
             }
             else if (planet.model == 'Titania') {
                 var meshMaterial = new THREE.MeshPhongMaterial({
@@ -542,7 +578,7 @@ var CosmosScene = new function (cosmosUI) {
                 });
                 var bodyGeometry = new THREE.SphereGeometry( TITANIA_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
-                parent = getObjectByOrbitName('Uranus').mesh;
+                parent = _this.getObjectByOrbitName('Uranus').mesh;
             }
             else if (planet.model == 'Oberon') {
                 var meshMaterial = new THREE.MeshPhongMaterial({
@@ -552,13 +588,13 @@ var CosmosScene = new function (cosmosUI) {
                 });
                 var bodyGeometry = new THREE.SphereGeometry( OBERON_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
-                parent = getObjectByOrbitName('Uranus').mesh;
+                parent = _this.getObjectByOrbitName('Uranus').mesh;
             }
             //Neptune's satellites
             else if (planet.model == 'Proteus') {
                 mesh = _this.makeBodyMesh(PROTEUS_SIZE, 'img/textures/asteroid_small.jpg',
                     'img/textures/asteroid_small_normal.jpg');
-                parent = getObjectByOrbitName('Neptune').mesh;
+                parent = _this.getObjectByOrbitName('Neptune').mesh;
             }
             else if (planet.model == 'Triton') {
                 var meshMaterial = new THREE.MeshPhongMaterial({
@@ -568,16 +604,27 @@ var CosmosScene = new function (cosmosUI) {
                 });
                 var bodyGeometry = new THREE.SphereGeometry( TRITON_SIZE, 32, 32 );
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
-                parent = getObjectByOrbitName('Neptune').mesh;
+                parent = _this.getObjectByOrbitName('Neptune').mesh;
             }
             else if (planet.model == 'Nereid') {
                 mesh = _this.makeBodyMesh(NEREID_SIZE, 'img/textures/asteroid_small.jpg',
                     'img/textures/asteroid_small_normal.jpg');
-                parent = getObjectByOrbitName('Neptune').mesh;
+                parent = _this.getObjectByOrbitName('Neptune').mesh;
             }
             _this.addBody(parent, planet.type, planet.orbit, mesh, true, planet.objectId, planet.model, planet.owner);
         }
     };
 
-    this.getObjects = new function() {return objects;};
+    this.getObjects = function() {return objects;};
+
+    this.getObjectByOrbitName = function (objName) {
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
+            if (obj.orbit) {
+                if (obj.orbit.name && obj.orbit.name == objName) return obj;
+                if (obj.orbit.full_name && obj.orbit.full_name == objName) return obj;
+            }
+        }
+        console.log("could not find", objName);
+    }
 };

@@ -1,125 +1,147 @@
-var CosmosRender = new function (cosmosScene, cosmosUI) {
+var CosmosRender = function (cosmosScene, cosmosUI) {
     var _this = this;
-    this.day = 'Mon';
-    this.month = 'Jan';
-    this.year = '1969';
-    this.jed = toJED(new Date());    // julian date
+    var jed = toJED(new Date());    // julian date
     var jed_delta = 3;  // how many days per second to elapse
-    var using_webgl = true; // TODO;
+    var using_webgl = true;
     var camera, farCamera;
-    this.CAMERA_NEAR = 75;
-    this.CAMERA_FAR = 1000000;
-    this.FOCAL_LENGTH = 60;
-    this.clock = new THREE.Clock();
+    var CAMERA_NEAR = 75;
+    var CAMERA_FAR = 1000000;
+    var FOCAL_LENGTH = 60;
+    var clock = new THREE.Clock();
+    var controls = undefined;
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: false });
+    var renderer = new THREE.WebGLRenderer({ antialias: false });
     var canvas, jCanvas, composer;
+    var cameraTarget;
+    var bokehPass;
 
-    this.init = new function () {
-        _this.clock.start();
+    this.init = function () {
+        clock.start();
 
         canvas = document.getElementById('canvas');
         jCanvas = $('#canvas');
 
         initCamera();
         initRenderer();
-
-        // Configure webGL canvas to conform to parent div
-        $(_this.renderer.domElement).css('height', '');
-        _this.renderer.setSize(jCanvas.width(), jCanvas.height());
-        camera.aspect = $(canvas).width() / $(canvas).height();
-        farCamera.aspect = $(canvas).width() / $(canvas).height();
-        camera.updateProjectionMatrix();
-        farCamera.updateProjectionMatrix();
     };
 
-    this.getClock = new function () {
-        console.log(_this.clock.getElapsedTime());
-        return _this.clock;};
+    this.isUsingWebGL = function () {return using_webgl;};
 
-    this.animate = new function () {
+    this.getMaxCullDist = function () {return CAMERA_FAR;};
+    
+    this.getRenderer = function () {return renderer;};
+
+    this.getClock = function () {return clock;};
+
+    this.setJED = function (newJed) {jed = newJed;};
+    this.getJED = function () {return jed;};
+
+    // Needs to be a scene object, not a mesh
+    this.clearCameraTarget = function () {cameraTarget = undefined;};
+
+    this.animate = function () {
         requestAnimationFrame(_this.animate, undefined);
 
-        update(_this.clock.getDelta());
+        update(clock.getDelta());
         cosmosUI.update();
+        _this.orbitCamera();
 
         render();
 
     };
 
-    this.orbitCamera = new function (originObj, cameraTarget) {
+    this.enableControls = function () {controls.enable = true;};
+    this.disableControls = function () {controls.enable = false;};
+
+    this.orbitCamera = function (originObj) {
         if (originObj == undefined && cameraTarget != undefined) {
             // Called from animate() to update every frame to keep origin position
             if (cameraTarget.type == 'moon') {
-                this.controls.target = cameraTarget.mesh.parent.position.clone();
+                controls.target = cameraTarget.mesh.parent.position.clone();
             }
             else {
-                this.controls.target = cameraTarget.mesh.position.clone();
+                controls.target = cameraTarget.mesh.position.clone();
             }
         }
         else if (originObj != undefined) {
             cameraTarget = originObj;
             if (originObj.type == 'moon') {
-                this.controls.target = originObj.mesh.parent.position.clone();
+                controls.target = originObj.mesh.parent.position.clone();
             }
             else {
-                this.controls.target = originObj.mesh.position.clone();
+                controls.target = originObj.mesh.position.clone();
             }
 
         }
 
-
         // ensure origin target keeps ellipse displayed
         if (cameraTarget && cameraTarget.orbit) cameraTarget.orbit.getEllipse().visible = true;
 
-        this.controls.update();
+        controls.update();
         farCamera.position.copy(camera.position);
         farCamera.rotation.copy(camera.rotation);
 
-        if (this.bokehPass && cameraTarget) {
-            this.bokehPass.enabled = true;
+        if (bokehPass && cameraTarget) {
+            bokehPass.enabled = true;
             var dist = Math.abs(cameraTarget.mesh.position.distanceTo(camera.position));
-            var cullDist = dist + cameraTarget.mesh.geometry.boundingSphere.radius;
+
+            // find radius for object while accounting for some meshes being actually LOD objects
+            var radius;
+            if (cameraTarget.type == 'asteroid') {
+                // multiplying by three to account for perlin noise
+                radius = cameraTarget.mesh.getObjectForDistance(dist).geometry.boundingSphere.radius * 3;
+            }
+            else if (cameraTarget.mesh.userData && cameraTarget.mesh.userData.boundingBox) {
+                radius = cameraTarget.mesh.userData.boundingBox.getBoundingSphere().radius;
+            }
+            else {radius = cameraTarget.mesh.geometry.boundingSphere.radius}
+
+            var cullDist = dist + radius;
 
             // adjust bokeh culling to be past target object
-            if (dist < 400) {
-                _this.CAMERA_NEAR = dist;
+            if (cullDist < 400) {
+                CAMERA_NEAR = cullDist;
                 camera.far = cullDist;
                 farCamera.near = cullDist;
                 camera.updateProjectionMatrix();
                 farCamera.updateProjectionMatrix();
             }
+
+            // adjust distance for bokeh shader to accompany blurring for large objects
+            dist -= radius / 2;
+
             // Distance check to remove aberrations from the bokeh shader
             if (dist >= 400) dist = 400;
-            this.bokehPass.materialBokeh.uniforms.focalDepth.value = dist;
+            bokehPass.materialBokeh.uniforms.focalDepth.value = dist;
         }
-        else if (this.bokehPass && cameraTarget == undefined) this.bokehPass.enabled = false;
+        else if (bokehPass && cameraTarget == undefined) bokehPass.enabled = false;
     };
 
-    this.getCamera = new function (isFar) {
+    this.getCamera = function (isFar) {
         if (isFar) return farCamera;
         return camera;
+    };
+
+    this.onWindowResize = function () {
+        camera = $(canvas).width() / $(canvas).height();
+        farCamera.aspect = $(canvas).width() / $(canvas).height();
+        camera.updateProjectionMatrix();
+        farCamera.updateProjectionMatrix();
+
+        renderer.setSize($(canvas).width(), $(canvas).height());
+
+        render();
     };
 
     function render() {
         composer.render(0.1);
     }
 
-    function onWindowResize() {
-        camera = $(canvas).width() / $(canvas).height();
-        farCamera.aspect = $(canvas).width() / $(canvas).height();
-        camera.updateProjectionMatrix();
-        farCamera.updateProjectionMatrix();
-
-        _this.renderer.setSize($(canvas).width(), $(canvas).height());
-
-        render();
-    }
 
     function initCamera() {
         camera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(), 1, CAMERA_NEAR );
         farCamera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(),
-                _this.CAMERA_NEAR - 1, _this.CAMERA_FAR );
+                CAMERA_NEAR - 1, CAMERA_FAR );
         camera.position.z = 500;
         farCamera.position = camera.position.clone();
         farCamera.rotation = camera.rotation.clone();
@@ -127,9 +149,9 @@ var CosmosRender = new function (cosmosScene, cosmosUI) {
 
     function initRenderer() {
 
-        _this.renderer.autoClear = false;
+        renderer.autoClear = false;
 
-        composer = new THREE.EffectComposer(_this.renderer);
+        composer = new THREE.EffectComposer(renderer);
 
         var farPass = new THREE.RenderPass(cosmosScene.getScene(), farCamera);
         composer.addPass(farPass);
@@ -138,13 +160,13 @@ var CosmosRender = new function (cosmosScene, cosmosUI) {
         copyPass.renderToScreen = false;
         composer.addPass(copyPass);
 
-        this.bokehPass = new THREE.Bokeh2Pass(cosmosScene.getScene(), farCamera, {
+        bokehPass = new THREE.Bokeh2Pass(cosmosScene.getScene(), farCamera, {
             shaderFocus: {type: 'i', value: 0},
             focusCoords: {type: 'v2', value: new THREE.Vector2(0.5, 0.5)},
-            znear: {type: 'f', value: parseFloat(_this.CAMERA_NEAR)},
-            zfar: {type: 'f', value: parseFloat(_this.CAMERA_FAR)},
+            znear: {type: 'f', value: parseFloat(CAMERA_NEAR)},
+            zfar: {type: 'f', value: parseFloat(CAMERA_FAR)},
 
-            fstop: {type: 'f', value: _this.CAMERA_NEAR / 10},
+            fstop: {type: 'f', value: parseFloat(CAMERA_NEAR) / 10.0},
             maxblur: {type: 'f', value: 0.04},
 
             showFocus: {type: 'i', value: 0},
@@ -165,9 +187,9 @@ var CosmosRender = new function (cosmosScene, cosmosUI) {
             dithering: {type: 'f', value: 0.0002}
         });
 
-        this.bokehPass.renderToScreen = false;
-        this.bokehPass.needsSwap = true;
-        composer.addPass(this.bokehPass);
+        bokehPass.renderToScreen = false;
+        bokehPass.needsSwap = true;
+        composer.addPass(bokehPass);
 
         copyPass.renderToScreen = false;
         composer.addPass(copyPass);
@@ -188,26 +210,26 @@ var CosmosRender = new function (cosmosScene, cosmosUI) {
         var hDiff = $(document.body).height() - navbarHeight - 1;
         var sidebarWidth = $('#left-sidebar').width();
         var wDiff = $(document.body).width() - sidebarWidth;
-        $('#canvas').append(_this.renderer.domElement).css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
+        $('#canvas').append(renderer.domElement).css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
 
 
-        this.controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-        _this.renderer.domElement.addEventListener('mousemove', cosmosUI.onDocumentMouseMove, false);
-        _this.renderer.domElement.addEventListener('mousedown', cosmosUI.onDocumentMouseDown, false);
-        _this.renderer.domElement.addEventListener('mouseup', cosmosUI.onDocumentMouseUp, false);
+        renderer.domElement.addEventListener('mousemove', cosmosUI.onDocumentMouseMove, false);
+        renderer.domElement.addEventListener('mousedown', cosmosUI.onDocumentMouseDown, false);
+        renderer.domElement.addEventListener('mouseup', cosmosUI.onDocumentMouseUp, false);
     }
 
 
     function update(deltaSeconds) {
         animateSun();
         // Update LODs based on distance
-        this.scene.traverse(function (node) {
+        cosmosScene.getScene().traverse(function (node) {
             if (node instanceof THREE.LOD) node.update(camera)
         });
 
         var timeAdvanced = jed_delta * deltaSeconds;
-        _this.jed += jed_delta * deltaSeconds;
+        jed += jed_delta * deltaSeconds;
 
         updateBodies(timeAdvanced, cosmosScene.getObjects());
 
@@ -215,7 +237,7 @@ var CosmosRender = new function (cosmosScene, cosmosUI) {
     }
 
     function animateSun() {
-        cosmosScene.getSolarCentricObject().mesh.material.uniforms['time'].value = this.clock.getElapsedTime();
+        cosmosScene.getSolarCentricObject().mesh.material.uniforms['time'].value = _this.getClock().getElapsedTime();
     }
 
     function updateBodies(timeAdvanced, objects) {
@@ -223,7 +245,7 @@ var CosmosRender = new function (cosmosScene, cosmosUI) {
             var obj = objects[i];
             var orbit = obj.orbit;
             if (orbit != undefined) {
-                var helioCoords = orbit.getPosAtTime(_this.jed);
+                var helioCoords = orbit.getPosAtTime(jed);
                 var mesh = obj.mesh;
                 mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
 

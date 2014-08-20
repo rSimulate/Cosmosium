@@ -1,5 +1,5 @@
 
-var CosmosUI = new function () {
+var CosmosUI = function () {
     var _this = this;
     var selectedObject = undefined;
     var claimButt = document.getElementById('claim-asteroid-button');
@@ -8,6 +8,11 @@ var CosmosUI = new function () {
     var projector = new THREE.Projector();
     var stats = new Stats();
     var cosmosRender, cosmosScene;
+    var day = 'Mon';
+    var month = 'Jan';
+    var year = '1969';
+    var camera, farCamera;
+    var canvas, renderer;
 
     var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
     if (SHOWING_ASTEROID_CLAIM){
@@ -23,9 +28,13 @@ var CosmosUI = new function () {
         claimButt.addEventListener('click', claimButt_onClick, false);
     }
 
-    this.init = new function(cosmos_Render, cosmos_Scene) {
-        cosmosRender = cosmos_Render;
-        cosmosScene = cosmos_Scene;
+    this.init = function(_cosmosScene, _cosmosRender ) {
+        cosmosRender = _cosmosRender;
+        cosmosScene = _cosmosScene;
+        renderer = cosmosRender.getRenderer();
+        camera = cosmosRender.getCamera(false);
+        farCamera = cosmosRender.getCamera(true);
+        canvas = $('#canvas');
 
         initStats();
 
@@ -38,15 +47,35 @@ var CosmosUI = new function () {
         // update top menu bar every second
         setInterval(function () {
             var el = document.getElementById('gametime');
-            el.innerHTML = cosmosRender.day+' '+cosmosRender.month+' '+cosmosRender.year;
+            el.innerHTML = day + ' ' + month + ' ' + year;
         }, 1000);
+
+        // Configure webGL canvas to conform to parent div
+        $(renderer.domElement).css('height', '');
+        renderer.setSize(canvas.width(), canvas.height());
+        camera.aspect = canvas.width() / canvas.height();
+        farCamera.aspect = canvas.width() / canvas.height();
+        camera.updateProjectionMatrix();
+        farCamera.updateProjectionMatrix();
     };
 
-    this.update = new function () {
-        stats.update();
-    };
+    this.update = function () {stats.update();};
 
-    this.requestCourse = new function (e) {
+    this.setDay = function (newDay) {day = newDay;};
+
+    this.setMonth = function (newMonth) {month = newMonth;};
+
+    this.setYear = function (newYear) {year = newYear;};
+
+    this.getDay = function () {return day;};
+
+    this.getMonth = function () {return month;};
+
+    this.getYear = function () {return year;};
+
+
+
+    this.requestCourse = function (e) {
         console.log("Requesting to set a new course");
 
         this.sourceTarget = selectedObject;
@@ -58,106 +87,106 @@ var CosmosUI = new function () {
         e.preventDefault();
     };
 
-    this.cancelCourse = new function(e) {
+    this.cancelCourse = function(e) {
         console.log("Cancelling new course");
 
         SELECTING_TARGET = false;
         this.sourceTarget = undefined;
         $('#course-container').hide();
 
-        onBodyDeselected();
+        _this.onBodyDeselected();
 
         e.stopPropagation();
         e.preventDefault();
     };
 
-    this.setCourse = new function() {
+    this.setCourse = function() {
         console.log("Setting course");
         SELECTING_TARGET = false;
         var destTarget = selectedObject;
         $('#course-container').hide();
-        onBodyDeselected();
+        _this.onBodyDeselected();
 
-        this.cosmosRender.orbitCamera(this.sourceTarget);
+        cosmosRender.orbitCamera(this.sourceTarget);
         var data = {source: {objectId: this.sourceTarget.objectId, type: this.sourceTarget.type},
             dest: {objectId: destTarget.objectId, type: destTarget.type}};
         var stringify = JSON.stringify(data).replace(/\"+/g, "\'");
         ws.send(message('requestTraj', stringify));
     };
 
-    this.onDocumentMouseMove = new function ( event ) {
+    this.onDocumentMouseMove = function ( event ) {
         event.preventDefault();
 
         // Compatibility fix for Firefox; event.offsetX/Y is not supported in FF
         var offsetX = event.offsetX == undefined ? event.layerX : event.offsetX;
         var offsetY = event.offsetY == undefined ? event.layerY : event.offsetY;
 
-        mouse.x = ( offsetX / $(this.canvas).width() ) * 2 - 1;
-        mouse.y = - ( offsetY / $(this.canvas).height() ) * 2 + 1;
+        mouse.x = ( offsetX / $(canvas).width() ) * 2 - 1;
+        mouse.y = - ( offsetY / $(canvas).height() ) * 2 + 1;
 
         var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-        projector.unprojectVector( vector, this.camera );
+        projector.unprojectVector( vector, camera );
 
-        var raycaster = new THREE.Raycaster( this.camera.position,
-            vector.sub( this.camera.position ).normalize() );
-        var intersects = raycaster.intersectObjects( this.scene.children, true );
+        var raycaster = new THREE.Raycaster( camera.position,
+            vector.sub( camera.position ).normalize() );
+        var intersects = raycaster.intersectObjects( cosmosScene.getScene().children, true );
 
         if ( intersects.length > 0 ) {
             if ( this.INTERSECTED != intersects[ 0 ].object ) {
                 //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
                 this.INTERSECTED = intersects[ 0 ].object;
-                //INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+                //INTERSECTED.currentHex = INTERSECTED.material.color.gGetHex();
             }
-            this.canvas.style.cursor = 'pointer';
+            canvas.css( 'cursor', 'pointer' ) ;
         } else {
             //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
             this.INTERSECTED = null;
-            this.canvas.style.cursor = 'auto';
+            canvas.css( 'cursor', 'auto' ) ;
         }
     };
 
-    this.onDocumentMouseDown = new function ( event ) {
+    this.onDocumentMouseDown = function ( event ) {
         event.preventDefault();
         if (event.button == 0) {
             var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-            projector.unprojectVector( vector, this.camera );
+            projector.unprojectVector( vector, camera );
 
-            var raycaster = new THREE.Raycaster( this.camera.position,
-                vector.sub( this.camera.position ).normalize() );
+            var raycaster = new THREE.Raycaster( camera.position,
+                vector.sub( camera.position ).normalize() );
 
-            var intersects = raycaster.intersectObjects( this.scene.children, true );
+            var intersects = raycaster.intersectObjects( cosmosScene.getScene().children, true );
 
             if ( intersects.length > 0 ) {
 
-                this.onBodySelected(intersects[ 0 ].object);
+                _this.onBodySelected(intersects[ 0 ].object);
 
             } else {
-                onBodyDeselected();
+                _this.onBodyDeselected();
             }
         }
         else if (event.button == 1) {
-            this.cosmosRender.orbitCamera(this.cosmosScene.getSolarCentricObject());
-            onBodyDeselected();
+            cosmosRender.orbitCamera(cosmosScene.getSolarCentricObject());
+            _this.onBodyDeselected();
         }
         else if (event.button == 2) {
-            this.cameraTarget = undefined;
-            onBodyDeselected();
+            cosmosRender.clearCameraTarget();
+            _this.onBodyDeselected();
         }
     };
 
-    this.onDocumentMouseUp = new function ( event ) {
+    this.onDocumentMouseUp = function ( event ) {
 
         event.preventDefault();
 
-        this.canvas.style.cursor = 'auto';
+        canvas.css( 'cursor', 'auto' ) ;
 
     };
 
-    this.onBodySelected = new function (mesh) {
-        hideAllConditionalEllipses(cosmosScene.getObjects());
+    this.onBodySelected = function (mesh) {
+        cosmosScene.hideAllConditionalEllipses();
         var obj = undefined;
 
-        var checkChildrenForId = new function(children, id) {
+        var checkChildrenForId = function(children, id) {
             for (var i = 0; i < children.length; i++){
                 var child = children[i];
                 if (child.id == id) {
@@ -171,9 +200,9 @@ var CosmosUI = new function () {
                 }
             }
         };
-
-        for (var i = 0; i < this.objects.length; i++) {
-            var object = this.objects[i];
+        var objects = cosmosScene.getObjects();
+        for (var i = 0; i < objects.length; i++) {
+            var object = objects[i];
             if (object.mesh.id == mesh.id) {
                 obj = object;
             }
@@ -281,16 +310,16 @@ var CosmosUI = new function () {
 
         selectedObject = obj;
 
-        this.cosmosRender.orbitCamera(selectedObject);
+        cosmosRender.orbitCamera(selectedObject);
     };
 
-    function onBodyDeselected() {
-        if (cosmosScene) hideAllConditionalEllipses(cosmosScene.getObjects());
+    this.onBodyDeselected = function () {
+        if (cosmosScene) cosmosScene.hideAllConditionalEllipses();
         $("#body-info-container").hide();
         $('#player-object-container').hide();
         $('#claim-asteroid-button').hide();
         selectedObject = undefined;
-    }
+    };
 
     function initStats() {
         stats.domElement.style.position = 'absolute';
