@@ -31,9 +31,9 @@ from pymongo.errors import ConnectionFailure
 #client=MongoClient('mongodb://rsimulate:r5imulate@ds037637.mongolab.com:37637/cosmosium')
 try:
     client = MongoClient('mongodb://admin:%40st3r0idVenture5@small.asteroid.ventures:27017')
+    print "Connection to small.asteroid.ventures mongoClient successful"
 except ConnectionFailure:
-    # Log in as offline user
-    print "Connection to small.asteroid.ventures mongoClient failed, attempting to log in as an offline user"
+    print "Connection to small.asteroid.ventures mongoClient failed"
     client = None
 
 
@@ -409,17 +409,6 @@ def setLoginCookie():
 
             else:
                 return "Wrong Password"
-    else:
-        offlineUser = User()
-        offlineUser.setProfileInfo("OfflineUser",'/img/profiles/martin2.png',"Offline","Offline")
-        loginToken = "OfflineUser"+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
-
-        try:
-            USERS.addUser(offlineUser,loginToken)
-        except ValueError as e:
-            print e.message
-        response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
-        redirect('/play')
 
 @app.post('/signup')
 def setLoginCookie():
