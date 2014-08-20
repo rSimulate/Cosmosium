@@ -9,11 +9,14 @@ var CosmosScene = new function (cosmosUI) {
     var LOD_DIST = {ONE: 300, TWO: 600, THREE: 1000};
     var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
     var players = []; // {player: playerName, color: THREE.Color}
-    var scene, cosmosRender;
+    var scene, cameraFar, renderClock;
 
-    var init = new function(cosmos_Render) {
-        cosmosRender = cosmos_Render;
+    var init = new function(_cameraFar, _renderClock) {
+        cameraFar = _cameraFar;
+        renderClock = _renderClock;
+
         scene = new THREE.Scene();
+
         initLights();
         initSkybox();
         initSun();
@@ -29,7 +32,7 @@ var CosmosScene = new function (cosmosUI) {
     }
 
     function initSkybox() {
-        var geometry = new THREE.SphereGeometry(cosmosRender.CAMERA_FAR / 2.0, 60, 40);
+        var geometry = new THREE.SphereGeometry(cameraFar / 2.0, 60, 40);
 
         var uniforms = {
             texture: {
@@ -57,7 +60,7 @@ var CosmosScene = new function (cosmosUI) {
         //Create Sun Model
         var sphereGeometry = new THREE.SphereGeometry( SUN_SIZE, 32, 32 );
         //var sunTexture = THREE.ImageUtils.loadTexture('img/textures/sun_small.jpg');
-        var time = cosmosRender.getClock().getElapsedTime();
+        var time = renderClock.getElapsedTime();
         var uniforms = {
             texture: {
                 type: 't',

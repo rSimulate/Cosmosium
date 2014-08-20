@@ -8,7 +8,8 @@ function RSimulate(opts) {
 
     function init() {
         _this.cosmosRender.init();
-        _this.cosmosScene.init(_this.cosmosRender);
+        console.log(_this.cosmosRender.getClock());
+        _this.cosmosScene.init(_this.cosmosRender.CAMERA_FAR, _this.cosmosRender.getClock());
         _this.cosmosUI.init(_this.cosmosRender, _this.cosmosScene);
 
         window.addEventListener( 'resize', onWindowResize, false );

@@ -10,12 +10,12 @@ var CosmosRender = new function (cosmosScene, cosmosUI) {
     this.CAMERA_NEAR = 75;
     this.CAMERA_FAR = 1000000;
     this.FOCAL_LENGTH = 60;
+    this.clock = new THREE.Clock();
 
     this.renderer = new THREE.WebGLRenderer({ antialias: false });
     var canvas, jCanvas, composer;
 
     this.init = new function () {
-        _this.clock = new THREE.Clock();
         _this.clock.start();
 
         canvas = document.getElementById('canvas');
@@ -33,7 +33,9 @@ var CosmosRender = new function (cosmosScene, cosmosUI) {
         farCamera.updateProjectionMatrix();
     };
 
-    this.getClock = new function () {return _this.clock;};
+    this.getClock = new function () {
+        console.log(_this.clock.getElapsedTime());
+        return _this.clock;};
 
     this.animate = new function () {
         requestAnimationFrame(_this.animate, undefined);
