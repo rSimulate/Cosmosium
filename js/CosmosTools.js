@@ -28,10 +28,6 @@ rainbow = function(numOfSteps, step) {
     return new THREE.Color(r,g,b);
 };
 
-
-
-
-
 function getFocalDepth(distanceFromCamera) {
     var zfar = camera.far;
     var znear = camera.near;
@@ -41,12 +37,6 @@ function getFocalDepth(distanceFromCamera) {
     return -zfar * znear / (sdist * (zfar - znear) - zfar);
 }
 
-function getColorForOwner(players, owner) {
-    for (var i = 0; i < players.length; i++) {
-        var player = players[i];
-        if (player.player == owner) return player.color;
-    }
-}
 
 function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;

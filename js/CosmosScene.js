@@ -211,6 +211,13 @@ var CosmosScene = function (cosmosUI) {
         }
     };
 
+    function getColorForOwner(owner) {
+        for (var i = 0; i < players.length; i++) {
+            var player = players[i];
+            if (player.player == owner) return player.color;
+        }
+    }
+
     this.updateObjectOwnerById = function (newOwner, objectId) {
         // returns objectId if successful
         var object = undefined;

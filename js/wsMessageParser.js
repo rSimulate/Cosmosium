@@ -254,7 +254,7 @@ function claimResponder(data) {
         return;
     }
 
-    if (result == 'accepted') updateObjectOwnerById(owner, objectId);
+    if (result == 'accepted') rSimulate.cosmosScene.updateObjectOwnerById(owner, objectId);
     else console.log("player", owner, "tried to claim an asteroid, but", result);
 }
 
