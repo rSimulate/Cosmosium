@@ -25,10 +25,18 @@ import pymongo
 import datetime
 import ssl
 from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure
 
 #client = MongoClient('localhost', 27017)
 #client=MongoClient('mongodb://rsimulate:r5imulate@ds037637.mongolab.com:37637/cosmosium')
-client = MongoClient('mongodb://admin:%40st3r0idVenture5@small.asteroid.ventures:27017')
+try:
+    client = MongoClient('mongodb://admin:%40st3r0idVenture5@small.asteroid.ventures:27017')
+    print "Connection to small.asteroid.ventures mongoClient successful"
+except ConnectionFailure:
+    print "Connection to small.asteroid.ventures mongoClient failed"
+    client = None
+
+
 # Primary Components
 import os
 import sqlite3 as lite
@@ -358,51 +366,49 @@ def setLoginCookie():
     uid = request.forms.get('userid')
     pw  = request.forms.get('password')
     rem = request.forms.get('remember_me')
-    db=client.users
+    if client is not None:
+        db=client.users
 
-    hash_pass = SHA256.new(pw).digest()#hash user input password
-    hash_pass_uni=hash_pass.decode('latin-1') #convert to unicode
+        hash_pass = SHA256.new(pw).digest()#hash user input password
+        hash_pass_uni=hash_pass.decode('latin-1') #convert to unicode
 
-    salt=db.test_user.find_one({"user":uid},{"salt": 1,"_id":0}) #pull user salt
-    salt_uni=salt['salt']#pull single salt unicode element
+        salt=db.test_user.find_one({"user":uid},{"salt": 1,"_id":0}) #pull user salt
+        salt_uni=salt['salt']#pull single salt unicode element
 
-    password=db.test_user.find_one({"user":uid},{"password": 1,"_id":0})#pull user password
-    password_uni=password['password']#pull single password unicode element
+        password=db.test_user.find_one({"user":uid},{"password": 1,"_id":0})#pull user password
+        password_uni=password['password']#pull single password unicode element
 
+        if str(db.test_user.find_one({"user":uid})) == 'None':
 
-
-    if str(db.test_user.find_one({"user":uid})) == 'None':
-
-        return "User not Found"
-    else:
-        if password_uni==salt_uni+hash_pass_uni: #matches input password to db password
-            _user = USERS.getUserByName(uid) # TODO: replace this with db lookup
- 
-            loginToken = uid+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
-
-
-            def createUser(name, icon, agency, subtext ):
-                use = User()
-                use.setProfileInfo(name,icon,agency,subtext)
-                return use
-            mongo_user=db.test_user.find_one({"user":uid},{"user": 1,"_id":0})['user'] #pull out mongodb query and display only the value of the approriate key, i.e. pymongo returns a <type 'dict'>
-            mongo_org=db.test_user.find_one({"user":uid},{"org": 1,"_id":0})['org']
-            mongo_quote=db.test_user.find_one({"user":uid},{"quote": 1,"_id":0})['quote']
-
-            userObj=createUser(mongo_user,'/img/profiles/martin2.png',mongo_org,mongo_quote)
-
-            try:
-                USERS.addUser(userObj,loginToken)
-            except ValueError as e:
-                print e.message
-            response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
-            redirect('/play')
-
-
-
+            return "User not Found"
         else:
-            return "Wrong Password"
+            if password_uni==salt_uni+hash_pass_uni: #matches input password to db password
+                _user = USERS.getUserByName(uid) # TODO: replace this with db lookup
 
+                loginToken = uid+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
+
+
+                def createUser(name, icon, agency, subtext ):
+                    use = User()
+                    use.setProfileInfo(name,icon,agency,subtext)
+                    return use
+                mongo_user=db.test_user.find_one({"user":uid},{"user": 1,"_id":0})['user'] #pull out mongodb query and display only the value of the approriate key, i.e. pymongo returns a <type 'dict'>
+                mongo_org=db.test_user.find_one({"user":uid},{"org": 1,"_id":0})['org']
+                mongo_quote=db.test_user.find_one({"user":uid},{"quote": 1,"_id":0})['quote']
+
+                userObj=createUser(mongo_user,'/img/profiles/martin2.png',mongo_org,mongo_quote)
+
+                try:
+                    USERS.addUser(userObj,loginToken)
+                except ValueError as e:
+                    print e.message
+                response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
+                redirect('/play')
+
+
+
+            else:
+                return "Wrong Password"
 
 @app.post('/signup')
 def setLoginCookie():

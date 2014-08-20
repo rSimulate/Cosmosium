@@ -196,9 +196,9 @@ function parseObject(objectStr) {
             {
                 color: rainbow(30, nextColor).getHex(), width: 1, jed: rSimulate.jed, object_size: 1.7,
                 display_color: rainbow(30, nextColor),
-                particle_geometry: particle_system_geometry,
+                particle_geometry: rSimulate.cosmosScene.getParticleSystemGeometry(),
                 name: full_name
-            }, !using_webgl);
+            }, !rSimulate.cosmosRender.using_webgl);
         //console.log(nextColor);
         nextColor ++;
         return {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit};
@@ -223,6 +223,7 @@ function assignColor(data) {
 
     // Ensure player is not already in list
     var exists = false;
+    var players = rSimulate.cosmosScene.getPlayers();
     for (var ii = 0; ii < players.length; ii++) {
         if (players.player == playerName) exists = true;
     }
@@ -253,7 +254,7 @@ function claimResponder(data) {
         return;
     }
 
-    if (result == 'accepted') updateObjectOwnerById(owner, objectId);
+    if (result == 'accepted') rSimulate.cosmosScene.updateObjectOwnerById(owner, objectId);
     else console.log("player", owner, "tried to claim an asteroid, but", result);
 }
 
@@ -285,16 +286,16 @@ function updateTime(data) {
 
     // TODO: May have to change this to interpolate over time if it produces noticeable changes
     // For now, just do a hard-change to the client's jed
-    jed = Math.floor(jedServer);
-    day = dayServer;
-    month = monthServer;
-    year = yearServer;
+    rSimulate.cosmosRender.setJED(Math.floor(jedServer));
+    rSimulate.cosmosUI.setDay(dayServer);
+    rSimulate.cosmosUI.setMonth(monthServer);
+    rSimulate.cosmosUI.setYear(yearServer);
 }
 
 function createBody(data) {
     //{'owner': ownerName, 'objectId': uuid.uuid4(), 'type': objectType, 'model': model, 'data': data}
     var body = parseObject(data);
-    addPlanet(body);
+    rSimulate.cosmosScene.addPlanet(body);
 }
 
 function parseMessage(m) {
@@ -320,7 +321,7 @@ function parseMessage(m) {
         var asteroid = parseObject(data);
         if (asteroid != null) {
             asteroid.orbit.name = asteroid.orbit.full_name.replace(/([\"])+/g, " ").trim();
-            rSimulate.addNewAsteroid(asteroid);
+            rSimulate.cosmosScene.addNewAsteroid(asteroid);
         }
         else {console.log("Parsing failed for unknown asteroid")}
 
@@ -330,7 +331,7 @@ function parseMessage(m) {
             object.orbit.name = object.orbit.name.replace(/([\"])+/g, " ").trim();
             var path = getPathForModel(object.model.toLocaleLowerCase());
             if (path != null) {
-                rSimulate.addBlenderObjectMesh(path, object);
+                rSimulate.cosmosScene.addBlenderObjectMesh(path, object);
             }
             else {console.log("Could not find model path for object " + object.objectId)}
         }
@@ -342,7 +343,7 @@ function parseMessage(m) {
     } else if (cmd == "pObjDestroyRequest") {
         var request = parseObjectRemoval(data);
         if (request.result == 'True') {
-            rSimulate.removeBody(undefined, "playerObject", request.objectId);
+            rSimulate.cosmosScene.removeBody(undefined, "playerObject", request.objectId);
         }
         else {
             console.log("Destroy request for object " + request.objectId + " was denied because: " + request.reason);

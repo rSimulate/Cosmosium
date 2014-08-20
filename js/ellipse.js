@@ -65,7 +65,7 @@
       var geometry = new THREE.SphereGeometry(this.opts.object_size);
       //var geometry = new THREE.CubeGeometry(100, 100, 100);
       var mat_opts = {color: this.opts.color};
-      if (texture_path) {
+      if (typeof(texture_path) !== 'undefined') {
         $.extend(mat_opts, {
           map: THREE.ImageUtils.loadTexture(texture_path),
           wireframe: false,

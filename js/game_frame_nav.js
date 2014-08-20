@@ -57,10 +57,10 @@ var observatoryMap = new jvm.WorldMap({
 
 function switchContent(content) {
     openContent.hide();
-    controls.enabled = true;
+    rSimulate.cosmosRender.enableControls();
     if (content != undefined) {
         openContent = content;
-        controls.enabled = false;
+        rSimulate.cosmosRender.disableControls();
         openContent.show();
     }
 }
@@ -194,34 +194,34 @@ document.getElementById('timeline-link').addEventListener('click', function (e){
 document.getElementById('add-object-button').addEventListener('click', function (e) {
     e = e || window.event;
 
-    addTestObject();
+    if (rSimulate) rSimulate.cosmosScene.addTestObject();
 
 }, false);
 
 document.getElementById('destroy-object-button').addEventListener('click', function (e) {
     e = e || window.event;
 
-    requestRemoveBody();
+    if (rSimulate) rSimulate.cosmosScene.requestRemoveBody();
 
 }, false);
 
 document.getElementById('set-target-button').addEventListener('click', function (e) {
     e = e || window.event;
 
-    setCourse();
+    if (rSimulate) rSimulate.cosmosUI.setCourse(e);
 
 }, false);
 
 document.getElementById('plot-course-button').addEventListener('click', function (e) {
     e = e || window.event;
 
-    requestCourse();
+    if (rSimulate) rSimulate.cosmosUI.requestCourse(e);
 
 }, false);
 
 document.getElementById('cancel-course-button').addEventListener('click', function (e) {
     e = e || window.event;
 
-    cancelCourse();
+    if (rSimulate) rSimulate.cosmosUI.cancelCourse(e);
 
 }, false);
