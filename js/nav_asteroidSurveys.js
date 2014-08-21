@@ -27,8 +27,6 @@ document.getElementById('systemView-MainBelt-link').addEventListener('click', fu
 
     updateSurvey('MainBelt');
 
-    e.stopPropagation();
-
 }, false);
 
 document.getElementById('systemView-trojan-link').addEventListener('click', function (e){

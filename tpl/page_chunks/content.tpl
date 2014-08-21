@@ -317,6 +317,9 @@
         <script src="js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js" type="text/javascript"></script>
         <script src="js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js" type="text/javascript"></script>
 
+        <!-- cryptoJS for login hash -->
+        <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha256.js"  type="text/javascript"></script>
+
         <!-- for j-query based navigation -->
         <script src="/js/game_frame_nav.js" type="text/javascript"></script>
         <script src="/js/nav_asteroidSurveys.js" type="text/javascript"></script>

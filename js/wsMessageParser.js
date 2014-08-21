@@ -298,6 +298,11 @@ function createBody(data) {
     rSimulate.cosmosScene.addPlanet(body);
 }
 
+function parseNotifyRequest(data) {
+    var phrase = data.trim();
+    rSimulate.cosmosUI.notify(phrase);
+}
+
 function parseMessage(m) {
     // interprets and carries out messages
 
@@ -307,6 +312,8 @@ function parseMessage(m) {
     if (cmd == "addToContent") {
         //prependContent(data)
         console.log("Server is trying to prepend content, and the prependContent function needs fixing before it will work");
+    } else if (cmd == 'notify') {
+        parseNotifyRequest(data);
     } else if (cmd == 'bodyCreate') {
         createBody(data);
     } else if (cmd == "updateResources") {

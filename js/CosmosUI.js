@@ -73,7 +73,45 @@ var CosmosUI = function () {
 
     this.getYear = function () {return year;};
 
+    this.login = function (username, password) {
+        var info = {username: username, password: CryptoJS.SHA256(password)};
+        info = JSON.stringify(info);
 
+        ws.send(message('login',info));
+    };
+
+    this.register = function (username, password, repeatPass, org, quote) {
+        // Returns false if user inputs the wrong password twice, else true
+        // This is to prevent database flogging with a false password
+        // Server will make sure both passwords are the same as well
+        if (password !== repeatPass) return false;
+        var info = {username: username, password: CryptoJS.SHA256(password), repeatPass: CryptoJS.SHA256(repeatPass),
+                    org: org, quote: quote};
+        info = JSON.stringify(info);
+
+        ws.send(message('register',info));
+        return true;
+    };
+
+    this.notify = function (phrase) {
+        // takes a incoming message as a string and notifies the user in various ways
+
+        if (phrase == 'Login Successful') {
+
+        }
+        if (phrase == 'Wrong Password') {
+
+        }
+        if (phrase == 'Passwords do not match') {
+
+        }
+        if (phrase == 'User not Found') {
+
+        }
+        if (phrase == 'User Name Already Exists') {
+
+        }
+    };
 
     this.requestCourse = function (e) {
         console.log("Requesting to set a new course");

@@ -240,7 +240,7 @@ def handle_websocket():
             #game_manager.parseMessage(message,wsock)
             # NOTE: message parser should probably be an attribute of the game
             print "received :",cmd,'from',userID
-            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, GAMES.games[0].OOIs)
+            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, USERS, GAMES.games[0].OOIs, client)
         except WebSocketError:
             print 'client disconnected'
             break
@@ -404,9 +404,6 @@ def setLoginCookie():
                     print e.message
                 response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
                 redirect('/play')
-
-
-
             else:
                 return "Wrong Password"
 
@@ -440,11 +437,11 @@ def setLoginCookie():
 
 
             data={"user":uid,                               #make new user document
-            "password":shp_dec,
-            "salt":salt_dec,
-            "org":org,
-            "quote":quote,
-            "date":datetime.datetime.utcnow()}
+                  "password":shp_dec,
+                  "salt":salt_dec,
+                  "org":org,
+                  "quote":quote,
+                  "date":datetime.datetime.utcnow()}
             db.test_user.insert(data)                       #insert document into db
 
             return 'User Added'
