@@ -99,17 +99,20 @@ var CosmosUI = function () {
         if (phrase == 'Login Successful') {
 
         }
-        if (phrase == 'Wrong Password') {
+        else if (phrase == 'Wrong Password') {
 
         }
-        if (phrase == 'Passwords do not match') {
+        else if (phrase == 'Passwords do not match') {
 
         }
-        if (phrase == 'User not Found') {
+        else if (phrase == 'User not Found') {
 
         }
-        if (phrase == 'User Name Already Exists') {
+        else if (phrase == 'User Name Already Exists') {
 
+        }
+        else {
+            console.log("Phrase " + phrase + " is not supported yet.");
         }
     };
 
