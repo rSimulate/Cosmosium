@@ -138,8 +138,6 @@ var CosmosScene = function (cosmosUI) {
     this.requestRemoveBody = function (e) {
         console.log("Called for removal of objectID " + selectedObject.objectId);
         ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + selectedObject.objectId + "'}}"));
-        e.stopPropagation();
-        e.preventDefault();
     };
 
     this.removeAsteroids = function() {
@@ -348,7 +346,7 @@ var CosmosScene = function (cosmosUI) {
         uniforms.diffuse.value = new THREE.Color(0x313131);
         var color = getColorForOwner(asteroid.owner);
         if (color) {
-            uniforms.specular.value = color;
+            uniforms.emissive.value = color;
         }
 
         //var display_color = i < NUM_BIG_PARTICLES ? opts.top_object_color : displayColorForObject(asteroid);
