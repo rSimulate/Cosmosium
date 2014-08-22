@@ -21,16 +21,15 @@
 
   Orbit3D.prototype.CreateOrbit = function(jed) {
     var points;
-    var time = jed;
+    var time = parseFloat(jed);
     var pts = [];
     var limit = this.eph.P ? this.eph.P+1 : this.eph.per;
     var parts = this.eph.e > .20 ? 300 : 100;   // extra precision for high eccentricity
-    var delta = Math.ceil(limit / parts);
-    var prev;
+
+    var delta = parseFloat(limit / parts);
     for (var i=0; i <= parts; i++, time+=delta) {
       var pos = this.getPosAtTime(time);
       var vector = new THREE.Vector3(pos[0], pos[1], pos[2]);
-      prev = vector;
       pts.push(vector);
     }
 
@@ -38,14 +37,11 @@
     points.vertices = pts;
     points.computeLineDistances(); // required for dotted lines
 
-    var line = new THREE.Line(points,
-      new THREE.LineDashedMaterial({
-        color: this.opts.color,
-        linewidth: this.opts.width,
-        dashSize: 1,
-        gapSize: 0.5
-      }), THREE.LineStrip);
-    return line;
+    return new THREE.Line(points,
+        new THREE.LineBasicMaterial({
+            color: this.opts.color,
+            linewidth: this.opts.width
+        }), THREE.LineStrip);
   };
 
   Orbit3D.prototype.CreateParticle = function(jed) {
