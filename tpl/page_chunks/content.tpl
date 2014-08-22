@@ -275,6 +275,11 @@ autoplay="false">
     % include('tpl/page_chunks/webGL_js')
 </aside><!-- /.right-side -->
 
+
+<!-- bottom/draggable expander menu -->
+% include('tpl/page_chunks/UI_ferro.tpl')
+
+
 <!-- jQuery 2.0.2 -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <!-- jQuery UI 1.10.3 -->
@@ -326,6 +331,10 @@ autoplay="false">
 <script src="/js/game_frame_nav.js" type="text/javascript"></script>
 <script src="/js/nav_asteroidSurveys.js" type="text/javascript"></script>
 
+<!-- for j-query based navigation -->
+<script src="/js/vendor/ferro/.js" type="text/javascript"></script>
+
+<!-- WEBSOCKETS !IMPORTANT! -->
 <script type="text/javascript" src='/tpl/js/webSocketSetup.js'></script>
 </body>
 </html>

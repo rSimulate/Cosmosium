@@ -1,0 +1,120 @@
+html,body{
+	width:100%;
+	height:100%;
+	background:white;
+	color:white;
+	-webkit-transition: background 1s;
+	-moz-transition: background 1s;
+	-ms-transition: background 1s;
+	-o-transition: background 1s;
+	transition: background 1s;
+	overflow-x:hidden;
+	overflow-y:auto;
+}
+
+section{
+	width:100%;
+	height:100%;
+	text-align:center;
+	position:relative;
+	margin:0 auto;
+	font-family: 'Lato', sans-serif;
+	font-weight:300;
+	overflow-y:auto;
+	overflow-x:hidden;
+}
+
+article{
+	display:block;
+	width:60%;
+	text-align:center;
+	margin-right:20px;
+	position:absolute;
+	right:0;
+	top:0;
+	z-index:2;
+	opacity:1;
+	/*-webkit-transform-origin:right center;
+	-moz-transform-origin:right center;
+	-ms-transform-origin:right center;
+	-o-transform-origin:right center;
+	transform-origin:right center;*/
+}
+
+article i{
+	position:relative;
+	font-size:30px;
+	margin-top:100px !important;
+	display:inline-block !important;
+	color:#fff;
+}
+
+article i:before{
+	width:100px;
+	height:100px;
+	background:rgba(255,255,255,0.1);
+	-webkit-border-radius:50%;
+	border-radius:50%;
+	display:inline-block !important;
+	line-height:100px;
+}
+
+article h1{
+	padding:30px 0px 20px 0px;
+	font-size:40px;
+}
+
+article .cnt{
+	text-align:right;
+	line-height:24px;
+	font-size:20px;
+}
+
+#console{
+	width:100%;
+	height:20%;
+	overflow-y:auto;
+	background:#ecf0f1;
+}
+
+.hideScroll{
+	overflow:hidden;
+}
+
+.off{
+	z-index:0;
+	opacity:0;
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
+	-ms-transition: all 0.6s;
+	-o-transition: all 0.6s;
+	transition: all 0.6s;
+}
+
+#overlay{
+	position:absolute;
+	width:100%;
+	height:100%;
+	background:rgba(0,0,0,0.6);
+	z-index:100;
+	display:none;
+	opacity:0;
+}
+
+.ferromenu-controller,#nav li a{
+	background:white;
+	color:#1abc9c;
+	-webkit-transition: color 0.6s;
+	-moz-transition: color 0.6s;
+	-ms-transition: color 0.6s;
+	-o-transition: color 0.6s;
+	transition: color 0.6s;
+}
+
+.ferromenu-controller.desktop:hover,
+.ferromenu-controller.mobile:active,
+#nav li a:hover,
+#nav li a:active{
+	background:white;
+	opacity:0.8;
+}

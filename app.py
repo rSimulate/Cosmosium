@@ -5,10 +5,11 @@
 #=====================================#
 #       SpaceAppChallenge 2014        #
 #                                     #
-#           Daniel Andersen           #
 #              Tom Riecken            #
 #             Tylar Murray            #
-#           Britton Broderick         #
+#             Brian Erikson           #
+#             Martin Kronberg         #
+#             Daniel Andersen         #
 #               Max Howeth            #
 #             David Gundry            #
 #                                     #
