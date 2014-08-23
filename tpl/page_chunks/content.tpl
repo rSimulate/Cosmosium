@@ -275,12 +275,20 @@ autoplay="false">
     % include('tpl/page_chunks/webGL_js')
 </aside><!-- /.right-side -->
 
+
+
+
+
 <!-- jQuery 2.0.2 -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <!-- jQuery UI 1.10.3 -->
 <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js" type="text/javascript"></script>
 <!-- Bootstrap -->
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
+
+<!-- bottom/draggable expander menu -->
+% include('tpl/page_chunks/UI_ferro.tpl')
+
 <!-- Morris.js charts -->
 <!--
 <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
@@ -326,6 +334,7 @@ autoplay="false">
 <script src="/js/game_frame_nav.js" type="text/javascript"></script>
 <script src="/js/nav_asteroidSurveys.js" type="text/javascript"></script>
 
+<!-- WEBSOCKETS !IMPORTANT! -->
 <script type="text/javascript" src='/tpl/js/webSocketSetup.js'></script>
 </body>
 </html>
