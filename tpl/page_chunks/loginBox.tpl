@@ -44,21 +44,10 @@ Choose your player:
 </div>
 <div class="col-md-4">
     <div class="form-box" id="login-box">
-        <div class="header">Social Login:
+        <div class="header">Social Login
         </div>
-
         <div class="body bg-gray">
-            <span id="signinButton">
-              <span
-                      class="g-signin"
-                      data-callback="signinCallback"
-                      data-clientid="739869424938-1b0ilms09aal314r795lgptr6oq2e4ag.apps.googleusercontent.com"
-                      data-cookiepolicy="single_host_origin"
-                      data-requestvisibleactions="http://schema.org/AddAction"
-                      data-width="wide"
-                      data-scope="https://www.googleapis.com/auth/plus.login">
-              </span>
-            </span>
+            % include('tpl/page_chunks/googlePlusLogin.tpl')
         </div>
     </div>
 </div>

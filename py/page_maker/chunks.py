@@ -24,7 +24,7 @@ class chunks(object):
 
         self.profile_link_text = "Profile"
         self.signout_link_text = "Sign out"
-        self.signout_link = '/'
+        self.signout_link = '/signout'
         self.salutation = 'Hello'
         
         self.button1_text = 'Dashboard'

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # =====================================#
-#              COSMOSIUM              #
+# COSMOSIUM              #
 #=====================================#
 #       SpaceAppChallenge 2014        #
 #                                     #
@@ -20,10 +20,6 @@ __author__ = 'rsimulate'
 #=====================================#
 
 #db control
-import datetime
-import ssl
-
-from py.game_logic.user.User import User
 
 
 
@@ -31,12 +27,11 @@ from py.game_logic.user.User import User
 import os
 import sqlite3 as lite
 import sys
-import json
 import string
 import random
 
 from bottle import static_file, template, request, Bottle, response, redirect, abort
-from Crypto.Hash import SHA256
+
 
 # OAuth components
 import rauth
@@ -59,8 +54,6 @@ from py.game_logic.user.User import User
 from py.game_logic.GameList import GameList
 from py.game_logic.UserList import UserList
 
-from py.getAsteroid import asterankAPI
-
 
 
 #=====================================#
@@ -74,7 +67,6 @@ GAMES.unpickle()  # restores any games that were saved last time server shut dow
 
 USERS = UserList()  # list of users on the server TODO: replace use of this w/ real db.
 MASTER_CONFIG = 'default'  # config keyword for non-test pages. (see Config.py for more info)
-loginQueue = []
 loginTokens = []
 
 # initial write of JSON files (to clear out old ones):
@@ -185,36 +177,21 @@ def makeSplash():
 @app.route("/play")
 def makeGamePage():
     # check for user login token in cookies
-    #if request.get_cookie("cosmosium_login"):
-    #    userLoginToken = request.get_cookie("cosmosium_login")
-    #    try:
-    #        _user = USERS.getUserByToken(userLoginToken)
-    #    except (KeyError, ReferenceError) as E:  # user token not found or user has been garbage-collected
-    #        return userLogin('user token not found')
-
-    #    if _user.game == None:
-    #        GAMES.joinGame(_user)
-
-    #   return template('tpl/pages/play',
-    #                    chunks=CHUNKS,
-    #                    user=_user,
-    #                    oois=GAMES.games[0].OOIs,
-    #                    config=Settings(MASTER_CONFIG),
-    #                    pageTitle="Cosmosium Asteriod Ventures!")
-    if loginQueue:
-        user = loginQueue.pop()
-        if user.game == None:
-            GAMES.joinGame(user)
+    if request.get_cookie("cosmosium_login"):
+        userLoginToken = request.get_cookie("cosmosium_login")
+        try:
+            _user = USERS.getUserByToken(userLoginToken)
+        except (KeyError, ReferenceError) as E:  # user token not found or user has been garbage-collected
+            return userLogin('user token not found')
+        if _user.game is None:
+            GAMES.joinGame(_user)
 
         return template('tpl/pages/play',
                         chunks=CHUNKS,
-                        user=user,
+                        user=_user,
                         oois=GAMES.games[0].OOIs,
                         config=Settings(MASTER_CONFIG),
                         pageTitle="Cosmosium Asteriod Ventures!")
-    else:
-        print loginQueue
-        return userLogin('user login cookie not found')
 
 
 # NOTE: this next approach is better than using the real file... but not working currently.
@@ -354,7 +331,7 @@ def createUser(name, icon, agency, subtext):  #test user creation...
 
 
 def createToken(name):
-    return name+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
+    return name + "loginToken" + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
 
 
 @app.post('/loggin')
@@ -381,6 +358,7 @@ def setLoginCookie():
     else:
         return userLogin('user not found')
 
+
 @app.post('/signup')
 def setLoginCookie():
     uid = request.forms.get('userid')
@@ -388,8 +366,6 @@ def setLoginCookie():
     rpw = request.forms.get('repeat_password')
     org = request.forms.get('org')
     quote = request.forms.get('quote')
-
-
 
 
 # Successful login
@@ -414,13 +390,16 @@ def login_success():
     json = convert(json)
     user = createUser(json['name'], json['picture'], "NASA", "For the Benefit of All")
     gameToken = createToken(user.name)
-    if USERS.getUserByName(user.name) is None:
-        USERS.addUser(user, gameToken)
-        response.set_cookie("cosmosium_login", gameToken, max_age=60 * 60 * 5)
-        loginTokens.append({'name': user.name, 'social_token': token, 'game_token': gameToken})
-    loginQueue.insert(0, user)
+    USERS.addUser(user, gameToken)
+    response.set_cookie("cosmosium_login", gameToken, max_age=60 * 60 * 5)
+    loginTokens.append({'name': user.name, 'social_token': token, 'game_token': gameToken})
     redirect('/play')
 
+@app.route('/signout')
+def signout():
+    token = request.get_cookie('cosmosium_login')
+    user = USERS.getUserByToken(token)
+    user.sendMessage('{"cmd":"notify","data":signout"}')
 #app.run(
 #    server=config.SERVER,
 #    port=config.PORT,

@@ -111,9 +111,22 @@ var CosmosUI = function () {
         else if (phrase == 'User Name Already Exists') {
 
         }
+        else if (phrase == 'signout') {
+            // Google
+            (function() {
+                var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                po.src = 'https://apis.google.com/js/plusone.js?onload=rsimulate.cosmosUI.googleSignout';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+            })();
+        }
         else {
             console.log("Phrase " + phrase + " is not supported yet.");
         }
+    };
+
+    this.googleSignout = function () {
+        gapi.auth.signOut();
+        window.location.href = 'http://asteroid.ventures'
     };
 
     this.requestCourse = function (e) {
