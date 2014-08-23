@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # =====================================#
-#              COSMOSIUM              #
+# COSMOSIUM              #
 #=====================================#
 #       SpaceAppChallenge 2014        #
 #                                     #
@@ -21,10 +21,6 @@ __author__ = 'rsimulate'
 #=====================================#
 
 #db control
-import datetime
-import ssl
-
-from py.game_logic.user.User import User
 
 
 
@@ -32,12 +28,11 @@ from py.game_logic.user.User import User
 import os
 import sqlite3 as lite
 import sys
-import json
 import string
 import random
 
 from bottle import static_file, template, request, Bottle, response, redirect, abort
-from Crypto.Hash import SHA256
+
 
 # OAuth components
 import rauth
@@ -60,8 +55,6 @@ from py.game_logic.user.User import User
 from py.game_logic.GameList import GameList
 from py.game_logic.UserList import UserList
 
-from py.getAsteroid import asterankAPI
-
 
 
 #=====================================#
@@ -69,12 +62,13 @@ from py.getAsteroid import asterankAPI
 #=====================================#
 app = Bottle()
 CHUNKS = chunks()  # static chunks or strings for the site
-DOMAIN = 'localhost:7099'  # domain name
+DOMAIN = config.DOMAIN  # domain name
 GAMES = GameList()  # list of ongoing games on server
 GAMES.unpickle()  # restores any games that were saved last time server shut down
 
 USERS = UserList()  # list of users on the server TODO: replace use of this w/ real db.
 MASTER_CONFIG = 'default'  # config keyword for non-test pages. (see Config.py for more info)
+loginTokens = []
 
 # initial write of JSON files (to clear out old ones):
 # GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
@@ -190,8 +184,7 @@ def makeGamePage():
             _user = USERS.getUserByToken(userLoginToken)
         except (KeyError, ReferenceError) as E:  # user token not found or user has been garbage-collected
             return userLogin('user token not found')
-
-        if _user.game == None:
+        if _user.game is None:
             GAMES.joinGame(_user)
 
         return template('tpl/pages/play',
@@ -200,8 +193,6 @@ def makeGamePage():
                         oois=GAMES.games[0].OOIs,
                         config=Settings(MASTER_CONFIG),
                         pageTitle="Cosmosium Asteriod Ventures!")
-    else:
-        return userLogin('user login cookie not found')
 
 
 # NOTE: this next approach is better than using the real file... but not working currently.
@@ -335,8 +326,13 @@ def createUser(name, icon, agency, subtext):  #test user creation...
     # basically a User constructor using a given set of values
     #  to save me some typing
     use = User()
+    name = name.replace(' ', '_')
     use.setProfileInfo(name, icon, agency, subtext)
     return use
+
+
+def createToken(name):
+    return name + "loginToken" + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
 
 
 @app.post('/loggin')
@@ -373,45 +369,38 @@ def setLoginCookie():
     quote = request.forms.get('quote')
 
 
-# I'm not sure how to use this... =( ~Tylar
-@app.route('/login<:re:/?>')
-def login():
-    params = dict(
-        scope='email profile',
-        response_type='code',
-        redirect_uri=redirect_uri
-    )
-    url = google.get_authorize_url(**params)
-    app.redirect(url)
-
-
 # Successful login
-@app.route('/success<:re:/?>')
+@app.post('/success')
 def login_success():
-    code = app.request.params.get('code')
-    session = google.get_auth_session(
-        data=dict(
-            code=code,
-            redirect_uri=redirect_uri,
-            grant_type='authorization_code'
-        ),
-        decoder=json.loads
-    )
-    json_path = 'https://www.googleapis.com/oauth2/v1/userinfo'
-    session_json = session.get(json_path).json()
-    return 'Welcome {name}!'.format(**session_json)
-    # Unfortunately, there seem to be no reference for complete list of keys,
-    # but here are the complete json keys returned by the scope: email profile:
-    # * email
-    # * family_name
-    # * gender
-    # * given_name
-    # * id
-    # * link
-    # * locale
-    # * name
-    # * picture
+    token = request.forms.get('token')
+    session = rauth.OAuth2Session(config.GOOGLE_CLIENT_ID, config.GOOGLE_CLIENT_SECRET, token)
+    json = session.get('https://www.googleapis.com/oauth2/v1/userinfo').json()
+    if json is None:
+        return
 
+    def convert(input):
+        if isinstance(input, dict):
+            return {convert(key): convert(value) for key, value in input.iteritems()}
+        elif isinstance(input, list):
+            return [convert(element) for element in input]
+        elif isinstance(input, unicode):
+            return input.encode('utf-8')
+        else:
+            return input
+
+    json = convert(json)
+    user = createUser(json['name'], json['picture'], "NASA", "For the Benefit of All")
+    gameToken = createToken(user.name)
+    USERS.addUser(user, gameToken)
+    response.set_cookie("cosmosium_login", gameToken, max_age=60 * 60 * 5)
+    loginTokens.append({'name': user.name, 'social_token': token, 'game_token': gameToken})
+    redirect('/play')
+
+@app.route('/signout')
+def signout():
+    token = request.get_cookie('cosmosium_login')
+    user = USERS.getUserByToken(token)
+    user.sendMessage('{"cmd":"notify","data":signout"}')
 #app.run(
 #    server=config.SERVER,
 #    port=config.PORT,
@@ -426,7 +415,7 @@ def login_success():
 if __name__ == "__main__":
     try:
         #   app.catchall = True  # Now most exceptions are re-raised within bottle.
-        port = int(os.environ.get("PORT", 7099))
+        port = int(os.environ.get("PORT", config.PORT))
         #run(host='0.0.0.0', port=port)
         server = WSGIServer(("0.0.0.0", port), app,
                             handler_class=WebSocketHandler)
