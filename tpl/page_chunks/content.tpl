@@ -276,8 +276,7 @@ autoplay="false">
 </aside><!-- /.right-side -->
 
 
-<!-- bottom/draggable expander menu -->
-% include('tpl/page_chunks/UI_ferro.tpl')
+
 
 
 <!-- jQuery 2.0.2 -->
@@ -286,6 +285,10 @@ autoplay="false">
 <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js" type="text/javascript"></script>
 <!-- Bootstrap -->
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
+
+<!-- bottom/draggable expander menu -->
+% include('tpl/page_chunks/UI_ferro.tpl')
+
 <!-- Morris.js charts -->
 <!--
 <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
@@ -330,9 +333,6 @@ autoplay="false">
 <!-- for j-query based navigation -->
 <script src="/js/game_frame_nav.js" type="text/javascript"></script>
 <script src="/js/nav_asteroidSurveys.js" type="text/javascript"></script>
-
-<!-- for j-query based navigation -->
-<script src="/js/vendor/ferro/.js" type="text/javascript"></script>
 
 <!-- WEBSOCKETS !IMPORTANT! -->
 <script type="text/javascript" src='/tpl/js/webSocketSetup.js'></script>

@@ -23,20 +23,30 @@
 </script>
 
 <div class="demo3">
-<ul id="nav">
-	<li><a href="javascript:void(0);"><i class="icon-camera"></i></a></li>
-	<li><a href="javascript:void(0);"><i class="icon-user"></i></a></li>
-	<li><a href="javascript:void(0);"><i class="icon-map-marker"></i></a></li>
-	<li><a href="javascript:void(0);"><i class="icon-music"></i></a></li>
-	<li><a href="javascript:void(0);"><i class="icon-comment-alt"></i></a></li>
-	<li><a href="javascript:void(0);"><i class="icon-moon"></i></a></li>
-</ul>
-<ul id="nav2">
-	<li><a href="javascript:void(0);"><i class="icon-twitter"></i></a></li>
-	<li><a href="javascript:void(0);"><i class="icon-facebook"></i></a></li>
-	<li><a href="javascript:void(0);"><i class="icon-google-plus"></i></a></li>
-	<li><a href="javascript:void(0);"><i class="icon-apple"></i></a></li>
-	<li><a href="javascript:void(0);"><i class="icon-android"></i></a></li>
-	<li><a href="javascript:void(0);"><i class="icon-windows"></i></a></li>
-</ul>
+    <ul id="nav">
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-camera"></i></a></li>
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-user"></i></a></li>
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-map-marker"></i></a></li>
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-music"></i></a></li>
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-comment-alt"></i></a></li>
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-moon"></i></a></li>
+    </ul>
+    <ul id="nav2">
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-twitter"></i></a></li>
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-facebook"></i></a></li>
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-google-plus"></i></a></li>
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-apple"></i></a></li>
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-android"></i></a></li>
+        <li class="desktop"><a href="javascript:void(0);"><i class="icon-windows"></i></a></li>
+    </ul>
+
+    <a id="ferromenu-controller-0" data-ferromenuitem="#nav" class="ferromenu-controller desktop left-center" href="javascript:void(0);" style="top: 50%; left: 0px; margin-top: -30px; margin-left: 10px; z-index: 1000;">
+        <div class="label">+</div>
+    </a>
+    <a id="ferromenu-controller-1" data-ferromenuitem="#nav2" class="ferromenu-controller desktop right-center" href="javascript:void(0);" style="top: 50%; right: 0px; margin-top: -30px; margin-right: 10px; z-index: 1000;">
+        <div class="label">+</div>
+    </a>
+    <a id="ferromenu-controller-2" data-ferromenuitem="#nav" class="ferromenu-controller desktop left-bottom" href="javascript:void(0);" style="bottom: 0px; left: 0px; margin-left: 10px; margin-bottom: 10px; z-index: 1000;">
+        <div class="label">+</div>
+    </a>
 </div>
