@@ -137,7 +137,6 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         composer.render(0.1);
     }
 
-
     function initCamera() {
         camera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(), 1, CAMERA_NEAR );
         farCamera = new THREE.PerspectiveCamera( FOCAL_LENGTH, $(canvas).width() / $(canvas).height(),
@@ -231,7 +230,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         var timeAdvanced = jed_delta * deltaSeconds;
         jed += jed_delta * deltaSeconds;
 
-        updateBodies(timeAdvanced, cosmosScene.getObjects());
+        updateBodies(timeAdvanced, deltaSeconds, cosmosScene.getObjects());
 
         _this.orbitCamera();
     }
@@ -240,14 +239,14 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         cosmosScene.getSolarCentricObject().mesh.material.uniforms['time'].value = _this.getClock().getElapsedTime();
     }
 
-    function updateBodies(timeAdvanced, objects) {
+    function updateBodies(timeAdvanced, deltaSeconds, objects) {
         for (var i = 0; i < objects.length; i++) {
             var obj = objects[i];
             var orbit = obj.orbit;
             if (orbit != undefined) {
                 var helioCoords = orbit.getPosAtTime(jed);
                 var mesh = obj.mesh;
-                mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
+                if (!obj.hasOwnProperty("dest")) mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
 
                 /*
                  if (i != 2) {
@@ -263,6 +262,19 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                     var rotationalPeriodInSeconds = orbit.eph.rot_per * 60 * 60;
                     var percentageRotated = timeAdvanced / rotationalPeriodInSeconds;
                     mesh.rotation.y += (percentageRotated * 2.0 * Math.PI);
+                }
+            }
+            else if (obj.hasOwnProperty("dest")) {
+                var arcLength = obj.mesh.position.distanceTo(obj.dest.mesh.position);
+                var translateSpeed = (arcLength / obj.trajTime) * deltaSeconds;
+                obj.trajTime -= deltaSeconds;
+                obj.mesh.lookAt(obj.dest.mesh.position);
+                console.log(arcLength, translateSpeed);
+                obj.mesh.translateZ(translateSpeed);
+                if (arcLength < 100) {
+                    delete obj.dest;
+                    delete obj.trajTime;
+                    // set up new orbit and remove keys dest and trajTime
                 }
             }
         }
