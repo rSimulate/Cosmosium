@@ -5,6 +5,7 @@
 
 # Server:
 SERVER = 'wsgiref'
+DOMAIN = 'localhost:7099'
 HOST = 'localhost'
 PORT = 7099
 
@@ -28,5 +29,5 @@ TWITTER_CLIENT_ID = '07gvoVMGyyul4m5bKkJuOA'
 TWITTER_CLIENT_SECRET = 'PUOGZog1IhxsOQVojrwVgjHgSlHaVRibcpVsP8Axk0'
 
 # Google:
-GOOGLE_CLIENT_ID = '954851881468.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = 'HTvpTPPUGQfWByCaonsC4EMa'
+GOOGLE_CLIENT_ID = '739869424938-1b0ilms09aal314r795lgptr6oq2e4ag.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = 'bTnUJ1Zljv3FxUUkT1hNj6n-'

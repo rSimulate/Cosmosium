@@ -209,5 +209,40 @@ Play with the Alpha Today! Early Beta coming soon!
         <!-- Bootstrap -->
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
 
+        <!-- Google Plus OAUTH -->
+        <script type="text/javascript">
+            (function() {
+                var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                po.src = 'https://apis.google.com/js/client:plusone.js';
+                console.log("init google");
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+            })();
+
+            function signinCallback(authResult) {
+                if (authResult['status']['signed_in']) {
+                    var method = "post";
+
+                    var form = document.createElement("form");
+                    form.setAttribute("method", method);
+                    form.setAttribute("action", '/success');
+
+                    var hiddenField = document.createElement("input");
+                    hiddenField.setAttribute("type", 'text');
+                    hiddenField.setAttribute('name', 'token');
+                    hiddenField.setAttribute("value", authResult['access_token']);
+                    form.appendChild(hiddenField);
+                    document.body.appendChild(form);
+                    console.log(form);
+                    form.submit();
+                } else {
+                    // Update the app to reflect a signed out user
+                    // Possible error values:
+                    //   "user_signed_out" - User is signed-out
+                    //   "access_denied" - User denied access to your app
+                    //   "immediate_failed" - Could not automatically log in the user
+                    console.log('Sign-in state: ' + authResult['error']);
+                }
+            }
+        </script>
     </body>
 </html>
