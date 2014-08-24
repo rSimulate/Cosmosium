@@ -154,21 +154,28 @@ var CosmosScene = function (cosmosUI) {
 
     this.getWorldPos = function (mesh) {
         "use strict";
-        mesh.parent.updateMatrixWorld();
         var vector = new THREE.Vector3();
         return vector.setFromMatrixPosition(mesh.matrixWorld);
     };
 
-    this.switchParent = function (object, newParent, addElipse) {
+    this.detachObject = function (object) {
         "use strict";
-        var pos = _this.getWorldPos(object.mesh);
-        object.parent.remove(object.mesh);
+        // removes object from moon or other orbital body if parent is not scene
+        if (object.orbit) {_this.removeEllipse(object.parent.mesh, object.orbit.getEllipse());}
 
-        object.parent = newParent;
-        object.parent.add(object.mesh);
-        //object.mesh.position.set(pos);
-        if (addElipse) {object.parent.add(object.orbit.getEllipse());}
+        if (!object.parent instanceof THREE.Scene) {
+            THREE.SceneUtils.detach(object.mesh, object.parent.mesh, _this.getScene());
+            object.parent = _this.getScene();
+        }
+    };
 
+    this.attachObject = function (object, parent) {
+        "use strict";
+        // attaches object to a moon or other orbital body
+        THREE.SceneUtils.attach(object.mesh, _this.getScene(), parent.mesh);
+        object.parent = parent;
+
+        if (object.orbit) {object.parent.mesh.add(object.orbit.getEllipse());}
     };
 
     this.removeBody = function (parentScene, type, objectId) {

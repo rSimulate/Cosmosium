@@ -123,7 +123,6 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             }
 
             // adjust distance for bokeh shader to accompany blurring difference sized objects
-            console.log(radius);
             if (radius >= OBJECT_BLUR.LARGE) { dist -= radius / 2; }
             else if (radius >= OBJECT_BLUR.MEDIUM) { dist += radius * 1.5; }
             else if (radius >= OBJECT_BLUR.SMALL) { dist += radius * 5; }
@@ -316,7 +315,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                         name: obj.full_name
                     }, false);
 
-                    cosmosScene.switchParent(obj, obj.dest.mesh, true);
+                    cosmosScene.attachObject(obj, obj.dest);
                     delete obj.dest;
                     delete obj.trajTime;
                     delete obj.full_name;

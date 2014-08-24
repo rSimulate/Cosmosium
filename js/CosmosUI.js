@@ -429,13 +429,11 @@ CosmosUI = function () {
     }
 
     function emulateServerTrajectory(sourceObj, destObj) {
-        // Calculate trajectory
-        cosmosScene.removeEllipse(sourceObj.parent, sourceObj.orbit.getEllipse());
+        cosmosScene.detachObject(sourceObj);
         sourceObj.full_name = sourceObj.orbit.name;
         sourceObj.orbit = undefined;
         sourceObj.dest = destObj;
         sourceObj.trajTime = 5; // how long the transition takes
-        cosmosScene.switchParent(sourceObj, cosmosScene.getScene(), false);
         cosmosRender.orbitCamera(sourceObj);
     }
 };
