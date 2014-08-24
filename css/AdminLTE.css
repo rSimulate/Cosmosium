@@ -59,6 +59,9 @@ body > .header {
 .right-side {
   background-color: #f9f9f9;
   margin-left: 220px;
+  position: relative;
+  left: -220px;
+  z-index: 0;
 }
 /*left side - contains sidebar*/
 .left-side {
@@ -69,7 +72,9 @@ body > .header {
 @media screen and (min-width: 992px) {
   .left-side {
     top: 50px;
-  }
+  
+    z-index: 10;
+}
   /*Right side strech mode*/
   .right-side.strech {
     margin-left: 0;
@@ -2623,16 +2628,17 @@ Component: timeline
 /* skin-black sidebar */
 .skin-black .sidebar {
   border-bottom: 1px solid #333;
+  z-index: 1000;
 }
 .skin-black .sidebar > .sidebar-menu > li {
-  border-top: 1px solid #333;
-  border-bottom: 0px solid #444;
+  border-top: 1px solid rgba(74, 98, 134, 0.35);
+  border-bottom: 0px solid rgba(74, 98, 134, 0.35);
 }
 .skin-black .sidebar > .sidebar-menu > li:first-of-type {
-  border-top: 1px solid #444;
+  border-top: 1px solid rgba(74, 98, 134, 0.35);
 }
 .skin-black .sidebar > .sidebar-menu > li:first-of-type > a {
-  border-top: 0px solid #333;
+  border-top: 0px solid #40447B;
 }
 .skin-black .sidebar > .sidebar-menu > li > a {
   margin-right: 1px;
@@ -2640,14 +2646,14 @@ Component: timeline
 .skin-black .sidebar > .sidebar-menu > li > a:hover,
 .skin-black .sidebar > .sidebar-menu > li.active > a {
   color: #f6f6f6;
-  background: #444;
+  background: rgba(60, 80, 150, 0.15);
 }
 .skin-black .sidebar > .sidebar-menu > li > .treeview-menu {
   margin: 0 1px;
-  background: #444;
+  background: rgba(60, 80, 155, .15);
 }
 .skin-black .left-side {
-  background: #333;
+  background: rgba(65, 85, 160, 0.2);
 }
 .skin-black .sidebar a {
   color: #eee;
@@ -2666,7 +2672,7 @@ Component: timeline
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   border-radius: 2px;
-  border: 0px solid #555;
+  border: 0px solid rgba(74, 98, 134, 0.35);
   margin: 10px 10px;
 }
 .skin-black .sidebar-form input[type="text"],
@@ -2678,7 +2684,7 @@ Component: timeline
   outline: none;
 }
 .skin-black .sidebar-form input[type="text"] {
-  color: #666;
+  color: rgba(74, 98, 134, 0.35);
   -webkit-border-top-left-radius: 2px !important;
   -webkit-border-top-right-radius: 0 !important;
   -webkit-border-bottom-right-radius: 0 !important;

@@ -61,7 +61,7 @@ autoplay="false">
 
 
 <style>
-    html,body { height: 100%; margin: 0; padding: 0; overflow: hidden;}
+   html,body { height: 100%; margin: 0; padding: 0; overflow: hidden;}
     #info {
         color:#000;
         position: absolute;
@@ -208,6 +208,25 @@ autoplay="false">
         overflow: hidden;
     }
 
+    .breadcrumb {
+        padding: 8px 15px;
+        margin-bottom: 20px;
+        list-style: none;
+        background-color: rgba(54, 85, 160, 0.35);
+        border-radius: 4px;
+        color: white;
+        margin-top: 10px;
+        right: 40vw;
+    }
+
+    #resource-bar {
+        display: inline;
+        z-index: 1010;
+        position: absolute;
+        right: 3vw;
+        background-color: transparent;
+    }
+
     #canvas {
         display: inline;
         z-index: 1000;
@@ -287,7 +306,7 @@ autoplay="false">
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
 
 <!-- bottom/draggable expander menu -->
-% include('tpl/page_chunks/UI_ferro.tpl')
+<!--% include('tpl/page_chunks/UI_ferro.tpl')-->
 
 <!-- Morris.js charts -->
 <!--
