@@ -1,4 +1,4 @@
-var CosmosUI;
+
 CosmosUI = function () {
     "use strict";
     var _this = this;
@@ -27,6 +27,7 @@ CosmosUI = function () {
         ws.send(message('claim', stringify));
 
     }
+
 
     this.init = function (_cosmosScene, _cosmosRender) {
         cosmosRender = _cosmosRender;
@@ -66,6 +67,8 @@ CosmosUI = function () {
     };
 
     this.getUser = function () {return userName;};
+        day = newDay;
+    };
 
     this.setDay = function (newDay) {
         day = newDay;
@@ -284,147 +287,143 @@ CosmosUI = function () {
 
         var obj = undefined;
         console.log(mesh);
-
         var checkChildrenForId = function (children, id) {
             for (var i = 0; i < children.length; i++) {
-                var child = children[i];
-                if (child.id == id) {
-                    return true;
-                }
-                else if (child.children != undefined) {
-                    var result = checkChildrenForId(child.children, id);
-                    if (result == true) {
-                        return true;
+                var objects = cosmosScene.getObjects();
+                for (var i = 0; i < objects.length; i++) {
+                    var object = objects[i];
+
+                    if (object.mesh.uuid == mesh.uuid) {
+                        console.log("Found mesh before children", object.mesh.uuid, mesh.uuid);
+                        obj = object;
+                        break;
+                    }
+                    else if (object.mesh.children != undefined) {
+                        var result = object.mesh.getObjectById(mesh.id, true);
+                        console.log(result);
+                        if (result) {
+                            obj = object;
+                            break;
+                        }
                     }
                 }
-            }
-        };
-        var objects = cosmosScene.getObjects();
-        for (var i = 0; i < objects.length; i++) {
-            var object = objects[i];
-            if (object.mesh.id == mesh.id) {
-                obj = object;
-            }
-            else if (object.mesh.children != undefined) {
-                var result = checkChildrenForId(object.mesh.children, mesh.id);
-                if (result == true) obj = object;
-            }
-        }
+                console.log("final object is", obj);
 
-        if (obj == undefined) {
-            console.log("ERROR: Could not find selected object's ID");
-            return;
-        }
+
+                if (obj == undefined) {
+                    console.log("ERROR: Could not find selected object's ID");
+                    return;
+                }
 
         $('#player-object-container').hide();
         $('#claim-asteroid-button').hide();
 
-        var orbit = obj.orbit;
-        if (orbit != undefined) {
-            orbit.getEllipse().visible = true;
-            if (orbit && orbit.eph && orbit.eph.full_name) {
-                this.bodyName = cleanOrbitName(orbit.eph.full_name);
-            } else if (orbit && orbit.name) {
-                this.bodyName = cleanOrbitName(orbit.name);
-            }
-            var infoHTML = "<h3>" + this.bodyName + "</h3>";
-            // info to show in the window:
-            for (var key in orbit.eph) {
-                // excluded info:
-                if (key.slice(0, 6) == 'sigma_'
-                    || key.slice(-6) == '_sigma'
-                    || key == 'full_name'
-                    || key == 'epoch_mjd'
-                    || key == 'rms'
-                    || key == 'neo'
-                    || key == 'equinox'
-                    || key == 'spkid'
-                    || key == 'per'
-                    || key == 'id'
-                    || key == 'data_arc'
-                    || key == 'condition_code'
-                    || key == 'prov_des'
-                    || key == 'moid_ld'
-                    || key == 'orbit_id'
-                    || key == 'two_body'
-                    || key == 'G'
-                    || key == 'e'
-                    || key == 'class'
-                    || key == 'a'
-                    || key == 'name'
-                    || key == 'i'
-                    || key == 'tp'
+                var orbit = obj.orbit;
+                if (orbit != undefined) {
+                    orbit.getEllipse().visible = true;
+                    if (orbit && orbit.eph && orbit.eph.full_name) {
+                        this.bodyName = cleanOrbitName(orbit.eph.full_name);
+                    } else if (orbit && orbit.name) {
+                        this.bodyName = cleanOrbitName(orbit.name);
+                    }
+                    var infoHTML = "<h3>" + this.bodyName + "</h3>";
+                    // info to show in the window:
+                    for (var key in orbit.eph) {
+                        // excluded info:
+                        if (key.slice(0, 6) == 'sigma_'
+                            || key.slice(-6) == '_sigma'
+                            || key == 'full_name'
+                            || key == 'epoch_mjd'
+                            || key == 'rms'
+                            || key == 'neo'
+                            || key == 'equinox'
+                            || key == 'spkid'
+                            || key == 'per'
+                            || key == 'id'
+                            || key == 'data_arc'
+                            || key == 'condition_code'
+                            || key == 'prov_des'
+                            || key == 'moid_ld'
+                            || key == 'orbit_id'
+                            || key == 'two_body'
+                            || key == 'G'
+                            || key == 'e'
+                            || key == 'class'
+                            || key == 'a'
+                            || key == 'name'
+                            || key == 'i'
+                            || key == 'tp'
 
-                    /* i'm not sure what these next ones are... maybe they should be included and renamed? */
-                    || key == 'K2'
-                    || key == 'K1'
-                    || key == 'M1'
-                    || key == 'M2'
-                    || key == 'DT'
-                    || key == 'pha'
-                    || key == 'PC'
-                    || key == 'A1'
-                    || key == 'A2'
-                    || key == 'A3'
-                    || key == 'ad'
-                    || key == 'saved'
-                    || key == 'per_y'
-                    || key == 'epoch_cal'
-                    || key == 'epoch'
-                    || key == 'IR'
-                    || key == 'extent'
-                    || key == 'tp_cal'
-                    || key == 'pdes'
-                    || key == 't_jup'
-                    || key == 'om'
-                    || key == 'ma'
-                    || key == 'prefix'
-                    || key == 'q'
-                    || key == 'w'
-                    || key == 'n'
-                    || key == 'n_del_obs_used'
-                    || key == 'n_dop_obs_used'
+                            /* i'm not sure what these next ones are... maybe they should be included and renamed? */
+                            || key == 'K2'
+                            || key == 'K1'
+                            || key == 'M1'
+                            || key == 'M2'
+                            || key == 'DT'
+                            || key == 'pha'
+                            || key == 'PC'
+                            || key == 'A1'
+                            || key == 'A2'
+                            || key == 'A3'
+                            || key == 'ad'
+                            || key == 'saved'
+                            || key == 'per_y'
+                            || key == 'epoch_cal'
+                            || key == 'epoch'
+                            || key == 'IR'
+                            || key == 'extent'
+                            || key == 'tp_cal'
+                            || key == 'pdes'
+                            || key == 't_jup'
+                            || key == 'om'
+                            || key == 'ma'
+                            || key == 'prefix'
+                            || key == 'q'
+                            || key == 'w'
+                            || key == 'n'
+                            || key == 'n_del_obs_used'
+                            || key == 'n_dop_obs_used'
 
-                    ) {
-                    continue
-                }
-                infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
-            }
+                            ) {
+                            continue
+                        }
+                        infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
+                    }
 
 
             if (obj.type == 'playerObject' || obj.type == 'asteroid') {
-                $("#owner-info").html('claimed by <b>"' + obj.owner + '"</b>')
-                    //.attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')')
-                    .html('<b>' + obj.owner + '</b>').attr("color", 'rgb(200,200,200)');
+                        $("#owner-info").html('claimed by <b>"' + obj.owner + '"</b>')
+                            //.attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')')
+                            .html('<b>' + obj.owner + '</b>').attr("color", 'rgb(200,200,200)');
 
                 if (obj.type == 'playerObject' && obj.owner == userName) $('#player-object-container').show();
-                else if (obj.type == 'asteroid') $('#claim-asteroid-button').show();
+                        else if (obj.type == 'asteroid') $('#claim-asteroid-button').show();
+                    }
+                    $("#body-info").html(infoHTML);
+                }
+                else {
+                    $("#body-info").html(obj.model);
+                }
+
+                $("#body-info-container").show();
+
+                selectedObject = obj;
+
+                cosmosRender.orbitCamera(selectedObject);
             }
-            $("#body-info").html(infoHTML);
-        }
-        else {
-            $("#body-info").html(obj.model);
-        }
 
-        $("#body-info-container").show();
+            this.onBodyDeselected = function () {
+                if (cosmosScene) cosmosScene.hideAllConditionalEllipses();
+                $("#body-info-container").hide();
+                $('#player-object-container').hide();
+                $('#claim-asteroid-button').hide();
+                selectedObject = undefined;
+            };
 
-        selectedObject = obj;
-
-        cosmosRender.orbitCamera(selectedObject);
-    };
-
-    this.onBodyDeselected = function () {
-        if (cosmosScene) cosmosScene.hideAllConditionalEllipses();
-        $("#body-info-container").hide();
-        $('#player-object-container').hide();
-        $('#claim-asteroid-button').hide();
-        selectedObject = undefined;
-    };
-
-    function initStats() {
-        stats.domElement.style.position = 'absolute';
+            function initStats() {
+                stats.domElement.style.position = 'absolute';
         stats.domElement.style.bottom = '0px';
-        stats.domElement.style.zIndex = 1010;
+                stats.domElement.style.zIndex = 1010;
         $('#canvas').append(stats.domElement);
     }
 
@@ -435,5 +434,7 @@ CosmosUI = function () {
         sourceObj.dest = destObj;
         sourceObj.trajTime = 5; // how long the transition takes
         cosmosRender.orbitCamera(sourceObj);
-    }
-};
+            }
+        };
+    };
+}

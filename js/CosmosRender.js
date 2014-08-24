@@ -347,6 +347,12 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                     delete obj.full_name;
                 }
             }
+            var sphereCollider = obj.dest.mesh.userData.boundingBox ?
+                 obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
+            else {cosmosScene.attachObject(obj, obj.dest.mesh);}
+                console.log(obj.dest);
+                cosmosScene.attachObject(obj, obj.dest.mesh);
+            }
         }
-    }
+    };
 };

@@ -125,6 +125,9 @@ var CosmosScene = function (cosmosUI) {
             // add to player object div
             cosmosUI.addPlayerObject(obj);
         }
+        else if (type == 'asteroid') {
+            obj.mesh.userData = {boundingBox: new THREE.Box3().setFromObject(obj.mesh)};
+        }
         parent.add(mesh);
     };
 
