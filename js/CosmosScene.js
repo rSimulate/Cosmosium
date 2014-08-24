@@ -6,7 +6,7 @@ var CosmosScene = function (cosmosUI) {
     var particle_system_geometry = null;
 
     var LOD_DIST = {ONE: 300, TWO: 600, THREE: 1000};
-    var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh}
+    var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh, parent: scene}
     var players = []; // {player: playerName, color: THREE.Color}
     var scene = new THREE.Scene();
     var cosmosRender;
@@ -96,6 +96,7 @@ var CosmosScene = function (cosmosUI) {
 
         // orbit undefined for sun
         if (orbit != undefined) {
+            // check if the object is already in the scene
             for (var i = 0; i < objects.length; i++) {
                 var obj = objects[i];
                 if (obj.orbit != undefined) {
@@ -112,7 +113,7 @@ var CosmosScene = function (cosmosUI) {
         }
 
 
-        var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh};
+        var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh, parent: parent};
         objects.push(obj);
 
         // orbit sun at start of game
@@ -121,16 +122,8 @@ var CosmosScene = function (cosmosUI) {
         }
 
         if (type == 'playerObject') {
-            // append a new object specific button to the list
-            var textName = cleanOrbitName(orbit.name);
-            $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
-                textName + "</a></li>").appendTo('#object-list-container');
-
-            // add listener to object specific div
-            document.getElementById(orbit.name).addEventListener('click', function() {
-                selectedObject = obj;
-                cosmosRender.orbitCamera(selectedObject);
-            }, false);
+            // add to player object div
+            cosmosUI.addPlayerObject(obj);
         }
         parent.add(mesh);
     };
@@ -151,6 +144,39 @@ var CosmosScene = function (cosmosUI) {
         }
     };
 
+    this.removeEllipse = function(parentScene, ellipse) {
+        "use strict";
+
+        if (parentScene == undefined) { parentScene = scene; }
+        parentScene.remove(ellipse);
+    };
+
+    this.getWorldPos = function (mesh) {
+        "use strict";
+        var vector = new THREE.Vector3();
+        return vector.setFromMatrixPosition(mesh.matrixWorld);
+    };
+
+    this.detachObject = function (object) {
+        "use strict";
+        // removes object from moon or other orbital body if parent is not scene
+        if (object.orbit) {_this.removeEllipse(object.parent, object.orbit.getEllipse());}
+
+        if (object.parent instanceof THREE.Scene == false) {
+            THREE.SceneUtils.detach(object.mesh, object.parent, _this.getScene());
+            object.parent = _this.getScene();
+        }
+    };
+
+    this.attachObject = function (object, parentMesh) {
+        "use strict";
+        // attaches object to a moon or other orbital body
+        THREE.SceneUtils.attach(object.mesh, _this.getScene(), parentMesh);
+        object.parent = parentMesh;
+
+        if (object.orbit) {object.parent.add(object.orbit.getEllipse());}
+    };
+
     this.removeBody = function (parentScene, type, objectId) {
         // Removes a body from the scene
         if (parentScene == undefined) { parentScene = scene; }
@@ -166,7 +192,7 @@ var CosmosScene = function (cosmosUI) {
         }
 
         if (rmObject == undefined) {
-            console.log("Error: Could not find object " + obj.objectId + " to remove");
+            console.log("Error: Could not find object " + objectId + " to remove");
             return null;
         }
 
@@ -254,16 +280,12 @@ var CosmosScene = function (cosmosUI) {
         loader.load(daePath, function (collada) {
             obj3d = collada.scene;
             if (obj3d != undefined) {
-                obj3d.scale.x = obj3d.scale.y = obj3d.scale.z = 5;
+                obj3d.scale.x = obj3d.scale.y = obj3d.scale.z = 1;
                 obj3d.updateMatrix();
                 obj3d.userData = {boundingBox: new THREE.Box3().setFromObject(obj3d)};
 
                 // add to scene
                 _this.addBody(scene, "playerObject", object.orbit, obj3d, true, object.objectId, object.model, object.owner);
-
-                // add to player object collection
-                object.mesh = obj3d;
-                objects.push(object);
             }
             else {console.log("ERROR: Parsing blender model failed");}
         });
