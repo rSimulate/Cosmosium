@@ -1,10 +1,12 @@
-
-var CosmosUI = function () {
+var CosmosUI;
+CosmosUI = function () {
+    "use strict";
     var _this = this;
-    var selectedObject = undefined;
+    var selectedObject;
     var claimButt = document.getElementById('claim-asteroid-button');
-    var mouse = new THREE.Vector3(0,0);
+    var mouse = new THREE.Vector3(0, 0);
     var SELECTING_TARGET = false;
+    var sourceTarget;
     var projector = new THREE.Projector();
     var stats = new Stats();
     var cosmosRender, cosmosScene;
@@ -13,28 +15,27 @@ var CosmosUI = function () {
     var year = '1969';
     var camera, farCamera;
     var canvas, renderer;
+    var userName;
 
     var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
-    if (SHOWING_ASTEROID_CLAIM){
         // link to add the asteroid
-        function claimButt_onClick(e){
-            e = e || window.event;
-            e.stopPropagation();
-            var obj = {owner: selectedObject.owner, objectId: selectedObject.objectId, orbitName: selectedObject.orbit.name};
-            var stringify = JSON.stringify(obj).replace(/\"+/g, "\'");
-            ws.send(message('claim',stringify));
+    function claimButt_onClick(e) {
+        e = e || window.event;
+        e.stopPropagation();
+        var obj = {owner: selectedObject.owner, objectId: selectedObject.objectId, orbitName: selectedObject.orbit.name};
+        var stringify = JSON.stringify(obj).replace(/\"+/g, "\'");
+        ws.send(message('claim', stringify));
 
-        }
-        claimButt.addEventListener('click', claimButt_onClick, false);
     }
 
-    this.init = function(_cosmosScene, _cosmosRender ) {
+    this.init = function (_cosmosScene, _cosmosRender) {
         cosmosRender = _cosmosRender;
         cosmosScene = _cosmosScene;
         renderer = cosmosRender.getRenderer();
         camera = cosmosRender.getCamera(false);
         farCamera = cosmosRender.getCamera(true);
         canvas = $('#canvas');
+        userName = $('#userName').text();
 
         initStats();
 
@@ -57,39 +58,56 @@ var CosmosUI = function () {
         farCamera.aspect = canvas.width() / canvas.height();
         camera.updateProjectionMatrix();
         farCamera.updateProjectionMatrix();
+        claimButt.addEventListener('click', claimButt_onClick, false);
     };
 
-    this.update = function () {stats.update();};
+    this.update = function () {
+        stats.update();
+    };
 
-    this.setDay = function (newDay) {day = newDay;};
+    this.getUser = function () {return userName;};
 
-    this.setMonth = function (newMonth) {month = newMonth;};
+    this.setDay = function (newDay) {
+        day = newDay;
+    };
 
-    this.setYear = function (newYear) {year = newYear;};
+    this.setMonth = function (newMonth) {
+        month = newMonth;
+    };
 
-    this.getDay = function () {return day;};
+    this.setYear = function (newYear) {
+        year = newYear;
+    };
 
-    this.getMonth = function () {return month;};
+    this.getDay = function () {
+        return day;
+    };
 
-    this.getYear = function () {return year;};
+    this.getMonth = function () {
+        return month;
+    };
+
+    this.getYear = function () {
+        return year;
+    };
 
     this.login = function (username, password) {
         var info = {username: username, password: CryptoJS.SHA256(password)};
         info = JSON.stringify(info);
 
-        ws.send(message('login',info));
+        ws.send(message('login', info));
     };
 
     this.register = function (username, password, repeatPass, org, quote) {
         // Returns false if user inputs the wrong password twice, else true
         // This is to prevent database flogging with a false password
         // Server will make sure both passwords are the same as well
-        if (password !== repeatPass) return false;
+        if (password !== repeatPass) {return false;}
         var info = {username: username, password: CryptoJS.SHA256(password), repeatPass: CryptoJS.SHA256(repeatPass),
-                    org: org, quote: quote};
+            org: org, quote: quote};
         info = JSON.stringify(info);
 
-        ws.send(message('register',info));
+        ws.send(message('register', info));
         return true;
     };
 
@@ -113,10 +131,13 @@ var CosmosUI = function () {
         }
         else if (phrase == 'signout') {
             // Google
-            (function() {
-                var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+            (function () {
+                var po = document.createElement('script');
+                po.type = 'text/javascript';
+                po.async = true;
                 po.src = 'https://apis.google.com/js/plusone.js?onload=rsimulate.cosmosUI.googleSignout';
-                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(po, s);
             })();
         }
         else {
@@ -132,20 +153,20 @@ var CosmosUI = function () {
     this.requestCourse = function (e) {
         console.log("Requesting to set a new course");
 
-        this.sourceTarget = selectedObject;
+        sourceTarget = selectedObject;
         SELECTING_TARGET = true;
         $('#course-container').show();
 
-        onBodyDeselected();
+        _this.onBodyDeselected();
 
         e.preventDefault();
     };
 
-    this.cancelCourse = function(e) {
+    this.cancelCourse = function (e) {
         console.log("Cancelling new course");
 
         SELECTING_TARGET = false;
-        this.sourceTarget = undefined;
+         sourceTarget = undefined;
         $('#course-container').hide();
 
         _this.onBodyDeselected();
@@ -154,21 +175,42 @@ var CosmosUI = function () {
         e.preventDefault();
     };
 
-    this.setCourse = function() {
+    this.setCourse = function () {
+        var stringify;
+        var destTarget;
+        var data;
+
         console.log("Setting course");
         SELECTING_TARGET = false;
-        var destTarget = selectedObject;
+        destTarget = selectedObject;
         $('#course-container').hide();
         _this.onBodyDeselected();
 
-        cosmosRender.orbitCamera(this.sourceTarget);
-        var data = {source: {objectId: this.sourceTarget.objectId, type: this.sourceTarget.type},
+        cosmosRender.orbitCamera(sourceTarget);
+        // Uncomment this when pykep starts working
+        /*data = {source: {objectId: sourceTarget.objectId, type: sourceTarget.type},
             dest: {objectId: destTarget.objectId, type: destTarget.type}};
-        var stringify = JSON.stringify(data).replace(/\"+/g, "\'");
-        ws.send(message('requestTraj', stringify));
+        stringify = JSON.stringify(data).replace(/\"+/g, "\'");
+        ws.send(message('requestTraj', stringify)); */
+        emulateServerTrajectory(sourceTarget, destTarget);
     };
 
-    this.onDocumentMouseMove = function ( event ) {
+    this.addPlayerObject = function (obj) {
+        // append a new object specific button to the list
+        var orbit= obj.orbit;
+        var textName = cleanOrbitName(orbit.name);
+        $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
+            textName + "</a></li>").appendTo('#object-list-container');
+
+        // add listener to object specific div
+        document.getElementById(orbit.name).addEventListener('click', function () {
+            selectedObject = obj;
+            _this.onBodySelected(obj.mesh);
+            cosmosRender.orbitCamera(selectedObject);
+        }, false);
+    };
+
+    this.onDocumentMouseMove = function (event) {
         event.preventDefault();
 
         // Compatibility fix for Firefox; event.offsetX/Y is not supported in FF
@@ -176,41 +218,41 @@ var CosmosUI = function () {
         var offsetY = event.offsetY == undefined ? event.layerY : event.offsetY;
 
         mouse.x = ( offsetX / $(canvas).width() ) * 2 - 1;
-        mouse.y = - ( offsetY / $(canvas).height() ) * 2 + 1;
+        mouse.y = -( offsetY / $(canvas).height() ) * 2 + 1;
 
-        var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-        projector.unprojectVector( vector, camera );
+        var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
+        projector.unprojectVector(vector, camera);
 
-        var raycaster = new THREE.Raycaster( camera.position,
-            vector.sub( camera.position ).normalize() );
-        var intersects = raycaster.intersectObjects( cosmosScene.getScene().children, true );
+        var raycaster = new THREE.Raycaster(camera.position,
+            vector.sub(camera.position).normalize());
+        var intersects = raycaster.intersectObjects(cosmosScene.getScene().children, true);
 
-        if ( intersects.length > 0 ) {
-            if ( this.INTERSECTED != intersects[ 0 ].object ) {
+        if (intersects.length > 0) {
+            if (this.INTERSECTED != intersects[ 0 ].object) {
                 //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
                 this.INTERSECTED = intersects[ 0 ].object;
                 //INTERSECTED.currentHex = INTERSECTED.material.color.gGetHex();
             }
-            canvas.css( 'cursor', 'pointer' ) ;
+            canvas.css('cursor', 'pointer');
         } else {
             //if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
             this.INTERSECTED = null;
-            canvas.css( 'cursor', 'auto' ) ;
+            canvas.css('cursor', 'auto');
         }
     };
 
-    this.onDocumentMouseDown = function ( event ) {
+    this.onDocumentMouseDown = function (event) {
         event.preventDefault();
         if (event.button == 0) {
-            var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-            projector.unprojectVector( vector, camera );
+            var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
+            projector.unprojectVector(vector, camera);
 
-            var raycaster = new THREE.Raycaster( camera.position,
-                vector.sub( camera.position ).normalize() );
+            var raycaster = new THREE.Raycaster(camera.position,
+                vector.sub(camera.position).normalize());
 
-            var intersects = raycaster.intersectObjects( cosmosScene.getScene().children, true );
+            var intersects = raycaster.intersectObjects(cosmosScene.getScene().children, true);
 
-            if ( intersects.length > 0 ) {
+            if (intersects.length > 0) {
 
                 _this.onBodySelected(intersects[ 0 ].object);
 
@@ -228,20 +270,23 @@ var CosmosUI = function () {
         }
     };
 
-    this.onDocumentMouseUp = function ( event ) {
+    this.onDocumentMouseUp = function (event) {
 
         event.preventDefault();
 
-        canvas.css( 'cursor', 'auto' ) ;
+        canvas.css('cursor', 'auto');
 
     };
 
     this.onBodySelected = function (mesh) {
+        if (mesh instanceof THREE.Line) {return;}
         cosmosScene.hideAllConditionalEllipses();
-        var obj = undefined;
 
-        var checkChildrenForId = function(children, id) {
-            for (var i = 0; i < children.length; i++){
+        var obj = undefined;
+        console.log(mesh);
+
+        var checkChildrenForId = function (children, id) {
+            for (var i = 0; i < children.length; i++) {
                 var child = children[i];
                 if (child.id == id) {
                     return true;
@@ -270,6 +315,9 @@ var CosmosUI = function () {
             console.log("ERROR: Could not find selected object's ID");
             return;
         }
+
+        $('#player-object-container').hide();
+        $('#claim-asteroid-button').hide();
 
         var orbit = obj.orbit;
         if (orbit != undefined) {
@@ -342,16 +390,14 @@ var CosmosUI = function () {
                 }
                 infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
             }
-            // make this display the owner name...
-            if (obj.type == 'Probe' || obj.type == 'asteroid') {
+
+
+            if (obj.type == 'playerObject' || obj.type == 'asteroid') {
                 $("#owner-info").html('claimed by <b>"' + obj.owner + '"</b>')
                     //.attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')')
                     .html('<b>' + obj.owner + '</b>').attr("color", 'rgb(200,200,200)');
 
-                $('#player-object-container').hide();
-                $('#claim-asteroid-button').hide();
-                // TODO: Only display removal button of owned objects
-                if (obj.type == 'Probe') $('#player-object-container').show();
+                if (obj.type == 'playerObject' && obj.owner == userName) $('#player-object-container').show();
                 else if (obj.type == 'asteroid') $('#claim-asteroid-button').show();
             }
             $("#body-info").html(infoHTML);
@@ -379,6 +425,15 @@ var CosmosUI = function () {
         stats.domElement.style.position = 'absolute';
         stats.domElement.style.bottom = '0px';
         stats.domElement.style.zIndex = 1010;
-        $('#canvas').append( stats.domElement );
+        $('#canvas').append(stats.domElement);
+    }
+
+    function emulateServerTrajectory(sourceObj, destObj) {
+        cosmosScene.detachObject(sourceObj);
+        sourceObj.full_name = sourceObj.orbit.name;
+        sourceObj.orbit = undefined;
+        sourceObj.dest = destObj;
+        sourceObj.trajTime = 5; // how long the transition takes
+        cosmosRender.orbitCamera(sourceObj);
     }
 };
