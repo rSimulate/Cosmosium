@@ -113,8 +113,7 @@ var CosmosScene = function (cosmosUI) {
         }
 
 
-        var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh};
-        obj.parent = parent;
+        var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh, parent: parent};
         objects.push(obj);
 
         // orbit sun at start of game
@@ -161,21 +160,21 @@ var CosmosScene = function (cosmosUI) {
     this.detachObject = function (object) {
         "use strict";
         // removes object from moon or other orbital body if parent is not scene
-        if (object.orbit) {_this.removeEllipse(object.parent.mesh, object.orbit.getEllipse());}
+        if (object.orbit) {_this.removeEllipse(object.parent, object.orbit.getEllipse());}
 
-        if (!object.parent instanceof THREE.Scene) {
-            THREE.SceneUtils.detach(object.mesh, object.parent.mesh, _this.getScene());
+        if (object.parent instanceof THREE.Scene == false) {
+            THREE.SceneUtils.detach(object.mesh, object.parent, _this.getScene());
             object.parent = _this.getScene();
         }
     };
 
-    this.attachObject = function (object, parent) {
+    this.attachObject = function (object, parentMesh) {
         "use strict";
         // attaches object to a moon or other orbital body
-        THREE.SceneUtils.attach(object.mesh, _this.getScene(), parent.mesh);
-        object.parent = parent;
+        THREE.SceneUtils.attach(object.mesh, _this.getScene(), parentMesh);
+        object.parent = parentMesh;
 
-        if (object.orbit) {object.parent.mesh.add(object.orbit.getEllipse());}
+        if (object.orbit) {object.parent.add(object.orbit.getEllipse());}
     };
 
     this.removeBody = function (parentScene, type, objectId) {

@@ -287,6 +287,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                 var arcLength = cosmosScene.getWorldPos(obj.mesh).distanceTo(cosmosScene.getWorldPos(obj.dest.mesh));
                 var translateSpeed = (arcLength / obj.trajTime) * deltaSeconds;
                 obj.trajTime -= deltaSeconds;
+                obj.trajTime = obj.trajTime <= 0.01 ? 0.01 : obj.trajTime;
                 obj.mesh.lookAt(cosmosScene.getWorldPos(obj.dest.mesh));
                 obj.mesh.translateZ(translateSpeed);
                 var sphereCollider = obj.dest.mesh.userData.boundingBox ?
@@ -315,7 +316,32 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                         name: obj.full_name
                     }, false);
 
-                    cosmosScene.attachObject(obj, obj.dest);
+
+
+                    if (obj.dest.type == 'playerObject' || sphereCollider.radius < 3) {
+                        var dOrbit = obj.dest.orbit;
+                        // change the orbit a little to show both objects
+                        eph.P = dOrbit.eph.P;
+                        eph.a = dOrbit.eph.a * 0.98;
+                        eph.e = dOrbit.eph.e;
+                        eph.i = dOrbit.eph.i;
+                        eph.om = dOrbit.eph.om;
+                        eph.w = dOrbit.eph.w;
+                        eph.ma = dOrbit.eph.ma;
+                        obj.orbit = new Orbit3D(eph, {
+                            color: 0xff0000,
+                            display_color: 0xff0000,
+                            width: 2,
+                            object_size: 1 < 0 ? 50 : 15, //1.5,
+                            jed: _this.getJED(),
+                            particle_geometry: null, // will add itself to this geometry
+                            name: obj.full_name
+                        }, false);
+                        console.log("radius less than three");
+                        cosmosScene.attachObject(obj, obj.dest.parent);
+                    }
+                    else {cosmosScene.attachObject(obj, obj.dest.mesh);}
+
                     delete obj.dest;
                     delete obj.trajTime;
                     delete obj.full_name;
