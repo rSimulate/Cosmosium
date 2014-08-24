@@ -41,13 +41,13 @@
 	background:#6e737b;
 }
 
-#nav li,#nav2 li{
+#nav0 li,#nav1 li{
 	color:#f2f2f2;
 	text-align:center;
 	
 }
 
-#nav li a,#nav2 li a{
+#nav0 li a,#nav1 li a{
 	font-size:20px;
 	color:#f2f2f2;
 	text-decoration:none;
@@ -60,7 +60,12 @@
 	display:block;
 }
 
-#nav li.desktop a:hover,#nav2 li.desktop a:hover,
-#nav li.mobile a:active,#nav2 li.mobile a:active{
+#nav0 li.desktop a:hover,#nav2 li.desktop a:hover,
+#nav0 li.mobile a:active,#nav2 li.mobile a:active{
+	opacity:0.7;
+}
+
+#nav1 li.desktop a:hover,#nav2 li.desktop a:hover,
+#nav1 li.mobile a:active,#nav2 li.mobile a:active{
 	opacity:0.7;
 }

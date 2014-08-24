@@ -1,0 +1,152 @@
+    html,body { height: 100%; margin: 0; padding: 0; overflow: hidden;}
+    #info {
+        color:#000;
+        position: absolute;
+        top: 0px; width: 100%;
+        padding: 5px;
+    }
+
+    a {
+        color: red;
+    }
+
+    #claim-asteroid-button {
+        color: red;
+    }
+
+    .sidebar-index {
+        display: inline;
+        z-index: 1020;
+    }
+
+    #dash {
+        display: none;
+        z-index: 1010;
+        position: absolute;
+        top: 20%;
+    }
+
+    .row {
+        margin-left: -7px;
+    }
+
+    #welcome {
+        padding: 0 15px;
+    }
+
+    #launchpad {
+        display: none;
+        position: absolute;
+        top: 20%;
+        left: 23%;
+        width: 40%;
+        height: 60%;
+        z-index: 1010;
+    }
+
+    #missionControl {
+        display: none;
+        position: absolute;
+        top: 20%;
+        left: 23%;
+        width: 40%;
+        height: 60%;
+        z-index: 1010;
+    }
+
+    #observatories {
+        display: none;
+        position: absolute;
+        top: 23%;
+        left: 32%;
+        width: 40%;
+        height: 60%;
+        z-index: 1010;
+    }
+
+    #timeline {
+        display: none;
+        position: absolute;
+        top: 7%;
+        left: 17%;
+        width: 70%;
+        height: 80%;
+        z-index: 1010;
+    }
+
+    #asteroidSurveys {
+        display: none;
+        position: absolute;
+        top: 12%;
+        left: 17%;
+        width: 70%;
+        height: 80%;
+        z-index: 1010;
+        overflow: hidden;
+        overflow-y: auto;
+    }
+
+    #surveyEquip {
+        display: none;
+        position: absolute;
+        top: 20%;
+        left: 23%;
+        width: 40%;
+        height: 60%;
+        z-index: 1010;
+    }
+
+    #research {
+        display: none;
+        position: absolute;
+        top: 12%;
+        left: 17%;
+        width: 70%;
+        height: 80%;
+        z-index: 1010;
+        overflow: hidden;
+        overflow-y: auto;
+    }
+
+    #resource-bar {
+        display: inline;
+        z-index: 1010;
+        position: absolute;
+        right: 40%;
+        background-color: transparent;
+    }
+
+    .content-header {
+        display: inline;
+        z-index: 1010;
+        position: absolute;
+        right: 35%;
+    }
+
+    #body-info-container {
+        background-color: gray;
+        color: white;
+        position: absolute;
+        top: 70px;
+        right: 0px;
+        width: 200px;
+        padding: 5px;
+        display: none;
+        z-index: 1010;
+    }
+
+    #body-info {
+        font-family:Monospace;
+        font-size:13px;
+        text-align:center;
+        font-weight: bold;
+
+        margin: 0px;
+        overflow: hidden;
+    }
+
+    #canvas {
+        display: inline;
+        z-index: 1000;
+        position: absolute;
+    }
