@@ -209,7 +209,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         var navbarHeight = $('#topNavbar').height();
         var hDiff = $(document.body).height() - navbarHeight - 1;
         var sidebarWidth = $('#left-sidebar').width();
-        var wDiff = $(document.body).width() - sidebarWidth;
+        var wDiff = $(document.body).width();// - sidebarWidth;
         $('#canvas').append(renderer.domElement).css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
 
 

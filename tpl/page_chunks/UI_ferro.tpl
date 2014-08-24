@@ -13,9 +13,9 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		$("#nav0").ferroMenu({
-			position 	: "center-bottom"
-		});
+		//$("#nav0").ferroMenu({
+		//	position 	: "center-bottom"
+		//});
 		$("#nav1").ferroMenu({
 			position 	: "right-center"
 		});

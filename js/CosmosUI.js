@@ -377,7 +377,7 @@ var CosmosUI = function () {
 
     function initStats() {
         stats.domElement.style.position = 'absolute';
-        stats.domElement.style.top = '0px';
+        stats.domElement.style.bottom = '0px';
         stats.domElement.style.zIndex = 1010;
         $('#canvas').append( stats.domElement );
     }

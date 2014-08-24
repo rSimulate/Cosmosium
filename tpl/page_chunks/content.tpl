@@ -305,7 +305,8 @@ autoplay="false">
 <!-- Bootstrap -->
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
 
-<!-- bottom/draggable expander menu % include('tpl/page_chunks/UI_ferro.tpl')-->
+<!-- bottom/draggable expander menu -->
+<!--% include('tpl/page_chunks/UI_ferro.tpl')-->
 
 <!-- Morris.js charts -->
 <!--
