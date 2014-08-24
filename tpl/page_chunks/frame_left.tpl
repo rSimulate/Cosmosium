@@ -11,7 +11,7 @@
                     <img src="{{user.icon}}" class="img-circle" alt="User Image" />
                 </div>
                 <div class="pull-left info">
-                    <p>{{chunks.salutation}}, {{user.name}}</p>
+                    <p>{{chunks.salutation}}, <span id='userName'>{{user.name}}</span></p>
 
                     <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
                 </div>

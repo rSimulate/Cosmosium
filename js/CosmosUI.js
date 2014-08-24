@@ -15,6 +15,7 @@ CosmosUI = function () {
     var year = '1969';
     var camera, farCamera;
     var canvas, renderer;
+    var userName;
 
     var SHOWING_ASTEROID_CLAIM = !(claimButt == null);
         // link to add the asteroid
@@ -34,6 +35,7 @@ CosmosUI = function () {
         camera = cosmosRender.getCamera(false);
         farCamera = cosmosRender.getCamera(true);
         canvas = $('#canvas');
+        userName = $('#userName').text();
 
         initStats();
 
@@ -62,6 +64,8 @@ CosmosUI = function () {
     this.update = function () {
         stats.update();
     };
+
+    this.getUser = function () {return userName;};
 
     this.setDay = function (newDay) {
         day = newDay;
@@ -201,6 +205,7 @@ CosmosUI = function () {
         // add listener to object specific div
         document.getElementById(orbit.name).addEventListener('click', function () {
             selectedObject = obj;
+            _this.onBodySelected(obj.mesh);
             cosmosRender.orbitCamera(selectedObject);
         }, false);
     };
@@ -274,8 +279,11 @@ CosmosUI = function () {
     };
 
     this.onBodySelected = function (mesh) {
+        if (mesh instanceof THREE.Line) {return;}
         cosmosScene.hideAllConditionalEllipses();
+
         var obj = undefined;
+        console.log(mesh);
 
         var checkChildrenForId = function (children, id) {
             for (var i = 0; i < children.length; i++) {
@@ -307,6 +315,9 @@ CosmosUI = function () {
             console.log("ERROR: Could not find selected object's ID");
             return;
         }
+
+        $('#player-object-container').hide();
+        $('#claim-asteroid-button').hide();
 
         var orbit = obj.orbit;
         if (orbit != undefined) {
@@ -379,16 +390,14 @@ CosmosUI = function () {
                 }
                 infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
             }
-            // make this display the owner name...
+
+
             if (obj.type == 'playerObject' || obj.type == 'asteroid') {
                 $("#owner-info").html('claimed by <b>"' + obj.owner + '"</b>')
                     //.attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')')
                     .html('<b>' + obj.owner + '</b>').attr("color", 'rgb(200,200,200)');
 
-                $('#player-object-container').hide();
-                $('#claim-asteroid-button').hide();
-                // TODO: Only display removal button of owned objects
-                if (obj.type == 'playerObject') $('#player-object-container').show();
+                if (obj.type == 'playerObject' && obj.owner == userName) $('#player-object-container').show();
                 else if (obj.type == 'asteroid') $('#claim-asteroid-button').show();
             }
             $("#body-info").html(infoHTML);
@@ -423,11 +432,10 @@ CosmosUI = function () {
         // Calculate trajectory
         cosmosScene.removeEllipse(sourceObj.parent, sourceObj.orbit.getEllipse());
         sourceObj.full_name = sourceObj.orbit.name;
-        console.log(sourceObj.full_name);
         sourceObj.orbit = undefined;
         sourceObj.dest = destObj;
         sourceObj.trajTime = 5; // how long the transition takes
-        cosmosScene.switchParent(sourceObj, sourceObj.parent, false);
+        cosmosScene.switchParent(sourceObj, cosmosScene.getScene(), false);
         cosmosRender.orbitCamera(sourceObj);
     }
 };

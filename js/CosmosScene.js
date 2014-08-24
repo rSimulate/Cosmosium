@@ -152,12 +152,21 @@ var CosmosScene = function (cosmosUI) {
         parentScene.remove(ellipse);
     };
 
+    this.getWorldPos = function (mesh) {
+        "use strict";
+        mesh.parent.updateMatrixWorld();
+        var vector = new THREE.Vector3();
+        return vector.setFromMatrixPosition(mesh.matrixWorld);
+    };
+
     this.switchParent = function (object, newParent, addElipse) {
         "use strict";
+        var pos = _this.getWorldPos(object.mesh);
         object.parent.remove(object.mesh);
 
         object.parent = newParent;
         object.parent.add(object.mesh);
+        //object.mesh.position.set(pos);
         if (addElipse) {object.parent.add(object.orbit.getEllipse());}
 
     };
@@ -265,7 +274,7 @@ var CosmosScene = function (cosmosUI) {
         loader.load(daePath, function (collada) {
             obj3d = collada.scene;
             if (obj3d != undefined) {
-                obj3d.scale.x = obj3d.scale.y = obj3d.scale.z = 3;
+                obj3d.scale.x = obj3d.scale.y = obj3d.scale.z = 1;
                 obj3d.updateMatrix();
                 obj3d.userData = {boundingBox: new THREE.Box3().setFromObject(obj3d)};
 

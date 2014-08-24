@@ -14,6 +14,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     var canvas, jCanvas, composer;
     var cameraTarget;
     var bokehPass;
+    var OBJECT_BLUR = {LARGE: 40, MEDIUM: 20, SMALL: 5 };
 
     this.init = function () {
         clock.start();
@@ -54,29 +55,36 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     this.disableControls = function () {controls.enable = false;};
 
     this.orbitCamera = function (originObj) {
+        var position = new THREE.Vector3();
         if (originObj == undefined && cameraTarget != undefined) {
             // Called from animate() to update every frame to keep origin position
-            if (cameraTarget.parent.parent) {
+            if (cameraTarget.parent && cameraTarget.parent.model && cameraTarget.parent.model == 'Sun') {
+                controls.target = cosmosScene.getWorldPos(cameraTarget.mesh);
+            }
+            else if (cameraTarget.parent.parent) {
                 if (cameraTarget.parent.parent.parent) {
-                    controls.target = cameraTarget.mesh.parent.parent.position.clone();
+                    controls.target = cosmosScene.getWorldPos(cameraTarget.mesh.parent.parent);
                 }
-                controls.target = cameraTarget.mesh.parent.position.clone();
+                controls.target = cosmosScene.getWorldPos(cameraTarget.mesh.parent);
             }
             else {
-                controls.target = cameraTarget.mesh.position.clone();
+                controls.target = cosmosScene.getWorldPos(cameraTarget.mesh);
             }
         }
         else if (originObj != undefined) {
             cameraTarget = originObj;
             // adjust focus to parent if it has one
-            if (cameraTarget.parent.parent) {
+            if (cameraTarget.parent && cameraTarget.parent.model && cameraTarget.parent.model == 'Sun') {
+                controls.target = cosmosScene.getWorldPos(originObj.mesh);
+            }
+            else if (cameraTarget.parent.parent) {
                 if (cameraTarget.parent.parent.parent) {
-                    controls.target = cameraTarget.mesh.parent.parent.position.clone();
+                    controls.target = cosmosScene.getWorldPos(cameraTarget.mesh.parent.parent);
                 }
-                controls.target = originObj.mesh.parent.position.clone();
+                controls.target = cosmosScene.getWorldPos(originObj.mesh.parent);
             }
             else {
-                controls.target = originObj.mesh.position.clone();
+                controls.target = cosmosScene.getWorldPos(originObj.mesh);
             }
 
         }
@@ -90,7 +98,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
 
         if (bokehPass && cameraTarget) {
             bokehPass.enabled = true;
-            var dist = Math.abs(cameraTarget.mesh.position.distanceTo(camera.position));
+            var dist = Math.abs(cosmosScene.getWorldPos(cameraTarget.mesh).distanceTo(camera.position));
 
             // find radius for object while accounting for some meshes being actually LOD objects
             var radius;
@@ -103,7 +111,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             }
             else {radius = cameraTarget.mesh.geometry.boundingSphere.radius}
 
-            var cullDist = dist + radius;
+            var cullDist = dist + radius * 0.60;
 
             // adjust bokeh culling to be past target object
             if (cullDist < 400) {
@@ -114,8 +122,12 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                 farCamera.updateProjectionMatrix();
             }
 
-            // adjust distance for bokeh shader to accompany blurring for large objects
-            dist -= radius / 2;
+            // adjust distance for bokeh shader to accompany blurring difference sized objects
+            console.log(radius);
+            if (radius >= OBJECT_BLUR.LARGE) { dist -= radius / 2; }
+            else if (radius >= OBJECT_BLUR.MEDIUM) { dist += radius * 1.5; }
+            else if (radius >= OBJECT_BLUR.SMALL) { dist += radius * 5; }
+            else { dist += radius * 10; }
 
             // Distance check to remove aberrations from the bokeh shader
             if (dist >= 400) dist = 400;
@@ -273,20 +285,21 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             }
             else if (obj.hasOwnProperty("dest")) {
                 // move object to destination
-                var arcLength = obj.mesh.position.distanceTo(obj.dest.mesh.position);
+                var arcLength = cosmosScene.getWorldPos(obj.mesh).distanceTo(cosmosScene.getWorldPos(obj.dest.mesh));
                 var translateSpeed = (arcLength / obj.trajTime) * deltaSeconds;
                 obj.trajTime -= deltaSeconds;
-                obj.mesh.lookAt(obj.dest.mesh.position);
+                obj.mesh.lookAt(cosmosScene.getWorldPos(obj.dest.mesh));
                 obj.mesh.translateZ(translateSpeed);
                 var sphereCollider = obj.dest.mesh.userData.boundingBox ?
                          obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
                 var apoapsis = sphereCollider.radius * 2;
+
                 if (arcLength <= apoapsis) {
                     // remove unneeded keys and create generic orbit
                     var eph = {
                         P: 10,
                         e: 0,
-                        a: apoapsis * 0.005,
+                        a: apoapsis * 0.003,
                         i: 0,
                         om: 0,
                         w: 0,
