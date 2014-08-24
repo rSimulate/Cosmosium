@@ -291,7 +291,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                 obj.mesh.lookAt(cosmosScene.getWorldPos(obj.dest.mesh));
                 obj.mesh.translateZ(translateSpeed);
                 var sphereCollider = obj.dest.mesh.userData.boundingBox ?
-                         obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
+                    obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
                 var apoapsis = sphereCollider.radius * 2;
 
                 if (arcLength <= apoapsis) {
@@ -317,7 +317,6 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                     }, false);
 
 
-
                     if (obj.dest.type == 'playerObject' || sphereCollider.radius < 3) {
                         var dOrbit = obj.dest.orbit;
                         // change the orbit a little to show both objects
@@ -340,19 +339,15 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                         console.log("radius less than three");
                         cosmosScene.attachObject(obj, obj.dest.parent);
                     }
-                    else {cosmosScene.attachObject(obj, obj.dest.mesh);}
+                    else {
+                        cosmosScene.attachObject(obj, obj.dest.mesh);
+                    }
 
                     delete obj.dest;
                     delete obj.trajTime;
                     delete obj.full_name;
                 }
             }
-            var sphereCollider = obj.dest.mesh.userData.boundingBox ?
-                 obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
-            else {cosmosScene.attachObject(obj, obj.dest.mesh);}
-                console.log(obj.dest);
-                cosmosScene.attachObject(obj, obj.dest.mesh);
-            }
         }
-    };
+    }
 };
