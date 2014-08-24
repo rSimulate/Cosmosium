@@ -10,7 +10,6 @@ var CosmosScene = function (cosmosUI) {
     var players = []; // {player: playerName, color: THREE.Color}
     var scene = new THREE.Scene();
     var cosmosRender;
-    var selectedObject;
 
     this.init = function(_cosmosRender) {
         cosmosRender = _cosmosRender;
@@ -132,8 +131,9 @@ var CosmosScene = function (cosmosUI) {
     };
 
     this.requestRemoveBody = function (e) {
-        console.log("Called for removal of objectID " + selectedObject.objectId);
-        ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '" + selectedObject.objectId + "'}}"));
+        console.log("Called for removal of objectID " + cosmosUI.getSelectedObject().objectId);
+        ws.send(message('playerObject',"{'data': {'cmd': 'destroy', 'uuid': '"
+                                    + cosmosUI.getSelectedObject().objectId + "'}}"));
     };
 
     this.removeAsteroids = function() {

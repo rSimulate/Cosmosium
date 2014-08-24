@@ -69,6 +69,8 @@ CosmosUI = function () {
         return userName;
     };
 
+    this.getSelectedObject = function () {return selectedObject;};
+
     this.setDay = function (newDay) {
         day = newDay;
     };
