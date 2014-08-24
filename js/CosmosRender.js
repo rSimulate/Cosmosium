@@ -56,7 +56,10 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     this.orbitCamera = function (originObj) {
         if (originObj == undefined && cameraTarget != undefined) {
             // Called from animate() to update every frame to keep origin position
-            if (cameraTarget.type == 'moon') {
+            if (cameraTarget.parent.parent) {
+                if (cameraTarget.parent.parent.parent) {
+                    controls.target = cameraTarget.mesh.parent.parent.position.clone();
+                }
                 controls.target = cameraTarget.mesh.parent.position.clone();
             }
             else {
@@ -65,7 +68,11 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         }
         else if (originObj != undefined) {
             cameraTarget = originObj;
-            if (originObj.type == 'moon') {
+            // adjust focus to parent if it has one
+            if (cameraTarget.parent.parent) {
+                if (cameraTarget.parent.parent.parent) {
+                    controls.target = cameraTarget.mesh.parent.parent.position.clone();
+                }
                 controls.target = originObj.mesh.parent.position.clone();
             }
             else {
@@ -243,10 +250,10 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         for (var i = 0; i < objects.length; i++) {
             var obj = objects[i];
             var orbit = obj.orbit;
-            if (orbit != undefined) {
+            if (orbit != undefined && !obj.hasOwnProperty("dest")) {
                 var helioCoords = orbit.getPosAtTime(jed);
                 var mesh = obj.mesh;
-                if (!obj.hasOwnProperty("dest")) mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
+                mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
 
                 /*
                  if (i != 2) {
@@ -265,16 +272,41 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                 }
             }
             else if (obj.hasOwnProperty("dest")) {
+                // move object to destination
                 var arcLength = obj.mesh.position.distanceTo(obj.dest.mesh.position);
                 var translateSpeed = (arcLength / obj.trajTime) * deltaSeconds;
                 obj.trajTime -= deltaSeconds;
                 obj.mesh.lookAt(obj.dest.mesh.position);
-                console.log(arcLength, translateSpeed);
                 obj.mesh.translateZ(translateSpeed);
-                if (arcLength < 100) {
+                var sphereCollider = obj.dest.mesh.userData.boundingBox ?
+                         obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
+                var apoapsis = sphereCollider.radius * 2;
+                if (arcLength <= apoapsis) {
+                    // remove unneeded keys and create generic orbit
+                    var eph = {
+                        P: 10,
+                        e: 0,
+                        a: apoapsis * 0.005,
+                        i: 0,
+                        om: 0,
+                        w: 0,
+                        ma: 0,
+                        epoch: _this.getJED()
+                    };
+                    obj.orbit = new Orbit3D(eph, {
+                        color: 0xff0000,
+                        display_color: 0xff0000,
+                        width: 2,
+                        object_size: 1 < 0 ? 50 : 15, //1.5,
+                        jed: _this.getJED(),
+                        particle_geometry: null, // will add itself to this geometry
+                        name: obj.full_name
+                    }, false);
+
+                    cosmosScene.switchParent(obj, obj.dest.mesh, true);
                     delete obj.dest;
                     delete obj.trajTime;
-                    // set up new orbit and remove keys dest and trajTime
+                    delete obj.full_name;
                 }
             }
         }

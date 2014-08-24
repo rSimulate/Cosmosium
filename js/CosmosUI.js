@@ -191,6 +191,20 @@ CosmosUI = function () {
         emulateServerTrajectory(sourceTarget, destTarget);
     };
 
+    this.addPlayerObject = function (obj) {
+        // append a new object specific button to the list
+        var orbit= obj.orbit;
+        var textName = cleanOrbitName(orbit.name);
+        $("<li class='playerObject'><a id=" + orbit.name + " href='#'>" + "<i class='fa fa-angle-double-right'></i>" +
+            textName + "</a></li>").appendTo('#object-list-container');
+
+        // add listener to object specific div
+        document.getElementById(orbit.name).addEventListener('click', function () {
+            selectedObject = obj;
+            cosmosRender.orbitCamera(selectedObject);
+        }, false);
+    };
+
     this.onDocumentMouseMove = function (event) {
         event.preventDefault();
 
@@ -366,7 +380,7 @@ CosmosUI = function () {
                 infoHTML += "<p><b>" + key + "</b>: " + orbit.eph[key] + "</p>";
             }
             // make this display the owner name...
-            if (obj.type == 'Probe' || obj.type == 'asteroid') {
+            if (obj.type == 'playerObject' || obj.type == 'asteroid') {
                 $("#owner-info").html('claimed by <b>"' + obj.owner + '"</b>')
                     //.attr("color", "rgb(" + ownerColor.r + ',' + ownerColor.g + ',' + ownerColor.b + ')')
                     .html('<b>' + obj.owner + '</b>').attr("color", 'rgb(200,200,200)');
@@ -374,7 +388,7 @@ CosmosUI = function () {
                 $('#player-object-container').hide();
                 $('#claim-asteroid-button').hide();
                 // TODO: Only display removal button of owned objects
-                if (obj.type == 'Probe') $('#player-object-container').show();
+                if (obj.type == 'playerObject') $('#player-object-container').show();
                 else if (obj.type == 'asteroid') $('#claim-asteroid-button').show();
             }
             $("#body-info").html(infoHTML);
@@ -407,8 +421,13 @@ CosmosUI = function () {
 
     function emulateServerTrajectory(sourceObj, destObj) {
         // Calculate trajectory
+        cosmosScene.removeEllipse(sourceObj.parent, sourceObj.orbit.getEllipse());
+        sourceObj.full_name = sourceObj.orbit.name;
+        console.log(sourceObj.full_name);
         sourceObj.orbit = undefined;
         sourceObj.dest = destObj;
         sourceObj.trajTime = 5; // how long the transition takes
+        cosmosScene.switchParent(sourceObj, sourceObj.parent, false);
+        cosmosRender.orbitCamera(sourceObj);
     }
 };
