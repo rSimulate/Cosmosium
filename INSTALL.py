@@ -1,9 +1,9 @@
-'''
+"""
 Run this python script to set up the cosmosium engine so you can get developing!
 
 NOTE: this is NOT a setup.py script to be used with disutils, and it might not be well tested,
    Please report any and all issues you have with this so we know how to improve this process for new devs.
-'''
+"""
 
 __author__ = 'rSimulate'
 
@@ -18,16 +18,15 @@ else:
 
 import platform
 
-# TODO: Are the windows commands correct?
 if platform.system() == 'Windows':
-    PY = '\c\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
-    PIP = '\c\Python'+ str(version_info.major) + str(version_info.minor) + 'Scripts\pip.exe'
+    PY  = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
+    PIP = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\Scripts\pip.exe'
 elif platform.system() == 'Linux':
-    PY = 'python'
+    PY  = 'python'
     PIP = 'pip'
 elif platform.system() == 'Darwin':
-    PY = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
-    PIP = 'C:\Python'+ str(version_info.major) + str(version_info.minor) + '\Scripts\pip.exe'
+    PY  = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
+    PIP = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\Scripts\pip.exe'
 else:
     raise Exception("The " + platform.system() + " platform is not officially supported at this time")
 
@@ -35,16 +34,18 @@ else:
 # install other dependencies using pip
 
 PIP_LIBS = ['GitPython==0.3.2.RC1', 'bottle', 'rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet',
-            'numpy', 'jdcal','pycrypto']
+            'numpy', 'jdcal', 'pycrypto']
 
 from subprocess import call  # for sys commands
 
 try:
     call([PIP, 'install'] + PIP_LIBS)
 except OSError:
-    print ("\n\nCan't find pip at "+PIP+
-           "\nIs python-pip installed? If the error was about vcvarsall.bat, "
-           "see the solution here: http://stackoverflow.com/a/10558328/1483986\n\n")
+    print ("\n\nCan't find pip at " + PIP +
+           "\nIs python-pip installed? If (you are on windows and) the error was about vcvarsall.bat, "
+           "then you need Visual Studio 2008, "
+           "see here for more: "
+           "http://stackoverflow.com/questions/3047542/building-lxml-for-python-2-7-on-windows/5122521#5122521\n\n")
     raise
 
 # install/update submodules using GitPython
@@ -52,7 +53,7 @@ from os import getcwd, path
 from git import Repo
 
 repo = Repo(getcwd())
-assert repo.bare == False
+assert repo.bare is False
 
 print "Installing submodules..."
 repo.submodule_update()  # inits and updates all submodules listed in .gitmodules

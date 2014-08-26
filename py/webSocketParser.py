@@ -1,35 +1,47 @@
+import os
+import random
+import string
+import datetime
+from ast import literal_eval
+
+from Crypto.Hash import SHA256
+from pymongo import MongoClient
+from bottle import template, redirect, response
+
+from py.game_logic.user.User import User
 from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
-from bottle import template
-from ast import literal_eval
 from lib.PyKEP import getTraj
-
 from asteroid_tracker import asteroid_track_request_responder
 
+
 CHUNKS = chunks()
-    
-def registerUserConnection(user,ws):
+
+
+def registerUserConnection(user, ws):
     # saves user websocket connetion so that updates to the user object can push to the client
     user.websocket = ws
-    
+
+
 def researchResponder(user, researchType):
     message = '{"cmd":"addToContent","data":"'
-    
-    if user.purchase('research_'+researchType):
+
+    if user.purchase('research_' + researchType):
         user.research.advance()
-        message+= template('tpl/content/tiles/purchase_success',
-            chunks=CHUNKS,
-            config=Settings('default'),
-            pageTitle='research complete',
-            user=user)
+        message += template('tpl/content/tiles/purchase_success',
+                            chunks=CHUNKS,
+                            config=Settings('default'),
+                            pageTitle='research complete',
+                            user=user)
     else:
-        message+= template('tpl/content/tiles/insufficientFunds',
-            chunks=CHUNKS,
-            config=Settings('default'),
-            pageTitle='research denied',
-            user=user)
-    message+='"}'
+        message += template('tpl/content/tiles/insufficientFunds',
+                            chunks=CHUNKS,
+                            config=Settings('default'),
+                            pageTitle='research denied',
+                            user=user)
+    message += '"}'
     user.sendMessage(message)
+
 
 def playerObjectResponder(user, data):
     """
@@ -87,6 +99,7 @@ def playerObjectResponder(user, data):
                 message += '"}'
                 user.sendMessage(message)
 
+
 def surveyResponder(data, user):
     # {'survey': 'MainBelt', 'amt': 0}
     # Amt of 0 == all asteroids in survey
@@ -106,8 +119,10 @@ def surveyResponder(data, user):
     else:
         print "ERROR: Player", user.name, "requested an unknown asteroid survey"
 
+
 def refreshResponder(user):
     user.game.synchronizeObjects(user)
+
 
 def trajRequestResponder(user, data):
     # {'dest': {'type': 'planet', 'objectId': 'objectId'}, 'source': {'type': 'Probe', 'objectId': 'objectId'}}
@@ -125,7 +140,19 @@ def trajRequestResponder(user, data):
             # getTraj()
             print "Source and destination is not none. Getting trajectory."
 
-    
+def loginUser(user, USERS, data):
+    info = literal_eval(data)
+    username = info['username']
+    password = info['password']
+
+    def createUser(name, icon, agency, subtext):
+        use = User()
+        use.setProfileInfo(name, icon, agency, subtext)
+        return use
+
+    # userObj = createUser(username, '/img/profiles/martin2.png', mongo_org, mongo_quote)
+
+
 def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     # takes appropriate action on the given command and data string
     if cmd == 'claim':
@@ -135,6 +162,10 @@ def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     # TODO: Send asteroid limit for user on hello
     elif cmd == 'hello':
         registerUserConnection(user, websock)
+    # elif cmd == 'register':
+        # registerNewUser(user, data)
+    # elif cmd == 'login':
+        # loginUser(user, data, USERS)
     elif cmd == 'refresh':
         refreshResponder(user)
     elif cmd == 'research':
@@ -144,4 +175,4 @@ def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     elif cmd == 'requestTraj':
         trajRequestResponder(user, data)
     else:
-        print "UNKNOWN CLIENT MESSAGE: cmd=",cmd,"data=",data," from user ",user
+        print "UNKNOWN CLIENT MESSAGE: cmd=", cmd, "data=", data, " from user ", user

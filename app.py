@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
-#=====================================#
-#              COSMOSIUM              #
+# =====================================#
+# COSMOSIUM              #
 #=====================================#
 #       SpaceAppChallenge 2014        #
 #                                     #
-#           Daniel Andersen           #
 #              Tom Riecken            #
 #             Tylar Murray            #
-#           Britton Broderick         #
+#             Brian Erikson           #
+#             Martin Kronberg         #
+#             Daniel Andersen         #
 #               Max Howeth            #
 #             David Gundry            #
 #                                     #
@@ -20,35 +21,18 @@ __author__ = 'rsimulate'
 #=====================================#
 
 #db control
-from py.game_logic.user.User import User
-import pymongo
-import datetime
-import ssl
-from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure
 
-#client = MongoClient('localhost', 27017)
-#client=MongoClient('mongodb://rsimulate:r5imulate@ds037637.mongolab.com:37637/cosmosium')
-try:
-    client = MongoClient('mongodb://admin:%40st3r0idVenture5@small.asteroid.ventures:27017')
-except ConnectionFailure:
-    # Log in as offline user
-    print "Connection to small.asteroid.ventures mongoClient failed, attempting to log in as an offline user"
-    client = None
 
 
 # Primary Components
 import os
 import sqlite3 as lite
 import sys
-import json
 import string
 import random
 
-import pymongo # import Connection
-
 from bottle import static_file, template, request, Bottle, response, redirect, abort
-from Crypto.Hash import SHA256
+
 
 # OAuth components
 import rauth
@@ -61,7 +45,7 @@ from geventwebsocket.handler import WebSocketHandler
 import py.webSocketParser as webSocketParser
 
 # Template Components
-from py.page_maker.chunks import chunks # global chunks
+from py.page_maker.chunks import chunks  # global chunks
 from py.page_maker.Settings import Settings
 
 # ui handlers:
@@ -71,21 +55,20 @@ from py.game_logic.user.User import User
 from py.game_logic.GameList import GameList
 from py.game_logic.UserList import UserList
 
-from py.getAsteroid import asterankAPI
-
 
 
 #=====================================#
 #              GLOBALS                #
 #=====================================#
 app = Bottle()
-CHUNKS = chunks()   # static chunks or strings for the site
-DOMAIN = 'localhost:7099' # domain name
+CHUNKS = chunks()  # static chunks or strings for the site
+DOMAIN = config.DOMAIN  # domain name
 GAMES = GameList()  # list of ongoing games on server
-GAMES.unpickle() # restores any games that were saved last time server shut down
+GAMES.unpickle()  # restores any games that were saved last time server shut down
 
 USERS = UserList()  # list of users on the server TODO: replace use of this w/ real db.
-MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py for more info)
+MASTER_CONFIG = 'default'  # config keyword for non-test pages. (see Config.py for more info)
+loginTokens = []
 
 # initial write of JSON files (to clear out old ones):
 # GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
@@ -97,25 +80,31 @@ MASTER_CONFIG = 'default' # config keyword for non-test pages. (see Config.py fo
 def css_static(filename):
     return static_file(filename, root='./css/')
 
+
 @app.route('/js/<filename:path>')
 def js_static(filename):
     return static_file(filename, root='./js/')
-    
+
+
 @app.route('/fonts/<filename:path>')
 def font_static(filename):
     return static_file(filename, root='./fonts/')
-    
+
+
 @app.route('/img/<filename:path>')
 def img_static(filename):
     return static_file(filename, root='./img/')
-    
+
+
 @app.route('/db/<filename:path>')
 def db_static(filename):
     return static_file(filename, root='./db/')
 
+
 @app.route('/models/<filename:path>')
 def po_static(filename):
     return static_file(filename, root='./models/')
+
 
 #=====================================#
 #           dynamic js files          #
@@ -125,13 +114,14 @@ def getDynamicJS(filename):
     # check for user login token in cookies
     _user = getLoggedInUser(request)
     if _user != None:
-    #    try:
-        return template('tpl/js/'+filename, user=_user, DOMAIN=DOMAIN)
+        #    try:
+        return template('tpl/js/' + filename, user=_user, DOMAIN=DOMAIN)
     #    except:
     #        print 'error getting template "'+str(filename)+'"!'
     #        return 404
     else:
         redirect('/userLogin')
+
 
 #=====================================#
 #      Routing Helper Functions       #
@@ -144,10 +134,12 @@ def getLoggedInUser(request):
         userLoginToken = request.get_cookie("cosmosium_login")
         try:
             return USERS.getUserByToken(userLoginToken)
-        except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
+        except (KeyError, ReferenceError) as E:  # user token not found or user has been garbage-collected
             return None
-    else: return None
-    
+    else:
+        return None
+
+
 #=====================================#
 #         Custom Error Handles        #
 #=====================================#
@@ -163,6 +155,7 @@ def error404(error):
     else:
         redirect('/userLogin')
 
+
 @app.error(500)
 def error500(error):
     print '500 error getting ', request.url, ':', response.body
@@ -170,12 +163,14 @@ def error500(error):
         if you want to help us sort it out, please visit \
         <a href='https://github.com/rSimulate/Cosmosium/issues'>our issue tracker on github</a>."
 
+
 #=====================================#
 #           Splash Page               #
 #=====================================#
 @app.route("/")
 def makeSplash():
     return template('tpl/pages/splash', gameList=GAMES, demoIDs=demoIDs)
+
 
 #=====================================#
 #       main gameplay page            #
@@ -187,10 +182,9 @@ def makeGamePage():
         userLoginToken = request.get_cookie("cosmosium_login")
         try:
             _user = USERS.getUserByToken(userLoginToken)
-        except (KeyError, ReferenceError) as E: # user token not found or user has been garbage-collected
+        except (KeyError, ReferenceError) as E:  # user token not found or user has been garbage-collected
             return userLogin('user token not found')
-
-        if _user.game == None:
+        if _user.game is None:
             GAMES.joinGame(_user)
 
         return template('tpl/pages/play',
@@ -199,12 +193,12 @@ def makeGamePage():
                         oois=GAMES.games[0].OOIs,
                         config=Settings(MASTER_CONFIG),
                         pageTitle="Cosmosium Asteriod Ventures!")
-    else: return userLogin('user login cookie not found')
+
 
 # NOTE: this next approach is better than using the real file... but not working currently.
 #@app.route("/js/game_frame_nav.js")
 #def makeFrameNav():
-    # content_files = [fname.split('.')[0] for fname in os.listdir('tpl/content/')] # the files w/o links cause issue here...
+# content_files = [fname.split('.')[0] for fname in os.listdir('tpl/content/')] # the files w/o links cause issue here...
 #    linked_content_files = ['dash','systemView','missionControl','launchpad','observatories','timeline','neos','mainBelt','kuiperBelt','spaceIndustry','humanHabitation','roboticsAndAI','launchSys','resMarket','fuelNet','spaceTourism','outreach','gov','org']
 #    return template('tpl/js/game_frame_nav', 
 #        contentFiles=linked_content_files)
@@ -225,8 +219,8 @@ def handle_websocket():
             try:
                 gameID = mesDict['gID']
                 userID = mesDict['uID']
-                cmd    = mesDict['cmd']
-                data   = mesDict['dat']
+                cmd = mesDict['cmd']
+                data = mesDict['dat']
             except KeyError:
                 print 'malformed message!'
 
@@ -239,11 +233,12 @@ def handle_websocket():
             # TODO: call message parser sort of like:
             #game_manager.parseMessage(message,wsock)
             # NOTE: message parser should probably be an attribute of the game
-            print "received :",cmd,'from',userID
-            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, GAMES.games[0].OOIs)
+            print "received :", cmd, 'from', userID
+            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, USERS, GAMES.games[0].OOIs)
         except WebSocketError:
             print 'client disconnected'
             break
+
 
 #=====================================#
 #      SQLite for Basic UI Data       #
@@ -275,14 +270,14 @@ SEED_DATA = [
     {
         'technology': 'Hydrazine',
         'tech_type': 'Propulsion',
-        'parts_enabled':'Hydrazine Engine',
+        'parts_enabled': 'Hydrazine Engine',
         'research_level': 1,
         'sci_pts_cost': 10,
     },
     {
         'technology': 'Ionized Propulsion',
         'tech_type': 'Propulsion',
-        'parts_enabled':'Xenon Thruster',
+        'parts_enabled': 'Xenon Thruster',
         'research_level': 2,
         'sci_pts_cost': 20,
     },
@@ -300,32 +295,7 @@ MONGODB_URI = 'mongodb://carl:sagan@' + MainDB
 ###############################################################################
 
 def main(args):
-
-    client = pymongo.MongoClient(MONGODB_URI)
-    db = client.get_default_database()
-
-    # First we'll add a few songs. Nothing is required to create the songs
-    # collection; it is created automatically when we insert.
-    techtree = db['TechTree']
-
-    # Note that the insert method can take either an array or a single dict.
-    techtree.insert(SEED_DATA)
-    query = {'tech_type': 'Propulsion'}
-    techtree.update(query, {'$set': {'parts_enabled': 'Rocket Engine'}})
-
-    # Running a query
-    techlist = techtree.find({'sci_pts_cost': {'$gte': 10}}).sort('research_level', 1)
-
-    for tech in techlist:
-        print ('You can research %s in the %s category, at research level %s for %d science points.' %
-               (tech['technology'], tech['tech_type'], tech['research_level'], tech['sci_pts_cost']))
-
-
-    ### If you wanted to drop this table
-    #db.drop_collection('TechTree')
-
-    ### Only close the connection when your app is terminating
-    client.close()
+    client = "tmp"
 
 
 #=====================================#
@@ -352,159 +322,85 @@ def userLogin(specialMessage=''):
     return template('tpl/pages/userLogin', demoIDs=demoIDs, message=specialMessage)
 
 
-def createUser(name, icon, agency, subtext ):                       #test user creation...
+def createUser(name, icon, agency, subtext):  #test user creation...
     # basically a User constructor using a given set of values
     #  to save me some typing
     use = User()
-    use.setProfileInfo(name,icon,agency,subtext)
+    name = name.replace(' ', '_')
+    use.setProfileInfo(name, icon, agency, subtext)
     return use
-    
+
+
+def createToken(name):
+    return name + "loginToken" + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
 
 
 @app.post('/loggin')
 def setLoginCookie():
     uid = request.forms.get('userid')
-    pw  = request.forms.get('password')
+    pw = request.forms.get('password')
     rem = request.forms.get('remember_me')
-    if client is not None:
-        db=client.users
+    _user = USERS.getUserByName(uid)
 
-        hash_pass = SHA256.new(pw).digest()#hash user input password
-        hash_pass_uni=hash_pass.decode('latin-1') #convert to unicode
-
-        salt=db.test_user.find_one({"user":uid},{"salt": 1,"_id":0}) #pull user salt
-        salt_uni=salt['salt']#pull single salt unicode element
-
-        password=db.test_user.find_one({"user":uid},{"password": 1,"_id":0})#pull user password
-        password_uni=password['password']#pull single password unicode element
-
-        if str(db.test_user.find_one({"user":uid})) == 'None':
-
-            return "User not Found"
-        else:
-            if password_uni==salt_uni+hash_pass_uni: #matches input password to db password
-                _user = USERS.getUserByName(uid) # TODO: replace this with db lookup
-
-                loginToken = uid+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
-
-
-                def createUser(name, icon, agency, subtext ):
-                    use = User()
-                    use.setProfileInfo(name,icon,agency,subtext)
-                    return use
-                mongo_user=db.test_user.find_one({"user":uid},{"user": 1,"_id":0})['user'] #pull out mongodb query and display only the value of the approriate key, i.e. pymongo returns a <type 'dict'>
-                mongo_org=db.test_user.find_one({"user":uid},{"org": 1,"_id":0})['org']
-                mongo_quote=db.test_user.find_one({"user":uid},{"quote": 1,"_id":0})['quote']
-
-                userObj=createUser(mongo_user,'/img/profiles/martin2.png',mongo_org,mongo_quote)
-
-                try:
-                    USERS.addUser(userObj,loginToken)
-                except ValueError as e:
-                    print e.message
-                response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
-                redirect('/play')
-
-
-
-            else:
-                return "Wrong Password"
+    if _user:  # if user has existing login (in python memory)
+        if uid in demoIDs or False:  # TODO: replace this false with password check
+            loginToken = uid + "loginToken" + ''.join(
+                random.choice(string.ascii_letters + string.digits) for _ in range(5))
+            userObj = getProfile(uid)
+            try:
+                USERS.addUser(userObj, loginToken)
+            except ValueError as e:
+                print e.message
+            response.set_cookie("cosmosium_login", loginToken, max_age=60 * 60 * 5)
+            redirect('/play')
+    elif False:  # if user is in database
+        # TODO: load user into USERS (python memory)
+        pass
     else:
-        offlineUser = User()
-        offlineUser.setProfileInfo("OfflineUser",'/img/profiles/martin2.png',"Offline","Offline")
-        loginToken = "OfflineUser"+"loginToken"+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
+        return userLogin('user not found')
 
-        try:
-            USERS.addUser(offlineUser,loginToken)
-        except ValueError as e:
-            print e.message
-        response.set_cookie("cosmosium_login",loginToken,max_age=60*60*5)
-        redirect('/play')
 
 @app.post('/signup')
 def setLoginCookie():
     uid = request.forms.get('userid')
-    pw  = request.forms.get('password')
+    pw = request.forms.get('password')
     rpw = request.forms.get('repeat_password')
     org = request.forms.get('org')
     quote = request.forms.get('quote')
 
-    db=client.users                                       #define which database to use
-
-    if str(db.test_user.find_one({"user":uid})) == 'None':  #check that user does not exist in db
-
-
-
-        if pw == rpw:                                       #check that passwords match
-
-            #salt_ascii=os.urandom(32)
-            #salt_dec=salt_ascii.decode('latin-1')
-            #salt=salt_dec.encode('utf8')
-            #pw_hash=str(salt)+SHA256.new(pw).hexdigest()
-
-            salt=os.urandom(32)
-            hash_pass=SHA256.new(pw).digest()
-            salt_hash_pass=salt+hash_pass
-            shp_dec=salt_hash_pass.decode('latin-1')
-            salt_dec=salt.decode('latin-1')
-            password=shp_dec.encode('utf8')
-
-
-            data={"user":uid,                               #make new user document
-            "password":shp_dec,
-            "salt":salt_dec,
-            "org":org,
-            "quote":quote,
-            "date":datetime.datetime.utcnow()}
-            db.test_user.insert(data)                       #insert document into db
-
-            return 'User Added'
-        else:
-
-            return 'Passwords do not match'
-    else:
-
-        return 'User Name Already Exists'
-
-
-
-# I'm not sure how to use this... =( ~Tylar
-@app.route('/login<:re:/?>')
-def login():
-    params = dict(
-        scope='email profile',
-        response_type='code',
-        redirect_uri=redirect_uri
-    )
-    url = google.get_authorize_url(**params)
-    app.redirect(url)
 
 # Successful login
-@app.route('/success<:re:/?>')
+@app.post('/success')
 def login_success():
-    code = app.request.params.get('code')
-    session = google.get_auth_session(
-        data=dict(
-            code=code,
-            redirect_uri=redirect_uri,
-            grant_type='authorization_code'
-        ),
-        decoder=json.loads
-    )
-    json_path = 'https://www.googleapis.com/oauth2/v1/userinfo'
-    session_json = session.get(json_path).json()
-    return 'Welcome {name}!'.format(**session_json)
-    # Unfortunately, there seem to be no reference for complete list of keys,
-    # but here are the complete json keys returned by the scope: email profile:
-    # * email
-    # * family_name
-    # * gender
-    # * given_name
-    # * id
-    # * link
-    # * locale
-    # * name
-    # * picture
+    token = request.forms.get('token')
+    session = rauth.OAuth2Session(config.GOOGLE_CLIENT_ID, config.GOOGLE_CLIENT_SECRET, token)
+    json = session.get('https://www.googleapis.com/oauth2/v1/userinfo').json()
+    if json is None:
+        return
+
+    def convert(input):
+        if isinstance(input, dict):
+            return {convert(key): convert(value) for key, value in input.iteritems()}
+        elif isinstance(input, list):
+            return [convert(element) for element in input]
+        elif isinstance(input, unicode):
+            return input.encode('utf-8')
+        else:
+            return input
+
+    json = convert(json)
+    user = createUser(json['name'], json['picture'], "NASA", "For the Benefit of All")
+    gameToken = createToken(user.name)
+    USERS.addUser(user, gameToken)
+    response.set_cookie("cosmosium_login", gameToken, max_age=60 * 60 * 5)
+    loginTokens.append({'name': user.name, 'social_token': token, 'game_token': gameToken})
+    redirect('/play')
+
+@app.route('/signout')
+def signout():
+    token = request.get_cookie('cosmosium_login')
+    user = USERS.getUserByToken(token)
+    user.sendMessage('{"cmd":"notify","data":signout"}')
 #app.run(
 #    server=config.SERVER,
 #    port=config.PORT,
@@ -518,12 +414,12 @@ def login_success():
 
 if __name__ == "__main__":
     try:
-     #   app.catchall = True  # Now most exceptions are re-raised within bottle.
-        port = int(os.environ.get("PORT", 7099))
+        #   app.catchall = True  # Now most exceptions are re-raised within bottle.
+        port = int(os.environ.get("PORT", config.PORT))
         #run(host='0.0.0.0', port=port)
         server = WSGIServer(("0.0.0.0", port), app,
                             handler_class=WebSocketHandler)
-        print 'starting server on '+str(port)
+        print 'starting server on ' + str(port)
         server.serve_forever()
         print 'code after this point never executes.'
         main(sys.argv[1:])  # Invokes Mongo

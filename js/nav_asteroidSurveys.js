@@ -1,10 +1,22 @@
+
+var curSurvey = "";
+var asteroidPollAmount = 0; // num of asteroids to poll, with 0 being all of the available asteroids
+
+function updateSurvey(newSurvey) {
+    // TODO: Adjust this to check for updated asteroid poll amount when we get a UI adjustment implemented
+    if (curSurvey !== newSurvey) {
+        curSurvey = newSurvey;
+        rSimulate.cosmosScene.removeAsteroids();
+        ws.send(message('getSurvey',"{'survey': '" + newSurvey + "', 'amt': " + asteroidPollAmount + "}"));
+    }
+}
+
 document.getElementById('systemView-NEOs-link').addEventListener('click', function (e){
     e = e || window.event;
 
     switchContent();
 
-    rSimulate.removeAsteroids();
-    ws.send(message('getSurvey',"{'survey': 'NEO', 'amt': 0}"));
+    updateSurvey('NEO');
 
 }, false);
 
@@ -13,8 +25,7 @@ document.getElementById('systemView-MainBelt-link').addEventListener('click', fu
 
     switchContent();
 
-    rSimulate.removeAsteroids();
-    ws.send(message('getSurvey',"{'survey': 'MainBelt', 'amt': 0}"));
+    updateSurvey('MainBelt');
 
 }, false);
 
@@ -23,8 +34,7 @@ document.getElementById('systemView-trojan-link').addEventListener('click', func
 
     switchContent();
 
-    rSimulate.removeAsteroids();
-    ws.send(message('getSurvey',"{'survey': 'SolarSystem', 'amt': 0}"));
+    updateSurvey('SolarSystem');
 
 }, false);
 
@@ -33,7 +43,6 @@ document.getElementById('systemView-PHO-link').addEventListener('click', functio
 
     switchContent();
 
-    rSimulate.removeAsteroids();
-    ws.send(message('getSurvey',"{'survey': 'KuiperBelt', 'amt': 0}"));
+    updateSurvey('KuiperBelt');
 
 }, false);

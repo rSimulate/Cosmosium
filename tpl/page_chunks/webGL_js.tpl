@@ -13,4 +13,9 @@
 <script src="js/util.js"></script>
 <script src="js/ellipse.js"></script>
 <script src="js/ephemeris.js"></script>
-<script src="js/main.js"></script>
+
+<script type="text/javascript" src="js/CosmosTools.js"></script>
+<script type="text/javascript" src="js/CosmosUI.js"></script>
+<script type="text/javascript" src="js/CosmosScene.js"></script>
+<script type="text/javascript" src="js/CosmosRender.js"></script>
+<script type="text/javascript" src="js/main.js"></script>

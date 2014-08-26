@@ -203,8 +203,8 @@ THREE.Bokeh2Pass = function ( scene, camera, params ) {
     var noise = ( params.noise !== undefined ) ? params.noise : {type: 'i', value: 1};
     var pentagon = ( params.pentagon !== undefined ) ? params.pentagon : {type: 'i', value: 0};
 
-    var znear = ( params.near !== undefined ) ? params.near : {type: 'f', value: parseFloat(CAMERA_NEAR)};
-    var zfar = ( params.far !== undefined ) ? params.far : {type: 'f', value: parseFloat(CAMERA_FAR)};
+    var znear = ( params.near !== undefined ) ? params.near : {type: 'f', value: 75};
+    var zfar = ( params.far !== undefined ) ? params.far : {type: 'f', value: 10000};
     var samples = ( params.samples !== undefined ) ? params.samples : {type: 'i', value: 4};
     var rings = ( params.rings !== undefined ) ? params.rings : {type: 'i', value: 4};
 
