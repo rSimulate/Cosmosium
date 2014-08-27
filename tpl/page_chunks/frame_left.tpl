@@ -54,7 +54,7 @@
                     </ul>
                 </li>
                 <li class="treeview">
-                    <a href="#">
+                    <a href="#" id="nav-link-targets">
                         <i class="fa fa-table"></i> <span>Targets</span>
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
