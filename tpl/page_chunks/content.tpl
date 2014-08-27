@@ -1,8 +1,5 @@
 <!DOCTYPE html>
 <html>
-<script type="application/javascript">
-
-</script>
 <script type='text/javascript' src='/tpl/js/player.js'></script>
 
 
@@ -358,6 +355,19 @@ autoplay="false">
 
 <!-- CDN Fallback in case any go down
 <script type="text/javascript" src='/js/plugins/fallback/cdnFallback.js'></script> -->
+
+<!-- missions -->
+    <!-- tourist.js guided tour -->
+    <!--
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    -->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js" type="text/javascript"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+    <script src="/js/vendor/tourist.js"></script>
+
+    <script type="text/javascript" src="/js/missions/asteroid_survey.js"></script>
+
+
 
 </body>
 </html>
