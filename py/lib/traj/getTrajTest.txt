@@ -1,0 +1,80 @@
+############################################################
+#         Calculate trajectory using getTraj               #
+############################################################
+from getTraj import *
+
+#Earth:
+epch1 = 2451545.0
+a1  = 1.0000026099999997 
+e1  = 0.016711230000000001 
+i1  = -1.5310000000000001e-05 
+om1 = 0 
+w1  = 102.93768193 
+ma1 = 357.52688972999999 
+mass1 = 5.97219e24
+r1 = 6378000
+sr1 = 1.1 * r1
+
+#Mars:
+epch2 = 2451545.0
+a2  = 1.5237103400000001
+e2  = 0.093394099999999994
+i2  = 1.8496914200000001
+om2 = 49.559538910000001
+w2  = -73.503168500000001
+ma2 = 19.390197540000003
+mass2 = 639E21
+r2 = 3397000
+sr2 = 1.1 * r2
+
+
+K1 = [epch1,a1, e1, i1, om1, w1, ma1, mass1, r1, sr1]
+K2 = [epch2,a2, e2, i2, om2, w2, ma2, mass2, r2, sr2]
+
+tlaunch = 2456880
+tarrive = 2457880
+N = 1000
+
+[t_, x_, y_, z_] = getTraj(K1, K2, tlaunch, tarrive, N)
+
+###########################################################
+#   Calculate trajectory directly from PyKEP to compare   #
+###########################################################
+import numpy as np
+from PyKEP import planet_ss, epoch, DAY2SEC, lambert_problem, MU_SUN, AU, propagate_lagrangian
+
+earth=planet_ss('earth')
+mars=planet_ss('mars')
+
+t1=epoch(tlaunch,epoch.epoch_type.JD)
+t2=epoch(tarrive,epoch.epoch_type.JD)
+dt=(t2.mjd2000 - t1.mjd2000) * DAY2SEC
+
+r1,v1=earth.eph(t1)
+r2,v2=mars.eph(t2)
+
+l = lambert_problem(r1,r2,dt,MU_SUN)
+
+r = l.get_r1()
+v = l.get_v1()[0]
+mu = l.get_mu()
+
+dtn = dt / (N - 1)
+	
+x = np.array([0.0] * N)
+y = np.array([0.0] * N)
+z = np.array([0.0] * N)
+
+for i in range(N):
+	x[i] = r[0] / AU
+	y[i] = r[1] / AU
+	z[i] = r[2] / AU
+	r, v = propagate_lagrangian(r, v, dtn, mu)
+
+#Compare trajectories relative residual percent error
+from numpy import linalg as LA
+LA.norm(x_-x) / LA.norm(x) * 100
+LA.norm(y_-y) / LA.norm(y) * 100
+LA.norm(z_-z) / LA.norm(z) * 100
+
+
