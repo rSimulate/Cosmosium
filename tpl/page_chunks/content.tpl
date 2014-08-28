@@ -172,7 +172,7 @@ autoplay="false">
         display: inline;
         z-index: 1010;
         position: absolute;
-        right: 40%;
+        right: 32%;
         background-color: transparent;
     }
 
@@ -220,7 +220,7 @@ autoplay="false">
         display: inline;
         z-index: 1010;
         position: absolute;
-        right: 3vw;
+        right: 40%;
         background-color: transparent;
     }
 

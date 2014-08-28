@@ -504,7 +504,7 @@ var CosmosScene = function (cosmosUI) {
                     transparent: true,
                     side: THREE.DoubleSide
                 });
-                var ringGeometry = new THREE.RingGeometry(4, 100, 180, 1, 0, Math.PI * 2);
+                var ringGeometry = new THREE.RingGeometry(0.1, 36, 180, 1, 0, Math.PI * 2);
                 var ring = new THREE.Mesh(ringGeometry, ringMaterial);
                 ring.rotation.x = Math.PI / 2;
                 mesh.add(ring);

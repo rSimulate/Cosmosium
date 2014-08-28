@@ -2576,11 +2576,11 @@ Component: timeline
 */
 /* skin-black navbar */
 .skin-black .navbar {
-  background-color: #ffffff;
-  border-bottom: 1px solid #eee;
+  background-color: #000000;
+  border-bottom: 1px solid #000;
 }
 .skin-black .navbar .nav a {
-  color: #333333;
+  color: #ffffff;
 }
 .skin-black .navbar .nav > li > a:hover,
 .skin-black .navbar .nav > li > a:active,
@@ -2588,8 +2588,8 @@ Component: timeline
 .skin-black .navbar .nav .open > a,
 .skin-black .navbar .nav .open > a:hover,
 .skin-black .navbar .nav .open > a:focus {
-  background: #ffffff;
-  color: #999999;
+  background: #616161;
+  color: #ffffff;
 }
 .skin-black .navbar .navbar-right > .nav {
   margin-right: 10px;
