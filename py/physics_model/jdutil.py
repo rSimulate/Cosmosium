@@ -20,32 +20,32 @@ def mjd_to_iau(mjd):
     thisjd = mjd_to_jd(mjd)
     yyyy, mm, dd = jd_to_date(thisjd)
 
-    this_iau_century = iau_century(str(yyyy)[0:1])
-    this_iau_year = str(yyyy)[2:3]
-    this_iau_month = iau_number(mm)
-    this_iau_day = iau_number(str(dd)[0:1])
-    this_iau_dec = str(dd)[1:]
+    this_iau_century = str(iau_century(str(yyyy)[0:2]))
+    this_iau_year = str(yyyy)[2:4]
+    this_iau_month = str(iau_number(str(mm)))
+    this_iau_day = str(iau_number(str(dd)[0:2]))
+    this_iau_dec = str(dd)[2:]
 
-    this_iau = this_iau_century + this_iau_year + this_iau_month + this_iau_day + this_iau_dec
+    this_iau = this_iau_century + this_iau_year + this_iau_month + this_iau_day
     return this_iau
 
 
 def iau_century(cent):
 #The first two digits of the year are packed into a single character in column 1 (I = 18, J = 19, K = 20).
-    if cent == 18:
+    if cent == '18':
         return 'I'
-    elif cent == 19:
+    elif cent == '19':
         return 'J'
-    elif cent == 20:
+    elif cent == '20':
         return 'K'
-    elif cent == 21:
+    elif cent == '21':
         return 'L'
 
 def iau_number(numb):
     uncoded_numb = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
     coded_numb = ['1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V']
-    for i in len(uncoded_numb):
-        if numb == uncoded_numb[i]:
+    for i in range(0,30):
+        if numb == str(uncoded_numb[i]):
             return coded_numb[i]
 
 def mjd_to_jd(mjd):
