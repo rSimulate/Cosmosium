@@ -353,6 +353,9 @@ autoplay="false">
 <!-- WEBSOCKETS !IMPORTANT! -->
 <script type="text/javascript" src='/tpl/js/webSocketSetup.js'></script>
 
+<!-- CDN Fallback in case any go down
+<script type="text/javascript" src='/js/plugins/fallback/cdnFallback.js'></script> -->
+
 <!-- missions -->
     <!-- tourist.js guided tour -->
     <!--
