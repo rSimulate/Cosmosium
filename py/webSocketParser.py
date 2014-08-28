@@ -11,7 +11,7 @@ from bottle import template, redirect, response
 from py.game_logic.user.User import User
 from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
-from lib.PyKEP import getTraj
+from lib.traj import getTraj
 from asteroid_tracker import asteroid_track_request_responder
 
 
