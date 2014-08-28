@@ -32,20 +32,20 @@ def mjd_to_iau(mjd):
 
 def iau_century(cent):
 #The first two digits of the year are packed into a single character in column 1 (I = 18, J = 19, K = 20).
-    if cent == 18
+    if cent == 18:
         return 'I'
-    elif cent == 19
+    elif cent == 19:
         return 'J'
-    elif cent == 20
+    elif cent == 20:
         return 'K'
-    elif cent == 21
+    elif cent == 21:
         return 'L'
 
 def iau_number(numb):
     uncoded_numb = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
     coded_numb = ['1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V']
     for i in len(uncoded_numb):
-        if numb == uncoded_numb[i]
+        if numb == uncoded_numb[i]:
             return coded_numb[i]
 
 def mjd_to_jd(mjd):
