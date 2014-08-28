@@ -20,11 +20,11 @@ def mjd_to_iau(mjd):
     thisjd = mjd_to_jd(mjd)
     yyyy, mm, dd = jd_to_date(thisjd)
 
-    this_iau_century = iau_century(yyyy[0:1])
-    this_iau_year = yyyy[2:3]
+    this_iau_century = iau_century(str(yyyy)[0:1])
+    this_iau_year = str(yyyy)[2:3]
     this_iau_month = iau_number(mm)
-    this_iau_day = iau_number(dd[0:1])
-    this_iau_dec = dd[1:]
+    this_iau_day = iau_number(str(dd)[0:1])
+    this_iau_dec = str(dd)[1:]
 
     this_iau = this_iau_century + this_iau_year + this_iau_month + this_iau_day + this_iau_dec
     return this_iau
