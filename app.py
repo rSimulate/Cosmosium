@@ -22,8 +22,6 @@ __author__ = 'rsimulate'
 
 #db control
 
-
-
 # Primary Components
 import os
 import sqlite3 as lite
@@ -50,6 +48,7 @@ from py.page_maker.Settings import Settings
 
 # ui handlers:
 from py.query_parsers.getUser import getProfile, demoIDs
+
 # game logic:
 from py.game_logic.user.User import User
 from py.game_logic.GameList import GameList

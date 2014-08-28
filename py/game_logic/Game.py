@@ -17,7 +17,6 @@ GAME_YEAR_SPAN = 200  # years spanned by a max-len game
 START_YEAR = 1969  # starting year of game
 TIME_UPDATE_FREQ = 1  # client clock sync frequency in seconds
 
-
 class Game(object):
     def __init__(self):
         print "New game instance initializing..."
