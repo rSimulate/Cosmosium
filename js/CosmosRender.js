@@ -4,7 +4,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     var jed_delta = 3;  // how many days per second to elapse
     var using_webgl = true;
     var camera, farCamera;
-    var CAMERA_NEAR = 75;
+    var CAMERA_NEAR = 10;
     var CAMERA_FAR = 1000000;
     var FOCAL_LENGTH = 60;
     var clock = new THREE.Clock();
@@ -14,7 +14,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     var canvas, jCanvas, composer;
     var cameraTarget;
     var bokehPass;
-    var OBJECT_BLUR = {LARGE: 40, MEDIUM: 20, SMALL: 5 };
+    var OBJECT_BLUR = {LARGE: 20, MEDIUM: 10, SMALL: 2 };
 
     this.init = function () {
         clock.start();

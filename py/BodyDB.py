@@ -19,10 +19,10 @@ EUROPA_SIZE = scale(EARTH_SIZE, .2451, .2451)
 # exaggeration of moon orbit distances
 ORBIT_DIST = scale(EARTH_SIZE, 1, .1)
 # specific moon distance adjustments:
-EARTH_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, EARTH_SIZE)
-MARS_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, MARS_SIZE * 15)
-JUPITER_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, JUPITER_SIZE)
-SATURN_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, SATURN_SIZE)
+EARTH_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, EARTH_SIZE*.75)
+MARS_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, MARS_SIZE * 8)
+JUPITER_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, JUPITER_SIZE*0.5)
+SATURN_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, SATURN_SIZE*0.5)
 URANUS_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, URANUS_SIZE * 3)
 NEPTUNE_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, NEPTUNE_SIZE)
 
@@ -150,7 +150,7 @@ class BodyDB(object):
             'type': 'moon'}
         deimos = {
             'orbit': {'full_name': 'Deimos',
-                    'a': 0.000156807045 * MARS_MOON_EXAGGERATION,  # exaggerating distance for visibility
+                    'a': 0.000156807045 * MARS_MOON_EXAGGERATION * 0.5,  # exaggerating distance for visibility
                     'e': 0.0002,
                     'i': 1.788,
                     'w': 260.729,
