@@ -266,6 +266,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                 var mesh = obj.mesh;
                 mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
 
+
                 /*
                  if (i != 2) {
                  var centerOfGravityPosition = meshes[2].position;

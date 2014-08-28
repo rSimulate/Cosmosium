@@ -32,13 +32,13 @@ def mjd_to_iau(mjd):
 
 def iau_century(cent):
 #The first two digits of the year are packed into a single character in column 1 (I = 18, J = 19, K = 20).
-    if cent = 18
+    if cent == 18
         return 'I'
-    elif cent = 19
+    elif cent == 19
         return 'J'
-    elif cent = 20
+    elif cent == 20
         return 'K'
-    elif cent = 21
+    elif cent == 21
         return 'L'
 
 def iau_number(numb):
