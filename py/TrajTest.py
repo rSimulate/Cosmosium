@@ -24,11 +24,11 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from matplotlib.colors import BoundaryNorm
 
-low_arrive=2185.0
-high_arrive=3500.0
+low_arrive=1950.0
+high_arrive=2500.0
 
-low_launch=1950.0
-high_launch=2162.0
+low_launch=1900.0
+high_launch=2200.0
 
 reso=100
 
@@ -47,7 +47,7 @@ for i in range(0,reso,1):
 
         if tarrive <= tlaunch:
 
-            xy[i,j]=0
+            xy[i,j]=1000000
 
         else:
 
@@ -116,7 +116,7 @@ Z = xy/norm
 levels = MaxNLocator(nbins=15).tick_values(Z.min(), Z.max())
 cmap = plt.get_cmap('PiYG')
 norm = BoundaryNorm(levels, ncolors=cmap.N, clip=True)
-im = plt.pcolormesh(X, Y, Z, cmap=cmap,vmax=.03)
+im = plt.pcolormesh(X, Y, Z, cmap=cmap,vmax=.003)
 plt.colorbar()
 # set the limits of the plot to the limits of the data
 
