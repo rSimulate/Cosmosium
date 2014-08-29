@@ -14,7 +14,7 @@ from py.game_logic.mockEventList import getMockEventList
 GAME_LEN = 60  # max length of game in minutes
 DAYS_PER_SEC = 3  # how many days pass per second
 GAME_YEAR_SPAN = 200  # years spanned by a max-len game
-START_YEAR = 1969  # starting year of game
+START_YEAR = 2005  # starting year of game
 TIME_UPDATE_FREQ = 1  # client clock sync frequency in seconds
 
 class Game(object):

@@ -84,6 +84,7 @@ autoplay="false">
         z-index: 1010;
         position: absolute;
         top: 20%;
+        left: 225px;
     }
 
     .row {
