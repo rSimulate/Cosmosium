@@ -5,10 +5,12 @@ import datetime
 from ast import literal_eval
 
 from Crypto.Hash import SHA256
+from jdcal import gcal2jd
 from pymongo import MongoClient
 from bottle import template, redirect, response
 
 from py.game_logic.user.User import User
+from py.generate_traj import gen_traj
 from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
 from lib.traj import getTraj
@@ -125,7 +127,7 @@ def refreshResponder(user):
 
 
 def trajRequestResponder(user, data):
-    # {'dest': {'type': 'planet', 'objectId': 'objectId'}, 'source': {'type': 'Probe', 'objectId': 'objectId'}}
+    # {'dest': {'type': 'planet', 'objectId': 'objectId'}, 'source': {'type': 'Probe', 'objectId': 'objectId'}, 'res': N-val}
     trajData = literal_eval(data)
 
     if trajData['source']['type'] != 'Probe':
@@ -137,8 +139,20 @@ def trajRequestResponder(user, data):
         dest = user.game.getObject(trajData['dest']['objectId'], type=trajData['dest']['type'])
 
         if source is not None and dest is not None:
-            # getTraj()
-            print "Source and destination is not none. Getting trajectory."
+            #TODO: Change 'ARRIVAL_TIME' to the actual time
+            launchTime = sum(gcal2jd('2005', 'June', '01'))
+            arrivalTime = 'ARRIVAL_TIME'
+            traj = gen_traj(source['model'], dest['model'], launchTime, arrivalTime, 0, trajData['res'])
+
+            message = '{"cmd":"trajReturn","data":"'
+            message += "{'source': "+trajData['source']['objectId']+", 'traj': "+str(traj)+'}'
+            message += '"}'
+
+            user.sendMessage(message)
+            print "Sending traj to user", user.name
+        else:
+            print "ERROR: Trajectory request source and/or destination was not able to be identified"
+
 
 def loginUser(user, USERS, data):
     info = literal_eval(data)

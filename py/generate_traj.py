@@ -12,4 +12,4 @@ N=100
 #print traj_t[0], traj_x[0]
 
 def gen_traj(start_planet, target_obj, t_launch, t_arrive, rev, N):
-    traj_t, traj_x, traj_y, traj_z = traj_planet_asteroid(start_planet,target_obj,t_launch,t_arrive,rev,N)
+    return traj_planet_asteroid(start_planet,target_obj,t_launch,t_arrive,rev,N)

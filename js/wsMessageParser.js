@@ -303,6 +303,28 @@ function parseNotifyRequest(data) {
     rSimulate.cosmosUI.notify(phrase);
 }
 
+function parseTraj(data) {
+    "use strict";
+    var split = cleanObjectRequest(data);
+
+    var source, traj;
+    for (var i = 0; i < split.length; i++) {
+        var s = split[i];
+        var next = i + 1;
+        if (s == 'source') source = split[next];
+        else if (s == 'traj') traj = split.slice(next);
+    }
+
+    if (source == undefined || traj == undefined) {
+        console.log("ERROR: Trajectory recieved from server failed parsing");
+        console.log("Source:", source, "Trajectory:",traj);
+    }
+    else {
+        console.log('Source:', source, 'Trajectory:', traj);
+        //rSimulate.cosmosUI.addTrajectory(source, traj);
+    }
+}
+
 function parseMessage(m) {
     // interprets and carries out messages
 
@@ -361,6 +383,8 @@ function parseMessage(m) {
         claimResponder(data);
     } else if (cmd == 'timeSync') {
         updateTime(data);
+    } else if (cmd == 'trajReturn') {
+        parseTraj(data);
     } else {
         console.log("ERR: unknown message to client: "+m);
     }

@@ -95,7 +95,7 @@ class Game(object):
 
         cleaned = {
             'type': 'asteroid',
-            'model': 'asteroid',
+            'model': asteroid['full_name'].split()[0] + '_' + asteroid['name'],
             'objectId': str(uuid.uuid4()),
             'owner': 'UNCLAIMED',
             'orbitExtras': {'H': asteroid['H'], 'diameter': asteroid['diameter']},
@@ -302,6 +302,11 @@ class Game(object):
 
         if type == 'asteroid' or type is None:
             for obj in self.OOIs:
+                if obj['objectId'] == objectId:
+                    return obj
+
+        if type == 'planet' or type == 'moon' or type is None:
+            for obj in self.bodies:
                 if obj['objectId'] == objectId:
                     return obj
 

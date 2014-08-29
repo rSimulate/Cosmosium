@@ -112,7 +112,9 @@ var CosmosScene = function (cosmosUI) {
         }
 
 
-        var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh, parent: parent};
+        var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh, parent: parent,
+            launched: false
+        };
         objects.push(obj);
 
         // orbit sun at start of game
@@ -656,5 +658,15 @@ var CosmosScene = function (cosmosUI) {
             }
         }
         console.log("could not find", objName);
-    }
+    };
+
+    this.getObjectByObjectId = function (id) {
+        "use strict";
+
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
+            if (obj.objectId == id) return obj;
+        }
+        console.log("could not find object by id:", id);
+    };
 };

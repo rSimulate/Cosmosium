@@ -184,6 +184,7 @@ CosmosUI = function () {
     this.setCourse = function () {
         var stringify;
         var destTarget;
+        var res = 20;
         var data;
 
         console.log("Setting course");
@@ -193,12 +194,25 @@ CosmosUI = function () {
         _this.onBodyDeselected();
 
         cosmosRender.orbitCamera(sourceTarget);
-        // Uncomment this when pykep starts working
-        /*data = {source: {objectId: sourceTarget.objectId, type: sourceTarget.type},
-         dest: {objectId: destTarget.objectId, type: destTarget.type}};
-         stringify = JSON.stringify(data).replace(/\"+/g, "\'");
-         ws.send(message('requestTraj', stringify)); */
-        emulateServerTrajectory(sourceTarget, destTarget);
+        sourceTarget.dest = destTarget;
+        destTarget = undefined;
+        data = {
+            source: {objectId: sourceTarget.objectId, type: sourceTarget.type},
+            dest: {objectId: destTarget.objectId, type: destTarget.type},
+            res: res
+        };
+        stringify = JSON.stringify(data).replace(/\"+/g, "\'");
+        ws.send(message('requestTraj', stringify));
+    };
+
+    this.addTrajectory = function (source, traj) {
+        // source = objectId, traj = [t[], x[], y[], z[]]
+        var sourceObj = cosmosScene.getObjectByObjectId(source);
+        cosmosScene.detachObject(sourceObj);
+        sourceObj.full_name = sourceObj.orbit.name;
+        sourceObj.orbit = undefined;
+        sourceObj.traj = traj;
+        cosmosRender.orbitCamera(sourceObj);
     };
 
     this.addPlayerObject = function (obj) {
@@ -431,14 +445,5 @@ CosmosUI = function () {
         stats.domElement.style.bottom = '0px';
         stats.domElement.style.zIndex = 1010;
         $('#canvas').append(stats.domElement);
-    }
-
-    function emulateServerTrajectory(sourceObj, destObj) {
-        cosmosScene.detachObject(sourceObj);
-        sourceObj.full_name = sourceObj.orbit.name;
-        sourceObj.orbit = undefined;
-        sourceObj.dest = destObj;
-        sourceObj.trajTime = 5; // how long the transition takes
-        cosmosRender.orbitCamera(sourceObj);
     }
 };

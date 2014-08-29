@@ -262,27 +262,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             var obj = objects[i];
             var orbit = obj.orbit;
 
-            //PLEASE HELP ME GET THIS CODE SECTION WORKING!
-            //It should ping the web server, use generate_traj.py, and then this
-            //section should be used to  actually animate the probe's trajectory
-            //NOTE: The trajectory itself might not have as many frames as the
-            //animation, so we might need to implement some type of interpolation
-            if(obj.hasOwnProperty("trajplanned") && obj.time_launch.mjd == game.clock.mjd){
-                //Let's use a websocket to get the trajectory from generate_traj.py
-                //Actually, Game.py might call "import generate_traj" then run gen_traj
-                var ObjTraj = ws.getTrajObj[obj.id];
-
-                //The websocket should stream back a set of 3 arrays, t,x,y,z
-                traj_t = ObjTraj[0]; //Traj Point Time
-                traj_x = ObjTraj[1];
-                traj_y = ObjTraj[2];
-                traj_z = ObjTraj[3];
-                if (traj_t == timeAdvanced){
-                    mesh.position.set(traj_x,traj_y,traj_z);
-                }
-            }
-
-            if (orbit != undefined && !obj.hasOwnProperty("dest")) {
+            if (orbit != undefined && obj.launched == false) {
                 var helioCoords = orbit.getPosAtTime(jed);
                 var mesh = obj.mesh;
                 mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
@@ -304,8 +284,9 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                     mesh.rotation.y += (percentageRotated * 2.0 * Math.PI);
                 }
             }
-            else if (obj.hasOwnProperty("dest")) {
+            else if (obj.hasOwnProperty("dest") && obj.launched) {
                 // move object to destination
+                // TODO: Update with info from server
                 var arcLength = cosmosScene.getWorldPos(obj.mesh).distanceTo(cosmosScene.getWorldPos(obj.dest.mesh));
                 var translateSpeed = (arcLength / obj.trajTime) * deltaSeconds;
                 obj.trajTime -= deltaSeconds;
