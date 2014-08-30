@@ -208,9 +208,6 @@ CosmosUI = function () {
     this.addTrajectory = function (source, traj) {
         // source = objectId, traj = [t[], x[], y[], z[]]
         var sourceObj = cosmosScene.getObjectByObjectId(source);
-        cosmosScene.detachObject(sourceObj);
-        sourceObj.full_name = sourceObj.orbit.name;
-        sourceObj.orbit = undefined;
         sourceObj.traj = traj;
         cosmosRender.orbitCamera(sourceObj);
     };

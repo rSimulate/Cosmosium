@@ -114,13 +114,11 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             var cullDist = dist + radius * 0.60;
 
             // adjust bokeh culling to be past target object
-            if (cullDist < 400) {
-                CAMERA_NEAR = cullDist;
-                camera.far = cullDist;
-                farCamera.near = cullDist;
-                camera.updateProjectionMatrix();
-                farCamera.updateProjectionMatrix();
-            }
+            CAMERA_NEAR = cullDist;
+            camera.far = cullDist;
+            farCamera.near = cullDist;
+            camera.updateProjectionMatrix();
+            farCamera.updateProjectionMatrix();
 
             // adjust distance for bokeh shader to accompany blurring difference sized objects
             if (radius >= OBJECT_BLUR.LARGE) { dist -= radius / 2; }
@@ -129,7 +127,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             else { dist += radius * 10; }
 
             // Distance check to remove aberrations from the bokeh shader
-            if (dist >= 400) dist = 400;
+            if (dist >= 300) bokehPass.enabled = false;
             bokehPass.materialBokeh.uniforms.focalDepth.value = dist;
         }
         else if (bokehPass && cameraTarget == undefined) bokehPass.enabled = false;
@@ -262,6 +260,13 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             var obj = objects[i];
             var orbit = obj.orbit;
 
+            if (obj.hasOwnProperty("dest") && cosmosUI.getDay() < "05" && cosmosUI.getMonth() == "June"
+                    && cosmosUI.getYear == "2005") {
+
+                cosmosScene.detachObject(obj);
+                obj.launched = true;
+            }
+
             if (orbit != undefined && obj.launched == false) {
                 var helioCoords = orbit.getPosAtTime(jed);
                 var mesh = obj.mesh;
@@ -299,56 +304,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
 
                 if (arcLength <= apoapsis) {
                     // remove unneeded keys and create generic orbit
-                    var eph = {
-                        P: 10,
-                        e: 0,
-                        a: apoapsis * 0.003,
-                        i: 0,
-                        om: 0,
-                        w: 0,
-                        ma: 0,
-                        epoch: _this.getJED()
-                    };
-                    obj.orbit = new Orbit3D(eph, {
-                        color: 0xff0000,
-                        display_color: 0xff0000,
-                        width: 2,
-                        object_size: 1 < 0 ? 50 : 15, //1.5,
-                        jed: _this.getJED(),
-                        particle_geometry: null, // will add itself to this geometry
-                        name: obj.full_name
-                    }, false);
-
-
-                    if (obj.dest.type == 'playerObject' || sphereCollider.radius < 3) {
-                        var dOrbit = obj.dest.orbit;
-                        // change the orbit a little to show both objects
-                        eph.P = dOrbit.eph.P;
-                        eph.a = dOrbit.eph.a * 0.98;
-                        eph.e = dOrbit.eph.e;
-                        eph.i = dOrbit.eph.i;
-                        eph.om = dOrbit.eph.om;
-                        eph.w = dOrbit.eph.w;
-                        eph.ma = dOrbit.eph.ma;
-                        obj.orbit = new Orbit3D(eph, {
-                            color: 0xff0000,
-                            display_color: 0xff0000,
-                            width: 2,
-                            object_size: 1 < 0 ? 50 : 15, //1.5,
-                            jed: _this.getJED(),
-                            particle_geometry: null, // will add itself to this geometry
-                            name: obj.full_name
-                        }, false);
-                        console.log("radius less than three");
-                        cosmosScene.attachObject(obj, obj.dest.parent);
-                    }
-                    else {
-                        cosmosScene.attachObject(obj, obj.dest.mesh);
-                    }
-
-                    delete obj.dest;
-                    delete obj.trajTime;
-                    delete obj.full_name;
+                    cosmosScene.generateOrbit(obj, apoapsis, sphereCollider.radius);
                 }
             }
         }

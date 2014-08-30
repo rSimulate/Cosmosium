@@ -166,6 +166,8 @@ var CosmosScene = function (cosmosUI) {
         "use strict";
         // removes object from moon or other orbital body if parent is not scene
         if (object.orbit) {_this.removeEllipse(object.parent, object.orbit.getEllipse());}
+        object.full_name = object.orbit.name;
+        object.orbit = undefined;
 
         if (object.parent instanceof THREE.Scene == false) {
             THREE.SceneUtils.detach(object.mesh, object.parent, _this.getScene());
@@ -180,6 +182,65 @@ var CosmosScene = function (cosmosUI) {
         object.parent = parentMesh;
 
         if (object.orbit) {object.parent.add(object.orbit.getEllipse());}
+    };
+
+    this.generateOrbit = function (obj, apoapsis, destRadius) {
+        "use strict";
+        if (obj.full_name == undefined || obj.dest == undefined) {
+            console.log("ERROR: Could not generate orbit");
+            console.log("obj.full_name:", obj.full_name, "obj.dest", obj.dest);
+            return
+        }
+
+        var eph = {
+            P: 10,
+            e: 0,
+            a: apoapsis * 0.003,
+            i: 0,
+            om: 0,
+            w: 0,
+            ma: 0,
+            epoch: cosmosRender.getJED()
+        };
+        obj.orbit = new Orbit3D(eph, {
+            color: 0xff0000,
+            display_color: 0xff0000,
+            width: 2,
+            object_size: 1 < 0 ? 50 : 15, //1.5,
+            jed: cosmosRender.getJED(),
+            particle_geometry: null, // will add itself to this geometry
+            name: obj.full_name
+        }, false);
+
+
+        if (obj.dest.type == 'playerObject' || destRadius < 3) {
+            var dOrbit = obj.dest.orbit;
+            // change the orbit a little to show both objects
+            eph.P = dOrbit.eph.P;
+            eph.a = dOrbit.eph.a * 0.98;
+            eph.e = dOrbit.eph.e;
+            eph.i = dOrbit.eph.i;
+            eph.om = dOrbit.eph.om;
+            eph.w = dOrbit.eph.w;
+            eph.ma = dOrbit.eph.ma;
+            obj.orbit = new Orbit3D(eph, {
+                color: 0xff0000,
+                display_color: 0xff0000,
+                width: 2,
+                object_size: 1 < 0 ? 50 : 15, //1.5,
+                jed: cosmosRender.getJED(),
+                particle_geometry: null, // will add itself to this geometry
+                name: obj.full_name
+            }, false);
+
+            _this.attachObject(obj, obj.dest.parent);
+        }
+        else {
+            _this.attachObject(obj, obj.dest.mesh);
+        }
+
+        delete obj.full_name;
+        delete obj.dest;
     };
 
     this.removeBody = function (parentScene, type, objectId) {
