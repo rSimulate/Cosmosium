@@ -120,13 +120,21 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             farCamera.updateProjectionMatrix();
 
             // adjust distance for bokeh shader to accompany blurring difference sized objects
+            dist -= radius;
 
-            dist = Math.log(dist - radius) * 200;
-            console.log(dist);
+            var maxblur = 0.006;
 
-            // Distance check to remove aberrations from the bokeh shader
-            if (dist >= 1000) bokehPass.enabled = false;
-            bokehPass.materialBokeh.uniforms.focalDepth.value = dist;
+            // get a nice, gradual blur the closer you zoom
+            var intensity = Math.pow(-(dist*0.00005) + maxblur, 1 + maxblur*4);
+
+            if (isNaN(intensity)) {bokehPass.enabled = false;}
+            else {
+                // clamp value between zero and max blur intensity
+                intensity = Math.min(Math.max(intensity, 0), maxblur);
+
+                bokehPass.materialBokeh.uniforms.maxblur.value = intensity;
+                bokehPass.materialBokeh.uniforms.focalDepth.value = dist;
+            }
         }
         else if (bokehPass && cameraTarget == undefined) bokehPass.enabled = false;
     };
@@ -176,7 +184,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         bokehPass = new THREE.Bokeh2Pass(cosmosScene.getScene(), farCamera, {
             shaderFocus: {type: 'i', value: 0},
             focusCoords: {type: 'v2', value: new THREE.Vector2(0.5, 0.5)},
-            znear: {type: 'f', value: parseFloat(CAMERA_NEAR)},
+            znear: {type: 'f', value: 1.0},
             zfar: {type: 'f', value: parseFloat(CAMERA_FAR)},
 
             fstop: {type: 'f', value: 0.000001},
@@ -188,7 +196,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             depthblur: {type: 'i', value: 1},
 
             threshold: {type: 'f', value: 3.0},
-            gain: {type: 'f', value: 5.2},
+            gain: {type: 'f', value: 10.2},
             bias: {type: 'f', value: 1.0},
             fringe: {type: 'f', value: 0.002},
 
