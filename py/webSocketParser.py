@@ -130,19 +130,20 @@ def trajRequestResponder(user, data):
     # {'dest': {'type': 'planet', 'objectId': 'objectId'}, 'source': {'type': 'Probe', 'objectId': 'objectId'}, 'res': N-val}
     trajData = literal_eval(data)
 
-    if trajData['source']['type'] != 'Probe':
-        print "ERROR: Trajectory request came from a non-player object"
+    if trajData['source']['type'] != 'playerObject':
+        print "ERROR: Trajectory request came from a non-player object:", trajData['source']['type']
         return
 
     if user.game is not None:
         source = user.game.getObject(trajData['source']['objectId'], type=trajData['source']['type'])
         dest = user.game.getObject(trajData['dest']['objectId'], type=trajData['dest']['type'])
 
-        if source is not None and dest is not None:
-            #TODO: Change 'ARRIVAL_TIME' to the actual time
-            launchTime = sum(gcal2jd('2005', 'June', '01'))
-            arrivalTime = 'ARRIVAL_TIME'
-            traj = gen_traj(source['model'], dest['model'], launchTime, arrivalTime, 0, trajData['res'])
+        if source is not None and dest is not None and user.game is not None:
+            #TODO: Change launchTime and arrivalTime to the actual time?
+            launchTime = sum(gcal2jd('2005', '06', '01'))
+            arrivalTime = sum(gcal2jd('2005', '07', '01'))
+
+            traj = gen_traj(source, dest, launchTime, arrivalTime, 0, trajData['res'])
 
             message = '{"cmd":"trajReturn","data":"'
             message += "{'source': "+trajData['source']['objectId']+", 'traj': "+str(traj)+'}'

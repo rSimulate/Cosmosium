@@ -305,8 +305,9 @@ function parseNotifyRequest(data) {
 
 function parseTraj(data) {
     "use strict";
+    console.log(data);
     var split = cleanObjectRequest(data);
-
+    console.log(split);
     var source, traj;
     for (var i = 0; i < split.length; i++) {
         var s = split[i];

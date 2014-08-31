@@ -195,12 +195,12 @@ CosmosUI = function () {
 
         cosmosRender.orbitCamera(sourceTarget);
         sourceTarget.dest = destTarget;
-        destTarget = undefined;
         data = {
             source: {objectId: sourceTarget.objectId, type: sourceTarget.type},
             dest: {objectId: destTarget.objectId, type: destTarget.type},
             res: res
         };
+        destTarget = undefined;
         stringify = JSON.stringify(data).replace(/\"+/g, "\'");
         ws.send(message('requestTraj', stringify));
     };

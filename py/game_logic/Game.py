@@ -295,7 +295,7 @@ class Game(object):
         return obj
 
     def getObject(self, objectId, type=None):
-        if type == 'Probe' or type is None:
+        if type == 'playerObject' or type is None:
             for obj in self.playerObjects:
                 if obj['objectId'] == objectId:
                     return obj
