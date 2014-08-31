@@ -20,9 +20,11 @@ class UserList(object):
             # raise ValueError('user with this name already exists')
             user = self.getUserByName(userObj.name)
             print 'new token attached to existing user "'+user.name+'"'
+            user.disconnected = False
             self.users[token] = user # add another token reference to the object
             return True
         else:
+            userObj.disconnected = False
             self.users[token] = userObj
             print 'new user ',userObj.name,'added'
             return True

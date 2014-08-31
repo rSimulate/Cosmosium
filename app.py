@@ -354,6 +354,7 @@ def setLoginCookie():
                 USERS.addUser(userObj, loginToken)
             except ValueError as e:
                 print e.message
+
             response.set_cookie("cosmosium_login", loginToken, max_age=60 * 60 * 5)
             redirect('/play')
     elif False:  # if user is in database

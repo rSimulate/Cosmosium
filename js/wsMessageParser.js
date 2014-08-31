@@ -305,24 +305,17 @@ function parseNotifyRequest(data) {
 
 function parseTraj(data) {
     "use strict";
-    console.log(data);
-    var split = cleanObjectRequest(data);
-    console.log(split);
-    var source, traj;
-    for (var i = 0; i < split.length; i++) {
-        var s = split[i];
-        var next = i + 1;
-        if (s == 'source') source = split[next];
-        else if (s == 'traj') traj = split.slice(next);
-    }
+    var traj = JSON.parse(data);
 
-    if (source == undefined || traj == undefined) {
+    console.log(traj.source, traj.traj);
+
+    if (traj == undefined) {
         console.log("ERROR: Trajectory recieved from server failed parsing");
-        console.log("Source:", source, "Trajectory:",traj);
+        console.log("Trajectory:",traj);
     }
     else {
-        console.log('Source:', source, 'Trajectory:', traj);
-        //rSimulate.cosmosUI.addTrajectory(source, traj);
+        console.log(traj);
+        rSimulate.cosmosUI.addTrajectory(traj[0], traj[1]);
     }
 }
 

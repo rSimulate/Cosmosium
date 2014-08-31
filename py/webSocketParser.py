@@ -1,3 +1,4 @@
+import json
 import os
 import random
 import string
@@ -23,6 +24,7 @@ CHUNKS = chunks()
 def registerUserConnection(user, ws):
     # saves user websocket connetion so that updates to the user object can push to the client
     user.websocket = ws
+    user.disconnected = False
 
 
 def researchResponder(user, researchType):
@@ -123,6 +125,7 @@ def surveyResponder(data, user):
 
 
 def refreshResponder(user):
+    user.disconnected = False
     user.game.synchronizeObjects(user)
 
 
@@ -144,9 +147,11 @@ def trajRequestResponder(user, data):
             arrivalTime = sum(gcal2jd('2005', '07', '01'))
 
             traj = gen_traj(source, dest, launchTime, arrivalTime, 0, trajData['res'])
+            data = '{"source": "'+trajData['source']['objectId']+'", "traj": "'+str(traj)+'"}'
+            data = json.dumps(data)
 
             message = '{"cmd":"trajReturn","data":"'
-            message += "{'source': "+trajData['source']['objectId']+", 'traj': "+str(traj)+'}'
+            message += data
             message += '"}'
 
             user.sendMessage(message)
