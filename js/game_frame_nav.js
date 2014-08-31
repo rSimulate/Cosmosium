@@ -196,6 +196,7 @@ document.getElementById('add-object-button').addEventListener('click', function 
 
     if (rSimulate) rSimulate.cosmosScene.addTestObject();
 
+
 }, false);
 
 document.getElementById('destroy-object-button').addEventListener('click', function (e) {

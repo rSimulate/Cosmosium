@@ -41,6 +41,7 @@ class User(object):
         self.miners    = [Miner()]  #start w/ 1 miner
         
         self.websocket = None # most recent websocket connection for sending out updates
+        self.disconnected = False
         
     def setGame(self,gam):
         # sets the user's current game and updates values accordingly

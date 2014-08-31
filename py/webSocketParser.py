@@ -138,7 +138,7 @@ def trajRequestResponder(user, data):
         source = user.game.getObject(trajData['source']['objectId'], type=trajData['source']['type'])
         dest = user.game.getObject(trajData['dest']['objectId'], type=trajData['dest']['type'])
 
-        if source is not None and dest is not None and user.game is not None:
+        if source is not None and dest is not None:
             #TODO: Change launchTime and arrivalTime to the actual time?
             launchTime = sum(gcal2jd('2005', '06', '01'))
             arrivalTime = sum(gcal2jd('2005', '07', '01'))

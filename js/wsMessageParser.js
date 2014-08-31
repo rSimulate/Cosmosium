@@ -360,6 +360,7 @@ function parseMessage(m) {
         if (object != null) {
             object.orbit.name = object.orbit.name.replace(/([\"])+/g, " ").trim();
             var path = getPathForModel(object.model.toLocaleLowerCase());
+
             if (path != null) {
                 rSimulate.cosmosScene.addBlenderObjectMesh(path, object);
             }
