@@ -1,5 +1,6 @@
 import json
 import os
+import pickle
 import random
 import string
 import datetime
@@ -9,6 +10,7 @@ from Crypto.Hash import SHA256
 from jdcal import gcal2jd
 from pymongo import MongoClient
 from bottle import template, redirect, response
+from simplejson import JSONEncoder
 
 from py.game_logic.user.User import User
 from py.generate_traj import gen_traj
@@ -20,6 +22,11 @@ from asteroid_tracker import asteroid_track_request_responder
 
 CHUNKS = chunks()
 
+class SetEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, set):
+            return list(obj)
+        return json.JSONEncoder.default(self, obj)
 
 def registerUserConnection(user, ws):
     # saves user websocket connetion so that updates to the user object can push to the client
@@ -147,8 +154,9 @@ def trajRequestResponder(user, data):
             arrivalTime = sum(gcal2jd('2005', '07', '01'))
 
             traj = gen_traj(source, dest, launchTime, arrivalTime, 0, trajData['res'])
-            data = '{"source": "'+trajData['source']['objectId']+'", "traj": "'+str(traj)+'"}'
-            data = json.dumps(data)
+            data = {'source': trajData['source']['objectId'],
+                    'traj': traj}
+            data = json.dumps(data, cls=SetEncoder)
 
             message = '{"cmd":"trajReturn","data":"'
             message += data

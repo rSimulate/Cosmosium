@@ -266,8 +266,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             var obj = objects[i];
             var orbit = obj.orbit;
 
-            if (obj.hasOwnProperty("dest") && cosmosUI.getDay() < "05" && cosmosUI.getMonth() == "June"
-                    && cosmosUI.getYear == "2005") {
+            if (obj.hasOwnProperty("dest") && obj.traj[0][0] <= _this.getJED()) {
 
                 cosmosScene.detachObject(obj);
                 obj.launched = true;

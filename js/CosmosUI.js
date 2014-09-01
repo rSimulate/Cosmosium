@@ -205,11 +205,12 @@ CosmosUI = function () {
         ws.send(message('requestTraj', stringify));
     };
 
-    this.addTrajectory = function (source, traj) {
+    this.addTrajectory = function (sourceId, traj) {
         // source = objectId, traj = [t[], x[], y[], z[]]
-        console.log(source);
-        var sourceObj = cosmosScene.getObjectByObjectId(source);
+        console.log(sourceId);
+        var sourceObj = cosmosScene.getObjectByObjectId(sourceId);
         sourceObj.traj = traj;
+        console.log(sourceObj.traj);
         cosmosRender.orbitCamera(sourceObj);
     };
 

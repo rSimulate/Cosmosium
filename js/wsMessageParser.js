@@ -307,15 +307,12 @@ function parseTraj(data) {
     "use strict";
     var traj = JSON.parse(data);
 
-    console.log(traj.source, traj.traj);
-
     if (traj == undefined) {
         console.log("ERROR: Trajectory recieved from server failed parsing");
         console.log("Trajectory:",traj);
     }
     else {
-        console.log(traj);
-        rSimulate.cosmosUI.addTrajectory(traj[0], traj[1]);
+        rSimulate.cosmosUI.addTrajectory(traj.source, traj.traj);
     }
 }
 

@@ -199,7 +199,7 @@ def traj_planet_asteroid(source, dest, tlaunch, tarrive, rev, N):
         z[i] = r[2] / AU
         r, v = propagate_lagrangian(r, v, dtn, mu)
 
-    traj = [t, x, y, z]
+    traj = [t.tolist(), x.tolist(), y.tolist(), z.tolist()]
 
     return traj
 
