@@ -261,6 +261,62 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         cosmosScene.getSolarCentricObject().mesh.material.uniforms['time'].value = _this.getClock().getElapsedTime();
     }
 
+    function animateTraj(obj) {
+        "use strict";
+
+        var jd = _this.getJED();
+        if (obj.hasOwnProperty('traj')) {
+            var timeSegs = obj.traj[0];
+            var xSegs = obj.traj[1];
+            var ySegs = obj.traj[2];
+            var zSegs = obj.traj[3];
+
+            if (!obj.hasOwnProperty('trajLine')) {
+                obj.trajNodes = [];
+                var geometry = new THREE.Geometry();
+                for (var i = 0; i < timeSegs.length; i++) {
+                    // TODO: Change from normalized nodes to scene scale
+                    var vector = new THREE.Vector4(xSegs[i], ySegs[i], zSegs[i], timeSegs[i]);
+                    geometry.vertices.push(vector);
+                    obj.trajNodes.push(vector);
+                }
+                var material = new THREE.LineBasicMaterial({
+                    color: 0xff00ff
+                });
+                obj.trajLine = new THREE.Line(geometry, material);
+                cosmosScene.addTrajectory(obj.trajLine);
+            }
+
+            if (obj.hasOwnProperty('trajNodes')) {
+                var sphereCollider = obj.dest.mesh.userData.boundingBox ?
+                    obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
+                var apoapsis = sphereCollider.radius * 2;
+
+                var nodes = obj.trajNodes;
+                var curNode = obj.trajNodes[0];
+                if(curNode.w <= jd) {
+                    nodes.shift();
+                    curNode = nodes[0];
+                }
+
+                if (curNode == undefined) {
+                    // Set up new orbit
+                    if (arcLength <= apoapsis) {
+                        // remove unneeded keys and create generic orbit
+                        cosmosScene.generateOrbit(obj, apoapsis, sphereCollider.radius);
+                    }
+
+                    // remove key traj, trajNodes, and remove trajLine from both scene and object key
+                }
+
+                else {
+                    // Get speed needed to the node at the correct JD
+                    // animate
+                }
+            }
+        }
+    }
+
     function updateBodies(timeAdvanced, deltaSeconds, objects) {
         for (var i = 0; i < objects.length; i++) {
             var obj = objects[i];
@@ -294,24 +350,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                     mesh.rotation.y += (percentageRotated * 2.0 * Math.PI);
                 }
             }
-            else if (obj.hasOwnProperty("dest") && obj.launched) {
-                // move object to destination
-                // TODO: Update with info from server
-                var arcLength = cosmosScene.getWorldPos(obj.mesh).distanceTo(cosmosScene.getWorldPos(obj.dest.mesh));
-                var translateSpeed = (arcLength / obj.trajTime) * deltaSeconds;
-                obj.trajTime -= deltaSeconds;
-                obj.trajTime = obj.trajTime <= 0.01 ? 0.01 : obj.trajTime;
-                obj.mesh.lookAt(cosmosScene.getWorldPos(obj.dest.mesh));
-                obj.mesh.translateZ(translateSpeed);
-                var sphereCollider = obj.dest.mesh.userData.boundingBox ?
-                    obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
-                var apoapsis = sphereCollider.radius * 2;
-
-                if (arcLength <= apoapsis) {
-                    // remove unneeded keys and create generic orbit
-                    cosmosScene.generateOrbit(obj, apoapsis, sphereCollider.radius);
-                }
-            }
+            else if (obj.hasOwnProperty("dest") && obj.launched) {animateTraj(obj);}
         }
     }
 };

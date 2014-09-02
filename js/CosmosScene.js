@@ -355,6 +355,12 @@ var CosmosScene = function (cosmosUI) {
             }
             else {console.log("ERROR: Parsing blender model failed");}
         });
+    }
+
+    this.addTrajectory = function (line) {
+        "use strict";
+
+        _this.getScene().add(line);
     };
 
     this.addTestObject = function () {
