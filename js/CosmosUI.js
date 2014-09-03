@@ -207,7 +207,6 @@ CosmosUI = function () {
 
     this.addTrajectory = function (sourceId, traj) {
         // source = objectId, traj = [t[], x[], y[], z[]]
-        console.log(sourceId);
         var sourceObj = cosmosScene.getObjectByObjectId(sourceId);
         sourceObj.traj = traj;
         console.log(sourceObj.traj);

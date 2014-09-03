@@ -261,10 +261,11 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         cosmosScene.getSolarCentricObject().mesh.material.uniforms['time'].value = _this.getClock().getElapsedTime();
     }
 
-    function animateTraj(obj) {
+    function animateTraj(obj, deltaTime) {
         "use strict";
 
         var jd = _this.getJED();
+
         if (obj.hasOwnProperty('traj')) {
             var timeSegs = obj.traj[0];
             var xSegs = obj.traj[1];
@@ -276,7 +277,8 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                 var geometry = new THREE.Geometry();
                 for (var i = 0; i < timeSegs.length; i++) {
                     // TODO: Change from normalized nodes to scene scale
-                    var vector = new THREE.Vector4(xSegs[i], ySegs[i], zSegs[i], timeSegs[i]);
+                    var scale = 4;
+                    var vector = new THREE.Vector4(xSegs[i] * scale, ySegs[i] * scale, zSegs[i] * scale, timeSegs[i] * scale);
                     geometry.vertices.push(vector);
                     obj.trajNodes.push(vector);
                 }
@@ -284,34 +286,43 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                     color: 0xff00ff
                 });
                 obj.trajLine = new THREE.Line(geometry, material);
+                obj.trajLine.position.copy(obj.position);
                 cosmosScene.addTrajectory(obj.trajLine);
+                console.log("trajline generated")
             }
 
             if (obj.hasOwnProperty('trajNodes')) {
+                // bounding sphere of mesh to determine accurate distance to object
                 var sphereCollider = obj.dest.mesh.userData.boundingBox ?
                     obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
+                // distance from object to stop interpolating
                 var apoapsis = sphereCollider.radius * 2;
-
+                // nodes as a Vector4, with w being time in JD
                 var nodes = obj.trajNodes;
-                var curNode = obj.trajNodes[0];
+                var curNode = nodes[0];
+
+                // remove past node and calculate speed to next node
                 if(curNode.w <= jd) {
                     nodes.shift();
                     curNode = nodes[0];
+
+                    obj.timeToNode = (curNode.w/jed_delta) - (jd/jed_delta);
+                    var arcLength = cosmosScene.getWorldPos(obj.mesh).distanceTo(cosmosScene.getWorldPos(obj.dest.mesh));
+                    obj.speedToNode = arcLength/obj.timeToNode;
+
                 }
 
                 if (curNode == undefined) {
-                    // Set up new orbit
-                    if (arcLength <= apoapsis) {
-                        // remove unneeded keys and create generic orbit
-                        cosmosScene.generateOrbit(obj, apoapsis, sphereCollider.radius);
-                    }
-
-                    // remove key traj, trajNodes, and remove trajLine from both scene and object key
+                    // Set up new orbit and remove traj keys through generateOrbit
+                    cosmosScene.generateOrbit(obj, apoapsis, sphereCollider.radius);
+                    // remove calculation keys
+                    delete obj.timeToNode;
+                    delete obj.speedToNode;
                 }
-
                 else {
-                    // Get speed needed to the node at the correct JD
-                    // animate
+                    var deltaSpeed = obj.speedToNode * deltaTime;
+                    obj.mesh.lookAt(new THREE.Vector3(curNode.x, curNode.y, curNode.z));
+                    obj.mesh.translateZ(deltaSpeed);
                 }
             }
         }
@@ -322,8 +333,9 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             var obj = objects[i];
             var orbit = obj.orbit;
 
-            if (obj.hasOwnProperty("dest") && obj.traj[0][0] <= _this.getJED()) {
-
+            // TODO: Cannot read property '0' of undefined
+            if (obj.hasOwnProperty("dest") && obj.hasOwnProperty("traj") && obj.traj[0][0] <= _this.getJED() && obj.launched == false) {
+                console.log(obj.traj[0][0]);
                 cosmosScene.detachObject(obj);
                 obj.launched = true;
             }
@@ -350,7 +362,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                     mesh.rotation.y += (percentageRotated * 2.0 * Math.PI);
                 }
             }
-            else if (obj.hasOwnProperty("dest") && obj.launched) {animateTraj(obj);}
+            else if (obj.hasOwnProperty("dest") && obj.launched) {animateTraj(obj, deltaSeconds);}
         }
     }
 };
