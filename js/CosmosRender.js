@@ -261,34 +261,49 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         cosmosScene.getSolarCentricObject().mesh.material.uniforms['time'].value = _this.getClock().getElapsedTime();
     }
 
+    function createTrajLine(obj) {
+        "use strict";
+
+        var timeSegs = obj.traj[0];
+        var xSegs = obj.traj[1];
+        var ySegs = obj.traj[2];
+        var zSegs = obj.traj[3];
+        obj.trajNodes = [];
+
+        var geometry = new THREE.Geometry();
+        for (var i = 0; i < timeSegs.length; i++) {
+            // Negative scale to play nice with pykep
+            var scale = 160;
+            var vector = new THREE.Vector4(xSegs[i] * scale, zSegs[i] * scale, ySegs[i] * scale, timeSegs[i]);
+            geometry.vertices.push(vector);
+            obj.trajNodes.push(vector);
+        }
+        var material = new THREE.LineBasicMaterial({
+            color: 0xff00ff
+        });
+        obj.trajLine = new THREE.Object3D();
+        var line = new THREE.Line(geometry, material);
+        line.position.set(-obj.trajNodes[0].x, -obj.trajNodes[0].y, -obj.trajNodes[0].z);
+        obj.trajLine.add(line);
+        console.log(obj.trajNodes[0], xSegs[0]);
+        console.log(obj.trajNodes[0], xSegs[0]);
+        var helioCoords = obj.orbit.getPosAtTime(obj.trajNodes[0].w);
+        obj.trajLine.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
+        obj.trajLine.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI * 0.18);
+        cosmosScene.addTrajectory(obj.trajLine);
+        console.log("trajline generated")
+    }
+
     function animateTraj(obj, deltaTime) {
         "use strict";
 
         var jd = _this.getJED();
 
         if (obj.hasOwnProperty('traj')) {
-            var timeSegs = obj.traj[0];
-            var xSegs = obj.traj[1];
-            var ySegs = obj.traj[2];
-            var zSegs = obj.traj[3];
 
-            if (!obj.hasOwnProperty('trajLine')) {
-                obj.trajNodes = [];
-                var geometry = new THREE.Geometry();
-                for (var i = 0; i < timeSegs.length; i++) {
-                    // TODO: Change from normalized nodes to scene scale
-                    var scale = 4;
-                    var vector = new THREE.Vector4(xSegs[i] * scale, ySegs[i] * scale, zSegs[i] * scale, timeSegs[i] * scale);
-                    geometry.vertices.push(vector);
-                    obj.trajNodes.push(vector);
-                }
-                var material = new THREE.LineBasicMaterial({
-                    color: 0xff00ff
-                });
-                obj.trajLine = new THREE.Line(geometry, material);
-                obj.trajLine.position.copy(obj.position);
-                cosmosScene.addTrajectory(obj.trajLine);
-                console.log("trajline generated")
+            if (!obj.hasOwnProperty('trajLine') && obj.orbit != undefined) {
+                // creates visual trajectory line and compiles trajNodes as an array of vector4s
+                createTrajLine(obj);
             }
 
             if (obj.hasOwnProperty('trajNodes')) {
@@ -302,7 +317,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                 var curNode = nodes[0];
 
                 // remove past node and calculate speed to next node
-                if(curNode.w <= jd) {
+                if(curNode != undefined && curNode.w <= jd) {
                     nodes.shift();
                     curNode = nodes[0];
 
@@ -333,7 +348,13 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             var obj = objects[i];
             var orbit = obj.orbit;
 
-            // TODO: Cannot read property '0' of undefined
+
+            if (obj.hasOwnProperty("dest") && obj.hasOwnProperty("traj") &&
+                !obj.hasOwnProperty("trajLine") && obj.orbit != undefined) {
+
+                createTrajLine(obj);
+            }
+
             if (obj.hasOwnProperty("dest") && obj.hasOwnProperty("traj") && obj.traj[0][0] <= _this.getJED() && obj.launched == false) {
                 console.log(obj.traj[0][0]);
                 cosmosScene.detachObject(obj);
