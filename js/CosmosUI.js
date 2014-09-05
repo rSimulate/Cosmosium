@@ -241,8 +241,7 @@ CosmosUI = function () {
         var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
         projector.unprojectVector(vector, camera);
 
-        var raycaster = new THREE.Raycaster(camera.position,
-            vector.sub(camera.position).normalize());
+        var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
         var intersects = raycaster.intersectObjects(cosmosScene.getScene().children, true);
 
         if (intersects.length > 0) {

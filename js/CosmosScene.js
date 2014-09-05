@@ -179,10 +179,9 @@ var CosmosScene = function (cosmosUI) {
         "use strict";
 
         if (object.hasOwnProperty('trajLine')) {
-            cosmosUI.removeSceneObject(_this.getScene(), object);
+            _this.removeSceneObject(_this.getScene(), object.trajLine);
             object.launched = false;
             delete object.traj;
-            delete object.trajNodes;
             delete object.trajLine;
         }
 
