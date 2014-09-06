@@ -1,6 +1,47 @@
 <!-- header logo: style can be found in header.less -->
 
+<!-- Left GUI Nav -->
+
+    <!-- sidebar: style can be found in sidebar.less -->
+    <div class="planets-float">
+        <ul class="planet-list">
+            <li class="planet-list-item">
+                <img class="planet-icon" src="/img/planetnav/sunlogo.png">
+            <div class='navtext'>THE SUN</span>
+            </li>
+            <li class="planet-list-item">
+                <img class="planet-icon" src="/img/planetnav/sunlogo.png">
+             <div class='navtext'>MERCURY</span>
+            </li>
+            <li class="planet-list-item">
+                <img class="planet-icon" src="/img/planetnav/sunlogo.png">
+             <div class='navtext'>VENUS</span>
+            </li>
+            <li class="planet-list-item">
+                <img class="planet-icon" src="/img/planetnav/sunlogo.png">
+             <div class='navtext'>EARTH</span>
+            </li>
+            <li class="planet-list-item">
+                <img class="planet-icon" src="/img/planetnav/sunlogo.png">
+             <div class='navtext'>MARS</span>
+            </li>
+            <li class="planet-list-item">
+                <img class="planet-icon" src="/img/planetnav/sunlogo.png">
+             <div class='navtext'>JUPITER</span>
+            </li>
+            <li class="planet-list-item">
+                <img class="planet-icon" src="/img/planetnav/sunlogo.png">
+             <div class='navtext'>URANUS</span>
+            </li>
+            <li class="planet-list-item">
+                <img class="planet-icon" src="/img/planetnav/sunlogo.png">
+             <div class='navtext'>NEPTUNE</span>
+            </li>
+        </ul>
+    </div>
+
 <div class="wrapper row-offcanvas row-offcanvas-left sidebar-index skin-black">
+
     <!-- Left side column. contains the logo and sidebar -->
     <aside id="left-sidebar" class="left-side sidebar-offcanvas">
         <!-- sidebar: style can be found in sidebar.less -->

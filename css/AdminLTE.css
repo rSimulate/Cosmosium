@@ -3425,3 +3425,70 @@ fieldset[disabled] .btn-vk.active {
 .full-opacity{
   opacity: 1.0;
 }
+
+/* START: NEW SECTIONS */
+.left-planets-nav {
+  min-height: 100%;
+  display: block;
+  position: relative;
+  z-index: 100;
+}
+
+.planets-float {
+min-height: 76%;
+display: block;
+float: left;
+width: 100px;
+height: 500px;
+position: absolute;
+left: 220px;
+top: 100px;
+background: rgba(65, 85, 160, 0.2);
+z-index: 12;
+color: white;
+}
+
+.planet-list {
+  min-height: 76%;
+  display: block;
+  list-style-image:url('/img/planetnav/list.png');
+  color: transparent;
+}
+
+.planet-list-item:hover {
+  color: #ffffff;
+}
+
+
+.planet-list-item {
+  color: #ffffff;
+  display: block;
+  background: transparent;
+  color: transparent;
+  margin-top: 15px;
+  text-align: center;
+}
+
+.planet-icon{
+    max-width: 90%;
+    align-content: center;
+    left: -20%;
+    position: relative;
+}
+
+.navtext{
+    margin-left: -25px;
+}
+
+.nav-hider{
+    min-height: 76%;
+    display: block;
+    float: left;
+    width: 600px;
+    height: 500px;
+    position: absolute;
+    left: 220px;
+    top: 100px;
+    background: transparent;
+    z-index: 12;
+}
