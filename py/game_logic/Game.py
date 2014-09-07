@@ -64,7 +64,7 @@ class Game(object):
         self.colors.append({'player': None, 'color': '0xffff00'})
         self.colors.append({'player': None, 'color': '0xff00ff'})
 
-        self.date = datetime.date(START_YEAR, 1, 1)
+        self.date = datetime.date(START_YEAR, 4, 1)
 
         timer = Timer(1.0, self.timeSync)
         timer.daemon = True

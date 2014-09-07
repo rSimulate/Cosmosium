@@ -321,8 +321,9 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                 var line = obj.trajLine.children[0];
                 // nodes as a Vector4, with w being time in JD
                 var nodes = line.geometry.vertices;
-                var curNode = nodes[0];
+                var curNode = nodes[1];
                 var curEpoch = obj.trajLine.timeSegs[0];
+                var nextEpoch = obj.trajLine.timeSegs[1];
 
                 // remove past node and calculate speed to next node
                 if(curNode != undefined && curEpoch <= jd) {
@@ -331,15 +332,15 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                     line.geometry.verticesNeedUpdate = true;
                     line.geometry.buffersNeedUpdate = true;
                     line.updateMatrixWorld(true);
-                    curNode = nodes[0];
+                    curNode = nodes[1];
 
                     if (curNode != undefined) {
-                        var timeToNode = Math.abs((curEpoch/jed_delta) - (jd/jed_delta));
+                        var timeToNode = Math.abs((nextEpoch/jed_delta) - (jd/jed_delta));
                         var arcLength = cosmosScene.getWorldPos(obj.mesh).distanceTo(curNode.clone().applyMatrix4(line.matrixWorld));
-                        if (isNaN(arcLength)) {arcLength = 0;}
-                        console.log(timeToNode, arcLength);
                         obj.trajLine.speedToNode = arcLength/timeToNode;
-                        console.log(obj.trajLine.speedToNode);
+                    }
+                    else {
+                        curNode = curNode[0] == undefined ? undefined : curNode[0];
                     }
                 }
 
@@ -349,16 +350,14 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                 }
                 else {
                     var vec = curNode.clone();
-                    vec.applyMatrix4(cosmosScene.getScene().matrixWorld);
+                    vec.applyMatrix4(line.matrixWorld);
 
-                    var deltaSpeed = obj.speedToNode * deltaTime;
-                    if (isNaN(deltaSpeed)) {deltaSpeed = 0.04;}
+                    var deltaSpeed = obj.trajLine.speedToNode * deltaTime;
                     obj.mesh.lookAt(vec);
-                    console.log(deltaSpeed);
                     obj.mesh.translateZ(deltaSpeed);
-
-                    //nodes[0].copy(obj.mesh.position);
-                    line.geometry.verticesNeedUpdate = true;
+                    obj.mesh.updateMatrix();
+                    //nodes[0].copy(cosmosScene.getWorldPos(obj.mesh)).applyMatrix4(line.matrix);
+                    //line.geometry.verticesNeedUpdate = true;
                 }
             }
         }
