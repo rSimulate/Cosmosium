@@ -183,6 +183,8 @@ def makeGamePage():
             _user = USERS.getUserByToken(userLoginToken)
         except (KeyError, ReferenceError) as E:  # user token not found or user has been garbage-collected
             return userLogin('user token not found')
+
+        _user.disconnected = False
         if _user.game is None:
             GAMES.joinGame(_user)
 
@@ -225,15 +227,17 @@ def handle_websocket():
 
             except TypeError as e:
                 if e.message == "'NoneType' object has no attribute '__getitem__'":
-                    # it's likely that pesky onclose message I can't fix... ignore for now
-                    print 'connection closed'
+                    if userID is not None:
+                        USERS.getUserByToken(userID).disconnected = True
                 else:
                     raise
             # TODO: call message parser sort of like:
             #game_manager.parseMessage(message,wsock)
             # NOTE: message parser should probably be an attribute of the game
-            print "received :", cmd, 'from', userID
-            webSocketParser.parse(cmd, data, USERS.getUserByToken(userID), wsock, USERS, GAMES.games[0].OOIs)
+            user = USERS.getUserByToken(userID)
+            if not user.disconnected:
+                print "received :", cmd, 'from', userID
+                webSocketParser.parse(cmd, data, user, wsock, USERS, GAMES.games[0].OOIs)
         except WebSocketError:
             print 'client disconnected'
             break
@@ -350,6 +354,7 @@ def setLoginCookie():
                 USERS.addUser(userObj, loginToken)
             except ValueError as e:
                 print e.message
+
             response.set_cookie("cosmosium_login", loginToken, max_age=60 * 60 * 5)
             redirect('/play')
     elif False:  # if user is in database

@@ -1,11 +1,11 @@
 __author__ = 'martin'
 
-import py.AsteroidDB as asteroidDB
 import numpy as np
 from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, planet_ss, lambert_problem, propagate_lagrangian, \
     fb_vel, planet_mpcorb, planet
 from py.jdutil import *
 from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, planet, lambert_problem, propagate_lagrangian
+from py.jdutil import jd_to_mjd
 
 
 def planet_planet(start_planet, arrive_planet, tlaunch, tarrive, rev, N):
@@ -136,19 +136,14 @@ def planet_asteroid(start_planet, target_name, tlaunch, tarrive, rev, N):
     return C3
 
 
-def traj_planet_asteroid(start_planet, target_name, tlaunch, tarrive, rev, N):
+def traj_planet_asteroid(source, dest, tlaunch, tarrive, rev, N):
     t1 = epoch(tlaunch)
     t2 = epoch(tarrive)
     dt = (tarrive - tlaunch) * DAY2SEC
 
-    import py.AsteroidDB as asteroidDB
+    target = source['orbit']
 
-
-    neo_db = asteroidDB.neo
-
-    target = (item for item in neo_db if item["name"] == target_name).next()
-
-    ep = epoch(target["epoch_mjd"], epoch.epoch_type.MJD)
+    ep = epoch(jd_to_mjd(tlaunch), epoch.epoch_type.MJD)
     a = target["a"] * AU
     e = target["e"]
     i = target["i"] * DEG2RAD
@@ -156,11 +151,25 @@ def traj_planet_asteroid(start_planet, target_name, tlaunch, tarrive, rev, N):
     w = target["w"] * DEG2RAD
     ma = target["ma"] * DEG2RAD
     as_mu = 1E17 * 6.67384E-11  # maybe need to calculate actual mass from density and radius
-    r = (target["diameter"] / 2) * 1000
+    r = (10 / 2) * 1000
+    sr = r * 1.1
+
+    OBJ1 = planet(ep, (a, e, i, om, w, ma), MU_SUN, as_mu, r, sr)
+
+    target = dest['orbit']
+
+    ep = epoch(jd_to_mjd(tarrive), epoch.epoch_type.MJD)
+    a = target["a"] * AU
+    e = target["e"]
+    i = target["i"] * DEG2RAD
+    om = target["om"] * DEG2RAD
+    w = target["w"] * DEG2RAD
+    ma = target["ma"] * DEG2RAD
+    as_mu = 1E17 * 6.67384E-11  # maybe need to calculate actual mass from density and radius
+    r = (10 / 2) * 1000
     sr = r * 1.1
 
     OBJ2 = planet(ep, (a, e, i, om, w, ma), MU_SUN, as_mu, r, sr)
-    OBJ1 = planet_ss(start_planet)
 
     # Calculate location of objects in flight path
     r1, v1 = OBJ1.eph(t1)
@@ -190,7 +199,7 @@ def traj_planet_asteroid(start_planet, target_name, tlaunch, tarrive, rev, N):
         z[i] = r[2] / AU
         r, v = propagate_lagrangian(r, v, dtn, mu)
 
-    traj = [t, x, y, z]
+    traj = [t.tolist(), x.tolist(), y.tolist(), z.tolist()]
 
     return traj
 

@@ -303,6 +303,19 @@ function parseNotifyRequest(data) {
     rSimulate.cosmosUI.notify(phrase);
 }
 
+function parseTraj(data) {
+    "use strict";
+    var traj = JSON.parse(data);
+
+    if (traj == undefined) {
+        console.log("ERROR: Trajectory recieved from server failed parsing");
+        console.log("Trajectory:",traj);
+    }
+    else {
+        rSimulate.cosmosUI.addTrajectory(traj.source, traj.traj);
+    }
+}
+
 function parseMessage(m) {
     // interprets and carries out messages
 
@@ -337,6 +350,7 @@ function parseMessage(m) {
         if (object != null) {
             object.orbit.name = object.orbit.name.replace(/([\"])+/g, " ").trim();
             var path = getPathForModel(object.model.toLocaleLowerCase());
+
             if (path != null) {
                 rSimulate.cosmosScene.addBlenderObjectMesh(path, object);
             }
@@ -361,6 +375,8 @@ function parseMessage(m) {
         claimResponder(data);
     } else if (cmd == 'timeSync') {
         updateTime(data);
+    } else if (cmd == 'trajReturn') {
+        parseTraj(data);
     } else {
         console.log("ERR: unknown message to client: "+m);
     }

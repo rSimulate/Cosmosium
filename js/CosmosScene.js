@@ -112,7 +112,9 @@ var CosmosScene = function (cosmosUI) {
         }
 
 
-        var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh, parent: parent};
+        var obj = {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh, parent: parent,
+            launched: false
+        };
         objects.push(obj);
 
         // orbit sun at start of game
@@ -147,11 +149,11 @@ var CosmosScene = function (cosmosUI) {
         }
     };
 
-    this.removeEllipse = function(parentScene, ellipse) {
+    this.removeSceneObject = function(parentScene, object) {
         "use strict";
 
         if (parentScene == undefined) { parentScene = scene; }
-        parentScene.remove(ellipse);
+        parentScene.remove(object);
     };
 
     this.getWorldPos = function (mesh) {
@@ -163,7 +165,9 @@ var CosmosScene = function (cosmosUI) {
     this.detachObject = function (object) {
         "use strict";
         // removes object from moon or other orbital body if parent is not scene
-        if (object.orbit) {_this.removeEllipse(object.parent, object.orbit.getEllipse());}
+        if (object.orbit) {_this.removeSceneObject(object.parent, object.orbit.getEllipse());}
+        object.full_name = object.orbit.name;
+        object.orbit = undefined;
 
         if (object.parent instanceof THREE.Scene == false) {
             THREE.SceneUtils.detach(object.mesh, object.parent, _this.getScene());
@@ -173,11 +177,79 @@ var CosmosScene = function (cosmosUI) {
 
     this.attachObject = function (object, parentMesh) {
         "use strict";
+
+        if (object.hasOwnProperty('trajLine')) {
+            _this.removeSceneObject(_this.getScene(), object.trajLine);
+            object.launched = false;
+            delete object.traj;
+            delete object.trajLine;
+        }
+
         // attaches object to a moon or other orbital body
         THREE.SceneUtils.attach(object.mesh, _this.getScene(), parentMesh);
         object.parent = parentMesh;
 
+
         if (object.orbit) {object.parent.add(object.orbit.getEllipse());}
+    };
+
+    this.generateOrbit = function (obj, apoapsis, destRadius) {
+        "use strict";
+        if (obj.full_name == undefined || obj.dest == undefined) {
+            console.log("ERROR: Could not generate orbit");
+            console.log("obj.full_name:", obj.full_name, "obj.dest", obj.dest);
+            return
+        }
+
+        var eph = {
+            P: 10,
+            e: 0,
+            a: apoapsis * 0.003,
+            i: 0,
+            om: 0,
+            w: 0,
+            ma: 0,
+            epoch: cosmosRender.getJED()
+        };
+        obj.orbit = new Orbit3D(eph, {
+            color: 0xff0000,
+            display_color: 0xff0000,
+            width: 2,
+            object_size: 1 < 0 ? 50 : 15, //1.5,
+            jed: cosmosRender.getJED(),
+            particle_geometry: null, // will add itself to this geometry
+            name: obj.full_name
+        }, false);
+
+
+        if (obj.dest.type == 'playerObject' || destRadius < 3) {
+            var dOrbit = obj.dest.orbit;
+            // change the orbit a little to show both objects
+            eph.P = dOrbit.eph.P;
+            eph.a = dOrbit.eph.a * 0.98;
+            eph.e = dOrbit.eph.e;
+            eph.i = dOrbit.eph.i;
+            eph.om = dOrbit.eph.om;
+            eph.w = dOrbit.eph.w;
+            eph.ma = dOrbit.eph.ma;
+            obj.orbit = new Orbit3D(eph, {
+                color: 0xff0000,
+                display_color: 0xff0000,
+                width: 2,
+                object_size: 1 < 0 ? 50 : 15, //1.5,
+                jed: cosmosRender.getJED(),
+                particle_geometry: null, // will add itself to this geometry
+                name: obj.full_name
+            }, false);
+
+            _this.attachObject(obj, obj.dest.parent);
+        }
+        else {
+            _this.attachObject(obj, obj.dest.mesh);
+        }
+
+        delete obj.full_name;
+        delete obj.dest;
     };
 
     this.removeBody = function (parentScene, type, objectId) {
@@ -292,7 +364,12 @@ var CosmosScene = function (cosmosUI) {
             }
             else {console.log("ERROR: Parsing blender model failed");}
         });
+    }
 
+    this.addTrajectory = function (line) {
+        "use strict";
+
+        _this.getScene().add(line);
     };
 
     this.addTestObject = function () {
@@ -656,5 +733,15 @@ var CosmosScene = function (cosmosUI) {
             }
         }
         console.log("could not find", objName);
-    }
+    };
+
+    this.getObjectByObjectId = function (id) {
+        "use strict";
+
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
+            if (obj.objectId == id) return obj;
+        }
+        console.log("could not find object by id:", id);
+    };
 };

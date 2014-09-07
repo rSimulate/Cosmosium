@@ -1,14 +1,19 @@
+import json
 import os
+import pickle
 import random
 import string
 import datetime
 from ast import literal_eval
 
 from Crypto.Hash import SHA256
+from jdcal import gcal2jd
 from pymongo import MongoClient
 from bottle import template, redirect, response
+from simplejson import JSONEncoder
 
 from py.game_logic.user.User import User
+from py.generate_traj import gen_traj
 from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
 from lib.traj import getTraj
@@ -17,10 +22,16 @@ from asteroid_tracker import asteroid_track_request_responder
 
 CHUNKS = chunks()
 
+class SetEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, set):
+            return list(obj)
+        return json.JSONEncoder.default(self, obj)
 
 def registerUserConnection(user, ws):
     # saves user websocket connetion so that updates to the user object can push to the client
     user.websocket = ws
+    user.disconnected = False
 
 
 def researchResponder(user, researchType):
@@ -121,15 +132,16 @@ def surveyResponder(data, user):
 
 
 def refreshResponder(user):
+    user.disconnected = False
     user.game.synchronizeObjects(user)
 
 
 def trajRequestResponder(user, data):
-    # {'dest': {'type': 'planet', 'objectId': 'objectId'}, 'source': {'type': 'Probe', 'objectId': 'objectId'}}
+    # {'dest': {'type': 'planet', 'objectId': 'objectId'}, 'source': {'type': 'Probe', 'objectId': 'objectId'}, 'res': N-val}
     trajData = literal_eval(data)
 
-    if trajData['source']['type'] != 'Probe':
-        print "ERROR: Trajectory request came from a non-player object"
+    if trajData['source']['type'] != 'playerObject':
+        print "ERROR: Trajectory request came from a non-player object:", trajData['source']['type']
         return
 
     if user.game is not None:
@@ -137,8 +149,24 @@ def trajRequestResponder(user, data):
         dest = user.game.getObject(trajData['dest']['objectId'], type=trajData['dest']['type'])
 
         if source is not None and dest is not None:
-            # getTraj()
-            print "Source and destination is not none. Getting trajectory."
+            #TODO: Change launchTime and arrivalTime to the actual time?
+            launchTime = sum(gcal2jd('2005', '06', '01'))
+            arrivalTime = sum(gcal2jd('2005', '07', '01'))
+
+            traj = gen_traj(source, dest, launchTime, arrivalTime, 0, trajData['res'])
+            data = {'source': trajData['source']['objectId'],
+                    'traj': traj}
+            data = json.dumps(data, cls=SetEncoder)
+
+            message = '{"cmd":"trajReturn","data":"'
+            message += data
+            message += '"}'
+
+            user.sendMessage(message)
+            print "Sending traj to user", user.name
+        else:
+            print "ERROR: Trajectory request source and/or destination was not able to be identified"
+
 
 def loginUser(user, USERS, data):
     info = literal_eval(data)

@@ -42,18 +42,6 @@ class Game(object):
         self.playerObjects = list()
         self.eventList = getMockEventList()
         self._epoch = int(rTime())  # real-time game start
-        ephemeris = {
-            'ma': -2.47311027,
-            'epoch': 2451545.0,
-            'a': 2.00000261,
-            'e': 0.02671123,
-            'i': 0.00001531,
-            'w_bar': 102.93768193,
-            'w': 102.93768193,
-            'L': 100.46457166,
-            'om': 0,
-            'P': 365.256
-        }
 
         probe2 = {
             'ma': -2.47311027,
@@ -67,7 +55,6 @@ class Game(object):
             'om': 0,
             'P': 365.256
         }
-        self.addPlayerObject("Probe", "Magellan", ephemeris, "test_user")
         self.addPlayerObject("Probe", "Magellan", probe2, "PyKEP_test")
 
         self.colors = list()
@@ -77,7 +64,7 @@ class Game(object):
         self.colors.append({'player': None, 'color': '0xffff00'})
         self.colors.append({'player': None, 'color': '0xff00ff'})
 
-        self.date = datetime.date(START_YEAR, 1, 1)
+        self.date = datetime.date(START_YEAR, 4, 1)
 
         timer = Timer(1.0, self.timeSync)
         timer.daemon = True
@@ -95,7 +82,7 @@ class Game(object):
 
         cleaned = {
             'type': 'asteroid',
-            'model': 'asteroid',
+            'model': asteroid['full_name'].split()[0] + '_' + asteroid['name'],
             'objectId': str(uuid.uuid4()),
             'owner': 'UNCLAIMED',
             'orbitExtras': {'H': asteroid['H'], 'diameter': asteroid['diameter']},
@@ -295,13 +282,18 @@ class Game(object):
         return obj
 
     def getObject(self, objectId, type=None):
-        if type == 'Probe' or type is None:
+        if type == 'playerObject' or type is None:
             for obj in self.playerObjects:
                 if obj['objectId'] == objectId:
                     return obj
 
         if type == 'asteroid' or type is None:
             for obj in self.OOIs:
+                if obj['objectId'] == objectId:
+                    return obj
+
+        if type == 'planet' or type == 'moon' or type is None:
+            for obj in self.bodies:
                 if obj['objectId'] == objectId:
                     return obj
 

@@ -14,7 +14,6 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     var canvas, jCanvas, composer;
     var cameraTarget;
     var bokehPass;
-    var OBJECT_BLUR = {LARGE: 20, MEDIUM: 10, SMALL: 2 };
 
     this.init = function () {
         clock.start();
@@ -114,23 +113,28 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
             var cullDist = dist + radius * 0.60;
 
             // adjust bokeh culling to be past target object
-            if (cullDist < 400) {
-                CAMERA_NEAR = cullDist;
-                camera.far = cullDist;
-                farCamera.near = cullDist;
-                camera.updateProjectionMatrix();
-                farCamera.updateProjectionMatrix();
-            }
+            CAMERA_NEAR = cullDist;
+            camera.far = cullDist;
+            farCamera.near = cullDist;
+            camera.updateProjectionMatrix();
+            farCamera.updateProjectionMatrix();
 
             // adjust distance for bokeh shader to accompany blurring difference sized objects
-            if (radius >= OBJECT_BLUR.LARGE) { dist -= radius / 2; }
-            else if (radius >= OBJECT_BLUR.MEDIUM) { dist += radius * 1.5; }
-            else if (radius >= OBJECT_BLUR.SMALL) { dist += radius * 5; }
-            else { dist += radius * 10; }
+            dist -= radius;
 
-            // Distance check to remove aberrations from the bokeh shader
-            if (dist >= 400) dist = 400;
-            bokehPass.materialBokeh.uniforms.focalDepth.value = dist;
+            var maxblur = 0.006;
+
+            // get a nice, gradual blur the closer you zoom
+            var intensity = Math.pow(-(dist*0.00005) + maxblur, 1 + maxblur*4);
+
+            if (isNaN(intensity)) {bokehPass.enabled = false;}
+            else {
+                // clamp value between zero and max blur intensity
+                intensity = Math.min(Math.max(intensity, 0), maxblur);
+
+                bokehPass.materialBokeh.uniforms.maxblur.value = intensity;
+                bokehPass.materialBokeh.uniforms.focalDepth.value = dist;
+            }
         }
         else if (bokehPass && cameraTarget == undefined) bokehPass.enabled = false;
     };
@@ -180,19 +184,19 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         bokehPass = new THREE.Bokeh2Pass(cosmosScene.getScene(), farCamera, {
             shaderFocus: {type: 'i', value: 0},
             focusCoords: {type: 'v2', value: new THREE.Vector2(0.5, 0.5)},
-            znear: {type: 'f', value: parseFloat(CAMERA_NEAR)},
+            znear: {type: 'f', value: 1.0},
             zfar: {type: 'f', value: parseFloat(CAMERA_FAR)},
 
-            fstop: {type: 'f', value: parseFloat(CAMERA_NEAR) / 10.0},
-            maxblur: {type: 'f', value: 0.04},
+            fstop: {type: 'f', value: 0.000001},
+            maxblur: {type: 'f', value: 0.006},
 
             showFocus: {type: 'i', value: 0},
             manualdof: {type: 'i', value: 0},
-            vignetting: {type: 'i', value: 1},
+            vignetting: {type: 'i', value: 0},
             depthblur: {type: 'i', value: 1},
 
-            threshold: {type: 'f', value: 0.5},
-            gain: {type: 'f', value: 5.2},
+            threshold: {type: 'f', value: 3.0},
+            gain: {type: 'f', value: 10.2},
             bias: {type: 'f', value: 1.0},
             fringe: {type: 'f', value: 0.002},
 
@@ -257,32 +261,126 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         cosmosScene.getSolarCentricObject().mesh.material.uniforms['time'].value = _this.getClock().getElapsedTime();
     }
 
+    function createTrajLine(obj) {
+        "use strict";
+
+        var timeSegs = obj.traj[0];
+        var xSegs = obj.traj[1];
+        var ySegs = obj.traj[2];
+        var zSegs = obj.traj[3];
+
+        var geometry = new THREE.Geometry();
+        for (var i = 0; i < timeSegs.length; i++) {
+            // Negative scale to play nice with pykep
+            var scale = 91;
+            var vector = new THREE.Vector3(xSegs[i] * scale, zSegs[i] * scale, ySegs[i] * scale);
+            geometry.vertices.push(vector);
+        }
+        var material = new THREE.LineBasicMaterial({
+            color: 0xff00ff
+        });
+        obj.trajLine = new THREE.Object3D();
+        obj.trajLine.timeSegs = timeSegs;
+        var line = new THREE.Line(geometry, material);
+        var verts = line.geometry.vertices;
+        line.position.set(-verts[0].x, -verts[0].y, -verts[0].z);
+        obj.trajLine.add(line);
+
+        var startCoords = obj.orbit.getPosAtTime(timeSegs[0]);
+        obj.trajLine.position.set(startCoords[0], startCoords[1], startCoords[2]);
+
+        obj.trajLine.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI * 0.19);
+
+        var endCoords = obj.dest.orbit.getPosAtTime(timeSegs[timeSegs.length-1]);
+        //verts[verts.length-1].set(endCoords[0], endCoords[1], endCoords[2]);
+        line.geometry.verticesNeedUpdate = true;
+
+
+        cosmosScene.addTrajectory(obj.trajLine);
+        console.log("trajline generated");
+    }
+
+    function animateTraj(obj, deltaTime) {
+        "use strict";
+
+        var jd = _this.getJED();
+
+        if (obj.hasOwnProperty('traj')) {
+
+            if (!obj.hasOwnProperty('trajLine') && obj.orbit != undefined) {
+                // creates visual trajectory line and compiles trajNodes as an array of vector4s
+                createTrajLine(obj);
+            }
+
+            if (obj.hasOwnProperty('trajLine')) {
+                // bounding sphere of mesh to determine accurate distance to object
+                var sphereCollider = obj.dest.mesh.userData.boundingBox ?
+                    obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
+                // distance from object to stop interpolating
+                var apoapsis = sphereCollider.radius * 2;
+                var line = obj.trajLine.children[0];
+                // nodes as a Vector4, with w being time in JD
+                var nodes = line.geometry.vertices;
+                var curNode = nodes[1];
+                var curEpoch = obj.trajLine.timeSegs[0];
+                var nextEpoch = obj.trajLine.timeSegs[1];
+
+                // remove past node and calculate speed to next node
+                if(curNode != undefined && curEpoch <= jd) {
+                    nodes.shift();
+                    obj.trajLine.timeSegs.shift();
+                    line.geometry.verticesNeedUpdate = true;
+                    line.geometry.buffersNeedUpdate = true;
+                    line.updateMatrixWorld(true);
+                    curNode = nodes[1];
+
+                    if (curNode != undefined) {
+                        var timeToNode = Math.abs((nextEpoch/jed_delta) - (jd/jed_delta));
+                        var arcLength = cosmosScene.getWorldPos(obj.mesh).distanceTo(curNode.clone().applyMatrix4(line.matrixWorld));
+                        obj.trajLine.speedToNode = arcLength/timeToNode;
+                    }
+                    else {
+                        curNode = curNode[0] == undefined ? undefined : curNode[0];
+                    }
+                }
+
+                if (curNode == undefined) {
+                    // Set up new orbit and remove traj keys through generateOrbit
+                    cosmosScene.generateOrbit(obj, apoapsis, sphereCollider.radius);
+                }
+                else {
+                    var vec = curNode.clone();
+                    vec.applyMatrix4(line.matrixWorld);
+
+                    var deltaSpeed = obj.trajLine.speedToNode * deltaTime;
+                    obj.mesh.lookAt(vec);
+                    obj.mesh.translateZ(deltaSpeed);
+                    obj.mesh.updateMatrix();
+                    //nodes[0].copy(cosmosScene.getWorldPos(obj.mesh)).applyMatrix4(line.matrix);
+                    //line.geometry.verticesNeedUpdate = true;
+                }
+            }
+        }
+    }
+
     function updateBodies(timeAdvanced, deltaSeconds, objects) {
         for (var i = 0; i < objects.length; i++) {
             var obj = objects[i];
             var orbit = obj.orbit;
 
-            //PLEASE HELP ME GET THIS CODE SECTION WORKING!
-            //It should ping the web server, use generate_traj.py, and then this
-            //section should be used to  actually animate the probe's trajectory
-            //NOTE: The trajectory itself might not have as many frames as the
-            //animation, so we might need to implement some type of interpolation
-            if(obj.hasOwnProperty("trajplanned") && obj.time_launch.mjd == game.clock.mjd){
-                //Let's use a websocket to get the trajectory from generate_traj.py
-                //Actually, Game.py might call "import generate_traj" then run gen_traj
-                var ObjTraj = ws.getTrajObj[obj.id];
 
-                //The websocket should stream back a set of 3 arrays, t,x,y,z
-                traj_t = ObjTraj[0]; //Traj Point Time
-                traj_x = ObjTraj[1];
-                traj_y = ObjTraj[2];
-                traj_z = ObjTraj[3];
-                if (traj_t == timeAdvanced){
-                    mesh.position.set(traj_x,traj_y,traj_z);
-                }
+            if (obj.hasOwnProperty("dest") && obj.hasOwnProperty("traj") &&
+                !obj.hasOwnProperty("trajLine") && obj.orbit != undefined) {
+
+                createTrajLine(obj);
             }
 
-            if (orbit != undefined && !obj.hasOwnProperty("dest")) {
+            if (obj.hasOwnProperty("dest") && obj.hasOwnProperty("traj") && obj.traj[0][0] <= _this.getJED() && obj.launched == false) {
+                cosmosScene.detachObject(obj);
+                obj.launched = true;
+            }
+
+            if (orbit != undefined && obj.launched == false) {
                 var helioCoords = orbit.getPosAtTime(jed);
                 var mesh = obj.mesh;
                 mesh.position.set(helioCoords[0], helioCoords[1], helioCoords[2]);
@@ -304,72 +402,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                     mesh.rotation.y += (percentageRotated * 2.0 * Math.PI);
                 }
             }
-            else if (obj.hasOwnProperty("dest")) {
-                // move object to destination
-                var arcLength = cosmosScene.getWorldPos(obj.mesh).distanceTo(cosmosScene.getWorldPos(obj.dest.mesh));
-                var translateSpeed = (arcLength / obj.trajTime) * deltaSeconds;
-                obj.trajTime -= deltaSeconds;
-                obj.trajTime = obj.trajTime <= 0.01 ? 0.01 : obj.trajTime;
-                obj.mesh.lookAt(cosmosScene.getWorldPos(obj.dest.mesh));
-                obj.mesh.translateZ(translateSpeed);
-                var sphereCollider = obj.dest.mesh.userData.boundingBox ?
-                    obj.dest.mesh.userData.boundingBox.getBoundingSphere() : obj.dest.mesh.geometry.boundingSphere;
-                var apoapsis = sphereCollider.radius * 2;
-
-                if (arcLength <= apoapsis) {
-                    // remove unneeded keys and create generic orbit
-                    var eph = {
-                        P: 10,
-                        e: 0,
-                        a: apoapsis * 0.003,
-                        i: 0,
-                        om: 0,
-                        w: 0,
-                        ma: 0,
-                        epoch: _this.getJED()
-                    };
-                    obj.orbit = new Orbit3D(eph, {
-                        color: 0xff0000,
-                        display_color: 0xff0000,
-                        width: 2,
-                        object_size: 1 < 0 ? 50 : 15, //1.5,
-                        jed: _this.getJED(),
-                        particle_geometry: null, // will add itself to this geometry
-                        name: obj.full_name
-                    }, false);
-
-
-                    if (obj.dest.type == 'playerObject' || sphereCollider.radius < 3) {
-                        var dOrbit = obj.dest.orbit;
-                        // change the orbit a little to show both objects
-                        eph.P = dOrbit.eph.P;
-                        eph.a = dOrbit.eph.a * 0.98;
-                        eph.e = dOrbit.eph.e;
-                        eph.i = dOrbit.eph.i;
-                        eph.om = dOrbit.eph.om;
-                        eph.w = dOrbit.eph.w;
-                        eph.ma = dOrbit.eph.ma;
-                        obj.orbit = new Orbit3D(eph, {
-                            color: 0xff0000,
-                            display_color: 0xff0000,
-                            width: 2,
-                            object_size: 1 < 0 ? 50 : 15, //1.5,
-                            jed: _this.getJED(),
-                            particle_geometry: null, // will add itself to this geometry
-                            name: obj.full_name
-                        }, false);
-                        console.log("radius less than three");
-                        cosmosScene.attachObject(obj, obj.dest.parent);
-                    }
-                    else {
-                        cosmosScene.attachObject(obj, obj.dest.mesh);
-                    }
-
-                    delete obj.dest;
-                    delete obj.trajTime;
-                    delete obj.full_name;
-                }
-            }
+            else if (obj.hasOwnProperty("dest") && obj.launched) {animateTraj(obj, deltaSeconds);}
         }
     }
 };
