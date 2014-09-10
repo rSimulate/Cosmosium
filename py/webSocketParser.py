@@ -152,7 +152,7 @@ def trajRequestResponder(user, data):
             launchTimeOffset = 15
             #TODO: Change arrivalTime to the actual time?
             launchTime = user.game.time(True, False) + launchTimeOffset
-            arrivalTime = sum(gcal2jd('2005', '07', '01')) + launchTimeOffset
+            arrivalTime = launchTime + 365
 
             traj = gen_traj(source, dest, launchTime, arrivalTime, 0, trajData['res'])
             data = {'source': trajData['source']['objectId'],
