@@ -288,13 +288,59 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
 
         var startCoords = obj.orbit.getPosAtTime(timeSegs[0]);
         obj.trajLine.position.set(startCoords[0], startCoords[1], startCoords[2]);
+        obj.trajLine.updateMatrix();
+        obj.trajLine.updateMatrixWorld(true);
 
-        obj.trajLine.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI * 0.19);
+        function updateDistCalc(dist, curMin) {
+            if (dist < curMin) {return dist;}
+            else {return curMin;}
+        }
 
-        var endCoords = obj.dest.orbit.getPosAtTime(timeSegs[timeSegs.length-1]);
-        //verts[verts.length-1].set(endCoords[0], endCoords[1], endCoords[2]);
+        // line up traj the best we can to destination epoch
+        var finalMatrix = obj.trajLine.matrix.clone();
+        var defaultMatrix = obj.trajLine.matrix.clone();
+        var distCalc;
+        var angle;
+        var inc = 0.001;
+        for (var o = 0.0; o < 2.0; o += inc) {
+
+            obj.trajLine.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI * o);
+            obj.trajLine.updateMatrix();
+            obj.trajLine.updateMatrixWorld(true);
+
+            var point = verts[verts.length - 1].clone().applyMatrix4(obj.trajLine.matrixWorld);
+            var pos = obj.dest.orbit.getPosAtTime(timeSegs[timeSegs.length - 1]);
+            var posVec = new THREE.Vector3(pos[0], pos[1], pos[2]);
+            var dist = point.distanceTo(posVec);
+
+            if (distCalc == undefined) {distCalc = dist;}
+            if (dist <= distCalc) {
+                distCalc = dist;
+                angle = o;
+                console.log(dist, angle);
+                obj.trajLine.matrix = defaultMatrix;
+
+                if (dist < 40) {
+                    inc = 0.002;
+                }
+                if (dist < 25) {
+                    inc = 0.001;
+                }
+                if (dist < 10) {
+                    inc = 0.0005;
+                }
+                console.log(inc);
+            }
+            else {obj.trajLine.matrix = defaultMatrix;}
+
+            obj.trajLine.updateMatrix();
+            obj.trajLine.updateMatrixWorld(true);
+        }
+        console.log("final angle", angle);
+        obj.trajLine.matrix = defaultMatrix;
+        obj.trajLine.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI * angle);
+
         line.geometry.verticesNeedUpdate = true;
-
 
         cosmosScene.addTrajectory(obj.trajLine);
         console.log("trajline generated");
@@ -340,7 +386,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                         obj.trajLine.speedToNode = arcLength/timeToNode;
                     }
                     else {
-                        curNode = curNode[0] == undefined ? undefined : curNode[0];
+                        if (curNode) {curNode = curNode[0] == undefined ? undefined : curNode[0];}
                     }
                 }
 
