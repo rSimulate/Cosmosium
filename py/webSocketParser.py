@@ -1,22 +1,13 @@
 import json
-import os
-import pickle
-import random
-import string
-import datetime
 from ast import literal_eval
 
-from Crypto.Hash import SHA256
-from jdcal import gcal2jd
-from pymongo import MongoClient
-from bottle import template, redirect, response
-from simplejson import JSONEncoder
+
+from bottle import template
 
 from py.game_logic.user.User import User
 from py.generate_traj import gen_traj
 from py.page_maker.chunks import chunks
 from py.page_maker.Settings import Settings
-from lib.traj import getTraj
 from asteroid_tracker import asteroid_track_request_responder
 
 
@@ -178,9 +169,6 @@ def loginUser(user, USERS, data):
         use = User()
         use.setProfileInfo(name, icon, agency, subtext)
         return use
-
-    # userObj = createUser(username, '/img/profiles/martin2.png', mongo_org, mongo_quote)
-
 
 def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
     # takes appropriate action on the given command and data string
