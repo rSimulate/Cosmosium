@@ -20,22 +20,18 @@ __author__ = 'rsimulate'
 #         Library Imports             #
 #=====================================#
 
-#db control
-
-# Primary Components
+# std lib components:
 import os
-import sqlite3 as lite
-import sys
 import string
 import random
 
+# bottle:
 from bottle import static_file, template, request, Bottle, response, redirect, abort
 
-# OAuth components
+# OAuth components:
 import rauth
-import config
 
-# websockets:
+# web sockets:
 from geventwebsocket import WebSocketError
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
@@ -53,6 +49,9 @@ from py.game_logic.user.User import User
 from py.game_logic.GameList import GameList
 from py.game_logic.UserList import UserList
 
+# server setup settings:
+import config
+
 
 #=====================================#
 #              GLOBALS                #
@@ -66,9 +65,6 @@ GAMES.unpickle()  # restores any games that were saved last time server shut dow
 USERS = UserList()  # list of users on the server TODO: replace use of this w/ real db.
 MASTER_CONFIG = 'default'  # config keyword for non-test pages. (see Config.py for more info)
 loginTokens = []
-
-# initial write of JSON files (to clear out old ones):
-# GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
 
 
 #=====================================#
@@ -108,10 +104,10 @@ def po_static(filename):
 #           dynamic js files          #
 #=====================================#
 @app.route("/tpl/js/<filename>")
-def getDynamicJS(filename):
+def get_js_template(filename):
     # check for user login token in cookies
     _user = get_user(request)
-    if _user != None:
+    if _user is not None:
         #    try:
         return template('tpl/js/' + filename, user=_user, DOMAIN=DOMAIN)
     #    except:
@@ -133,7 +129,7 @@ def get_user(req):
         user_login_token = req.get_cookie("cosmosium_login")
         try:
             return USERS.getUserByToken(user_login_token)
-        except (KeyError, ReferenceError) as E:  # user token not found or user has been garbage-collected
+        except (KeyError, ReferenceError):  # user token not found or user has been garbage-collected
             pass
 
     # if user was not found
@@ -197,14 +193,6 @@ def make_game_page():
                     pageTitle="Asteroid Ventures!")
 
 
-# NOTE: this next approach is better than using the real file... but not working currently.
-#@app.route("/js/game_frame_nav.js")
-#def makeFrameNav():
-# content_files = [fname.split('.')[0] for fname in os.listdir('tpl/content/')] # the files w/o links cause issue here...
-#    linked_content_files = ['dash','systemView','missionControl','launchpad','observatories','timeline','neos','mainBelt','kuiperBelt','spaceIndustry','humanHabitation','roboticsAndAI','launchSys','resMarket','fuelNet','spaceTourism','outreach','gov','org']
-#    return template('tpl/js/game_frame_nav', 
-#        contentFiles=linked_content_files)
-
 #=====================================#
 #          web sockets                #
 #=====================================#
@@ -217,89 +205,31 @@ def handle_websocket():
     while True:
         try:
             message = wsock.receive()
-            mesDict = eval(str(message))
+            message_dict = eval(str(message))
             try:
-                gameID = mesDict['gID']
-                userID = mesDict['uID']
-                cmd = mesDict['cmd']
-                data = mesDict['dat']
+                game_id = message_dict['gID']
+                user_id = message_dict['uID']
+                cmd = message_dict['cmd']
+                data = message_dict['dat']
             except KeyError:
                 print 'malformed message!'
 
             except TypeError as e:
                 if e.message == "'NoneType' object has no attribute '__getitem__'":
-                    if userID is not None:
-                        USERS.getUserByToken(userID).disconnected = True
+                    if user_id is not None:
+                        USERS.getUserByToken(user_id).disconnected = True
                 else:
                     raise
             # TODO: call message parser sort of like:
-            #game_manager.parseMessage(message,wsock)
+            #game_manager.parseMessage(message, wsock)
             # NOTE: message parser should probably be an attribute of the game
-            user = USERS.getUserByToken(userID)
+            user = USERS.getUserByToken(user_id)
             if not user.disconnected:
-                print "received :", cmd, 'from', userID
+                print "received :", cmd, 'from', user_id
                 webSocketParser.parse(cmd, data, user, wsock, USERS, GAMES.games[0].OOIs)
         except WebSocketError:
             print 'client disconnected'
             break
-
-
-#=====================================#
-#      SQLite for Basic UI Data       #
-#=====================================#
-# SQLite test
-@app.route('/data')
-def database():
-    con = lite.connect('test.db')
-    with con:
-        cur = con.cursor()
-        cur.execute('SELECT SQLITE_VERSION()')
-        data = cur.fetchone()
-        return "SQLite version: %s" % data
-
-
-#=====================================#
-#     MONGO DB for State Storage      #
-#=====================================#
-### Testing Mongo with this Example:
-### https://github.com/mongolab/mongodb-driver-examples/blob/master/py/pymongo_simple_example.py
-
-### DEFAULT Mongo Path & Port
-### MongoDB starting : pid=1160 port=27017 dbpath=/data/db/
-### Change with arguments found here:
-### http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/
-
-SEED_DATA = [
-    {
-        'technology': 'Hydrazine',
-        'tech_type': 'Propulsion',
-        'parts_enabled': 'Hydrazine Engine',
-        'research_level': 1,
-        'sci_pts_cost': 10,
-    },
-    {
-        'technology': 'Ionized Propulsion',
-        'tech_type': 'Propulsion',
-        'parts_enabled': 'Xenon Thruster',
-        'research_level': 2,
-        'sci_pts_cost': 20,
-    },
-]
-
-### Standard URI format: mongodb://[dbuser:dbpassword@]host:port/dbname
-# db.addUser("spacecaptain", "5P@C3")
-
-MainDB = 'localhost:27020/MainDB'
-MONGODB_URI = 'mongodb://carl:sagan@' + MainDB
-#connection = Connection()
-
-###############################################################################
-# main ?
-###############################################################################
-
-def main(args):
-    client = "tmp"
-
 
 #=====================================#
 #            OAUTH SECTION            #
@@ -319,13 +249,14 @@ redirect_uri = '{uri}:{port}/success'.format(
     port=config.PORT
 )
 
+
 # Login Routing
 @app.route('/userLogin')
-def userLogin(specialMessage=''):
-    return template('tpl/pages/userLogin', demoIDs=demoIDs, message=specialMessage)
+def user_login(special_message=''):
+    return template('tpl/pages/userLogin', demoIDs=demoIDs, message=special_message)
 
 
-def createUser(name, icon, agency, subtext):  #test user creation...
+def create_user(name, icon, agency, subtext):  # test user creation...
     # basically a User constructor using a given set of values
     #  to save me some typing
     use = User()
@@ -334,7 +265,7 @@ def createUser(name, icon, agency, subtext):  #test user creation...
     return use
 
 
-def createToken(name):
+def create_token(name):
     return name + "token" + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
 
 
@@ -350,31 +281,21 @@ def submit_log_in():
 def set_login_cookie(_user, uid, pw, rem):
     if _user:  # if user has existing login (in python memory)
         if uid in demoIDs or False:  # TODO: replace this false with password check
-            loginToken = uid + "loginToken" + ''.join(
+            login_token = uid + "loginToken" + ''.join(
                 random.choice(string.ascii_letters + string.digits) for _ in range(5))
-            userObj = getProfile(uid)
+            user_obj = getProfile(uid)
             try:
-                USERS.addUser(userObj, loginToken)
+                USERS.addUser(user_obj, login_token)
             except ValueError as e:
                 print e.message
 
-            response.set_cookie("cosmosium_login", loginToken, max_age=60 * 60 * 5)
+            response.set_cookie("cosmosium_login", login_token, max_age=60 * 60 * 5)
             redirect('/play')
     elif False:  # if user is in database
         # TODO: load user into USERS (python memory)
         pass
     else:
-        return userLogin('user not found')
-
-
-@app.post('/signup')
-def setLoginCookie():
-    uid = request.forms.get('userid')
-    pw = request.forms.get('password')
-    rpw = request.forms.get('repeat_password')
-    org = request.forms.get('org')
-    quote = request.forms.get('quote')
-
+        return user_login('user not found')
 
 # Successful login
 @app.post('/success')
@@ -385,22 +306,22 @@ def login_success():
     if json is None:
         return
 
-    def convert(input):
-        if isinstance(input, dict):
-            return {convert(key): convert(value) for key, value in input.iteritems()}
-        elif isinstance(input, list):
-            return [convert(element) for element in input]
-        elif isinstance(input, unicode):
-            return input.encode('utf-8')
+    def convert(inputt):
+        if isinstance(inputt, dict):
+            return {convert(key): convert(value) for key, value in inputt.iteritems()}
+        elif isinstance(inputt, list):
+            return [convert(element) for element in inputt]
+        elif isinstance(inputt, unicode):
+            return inputt.encode('utf-8')
         else:
-            return input
+            return inputt
 
     json = convert(json)
-    user = createUser(json['name'], json['picture'], "NASA", "For the Benefit of All")
-    gameToken = createToken(user.name)
-    USERS.addUser(user, gameToken)
-    response.set_cookie("cosmosium_login", gameToken, max_age=60 * 60 * 5)
-    loginTokens.append({'name': user.name, 'social_token': token, 'game_token': gameToken})
+    user = create_user(json['name'], json['picture'], "NASA", "For the Benefit of All")
+    game_token = create_token(user.name)
+    USERS.addUser(user, game_token)
+    response.set_cookie("cosmosium_login", game_token, max_age=60 * 60 * 5)
+    loginTokens.append({'name': user.name, 'social_token': token, 'game_token': game_token})
     redirect('/play')
 
 @app.route('/signout')
@@ -421,15 +342,11 @@ def signout():
 
 if __name__ == "__main__":
     try:
-        #   app.catchall = True  # Now most exceptions are re-raised within bottle.
         port = int(os.environ.get("PORT", config.PORT))
-        #run(host='0.0.0.0', port=port)
         server = WSGIServer(("0.0.0.0", port), app,
                             handler_class=WebSocketHandler)
         print 'starting server on ' + str(port)
         server.serve_forever()
-        print 'code after this point never executes.'
-        main(sys.argv[1:])  # Invokes Mongo
     finally:
         print 'shutting down...'
         # do all your destructing here, the server is going down.
