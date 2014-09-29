@@ -196,6 +196,19 @@ def make_game_page():
 #=====================================#
 #          web sockets                #
 #=====================================#
+@app.route('/tests')
+def display_test_page():
+    return template('tests/test_list_site',
+                    chunks=CHUNKS,
+                    user=get_user(request),
+                    oois=GAMES.games[0].OOIs,
+                    config=Settings(MASTER_CONFIG),
+                    pageTitle="Asteroid Ventures!")
+
+
+#=====================================#
+#          web sockets                #
+#=====================================#
 @app.route('/websocket')
 def handle_websocket():
     wsock = request.environ.get('wsgi.websocket')
