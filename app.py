@@ -138,7 +138,9 @@ def get_user(req):
 
     # if user was not found
     if req.query.user == 'admin':  # check for test users
-        return USERS.getUserByName("admin_test_user")
+        user = USERS.getUserByName("admin_test_user")
+        set_login_cookie(user, "admin_test_user", None, None)
+        return user
 
     # if not a normal user and not a test user
     else:
@@ -337,12 +339,15 @@ def createToken(name):
 
 
 @app.post('/loggin')
-def setLoginCookie():
+def submit_log_in():
     uid = request.forms.get('userid')
     pw = request.forms.get('password')
     rem = request.forms.get('remember_me')
     _user = USERS.getUserByName(uid)
+    set_login_cookie(_user, uid, pw, rem)
 
+
+def set_login_cookie(_user, uid, pw, rem):
     if _user:  # if user has existing login (in python memory)
         if uid in demoIDs or False:  # TODO: replace this false with password check
             loginToken = uid + "loginToken" + ''.join(
