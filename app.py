@@ -31,7 +31,6 @@ import random
 
 from bottle import static_file, template, request, Bottle, response, redirect, abort
 
-
 # OAuth components
 import rauth
 import config
@@ -55,7 +54,6 @@ from py.game_logic.GameList import GameList
 from py.game_logic.UserList import UserList
 
 
-
 #=====================================#
 #              GLOBALS                #
 #=====================================#
@@ -71,6 +69,7 @@ loginTokens = []
 
 # initial write of JSON files (to clear out old ones):
 # GAMES.games[0].OOIs.write2JSON(Settings('default').asteroidDB, Settings('default').ownersDB)
+
 
 #=====================================#
 #            Static Routing           #
@@ -111,7 +110,7 @@ def po_static(filename):
 @app.route("/tpl/js/<filename>")
 def getDynamicJS(filename):
     # check for user login token in cookies
-    _user = getLoggedInUser(request)
+    _user = get_user(request)
     if _user != None:
         #    try:
         return template('tpl/js/' + filename, user=_user, DOMAIN=DOMAIN)
@@ -125,20 +124,25 @@ def getDynamicJS(filename):
 #=====================================#
 #      Routing Helper Functions       #
 #=====================================#
-def getLoggedInUser(request):
-    '''
-    returns user object if logged in, else returns None
-    '''
-    if request.get_cookie("cosmosium_login"):
-        userLoginToken = request.get_cookie("cosmosium_login")
+def get_user(req):
+    """
+    :param user_name: user name passed via query string (used only for test cases to circumnavigate login cookies)
+    :returns: user object if logged in, else redirects to login page
+    """
+    if req.get_cookie("cosmosium_login"):
+        user_login_token = req.get_cookie("cosmosium_login")
         try:
-            return USERS.getUserByToken(userLoginToken)
+            return USERS.getUserByToken(user_login_token)
         except (KeyError, ReferenceError) as E:  # user token not found or user has been garbage-collected
-            return None
-    elif request.query.test_user == 'admin_test':
+            pass
+
+    # if user was not found
+    if req.query.user == 'admin':  # check for test users
         return USERS.getUserByName("admin_test_user")
+
+    # if not a normal user and not a test user
     else:
-        return None
+        redirect('/userLogin')
 
 
 #=====================================#
@@ -146,19 +150,17 @@ def getLoggedInUser(request):
 #=====================================#
 @app.error(404)
 def error404(error):
-    _user = getLoggedInUser(request)
-    if _user != None:
-        return template('tpl/pages/404',
-                        chunks=CHUNKS,
-                        user=_user,
-                        config=Settings(MASTER_CONFIG, showBG=False),
-                        pageTitle="LOST IN SPACE")
-    else:
-        redirect('/userLogin')
+    print error
+    return template('tpl/pages/404',
+                    chunks=CHUNKS,
+                    user=get_user(request),
+                    config=Settings(MASTER_CONFIG, showBG=False),
+                    pageTitle="LOST IN SPACE")
 
 
 @app.error(500)
 def error500(error):
+    print error
     print '500 error getting ', request.url, ':', response.body
     return "oops! something broke. we've logged the error. \
         if you want to help us sort it out, please visit \
@@ -169,7 +171,7 @@ def error500(error):
 #           Splash Page               #
 #=====================================#
 @app.route("/")
-def makeSplash():
+def make_splash():
     return template('tpl/pages/splash', gameList=GAMES, demoIDs=demoIDs)
 
 
@@ -177,25 +179,20 @@ def makeSplash():
 #       main gameplay page            #
 #=====================================#
 @app.route("/play")
-def makeGamePage():
-    # check for user login token in cookies
-    if request.get_cookie("cosmosium_login"):
-        userLoginToken = request.get_cookie("cosmosium_login")
-        try:
-            _user = USERS.getUserByToken(userLoginToken)
-        except (KeyError, ReferenceError) as E:  # user token not found or user has been garbage-collected
-            return userLogin('user token not found')
+@app.route("/play/")
+def make_game_page():
+    _user = get_user(request)
 
-        _user.disconnected = False
-        if _user.game is None:
-            GAMES.joinGame(_user)
+    _user.disconnected = False
+    if _user.game is None:
+        GAMES.joinGame(_user)
 
-        return template('tpl/pages/play',
-                        chunks=CHUNKS,
-                        user=_user,
-                        oois=GAMES.games[0].OOIs,
-                        config=Settings(MASTER_CONFIG),
-                        pageTitle="Cosmosium Asteriod Ventures!")
+    return template('tpl/pages/play',
+                    chunks=CHUNKS,
+                    user=_user,
+                    oois=GAMES.games[0].OOIs,
+                    config=Settings(MASTER_CONFIG),
+                    pageTitle="Asteroid Ventures!")
 
 
 # NOTE: this next approach is better than using the real file... but not working currently.
@@ -262,7 +259,6 @@ def database():
 #=====================================#
 #     MONGO DB for State Storage      #
 #=====================================#
-
 ### Testing Mongo with this Example:
 ### https://github.com/mongolab/mongodb-driver-examples/blob/master/py/pymongo_simple_example.py
 
@@ -337,7 +333,7 @@ def createUser(name, icon, agency, subtext):  #test user creation...
 
 
 def createToken(name):
-    return name + "loginToken" + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
+    return name + "token" + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
 
 
 @app.post('/loggin')
