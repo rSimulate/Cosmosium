@@ -290,6 +290,7 @@ def submit_log_in():
     rem = request.forms.get('remember_me')
     _user = USERS.getUserByName(uid)
     set_login_cookie(_user, uid, pw, rem)
+    redirect('/play')
 
 
 def set_login_cookie(_user, uid, pw, rem):
@@ -304,7 +305,7 @@ def set_login_cookie(_user, uid, pw, rem):
                 print e.message
 
             response.set_cookie("cosmosium_login", login_token, max_age=60 * 60 * 5)
-            redirect('/play')
+            #redirect('/play')
     elif False:  # if user is in database
         # TODO: load user into USERS (python memory)
         pass
@@ -336,7 +337,10 @@ def login_success():
     USERS.addUser(user, game_token)
     response.set_cookie("cosmosium_login", game_token, max_age=60 * 60 * 5)
     loginTokens.append({'name': user.name, 'social_token': token, 'game_token': game_token})
-    redirect('/play')
+
+    # now that we're logged in, send the user where they were trying to go, else to main page
+    target = request.query.target or '/play'
+    redirect(target)
 
 @app.route('/signout')
 def signout():
