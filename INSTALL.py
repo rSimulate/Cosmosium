@@ -34,7 +34,7 @@ else:
 # install other dependencies using pip
 
 PIP_LIBS = ['GitPython==0.3.2.RC1', 'bottle', 'rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet',
-            'numpy', 'jdcal', 'pycrypto']
+            'numpy', 'jdcal', 'pycrypto', 'simplejson']
 
 from subprocess import call  # for sys commands
 

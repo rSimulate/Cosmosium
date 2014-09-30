@@ -2,7 +2,7 @@ __author__ = 'martin'
 
 import numpy as np
 from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, planet_ss, lambert_problem, propagate_lagrangian, \
-    fb_vel, planet_mpcorb, planet
+    planet_mpcorb, planet
 from py.jdutil import *
 from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, planet, lambert_problem, propagate_lagrangian
 from py.jdutil import jd_to_mjd

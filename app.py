@@ -37,7 +37,7 @@ import rauth
 import config
 
 # websockets:
-from geventwebsocket import WebSocketError
+import geventwebsocket
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 import py.webSocketParser as webSocketParser
@@ -238,7 +238,7 @@ def handle_websocket():
             if not user.disconnected:
                 print "received :", cmd, 'from', userID
                 webSocketParser.parse(cmd, data, user, wsock, USERS, GAMES.games[0].OOIs)
-        except WebSocketError:
+        except geventwebsocket.WebSocketError:
             print 'client disconnected'
             break
 
