@@ -35,6 +35,7 @@ class UserList(object):
             if self.users[token].name == name:
                 return self.users[token]
         else:
+            print 'user name "' + str(name) + '" not found!'
             return None
             
     def getUserByToken(self,token):
