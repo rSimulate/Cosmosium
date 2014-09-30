@@ -10,12 +10,14 @@ from random import randint
 import py.AsteroidDB as asteroidDB
 from py.BodyDB import BodyDB
 from py.game_logic.mockEventList import getMockEventList
+from py.webSocketParser import SurveyTypes
 
 GAME_LEN = 60  # max length of game in minutes
 DAYS_PER_SEC = 3  # how many days pass per second
 GAME_YEAR_SPAN = 200  # years spanned by a max-len game
 START_YEAR = 2005  # starting year of game
 TIME_UPDATE_FREQ = 1  # client clock sync frequency in seconds
+
 
 class Game(object):
     def __init__(self):
@@ -25,15 +27,15 @@ class Game(object):
         # self.OOIs = OOIs()
         # TODO: Replace this with MPO data
         self.NEOs = list()
-        for asteroid in asteroidDB.getAsteroidSurvey('NEO'):
+        for asteroid in asteroidDB.getAsteroidSurvey(SurveyTypes.neo):
             self.NEOs.append(self.cleanAsteroidObject(asteroid))
 
         self.mainBelt = list()
-        for asteroid in asteroidDB.getAsteroidSurvey('MainBelt'):
+        for asteroid in asteroidDB.getAsteroidSurvey(SurveyTypes.main_belt):
             self.mainBelt.append(self.cleanAsteroidObject(asteroid))
 
         self.kuiperBelt = list()
-        for asteroid in asteroidDB.getAsteroidSurvey('KuiperBelt'):
+        for asteroid in asteroidDB.getAsteroidSurvey(SurveyTypes.kuiper_belt):
             self.kuiperBelt.append(self.cleanAsteroidObject(asteroid))
 
         self.OOIs = self.NEOs + self.mainBelt + self.kuiperBelt

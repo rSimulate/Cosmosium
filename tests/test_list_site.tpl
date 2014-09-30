@@ -15,7 +15,9 @@
     <body>
 
         <ol>
-            <li><a href="#" onclick="console.log('console logger test')">console logger test</a></li>
+            <li>
+                <a href="#" onclick="console.log('console logger test')">console logger test</a>
+            </li>
             <li>
                 <a href="#" onclick="ws.send(message('getSurvey', 'NEO'))">get asteroid survey test</a>
             </li>
