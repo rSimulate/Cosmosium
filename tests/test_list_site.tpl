@@ -8,7 +8,14 @@
 
         <!-- websocket connection -->
         <script type='text/javascript' src='/js/objectDB.js'></script>
+        <!--
         <script type='text/javascript' src='/js/wsMessageParser.js'></script>
+        -->
+        <script type="text/javascript">
+            parseMessage = function(m){
+                console.log('received message: ' + m)
+            }
+        </script>
         <script type='text/javascript' src='/js/createMessage.js'></script>
     </head>
     <body>
@@ -18,9 +25,15 @@
                 <a href="#" onclick="console.log('console logger test')">console logger test</a>
             </li>
             <li>
-                <a href="#" onclick="ws.send(message('getSurvey', 'NEO'))">get asteroid survey test</a>
+                <a href="#" onclick="asteroid_survey('NEO',10)"> asteroid survey test</a>
             </li>
         </ol>
+
+        <script type='text/javascript'>
+            asteroid_survey = function(newSurvey, asteroidPollAmount){
+                ws.send(message('getSurvey',"{'survey': '" + newSurvey + "', 'amt': " + asteroidPollAmount + "}"));
+            };
+        </script>
 
         <!-- WEBSOCKETS !IMPORTANT! -->
         <script type="text/javascript" src='/tpl/js/webSocketSetup.js'></script>
