@@ -117,7 +117,11 @@ class SurveyTypes(object):  # TODO: these could be enumerated
 def surveyResponder(data, user):
     # {'survey': 'MainBelt', 'amt': 0}
     # Amt of 0 == all asteroids in survey
-    survey_data = literal_eval(data)
+    try:
+        survey_data = literal_eval(data)
+    except ValueError:
+        print 'malformed data dict string from websock:', data
+        return
     survey_type = survey_data['survey']
     if survey_type in [SurveyTypes.neo, SurveyTypes.main_belt, SurveyTypes.kuiper_belt, SurveyTypes.solar_system]:
         user.game.synchronizeSurvey(user, survey_type, int(survey_data['amt']))

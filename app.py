@@ -198,9 +198,15 @@ def make_game_page():
 #=====================================#
 @app.route('/tests')
 def display_test_page():
+    _user = get_user(request)
+
+    _user.disconnected = False
+    if _user.game is None:
+        GAMES.joinGame(_user)
+
     return template('tests/test_list_site',
                     chunks=CHUNKS,
-                    user=get_user(request),
+                    user=_user,
                     oois=GAMES.games[0].OOIs,
                     config=Settings(MASTER_CONFIG),
                     pageTitle="Asteroid Ventures!")
