@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
     <script type='text/javascript' src='/tpl/js/player.js'></script>
-    <script type="text/javascript" src="js/main.js"></script>
 
     <head>
         <meta charset="UTF-8">
@@ -25,6 +24,13 @@
 
         <!-- WEBSOCKETS !IMPORTANT! -->
         <script type="text/javascript" src='/tpl/js/webSocketSetup.js'></script>
+        <script type="text/javascript">
+            // overwrite the ws.onopen defined in webSocketSetup
+            ws.onopen = function() {
+                ws.send(message("hello"));
+                console.log('websocket connection opened');
+            };
+        </script>
 
     </body>
 </html>

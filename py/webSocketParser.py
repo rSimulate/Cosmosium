@@ -185,6 +185,7 @@ class Commands(object):  # TODO: these could be enumerated
 
 
 def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
+    print 'received', cmd, 'from', user.name
     # takes appropriate action on the given command and data string
     if cmd == Commands.claim:
         asteroid_track_request_responder(data, user)

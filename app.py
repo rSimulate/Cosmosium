@@ -230,6 +230,7 @@ def handle_websocket():
             except TypeError as e:
                 if e.message == "'NoneType' object has no attribute '__getitem__'":
                     if user_id is not None:
+                        print user_id, 'disconnected?'
                         USERS.getUserByToken(user_id).disconnected = True
                 else:
                     raise

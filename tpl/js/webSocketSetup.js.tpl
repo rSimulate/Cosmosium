@@ -15,4 +15,5 @@ ws.onmessage = function (evt) {
 
 ws.onclose = function (){
     ws.send(message("goodbye"));
+    console.log('websocket connection closed.');
 };
