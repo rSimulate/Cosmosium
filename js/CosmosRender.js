@@ -272,12 +272,12 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         var geometry = new THREE.Geometry();
         for (var i = 0; i < timeSegs.length; i++) {
             // Negative scale to play nice with pykep
-            var scale = 91;
+            var scale = 287;
             var vector = new THREE.Vector3(xSegs[i] * scale, zSegs[i] * scale, ySegs[i] * scale);
             geometry.vertices.push(vector);
         }
         var material = new THREE.LineBasicMaterial({
-            color: 0xff00ff
+            color: 0x00ff00
         });
         obj.trajLine = new THREE.Object3D();
         obj.trajLine.timeSegs = timeSegs;
@@ -291,45 +291,62 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         obj.trajLine.updateMatrix();
         obj.trajLine.updateMatrixWorld(true);
 
+
         function updateDistCalc(dist, curMin) {
             if (dist < curMin) {return dist;}
             else {return curMin;}
         }
 
         // line up traj the best we can to destination epoch
-        var finalMatrix = obj.trajLine.matrix.clone();
         var defaultMatrix = obj.trajLine.matrix.clone();
         var distCalc;
         var angle;
-        var inc = 0.001;
-        for (var o = 0.0; o < 2.0; o += inc) {
+        var inc = 0.002;
+        var pos = obj.dest.orbit.getPosAtTime(timeSegs[timeSegs.length - 1]);
+        var posVec = new THREE.Vector3(pos[0], pos[1], pos[2]).applyMatrix4(cosmosScene.getScene().matrixWorld);
+
+        var pointa = new THREE.Mesh( new THREE.SphereGeometry(SUN_SIZE / 4, 32, 32), new THREE.MeshLambertMaterial({color: 0xB7DDE0}));
+        console.log(pointa, "Point generated", timeSegs[timeSegs.length - 1], posVec);
+        pointa.position.set(posVec.x, posVec.y, posVec.z);
+        console.log(pointa.position);
+        cosmosScene.getScene().add(pointa);
+
+        for (var o = 2.0; o > 0.0; o -= inc) {
 
             obj.trajLine.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI * o);
             obj.trajLine.updateMatrix();
             obj.trajLine.updateMatrixWorld(true);
 
-            var point = verts[verts.length - 1].clone().applyMatrix4(obj.trajLine.matrixWorld);
-            var pos = obj.dest.orbit.getPosAtTime(timeSegs[timeSegs.length - 1]);
-            var posVec = new THREE.Vector3(pos[0], pos[1], pos[2]);
-            var dist = point.distanceTo(posVec);
+            var point = verts[verts.length - 1].clone().applyMatrix4(line.matrixWorld);
+            var dist = point.distanceTo(posVec.clone());
 
             if (distCalc == undefined) {distCalc = dist;}
             if (dist <= distCalc) {
                 distCalc = dist;
                 angle = o;
-                console.log(dist, angle);
                 obj.trajLine.matrix = defaultMatrix;
 
                 if (dist < 40) {
-                    inc = 0.002;
+                    inc = 0.001;
                 }
                 if (dist < 25) {
-                    inc = 0.001;
+                    inc = 0.0007;
                 }
                 if (dist < 10) {
                     inc = 0.0005;
                 }
-                console.log(inc);
+
+                obj.trajLine.updateMatrix();
+                obj.trajLine.updateMatrixWorld(true);
+
+                var solverColor = new THREE.Color();
+                solverColor.setRGB(255 * o, 0, 1);
+
+                var solverLine = obj.trajLine.clone();
+                solverLine.children[0].material = new THREE.LineBasicMaterial({
+                    color: solverColor.getHex()
+                });
+                cosmosScene.addTrajectory(solverLine);
             }
             else {obj.trajLine.matrix = defaultMatrix;}
 
@@ -338,8 +355,15 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         }
         console.log("final angle", angle);
         obj.trajLine.matrix = defaultMatrix;
+        obj.trajLine.updateMatrix();
+        obj.trajLine.updateMatrixWorld(true);
         obj.trajLine.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI * angle);
 
+        //var verts = line.geometry.vertices;
+        //var vec = posVec.clone().applyMatrix4(line.matrix);
+        //verts[verts.length - 1].copy(vec);
+        obj.trajLine.updateMatrix();
+        obj.trajLine.updateMatrixWorld(true);
         line.geometry.verticesNeedUpdate = true;
 
         cosmosScene.addTrajectory(obj.trajLine);
