@@ -1,7 +1,8 @@
 import json
 from ast import literal_eval
 
-from bottle import template, redirect, response
+
+from bottle import template
 
 from py.game_logic.user.User import User
 from py.generate_traj import gen_traj
@@ -11,12 +12,6 @@ from asteroid_tracker import asteroid_track_request_responder
 
 
 CHUNKS = chunks()
-
-class SurveyTypes(object):  # TODO: these could be enumerated
-    neo = 'NEO'
-    main_belt = 'MainBelt'
-    kuiper_belt = 'KuiperBelt'
-    solar_system = 'SolarSystem'
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -50,13 +45,18 @@ def researchResponder(user, researchType):
     user.sendMessage(message)
 
 
+class ObjectCommands(object):  # TODO: these could be enumerated
+    create = 'create'
+    query = 'query'
+    destroy = 'destroy'
+
+
 def playerObjectResponder(user, data):
     """
-
     :param user: the requesting user
     :param ws:
     :param data: data as a string
-    :return:
+    :return:create
     """
     game = user.game
     if game is not None:
@@ -68,7 +68,7 @@ def playerObjectResponder(user, data):
 
         pData = data['data']
         cmdName = pData['cmd']
-        if cmdName == 'create':
+        if cmdName == ObjectCommands.create:
             # TODO: Check and see if there's enough resources to grant the request
             objectType = pData['type']
             model = pData['model']
@@ -80,7 +80,7 @@ def playerObjectResponder(user, data):
 
             user.sendMessage(message)
 
-        elif cmdName == 'query':
+        elif cmdName == ObjectCommands.query:
             uuid = pData['uuid']
 
             message = '{"cmd":"pObjRequest","data":"'
@@ -89,7 +89,7 @@ def playerObjectResponder(user, data):
 
             user.sendMessage(message)
 
-        elif cmdName == 'destroy':
+        elif cmdName == ObjectCommands.destroy:
             uuid = pData['uuid']
             result = game.removePlayerObject(uuid, user.name)
 
@@ -105,6 +105,13 @@ def playerObjectResponder(user, data):
                 message += str(obj)
                 message += '"}'
                 user.sendMessage(message)
+
+
+class SurveyTypes(object):  # TODO: these could be enumerated
+    neo = 'NEO'
+    main_belt = 'MainBelt'
+    kuiper_belt = 'KuiperBelt'
+    solar_system = 'SolarSystem'
 
 
 def surveyResponder(data, user):
@@ -123,6 +130,7 @@ def surveyResponder(data, user):
 
 
 def refreshResponder(user):
+    print "Refresh recieved"
     user.disconnected = False
     user.game.refreshClient(user)
 
@@ -170,29 +178,38 @@ def loginUser(user, USERS, data):
         use.setProfileInfo(name, icon, agency, subtext)
         return use
 
-    # userObj = createUser(username, '/img/profiles/martin2.png', mongo_org, mongo_quote)
+
+class Commands(object):  # TODO: these could be enumerated
+    claim = 'claim'
+    get_survey = 'getSurvey'
+    hello = 'hello'
+    refresh = 'refresh'
+    research = 'research'
+    player_object = 'playerObject'
+    request_trajectory = 'requestTraj'
 
 
 def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
+    print 'received', cmd, 'from', user.name
     # takes appropriate action on the given command and data string
-    if cmd == 'claim':
+    if cmd == Commands.claim:
         asteroid_track_request_responder(data, user)
-    elif cmd == 'getSurvey':
+    elif cmd == Commands.get_survey:
         surveyResponder(data, user)
     # TODO: Send asteroid limit for user on hello
-    elif cmd == 'hello':
+    elif cmd == Commands.hello:
         registerUserConnection(user, websock)
     # elif cmd == 'register':
         # registerNewUser(user, data)
     # elif cmd == 'login':
         # loginUser(user, data, USERS)
-    elif cmd == 'refresh':
+    elif cmd == Commands.refresh:
         refreshResponder(user)
-    elif cmd == 'research':
+    elif cmd == Commands.research:
         researchResponder(user, data)
-    elif cmd == 'playerObject':
+    elif cmd == Commands.player_object:
         playerObjectResponder(user, data)
-    elif cmd == 'requestTraj':
+    elif cmd == Commands.request_trajectory:
         trajRequestResponder(user, data)
     else:
         print "UNKNOWN CLIENT MESSAGE: cmd=", cmd, "data=", data, " from user ", user

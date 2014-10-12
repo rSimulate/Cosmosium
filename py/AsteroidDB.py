@@ -1,3 +1,5 @@
+from py.webSocketParser import SurveyTypes
+
 neo = [
     {"sigma_tp": 7.2258e-06, "diameter": 16.84, "epoch_mjd": 56800.0, "ad": 1.782556743092633, "producer": "Otto Matic", "rms": 0.49521, "H_sigma": "", "closeness": 3366.5887401966647, "spec_B": "S", "K2": "", "K1": "", "M1": "", "two_body": "", "full_name": "433 Eros (1898 DQ)", "M2": "", "sigma_per": 1.5563e-07, "equinox": "J2000", "DT": "", "diameter_sigma": 0.06, "saved": -49024112093511.164, "albedo": 0.25, "moid_ld": 57.95363972, "pha": "N", "neo": "Y", "sigma_ad": 2.8762e-10, "PC": "", "profit": 1.0778633100953429e-42, "spkid": 2000433.0, "sigma_w": 7.721e-06, "sigma_i": 2.5015e-06, "per": 643.0120278650012, "id": "a0000433", "A1": "", "data_arc": 18507.0, "A3": "", "score": 1.3376292522104002e-53, "per_y": 1.7604709866256, "sigma_n": 1.355e-10, "epoch_cal": 20140523.0, "orbit_id": "JPL 436", "sigma_a": 2.3525e-10, "sigma_om": 5.6736e-06, "A2": "", "sigma_e": 1.0576e-08, "condition_code": 0.0, "rot_per": 5.27, "prov_des": "1898 DQ", "G": 0.46, "last_obs": "2014-03-16", "H": 11.16, "price": 6.688146261052001e-42, "IR": "", "spec_T": "S", "epoch": 2456800.5, "n_obs_used": 5043.0, "moid": 0.148916, "extent": "34.4x11.2x11.2", "dv": 6.112479, "e": 0.2226333844057514, "GM": 0.0004463, "tp_cal": 20131021.652388, "pdes": 433.0, "class": "AMO", "UB": 0.531, "a": 1.457965049726682, "t_jup": 4.583, "om": 304.3352604155472, "ma": 119.4458843601074, "name": "Eros", "i": 10.82897927365984, "tp": 2456587.152387993, "prefix": "", "BV": 0.921, "spec": "S", "q": 1.133373356360731, "w": 178.7833320468003, "n": 0.5598651104479512, "sigma_ma": 4.0456e-06, "first_obs": "1963-07-15", "n_del_obs_used": 1.0, "sigma_q": 1.5477e-08, "n_dop_obs_used": 3.0},
     {"sigma_tp": 8.0161e-06, "diameter": "", "sigma_q": 9.4916e-08, "epoch_mjd": 56800.0, "ad": 4.080921984113118, "producer": "Otto Matic", "rms": 0.4505, "H_sigma": "", "closeness": 2749.4040311878002, "spec_B": "S", "K2": "", "K1": "", "M1": "", "two_body": "", "full_name": "719 Albert (1911 MT)", "M2": "", "sigma_per": 5.4956e-06, "equinox": "J2000", "DT": "", "diameter_sigma": "", "saved": -30228733726401.28, "albedo": "", "moid_ld": 72.2533022, "pha": "N", "neo": "Y", "sigma_ad": 9.5983e-09, "PC": "", "profit": 4.3222880172840865e-43, "est_diameter": 2.854166808844959, "sigma_w": 2.0359e-05, "sigma_i": 6.2953e-06, "per": 1557.735319192702, "id": "a0000719", "A1": "", "data_arc": 37161.0, "A3": "", "score": 8.247949175007173e-54, "per_y": 4.26484686979521, "sigma_n": 8.1533e-10, "epoch_cal": 20140523.0, "orbit_id": "JPL 55", "sigma_a": 6.1853e-09, "sigma_om": 1.8824e-05, "A2": "", "sigma_e": 3.5608e-08, "condition_code": 0.0, "rot_per": 5.801, "prov_des": "1911 MT", "G": "", "last_obs": "2013-07-01", "H": 15.4, "price": 4.123974587503586e-42, "IR": "", "spec_T": "", "epoch": 2456800.5, "n_obs_used": 1027.0, "moid": 0.18566, "extent": "", "dv": 7.675843, "e": 0.551772789828196, "GM": "", "tp_cal": 20140617.1343186, "pdes": 719.0, "class": "AMO", "UB": "", "a": 2.629845046171313, "t_jup": 3.14, "om": 184.0620457491692, "ma": 354.1913400828157, "name": "Albert", "i": 11.55289382592962, "tp": 2456825.6343186395, "prefix": "", "BV": "", "spec": "S", "q": 1.178768108229506, "w": 155.7926293702832, "n": 0.2311047297730723, "sigma_ma": 1.8393e-06, "first_obs": "1911-10-04", "n_del_obs_used": "", "spkid": 2000719.0, "n_dop_obs_used": ""},
@@ -308,9 +310,9 @@ kuiperBelt = [
 ]
 
 def getAsteroidSurvey(survey):
-    if survey == 'NEO':
+    if survey == SurveyTypes.neo:
         return neo
-    elif survey == 'MainBelt':
+    elif survey == SurveyTypes.main_belt:
         return mainBelt
-    elif survey == 'KuiperBelt':
+    elif survey == SurveyTypes.kuiper_belt:
         return kuiperBelt
