@@ -11,12 +11,12 @@ from py.webSocketMessenger import createMessage
 from geventwebsocket import WebSocketError
 
 class User(object):
-    def __init__(self, name='No Name'):
+    def __init__(self, name='No Name', icon="img/avatar3.png", agency='Serves No Man', subtext='Renegade Astronomer'):
         ### USER PROFILE DATA ###
         self.name = name
-        self.icon = "img/avatar3.png"
-        self.agency = 'Serves No Man'
-        self.subtext = 'Renegade Astronomer'
+        self.icon = icon
+        self.agency = agency
+        self.subtext = subtext
         self.profile_link = '#'
         
         self.messages = [Message(),Message()]
@@ -189,3 +189,7 @@ class User(object):
             except WebSocketError:
                 print self.name, "disconnected from the server"
                 self.websocket = None
+
+    def signOut(self):
+        self.disconnected = True
+        self.sendMessage(createMessage("Signout", "None"))

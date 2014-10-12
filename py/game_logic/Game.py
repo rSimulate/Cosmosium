@@ -10,14 +10,12 @@ from random import randint
 import py.AsteroidDB as asteroidDB
 from py.BodyDB import BodyDB
 from py.game_logic.mockEventList import getMockEventList
-from py.webSocketParser import SurveyTypes
 
 GAME_LEN = 60  # max length of game in minutes
 DAYS_PER_SEC = 3  # how many days pass per second
 GAME_YEAR_SPAN = 200  # years spanned by a max-len game
 START_YEAR = 2005  # starting year of game
 TIME_UPDATE_FREQ = 1  # client clock sync frequency in seconds
-
 
 class Game(object):
     def __init__(self):
@@ -27,15 +25,15 @@ class Game(object):
         # self.OOIs = OOIs()
         # TODO: Replace this with MPO data
         self.NEOs = list()
-        for asteroid in asteroidDB.getAsteroidSurvey(SurveyTypes.neo):
+        for asteroid in asteroidDB.getAsteroidSurvey('NEO'):
             self.NEOs.append(self.cleanAsteroidObject(asteroid))
 
         self.mainBelt = list()
-        for asteroid in asteroidDB.getAsteroidSurvey(SurveyTypes.main_belt):
+        for asteroid in asteroidDB.getAsteroidSurvey('MainBelt'):
             self.mainBelt.append(self.cleanAsteroidObject(asteroid))
 
         self.kuiperBelt = list()
-        for asteroid in asteroidDB.getAsteroidSurvey(SurveyTypes.kuiper_belt):
+        for asteroid in asteroidDB.getAsteroidSurvey('KuiperBelt'):
             self.kuiperBelt.append(self.cleanAsteroidObject(asteroid))
 
         self.OOIs = self.NEOs + self.mainBelt + self.kuiperBelt
@@ -260,7 +258,7 @@ class Game(object):
         
     def addObject(self, object, ownerName=None):
         # adds object to track to OOIs
-        self.OOIs.addObject(object,ownerName)
+        self.OOIs.addObject(object, ownerName)
 
     def addPlayerObject(self, objectType, model, orbit, ownerName):
         """
@@ -353,6 +351,8 @@ class Game(object):
         else:
             return False
 
+    def refreshClient(self, user):
+        self.synchronizeObjects(user)
 
 class Timer(Thread):
     def __init__(self, secs, function):

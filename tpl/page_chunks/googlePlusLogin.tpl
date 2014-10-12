@@ -36,7 +36,7 @@
                 var form = document.createElement("form");
                 form.setAttribute("type", 'hidden');
                 form.setAttribute("method", method);
-                form.setAttribute("action", '/success?target=/play');
+                form.setAttribute("action", '/success');
 
                 var hiddenField = document.createElement("input");
                 hiddenField.setAttribute("type", 'text');

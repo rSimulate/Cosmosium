@@ -42,7 +42,7 @@ from py.page_maker.chunks import chunks  # global chunks
 from py.page_maker.Settings import Settings
 
 # ui handlers:
-from py.query_parsers.getUser import getProfile, demoIDs
+from py.query_parsers.DemoUsers import getDemoProfile, demoIDs
 
 # game logic:
 from py.game_logic.user.User import User
@@ -160,8 +160,8 @@ def error404(error):
 def error500(error):
     print error
     print '500 error getting ', request.url, ':', response.body
-    return "oops! something broke. we've logged the error. \
-        if you want to help us sort it out, please visit \
+    return "Oops! Something must've broke. We've logged the error. \
+        If you want to help us sort it out, please visit \
         <a href='https://github.com/rSimulate/Cosmosium/issues'>our issue tracker on github</a>."
 
 
@@ -236,17 +236,14 @@ def handle_websocket():
             except TypeError as e:
                 if e.message == "'NoneType' object has no attribute '__getitem__'":
                     if user_id is not None:
-                        print user_id, 'disconnected?'
-                        USERS.getUserByToken(user_id).disconnected = True
+                        USERS.getUserByToken(user_id).signOut()
                 else:
                     raise
-            # TODO: call message parser sort of like:
-            #game_manager.parseMessage(message, wsock)
-            # NOTE: message parser should probably be an attribute of the game
-            user = USERS.getUserByToken(user_id)
-            if not user.disconnected:
-                print "received :", cmd, 'from', user_id
-                webSocketParser.parse(cmd, data, user, wsock, USERS, GAMES.games[0].OOIs)
+
+            user = USERS.getUserByToken( user_id)
+            print "received :", cmd, 'from',  user_id
+            webSocketParser.parse(cmd, data, user, wsock, USERS, GAMES.games[0].OOIs)
+
         except geventwebsocket.WebSocketError:
             print 'client disconnected'
             break
@@ -275,21 +272,7 @@ redirect_uri = '{uri}:{port}/success'.format(
 def user_login(special_message=''):
     return template('tpl/pages/userLogin', demoIDs=demoIDs, message=special_message)
 
-
-def create_user(name, icon, agency, subtext):  # test user creation...
-    # basically a User constructor using a given set of values
-    #  to save me some typing
-    use = User()
-    name = name.replace(' ', '_')
-    use.setProfileInfo(name, icon, agency, subtext)
-    return use
-
-
-def create_token(name):
-    return name + "token" + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
-
-
-@app.post('/loggin')
+@app.post('/loggin')  # Path currently used solely for demoIDs
 def submit_log_in():
     uid = request.forms.get('userid')
     pw = request.forms.get('password')
@@ -298,25 +281,32 @@ def submit_log_in():
     set_login_cookie(_user, uid, pw, rem)
     redirect('/play')
 
-
 def set_login_cookie(_user, uid, pw, rem):
     if _user:  # if user has existing login (in python memory)
         if uid in demoIDs or False:  # TODO: replace this false with password check
-            login_token = uid + "loginToken" + ''.join(
+            login_token = uid + ''.join(
                 random.choice(string.ascii_letters + string.digits) for _ in range(5))
-            user_obj = getProfile(uid)
+            user_obj = getDemoProfile(uid)
             try:
                 USERS.addUser(user_obj, login_token)
             except ValueError as e:
                 print e.message
 
             response.set_cookie("cosmosium_login", login_token, max_age=60 * 60 * 5)
-            #redirect('/play')
+            # redirect('/play')
     elif False:  # if user is in database
         # TODO: load user into USERS (python memory)
         pass
     else:
         return user_login('user not found')
+
+@app.post('/signup')
+def setLoginCookie():  # Depreciated for now
+    uid = request.forms.get('userid')
+    pw = request.forms.get('password')
+    rpw = request.forms.get('repeat_password')
+    org = request.forms.get('org')
+    quote = request.forms.get('quote')
 
 # Successful login
 @app.post('/success')
@@ -335,14 +325,15 @@ def login_success():
         elif isinstance(inputt, unicode):
             return inputt.encode('utf-8')
         else:
-            return inputt
-
+            return input
     json = convert(json)
-    user = create_user(json['name'], json['picture'], "NASA", "For the Benefit of All")
-    game_token = create_token(user.name)
-    USERS.addUser(user, game_token)
-    response.set_cookie("cosmosium_login", game_token, max_age=60 * 60 * 5)
-    loginTokens.append({'name': user.name, 'social_token': token, 'game_token': game_token})
+    name = json['name'].replace(" ", "_")
+    user = User(name, json['picture'], "NASA", "For the Benefit of All")
+    gameToken = user.name
+    gameToken = gameToken.replace(" ", "_")
+    USERS.addUser(user, gameToken)
+    response.set_cookie("cosmosium_login", gameToken, max_age=60 * 60 * 5)
+    loginTokens.append({'name': user.name, 'social_token': token, 'game_token': gameToken})
 
     # now that we're logged in, send the user where they were trying to go, else to main page
     target = request.query.target or '/play'
@@ -352,12 +343,7 @@ def login_success():
 def signout():
     token = request.get_cookie('cosmosium_login')
     user = USERS.getUserByToken(token)
-    user.sendMessage('{"cmd":"notify","data":signout"}')
-#app.run(
-#    server=config.SERVER,
-#    port=config.PORT,
-#    host=config.HOST
-#)
+    user.signOut()
 
 
 #=====================================#

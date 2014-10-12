@@ -1,8 +1,7 @@
 import json
 from ast import literal_eval
 
-
-from bottle import template
+from bottle import template, redirect, response
 
 from py.game_logic.user.User import User
 from py.generate_traj import gen_traj
@@ -12,6 +11,12 @@ from asteroid_tracker import asteroid_track_request_responder
 
 
 CHUNKS = chunks()
+
+class SurveyTypes(object):  # TODO: these could be enumerated
+    neo = 'NEO'
+    main_belt = 'MainBelt'
+    kuiper_belt = 'KuiperBelt'
+    solar_system = 'SolarSystem'
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -45,18 +50,13 @@ def researchResponder(user, researchType):
     user.sendMessage(message)
 
 
-class ObjectCommands(object):  # TODO: these could be enumerated
-    create = 'create'
-    query = 'query'
-    destroy = 'destroy'
-
-
 def playerObjectResponder(user, data):
     """
+
     :param user: the requesting user
     :param ws:
     :param data: data as a string
-    :return:create
+    :return:
     """
     game = user.game
     if game is not None:
@@ -68,7 +68,7 @@ def playerObjectResponder(user, data):
 
         pData = data['data']
         cmdName = pData['cmd']
-        if cmdName == ObjectCommands.create:
+        if cmdName == 'create':
             # TODO: Check and see if there's enough resources to grant the request
             objectType = pData['type']
             model = pData['model']
@@ -80,7 +80,7 @@ def playerObjectResponder(user, data):
 
             user.sendMessage(message)
 
-        elif cmdName == ObjectCommands.query:
+        elif cmdName == 'query':
             uuid = pData['uuid']
 
             message = '{"cmd":"pObjRequest","data":"'
@@ -89,7 +89,7 @@ def playerObjectResponder(user, data):
 
             user.sendMessage(message)
 
-        elif cmdName == ObjectCommands.destroy:
+        elif cmdName == 'destroy':
             uuid = pData['uuid']
             result = game.removePlayerObject(uuid, user.name)
 
@@ -105,13 +105,6 @@ def playerObjectResponder(user, data):
                 message += str(obj)
                 message += '"}'
                 user.sendMessage(message)
-
-
-class SurveyTypes(object):  # TODO: these could be enumerated
-    neo = 'NEO'
-    main_belt = 'MainBelt'
-    kuiper_belt = 'KuiperBelt'
-    solar_system = 'SolarSystem'
 
 
 def surveyResponder(data, user):
@@ -131,7 +124,7 @@ def surveyResponder(data, user):
 
 def refreshResponder(user):
     user.disconnected = False
-    user.game.synchronizeObjects(user)
+    user.game.refreshClient(user)
 
 
 def trajRequestResponder(user, data):
@@ -177,38 +170,29 @@ def loginUser(user, USERS, data):
         use.setProfileInfo(name, icon, agency, subtext)
         return use
 
-
-class Commands(object):  # TODO: these could be enumerated
-    claim = 'claim'
-    get_survey = 'getSurvey'
-    hello = 'hello'
-    refresh = 'refresh'
-    research = 'research'
-    player_object = 'playerObject'
-    request_trajectory = 'requestTraj'
+    # userObj = createUser(username, '/img/profiles/martin2.png', mongo_org, mongo_quote)
 
 
 def parse(cmd, data, user, websock, OOIs=None, GAMES=None):
-    print 'received', cmd, 'from', user.name
     # takes appropriate action on the given command and data string
-    if cmd == Commands.claim:
+    if cmd == 'claim':
         asteroid_track_request_responder(data, user)
-    elif cmd == Commands.get_survey:
+    elif cmd == 'getSurvey':
         surveyResponder(data, user)
     # TODO: Send asteroid limit for user on hello
-    elif cmd == Commands.hello:
+    elif cmd == 'hello':
         registerUserConnection(user, websock)
     # elif cmd == 'register':
         # registerNewUser(user, data)
     # elif cmd == 'login':
         # loginUser(user, data, USERS)
-    elif cmd == Commands.refresh:
+    elif cmd == 'refresh':
         refreshResponder(user)
-    elif cmd == Commands.research:
+    elif cmd == 'research':
         researchResponder(user, data)
-    elif cmd == Commands.player_object:
+    elif cmd == 'playerObject':
         playerObjectResponder(user, data)
-    elif cmd == Commands.request_trajectory:
+    elif cmd == 'requestTraj':
         trajRequestResponder(user, data)
     else:
         print "UNKNOWN CLIENT MESSAGE: cmd=", cmd, "data=", data, " from user ", user

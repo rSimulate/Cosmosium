@@ -1,6 +1,6 @@
 # this class holds all users currently logged on
 
-from py.query_parsers.getUser import getProfile, demoIDs
+from py.query_parsers.DemoUsers import getDemoProfile, demoIDs
 
 class UserList(object):
     def __init__(self):
@@ -15,7 +15,8 @@ class UserList(object):
         Returns True if successful.
         '''
         if token in self.users:
-            raise ValueError('user with this token already exists')
+            self.users[token].disconnected = False
+            return True
         if self.getUserByName(userObj.name) != None:
             # raise ValueError('user with this name already exists')
             user = self.getUserByName(userObj.name)
@@ -35,7 +36,6 @@ class UserList(object):
             if self.users[token].name == name:
                 return self.users[token]
         else:
-            print 'user name "' + str(name) + '" not found!'
             return None
             
     def getUserByToken(self,token):
@@ -54,5 +54,5 @@ class UserList(object):
         
     def addDemoUsers(self):
         for user in demoIDs:
-            self.addUser(getProfile(user),user+'temp_token')
+            self.addUser(getDemoProfile(user),user+'temp_token')
         
