@@ -272,12 +272,12 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         var geometry = new THREE.Geometry();
         for (var i = 0; i < timeSegs.length; i++) {
             // Negative scale to play nice with pykep
-            var scale = 91;
+            var scale = 288;
             var vector = new THREE.Vector3(xSegs[i] * scale, zSegs[i] * scale, ySegs[i] * scale);
             geometry.vertices.push(vector);
         }
         var material = new THREE.LineBasicMaterial({
-            color: 0xff00ff
+            color: 0x00ff00
         });
         obj.trajLine = new THREE.Object3D();
         obj.trajLine.timeSegs = timeSegs;
@@ -288,16 +288,73 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
 
         var startCoords = obj.orbit.getPosAtTime(timeSegs[0]);
         obj.trajLine.position.set(startCoords[0], startCoords[1], startCoords[2]);
+        obj.trajLine.updateMatrix();
+        obj.trajLine.updateMatrixWorld(true);
 
-        obj.trajLine.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI * 0.19);
+        // line up traj the best we can to destination epoch
+        var defaultTraj = obj.trajLine.clone();
+        var solvedTraj = obj.trajLine.clone();
+        var distCalc;
+        var inc = 0.002;
+        var pos = obj.dest.orbit.getPosAtTime(timeSegs[timeSegs.length - 1]);
+        var posVec = new THREE.Vector3(pos[0], pos[1], pos[2]).applyMatrix4(cosmosScene.getScene().matrixWorld);
 
-        var endCoords = obj.dest.orbit.getPosAtTime(timeSegs[timeSegs.length-1]);
-        //verts[verts.length-1].set(endCoords[0], endCoords[1], endCoords[2]);
+        var endNode = new THREE.Mesh( new THREE.SphereGeometry(SUN_SIZE / 12, 32, 32), new THREE.MeshBasicMaterial({color: 0x00ff00}));
+        endNode.position.set(posVec.x, posVec.y, posVec.z);
+        cosmosScene.getScene().add(endNode);
+
+        for (var o = 2.0; o > 0.0; o -= inc) {
+
+            obj.trajLine.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI * o);
+            obj.trajLine.matrix.makeRotationFromEuler(obj.trajLine.rotation);
+            obj.trajLine.updateMatrixWorld(true);
+            line.matrixWorld.multiplyMatrices(obj.trajLine.matrixWorld, line.matrix);
+            var point = verts[verts.length - 1].clone().applyMatrix4(line.matrixWorld);
+            var dist = point.distanceTo(posVec.clone());
+
+            if (distCalc == undefined) {distCalc = dist;}
+            if (dist < distCalc) {
+                distCalc = dist;
+                solvedTraj = obj.trajLine.clone();
+                obj.trajLine = defaultTraj.clone();
+
+                if (dist < 40) {
+                    inc = 0.001;
+                }
+                if (dist < 25) {
+                    inc = 0.0007;
+                }
+                if (dist < 10) {
+                    inc = 0.0005;
+                }
+                var trajDebug = false;
+                if (trajDebug) {
+                    var solverColor = new THREE.Color();
+                    solverColor.setRGB(255 * o, 0, 1);
+
+                    var solverLine = obj.trajLine.clone();
+                    solverLine.children[0].material = new THREE.LineBasicMaterial({
+                        color: solverColor.getHex()
+                    });
+                    cosmosScene.addTrajectory(solverLine);
+                }
+            }
+            else {obj.trajLine = defaultTraj;}
+
+            obj.trajLine.updateMatrix();
+            obj.trajLine.updateMatrixWorld(true);
+        }
+        obj.trajLine = solvedTraj;
+        obj.trajLine.timeSegs = timeSegs;
+        obj.trajLine.endNode = endNode;
+        //var verts = line.geometry.vertices;
+        //var vec = posVec.clone().applyMatrix4(line.matrix);
+        //verts[verts.length - 1].copy(vec);
         line.geometry.verticesNeedUpdate = true;
 
-
         cosmosScene.addTrajectory(obj.trajLine);
-        console.log("trajline generated");
+
+        console.log(obj.trajLine.timeSegs[obj.trajLine.timeSegs.length - 1]);
     }
 
     function animateTraj(obj, deltaTime) {
@@ -321,35 +378,37 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
                 var line = obj.trajLine.children[0];
                 // nodes as a Vector4, with w being time in JD
                 var nodes = line.geometry.vertices;
-                var curNode = nodes[1];
+                //var lastNode = nodes[0];
+                var nextNode = nodes[1];
                 var curEpoch = obj.trajLine.timeSegs[0];
                 var nextEpoch = obj.trajLine.timeSegs[1];
 
                 // remove past node and calculate speed to next node
-                if(curNode != undefined && curEpoch <= jd) {
+                if(nextNode != undefined && curEpoch <= jd) {
                     nodes.shift();
                     obj.trajLine.timeSegs.shift();
                     line.geometry.verticesNeedUpdate = true;
                     line.geometry.buffersNeedUpdate = true;
                     line.updateMatrixWorld(true);
-                    curNode = nodes[1];
+                    nextNode = nodes[1];
 
-                    if (curNode != undefined) {
+                    if (nextNode != undefined) {
                         var timeToNode = Math.abs((nextEpoch/jed_delta) - (jd/jed_delta));
-                        var arcLength = cosmosScene.getWorldPos(obj.mesh).distanceTo(curNode.clone().applyMatrix4(line.matrixWorld));
+                        var arcLength = cosmosScene.getWorldPos(obj.mesh).distanceTo(nextNode.clone().applyMatrix4(line.matrixWorld));
                         obj.trajLine.speedToNode = arcLength/timeToNode;
                     }
                     else {
-                        curNode = curNode[0] == undefined ? undefined : curNode[0];
+                        if (nextNode) {nextNode = nextNode[0] == undefined ? undefined : nextNode[0];}
                     }
                 }
 
-                if (curNode == undefined) {
+                if (nextNode == undefined) {
                     // Set up new orbit and remove traj keys through generateOrbit
+                    console.log(jd);
                     cosmosScene.generateOrbit(obj, apoapsis, sphereCollider.radius);
                 }
                 else {
-                    var vec = curNode.clone();
+                    var vec = nextNode.clone();
                     vec.applyMatrix4(line.matrixWorld);
 
                     var deltaSpeed = obj.trajLine.speedToNode * deltaTime;
