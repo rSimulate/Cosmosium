@@ -65,3 +65,12 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# Qooxdoo Dev SDK
+/js/qooxdoo-4.0.1-sdk/*
+!/js/qooxdoo-4.0.1-sdk/tool/
+/js/qooxdoo-4.0.1-sdk/tool/*
+!/js/qooxdoo-4.0.1-sdk/tool/bin/
+/js/qooxdoo-4.0.1-sdk/tool/bin/*
+!/js/qooxdoo-4.0.1-sdk/tool/bin/cosmosInterface
+
+
