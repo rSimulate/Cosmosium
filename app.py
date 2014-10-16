@@ -80,6 +80,31 @@ def js_static(filename):
     return static_file(filename, root='./js/')
 
 
+@app.route('/favicon.ico')
+def icon_static():
+    return static_file('/favicon.ico', root='./img/')
+
+
+#       Qooxdoo Dev App Routing       #
+#=====================================#
+
+
+@app.route('/framework/<filename:path>')
+def qx_dev_static1(filename):
+    return static_file(filename, root='./js/qooxdoo-4.0.1-sdk/framework/')
+
+
+@app.route('/script/<filename:path>')
+def qx_dev_static2(filename):
+    return static_file(filename, root='./js/qooxdoo-4.0.1-sdk/tool/bin/cosmosInterface/source/script/')
+
+
+@app.route('/source/<filename:path>')
+def qx_dev_static3(filename):
+    return static_file(filename, root='./js/qooxdoo-4.0.1-sdk/tool/bin/cosmosInterface/source/')
+
+
+#=====================================#
 @app.route('/fonts/<filename:path>')
 def font_static(filename):
     return static_file(filename, root='./fonts/')

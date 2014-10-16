@@ -22,8 +22,6 @@ qx.Class.define("cosmosinterface.Application",
 {
   extend : qx.application.Inline,
 
-
-
   /*
   *****************************************************************************
      MEMBERS
@@ -68,7 +66,7 @@ qx.Class.define("cosmosinterface.Application",
       
       // Hint: the second and the third parameter control if the dimensions
       // of the element should be respected or not.
-      var htmlElement = document.getElementById("isle");
+      var htmlElement = document.getElementById("UIApp");
       var inlineIsle = new qx.ui.root.Inline(htmlElement, true, true);
       
       // use VBox layout instead of basic

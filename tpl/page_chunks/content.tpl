@@ -7,9 +7,6 @@
 <meta charset="UTF-8">
 <title>Cosmosium | {{pageTitle}}</title>
 
-<!-- Suppress Favicon -->
-<link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAACbUlEQVRIx7WUsU/qUBTGv96WSlWeEBZijJggxrREdwYixMnByYEyOvgfsBAMG0xuDsZ/QGc3NDFhgTioiYsmkhBYGLSBkLYR0va8gSjvQXiIT7/l5ibfOd/v3pN7gSmVSMTj8ThRfzdYk8lkMpl83/+AVFVVVXU0eHiVJEmSpB8DIcpkMplsdhCYz+fzhQJROBwOh8PDQN+oQCAQCASIRFEURZHI45GkP0/e7Xa73e70AMJnjel0Op1OA6oaDB4eAkAw6PcDvZ5t6zrw/Hx2trAw/cHYZ426ruu6DtzcGEYuBzQa19etFvD4WKtls4AoRqMPDwBjjLGPrt84ilgsFovF6EOapmmaRiP6O/jbAIguL4vFYpHGqlKpVCoVomq1Wq1Wibxer9fn+w+Q9+cUiUQikQhNrfdgWZZlWf4yyGhj27Zt254MUK/X6/X6F0aiKIqiKIOCYRmGYRjGZADLsizLIgqFQqHV1SkAnp5OTn79ItK0qyuPZ7SxaZqmaU4GKJfPzxmbfAPc/f3pqaIQLS8vLtZqgOP0bYyJoiAARC5Xrwf4/Vtbb2+Th1YqlUqlErC01GgkEkCz2WxyHLC+LsuiCAiCJLlcgM+3vd3pcBzXaJTLR0dEs7Ptdv+D4TiOG/A6DsBxQKvV621sAGtru7vl8ngAjuvXv7xcXIgiwNjMjCj2h+k4fQfPA4LA8xwHCO323V2hABiG223bwPy8xwMAbvfcHGMAY32j47y+3t4OAsZpZ2dzEwAsy7IcBxAExhwHMIxOx3GAlZVUyjT/1WFIudzenstFlEpFo9M8o+Pj/X2eJzo4SCR4fnzdb2N4Pyv9cduVAAAAAElFTkSuQmCC" rel="icon" type="image/x-icon" />
-
 % if config.showFrame:
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <!-- bootstrap 3.0.2 -->
@@ -239,7 +236,6 @@ autoplay="false">
 <!-- left navigation bars -->
 % include('tpl/page_chunks/frame_left')
 
-
 <!-- Right side column. Contains the navbar and content of the page -->
 <aside class="right-side" style="background-color: transparent">
 
@@ -247,6 +243,7 @@ autoplay="false">
     <!-- webGL Content -->
     % include('tpl/page_chunks/webGL_shaders')
     <div id="canvas">
+        <div id="UIApp"></div>
         <!-- Page Header and Resource Bar -->
         <div id="resource-bar" class="content-header skin-black" >
             % include('tpl/page_chunks/resourcebar')
@@ -294,7 +291,8 @@ autoplay="false">
 
 
 
-
+<!-- cosmosInterface Qooxdoo App -->
+<script src="/js/qooxdoo-4.0.1-sdk/tool/bin/cosmosInterface/source/script/cosmosinterface.js" type="text/javascript"></script>
 
 <!-- jQuery 2.0.2 -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
