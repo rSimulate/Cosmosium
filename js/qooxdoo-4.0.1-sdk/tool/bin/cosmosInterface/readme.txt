@@ -1,3 +1,9 @@
+The qooxdoo sdk is massive (122mb), so I only included our project sources in the UIOverhaul branch. The sub directories are still set up so if anyone wants to run the branch with the SDK, you just merge the qooxdoo-4.0.1-sdk folder into the one that already exists and then the paths will line up. Only then will the branch run for you.
+
+This is just temporary until the UI is done, and then we'll compile a production version of the UI that is a lot less bloated, and will be a lot more responsive
+
+
+
 Inline Skeleton - A qooxdoo Application Template
 ================================================
 
