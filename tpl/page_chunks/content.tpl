@@ -7,6 +7,10 @@
 <meta charset="UTF-8">
 <title>Cosmosium | {{pageTitle}}</title>
 
+<link rel="icon"
+      type="image/png"
+      href="/img/fav64Black.png" />
+
 % if config.showFrame:
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <!-- bootstrap 3.0.2 -->
@@ -40,7 +44,7 @@
 <script type='text/javascript'>var audioAttrib = "{{chunks.bg_music.attrib}}"</script>
 <audio id="background_audio"
 % if config.music:
-autoplay="true">
+autoplay="false">
 % else:
 autoplay="false">
 % end
@@ -227,6 +231,13 @@ autoplay="false">
         z-index: 1000;
         position: absolute;
     }
+
+    #UIApp {
+        display: inline;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
 </style>
 </head>
 <body style='background-color: black'>
@@ -236,6 +247,8 @@ autoplay="false">
 <!-- left navigation bars -->
 % include('tpl/page_chunks/frame_left')
 
+
+<div id="UIApp"></div>
 <!-- Right side column. Contains the navbar and content of the page -->
 <aside class="right-side" style="background-color: transparent">
 
@@ -243,7 +256,7 @@ autoplay="false">
     <!-- webGL Content -->
     % include('tpl/page_chunks/webGL_shaders')
     <div id="canvas">
-        <div id="UIApp"></div>
+
         <!-- Page Header and Resource Bar -->
         <div id="resource-bar" class="content-header skin-black" >
             % include('tpl/page_chunks/resourcebar')

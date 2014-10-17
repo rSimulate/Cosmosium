@@ -8,6 +8,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Asteroid.Ventures | Welcome</title>
+    <link rel="icon"
+          type="image/png"
+          href="/img/fav64Black.png" />
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <!-- bootstrap 3.0.2 -->
     <link href="../../css/bootstrap.min.css" rel="stylesheet" type="text/css"/>

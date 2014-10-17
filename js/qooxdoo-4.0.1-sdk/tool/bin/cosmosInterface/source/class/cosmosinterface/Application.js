@@ -1,17 +1,17 @@
 /* ************************************************************************
 
-   Copyright:
+ Copyright:
 
-   License:
+ License:
 
-   Authors:
+ Authors:
 
-************************************************************************ */
+ ************************************************************************ */
 
 /* ************************************************************************
 
 
-************************************************************************ */
+ ************************************************************************ */
 
 /**
  * This is the main application class of your custom application "cosmosInterface"
@@ -19,103 +19,58 @@
  * @asset(cosmosinterface/*)
  */
 qx.Class.define("cosmosinterface.Application",
-{
-  extend : qx.application.Inline,
-
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
-  members :
-  {
-    /**
-     * This method contains the initial application code and gets called 
-     * during startup of the application
-     * 
-     * @lint ignoreDeprecated(alert)
-     */
-    main : function()
     {
-      // Call super class
-      this.base(arguments);
+        extend: qx.application.Inline,
 
-      // Enable logging in debug variant
-      if (qx.core.Environment.get("qx.debug"))
-      {
-        // support native logging capabilities, e.g. Firebug for Firefox
-        //qx.log.appender.Native;
+        /*
+         *****************************************************************************
+         MEMBERS
+         *****************************************************************************
+         */
 
-        // support additional cross-browser console. Press F7 to toggle visibility
-        qx.log.appender.Console;
-      }
+        members: {
+            /**
+             * This method contains the initial application code and gets called
+             * during startup of the application
+             *
+             * @lint ignoreDeprecated(alert)
+             */
+            main: function () {
+                // Call super class
+                this.base(arguments);
 
-      /*
-      -------------------------------------------------------------------------
-        Below is your actual application code...
-      -------------------------------------------------------------------------
-      */
-      
-      
-      /*
-      -------------------------------------------------------------------------
-        USE AN EXISTING NODE TO ADD WIDGETS INTO THE PAGE LAYOUT FLOW
-      -------------------------------------------------------------------------
-      */
-      
-      // Hint: the second and the third parameter control if the dimensions
-      // of the element should be respected or not.
-      var htmlElement = document.getElementById("UIApp");
-      var inlineIsle = new qx.ui.root.Inline(htmlElement, true, true);
-      
-      // use VBox layout instead of basic
-      inlineIsle.setLayout(new qx.ui.layout.VBox);
-      
-      // new container
-      var container = new qx.ui.container.Composite(new qx.ui.layout.HBox);
+                // Enable logging in debug variant
+                if (qx.core.Environment.get("qx.debug")) {
+                    // support native logging capabilities, e.g. Firebug for Firefox
+                    //qx.log.appender.Native;
 
-      // Create a button
-      var button1 = new qx.ui.form.Button("First Button", "cosmosinterface/test.png");
-      button1.setAllowStretchY(false);
-      container.add(button1);
-      container.setPadding(10);
+                    // support additional cross-browser console. Press F7 to toggle visibility
+                    qx.log.appender.Console;
+                }
 
-      // spacer
-      var spacer = new qx.ui.core.Spacer();
-      container.add(spacer, { flex: 1 });
+                var htmlElement = document.getElementById("UIApp");
+                var app = new qx.ui.root.Inline(htmlElement, true, true);
+                app.setLayout(new qx.ui.layout.VBox);
+                app.setBackgroundColor("transparent");
+                app.setSelectable(false);
+                app.setFocusable(false);
 
-      // create a date chooser component
-      var dateChooser = new qx.ui.control.DateChooser;
-      container.add(dateChooser);
+                // new container
+                var container = new qx.ui.container.Composite(new qx.ui.layout.Basic());
+                container.setBackgroundColor("transparent");
+                container.setDroppable(true);
+                container.setSelectable(false);
+                container.setFocusable(false);
 
-      // add container to the inline root
-      inlineIsle.add(container);
+                // create a date chooser component
+                qx.Class.include(qx.ui.control.DateChooser, qx.ui.core.MMovable);
+                var dateChooser = new qx.ui.control.DateChooser();
+                dateChooser._activateMoveHandle(dateChooser.getChildControl("navigation-bar"));
+                dateChooser.setMovable(true);
+                container.add(dateChooser, {left: 500, top: 500});
 
-      // Add an event listener
-      button1.addListener("execute", function(e) {
-        alert("I'm a button inside an inline root widget!\n" + 
-              "I nicely fit into the page layout flow.");
-      });
-
-
-      /*
-      -------------------------------------------------------------------------
-        ADD WIDGETS WITH ABSOLUTE POSITIONING
-      -------------------------------------------------------------------------
-      */
-
-      // Create a button
-      var button2 = new qx.ui.form.Button("absolutely positioned");
-
-      // Add button to document at fixed coordinates
-      this.getRoot().add(button2, {left: 500, top: 310});
-
-      // Add an event listener
-      button2.addListener("execute", function(e) {
-        alert("I'm an absolutely positioned button!\n" + 
-              "I overlay existing content.");
-      });
-    }
-  }
-});
+                // add container to the inline root
+                app.add(container, {flex: 1});
+            }
+        }
+    });

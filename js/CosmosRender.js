@@ -151,6 +151,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         farCamera.updateProjectionMatrix();
 
         renderer.setSize($(canvas).width(), $(canvas).height());
+        $('#UIApp').css('width', $(canvas).width()).css('height', $(canvas).height());
 
         render();
     };
