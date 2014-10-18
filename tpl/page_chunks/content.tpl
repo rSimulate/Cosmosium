@@ -248,7 +248,6 @@ autoplay="false">
 % include('tpl/page_chunks/frame_left')
 
 
-<div id="UIApp"></div>
 <!-- Right side column. Contains the navbar and content of the page -->
 <aside class="right-side" style="background-color: transparent">
 
@@ -257,6 +256,7 @@ autoplay="false">
     % include('tpl/page_chunks/webGL_shaders')
     <div id="canvas">
 
+        <div id="UIApp"></div>
         <!-- Page Header and Resource Bar -->
         <div id="resource-bar" class="content-header skin-black" >
             % include('tpl/page_chunks/resourcebar')
