@@ -255,8 +255,6 @@ autoplay="false">
     <!-- webGL Content -->
     % include('tpl/page_chunks/webGL_shaders')
     <div id="canvas">
-
-        <div id="UIApp"></div>
         <!-- Page Header and Resource Bar -->
         <div id="resource-bar" class="content-header skin-black" >
             % include('tpl/page_chunks/resourcebar')

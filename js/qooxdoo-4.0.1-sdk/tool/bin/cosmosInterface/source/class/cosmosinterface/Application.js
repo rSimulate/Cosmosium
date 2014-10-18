@@ -47,35 +47,18 @@ qx.Class.define("cosmosinterface.Application",
                     // support additional cross-browser console. Press F7 to toggle visibility
                     qx.log.appender.Console;
                 }
-
-                var htmlElement = document.getElementById("UIApp");
-                var app = new qx.ui.root.Inline(htmlElement, true, true);
-                app.setLayout(new qx.ui.layout.VBox);
-                app.setBackgroundColor("transparent");
-                app.setSelectable(false);
-                app.setFocusable(false);
-
-                // new container
-                var container = new qx.ui.container.Composite(new qx.ui.layout.Basic());
-                container.setBackgroundColor("transparent");
-                container.setDroppable(true);
-                container.setSelectable(false);
-                container.setFocusable(false);
-
                 // Bottom Menu Bar
                 var bottomMenu = this.getMenuBar();
-                container.add(bottomMenu, {left: 300, top: 800});
-
-                // add container to the inline root
-                app.add(container, {flex: 1});
+                bottomMenu.setZIndex(1001);
+                this.getRoot().add(bottomMenu, {left: 300, top: 800});
             },
 
             getMenuBar : function() {
+                qx.Class.include(qx.ui.container.Composite, qx.ui.core.MMovable);
                 var frame = new qx.ui.container.Composite(new qx.ui.layout.Grow);
-
-                qx.Class.include(qx.ui.menubar.MenuBar, qx.ui.core.MMovable);
                 var menubar = new qx.ui.menubar.MenuBar;
-                menubar._activateMoveHandle(menubar);
+                frame._activateMoveHandle(menubar);
+                menubar.setPaddingTop(10);
                 menubar.setBackgroundColor("transparent");
                 menubar.setWidth(600);
                 frame.add(menubar);
