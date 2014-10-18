@@ -50,38 +50,33 @@ qx.Class.define("cosmosinterface.Application",
                 // Bottom Menu Bar
                 var bottomMenu = this.getMenuBar();
                 bottomMenu.setZIndex(1001);
-                this.getRoot().add(bottomMenu, {left: 300, top: 800});
+                this.getRoot().add(bottomMenu, {left: 400, top: 800});
             },
 
             getMenuBar : function() {
                 qx.Class.include(qx.ui.container.Composite, qx.ui.core.MMovable);
-                var frame = new qx.ui.container.Composite(new qx.ui.layout.Grow);
-                var menubar = new qx.ui.menubar.MenuBar;
-                frame._activateMoveHandle(menubar);
-                menubar.setPaddingTop(10);
-                menubar.setBackgroundColor("transparent");
-                menubar.setWidth(600);
-                frame.add(menubar);
+                var frame = new qx.ui.container.Composite(new qx.ui.layout.HBox);
+                frame.setPaddingTop(5);
+                frame.setBackgroundColor("rgba(54, 85, 160, 0.35)");
+                frame.setOpacity(0.3);
+                frame._activateMoveHandle(frame);
 
-                var buildMenu = new qx.ui.menubar.Button("Build", "img/UI/01_Build.png", this.getBuildMenu());
-                var smallCraftMenu = new qx.ui.menubar.Button("Small Craft", "img/UI/01_SmallCraft.png", this.getSmallCraftMenu());
-                var stationsMenu = new qx.ui.menubar.Button("Stations", "img/UI/02_Stations.png", this.getStationsMenu());
-                var targetMenu = new qx.ui.menubar.Button("Targets", "img/UI/03_targets.png", this.getTargetMenu());
-                var researchMenu = new qx.ui.menubar.Button("Research", "img/UI/04_research.png", this.getResearchMenu());
-                var marketMenu = new qx.ui.menubar.Button("Market", "img/UI/05_market.png", this.getMarketMenu());
-                var politicsMenu = new qx.ui.menubar.Button("Politics", "img/UI/06_Politics.png", this.getPoliticsMenu());
-                var mapsMenu = new qx.ui.menubar.Button("Maps", "img/UI/07_Maps.png", this.getMapsMenu());
-                var launchMenu = new qx.ui.menubar.Button("Launch", "img/UI/XX_Launch.png", this.getLaunchMenu());
+                var buttons = [];
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/01_Build.png", this.getBuildMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/01_SmallCraft.png", this.getSmallCraftMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/02_Stations.png", this.getStationsMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/03_targets.png", this.getTargetMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/04_research.png", this.getResearchMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/05_market.png", this.getMarketMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/06_Politics.png", this.getPoliticsMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/07_Maps.png", this.getMapsMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/XX_Launch.png", this.getLaunchMenu()));
 
-                menubar.add(buildMenu);
-                menubar.add(smallCraftMenu);
-                menubar.add(stationsMenu);
-                menubar.add(targetMenu);
-                menubar.add(researchMenu);
-                menubar.add(marketMenu);
-                menubar.add(politicsMenu);
-                menubar.add(mapsMenu);
-                menubar.add(launchMenu);
+                for (var i = 0; i < buttons.length; i++) {
+                    var button = buttons[i];
+                    button.setOpacity(1);
+                    frame.add(button);
+                }
 
                 return frame;
             },
