@@ -301,12 +301,11 @@ autoplay="false">
 </aside><!-- /.right-side -->
 
 
-
+<!-- jQuery 2.0.2 -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <!-- cosmosInterface Qooxdoo App -->
 <script src="/js/qooxdoo-4.0.1-sdk/tool/bin/cosmosInterface/source/script/cosmosinterface.js" type="text/javascript"></script>
 
-<!-- jQuery 2.0.2 -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <!-- jQuery UI 1.10.3 -->
 <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js" type="text/javascript"></script>
 <!-- Bootstrap -->

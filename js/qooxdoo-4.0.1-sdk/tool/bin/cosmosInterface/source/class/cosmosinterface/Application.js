@@ -47,30 +47,149 @@ qx.Class.define("cosmosinterface.Application",
                     // support additional cross-browser console. Press F7 to toggle visibility
                     qx.log.appender.Console;
                 }
+                // calculate window offset
+                var navbarHeight = $('#topNavbar').height();
+                var h = $(document.body).height() - navbarHeight - 1;
+                var sidebarWidth = $('#left-sidebar').width();
+                var w = $(document.body).width() - sidebarWidth;
+                console.log(w, h);
+
                 // Bottom Menu Bar
-                var bottomMenu = this.getMenuBar();
+                var bottomMenu = this.initMenuBar(w, h, sidebarWidth, navbarHeight);
                 bottomMenu.setZIndex(1001);
                 this.getRoot().add(bottomMenu, {left: 400, top: 800});
             },
 
-            getMenuBar : function() {
+            getWidget : function(id) {
+                return qx.ui.core.Widget.getWidgetByElement(document.getElementById(id));
+            },
+
+            toggleWindow : function (id) {
+
+                var window = this.getWidget(id);
+                var status = window.getMode();
+                if (status == "normal" || status == "maximized") {
+                    window.minimize();
+                }
+                else if (status == "minimized") {
+                    window.restore();
+                }
+            },
+
+            initMenuBar : function(w, h, wOff, hOff) {
+                var _this = this;
                 qx.Class.include(qx.ui.container.Composite, qx.ui.core.MMovable);
                 var frame = new qx.ui.container.Composite(new qx.ui.layout.HBox);
+                frame.addListenerOnce('appear', function () {
+                    var el = frame.getContentElement().getDomElement();
+                    el.id = "menubar";
+                    var left = (($(el).width() / 2) + (w / 2.5)) - wOff;
+                    var top = (($(el).height() / 2) + (h / 1.02)) - hOff;
+                    console.log(h / 0.25);
+                    frame.setDomPosition(left, top);
+                });
                 frame.setPaddingTop(5);
                 frame.setBackgroundColor("rgba(54, 85, 160, 0.35)");
                 frame.setOpacity(0.3);
                 frame._activateMoveHandle(frame);
 
+                var initBuildMenu = function() {
+                    var menu = new qx.ui.menu.Menu;
+
+                    var stationButton = new qx.ui.menu.Button("Stations");
+                    var factoryButton = new qx.ui.menu.Button("Factories");
+                    var componentButton = new qx.ui.menu.Button("Components");
+
+                    var initComponentWindow = function() {
+                        var window = new qx.ui.window.Window("Components", "img/UI/05_market.png");
+                        window.setLayout(new qx.ui.layout.VBox);
+                        window.addListenerOnce('appear', function () {
+                            var el = window.getContentElement().getDomElement();
+                            el.id = "componentWindow";
+                            window.minimize();
+                        });
+                        window.addListener('appear', function () {
+                            var el = window.getContentElement().getDomElement();
+                            var left = (($(el).width() / 2) + (w / 2)) - wOff;
+                            var top = (($(el).height() / 2) + (h / 4)) - hOff;
+                            window.setDomPosition(left, top);
+                        });
+                        window.open();
+                    };
+
+                    var initStationWindow = function () {
+                        var window = new qx.ui.window.Window("Stations", "img/UI/02_Stations.png");
+                        window.addListenerOnce('appear', function () {
+                            var el = window.getContentElement().getDomElement();
+                            el.id = "stationWindow";
+                            window.minimize();
+                        });
+                        window.addListener('appear', function () {
+                            var el = window.getContentElement().getDomElement();
+                            var left = (($(el).width() / 2) + (w / 2)) - wOff;
+                            var top = (($(el).height() / 2) + (h / 4)) - hOff;
+                            window.setDomPosition(left, top);
+                        });
+                        window.setLayout(new qx.ui.layout.VBox);
+                        window.open();
+                    };
+
+                    initStationWindow();
+                    initComponentWindow();
+
+                    stationButton.addListener("execute", function () {_this.toggleWindow('stationWindow')});
+                    //factoryButton.addListener("execute", this.debugButton);
+                    componentButton.addListener("execute", function () {_this.toggleWindow('componentWindow')});
+
+                    menu.add(stationButton);
+                    menu.add(factoryButton);
+                    menu.add(componentButton);
+
+                    return menu;
+                };
+
+                var initSmallCraftMenu = function() {
+                    //return initBuildMenu();
+                };
+
+                var initStationsMenu = function() {
+                    //return initBuildMenu();
+                };
+
+                var initTargetMenu = function() {
+                    //return initBuildMenu();
+                };
+
+                var initResearchMenu = function() {
+                    //return initBuildMenu();
+                };
+
+                var initMarketMenu = function() {
+                   // return initBuildMenu();
+                };
+
+                var initPoliticsMenu = function() {
+                   // return initBuildMenu();
+                };
+
+                var initMapsMenu = function() {
+                    //return initBuildMenu();
+                };
+
+                var initLaunchMenu = function() {
+                   // return initBuildMenu();
+                };
+
                 var buttons = [];
-                buttons.push(new qx.ui.menubar.Button(null, "img/UI/01_Build.png", this.getBuildMenu()));
-                buttons.push(new qx.ui.menubar.Button(null, "img/UI/01_SmallCraft.png", this.getSmallCraftMenu()));
-                buttons.push(new qx.ui.menubar.Button(null, "img/UI/02_Stations.png", this.getStationsMenu()));
-                buttons.push(new qx.ui.menubar.Button(null, "img/UI/03_targets.png", this.getTargetMenu()));
-                buttons.push(new qx.ui.menubar.Button(null, "img/UI/04_research.png", this.getResearchMenu()));
-                buttons.push(new qx.ui.menubar.Button(null, "img/UI/05_market.png", this.getMarketMenu()));
-                buttons.push(new qx.ui.menubar.Button(null, "img/UI/06_Politics.png", this.getPoliticsMenu()));
-                buttons.push(new qx.ui.menubar.Button(null, "img/UI/07_Maps.png", this.getMapsMenu()));
-                buttons.push(new qx.ui.menubar.Button(null, "img/UI/XX_Launch.png", this.getLaunchMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/01_Build.png", initBuildMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/01_SmallCraft.png", initSmallCraftMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/02_Stations.png", initStationsMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/03_targets.png", initTargetMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/04_research.png", initResearchMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/05_market.png", initMarketMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/06_Politics.png", initPoliticsMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/07_Maps.png", initMapsMenu()));
+                buttons.push(new qx.ui.menubar.Button(null, "img/UI/XX_Launch.png", initLaunchMenu()));
 
                 for (var i = 0; i < buttons.length; i++) {
                     var button = buttons[i];
@@ -79,56 +198,6 @@ qx.Class.define("cosmosinterface.Application",
                 }
 
                 return frame;
-            },
-
-            getBuildMenu : function() {
-                var menu = new qx.ui.menu.Menu;
-
-                var stationButton = new qx.ui.menu.Button("Stations");
-                var factoryButton = new qx.ui.menu.Button("Factories");
-                var componentButton = new qx.ui.menu.Button("Components");
-
-                //stationButton.addListener("execute", this.debugButton);
-                //factoryButton.addListener("execute", this.debugButton);
-                //componentButton.addListener("execute", this.debugButton);
-
-                menu.add(stationButton);
-                menu.add(factoryButton);
-                menu.add(componentButton);
-
-                return menu;
-            },
-
-            getSmallCraftMenu : function() {
-                return this.getBuildMenu();
-            },
-
-            getStationsMenu : function() {
-                return this.getBuildMenu();
-            },
-
-            getTargetMenu : function() {
-                return this.getBuildMenu();
-            },
-
-            getResearchMenu : function() {
-                return this.getBuildMenu();
-            },
-
-            getMarketMenu : function() {
-                return this.getBuildMenu();
-            },
-
-            getPoliticsMenu : function() {
-                return this.getBuildMenu();
-            },
-
-            getMapsMenu : function() {
-                return this.getBuildMenu();
-            },
-
-            getLaunchMenu: function() {
-                return this.getBuildMenu();
             }
         }
     });
