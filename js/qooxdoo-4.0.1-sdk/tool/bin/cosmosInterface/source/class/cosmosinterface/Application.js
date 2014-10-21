@@ -35,6 +35,7 @@ qx.Class.define("cosmosinterface.Application",
              *
              * @lint ignoreDeprecated(alert)
              */
+
             main: function () {
                 // Call super class
                 this.base(arguments);
@@ -52,12 +53,23 @@ qx.Class.define("cosmosinterface.Application",
                 var h = $(document.body).height() - navbarHeight - 1;
                 var sidebarWidth = $('#left-sidebar').width();
                 var w = $(document.body).width() - sidebarWidth;
-                console.log(w, h);
+
+                // Drag Content Feedback
+                var dragFeedback = new qx.ui.basic.Image("img/UI/05_market.png");
+                dragFeedback.setOpacity(0.5);
+                dragFeedback.setZIndex(100001); //Ridiculous index needed to overlap qx.windows
+                dragFeedback.setLayoutProperties({left: -2000, top: -2000});
+                dragFeedback.addListener('loaded', function(e) {
+                    var el = dragFeedback.getContentElement().getDomElement();
+                    el.id = "dragFeedback";
+                });
+                this.getRoot().add(dragFeedback);
 
                 // Bottom Menu Bar
                 var bottomMenu = this.initMenuBar(w, h, sidebarWidth, navbarHeight);
-                bottomMenu.setZIndex(1001);
+                bottomMenu.setZIndex(1010);
                 this.getRoot().add(bottomMenu, {left: 400, top: 800});
+
             },
 
             getWidget : function(id) {
@@ -93,6 +105,7 @@ qx.Class.define("cosmosinterface.Application",
                 frame._activateMoveHandle(frame);
 
                 var initBuildMenu = function() {
+                    var __this = _this;
                     var menu = new qx.ui.menu.Menu;
 
                     var stationButton = new qx.ui.menu.Button("Stations");
@@ -100,6 +113,7 @@ qx.Class.define("cosmosinterface.Application",
                     var componentButton = new qx.ui.menu.Button("Components");
 
                     var initComponentWindow = function() {
+                        var ___this = __this;
                         var window = new qx.ui.window.Window("Components", "img/UI/05_market.png");
                         window.setLayout(new qx.ui.layout.VBox);
                         window.addListenerOnce('appear', function () {
@@ -156,11 +170,22 @@ qx.Class.define("cosmosinterface.Application",
                             item.addListener("dragstart", function(e) {
                                 e.addAction("move"); // supported actions are move, copy, and alias
                                 e.addType("component"); // string type -- can be anything
+                                var dragFeedback = ___this.getWidget('dragFeedback');
+                                dragFeedback.setSource(e.getDragTarget().getSource());
+                                dragFeedback.setZIndex(e.getDragTarget().getZIndex() + 1000000);
                             });
                             item.addListener("droprequest", function(e) {
                                 var selection = e.getDragTarget(); // get currently selected item
                                 item.destroy(); // remove item from parent if drop request was granted
                                 e.addData(e.getCurrentType(), selection); // add data to drop event to be used in target
+                                ___this.getWidget('dragFeedback').setDomPosition(-2000, -2000);
+                            });
+                            item.addListener('dragend', function(e) {
+                                ___this.getWidget('dragFeedback').setDomPosition(-2000, -2000);
+                            });
+                            item.addListener('drag', function(e) {
+                                ___this.getWidget('dragFeedback').setDomPosition(e.getDocumentLeft() + 15,
+                                        e.getDocumentTop() + 15);
                             });
                             container.add(item, {row: row, column: column});
                         }
