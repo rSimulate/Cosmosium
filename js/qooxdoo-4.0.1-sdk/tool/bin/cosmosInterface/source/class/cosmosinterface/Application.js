@@ -153,11 +153,42 @@ qx.Class.define("cosmosinterface.Application",
                             item.addListenerOnce('appear', function() {
                                 item.getContentElement().getDomElement().className = "component";
                             });
+                            item.addListener("dragstart", function(e) {
+                                e.addAction("move"); // supported actions are move, copy, and alias
+                                e.addType("component"); // string type -- can be anything
+                            });
+                            item.addListener("droprequest", function(e) {
+                                var selection = e.getDragTarget(); // get currently selected item
+                                item.destroy(); // remove item from parent if drop request was granted
+                                e.addData(e.getCurrentType(), selection); // add data to drop event to be used in target
+                            });
                             container.add(item, {row: row, column: column});
                         }
+
                         container.addListener('appear', function() {
                             window.set({width: $(container.getContentElement().getDomElement()).width() + 50})
                         });
+                        container.addListener('dragover', function(e) {
+                            console.log(row, column, children);
+                            if (e.supportsType("component")) {
+                                var slot = e.getOriginalTarget();
+                                var row = slot.getLayoutProperties().row;
+                                var column = slot.getLayoutProperties().column;
+                                var children = slot.length;
+                                if (children.length > 0) {
+                                    e.preventDefault();
+                                }
+                            }
+                            else {e.preventDefault();}
+                        });
+                        container.addListener('drop', function(e) {
+                            var slot = e.getOriginalTarget();
+                            var row = slot.getLayoutProperties().row;
+                            var column = slot.getLayoutProperties().column;
+                            var item = e.getData("component");
+                            this.add(item, {row: row, column: column});
+                        });
+
                     };
 
                     var initStationWindow = function () {
@@ -184,6 +215,23 @@ qx.Class.define("cosmosinterface.Application",
                             container.setDroppable(true);
                             container.setBackgroundColor('gray');
                             container.set({width: 100, height: 100});
+
+                            container.addListener("drop", function(e) {
+                                var item = e.getData("component");
+                                this.add(item);
+                            });
+
+                            // Disallow all dropped items except components
+                            container.addListener("dragover", function(e) {
+                                if (e.supportsType("component")) {
+                                    var children = [];
+                                    container.addChildrenToQueue(children);
+                                    if (children.length > 0) {
+                                        e.preventDefault();
+                                    }
+                                }
+                                else {e.preventDefault();}
+                            });
 
                             return container;
                         };
