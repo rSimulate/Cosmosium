@@ -42,14 +42,14 @@
 
 % chunks.bg_music.loadRand()
 <script type='text/javascript'>var audioAttrib = "{{chunks.bg_music.attrib}}"</script>
-<audio id="background_audio"
+<!-- <audio id="background_audio"
 % if config.music:
 autoplay="false">
 % else:
 autoplay="false">
 % end
 <source src="{{chunks.bg_music.link}}" />
-</audio>
+</audio> -->
 
 
 <!-- websocket connection -->

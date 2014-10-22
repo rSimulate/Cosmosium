@@ -35,6 +35,7 @@ qx.Class.define("cosmosinterface.Application",
              *
              * @lint ignoreDeprecated(alert)
              */
+            _componentScale : parseInt(0.06 * $(document.body).height()),
 
             main: function () {
                 // Call super class
@@ -56,6 +57,13 @@ qx.Class.define("cosmosinterface.Application",
 
                 // Drag Content Feedback
                 var dragFeedback = new qx.ui.basic.Image("img/UI/05_market.png");
+                dragFeedback.setAllowGrowX(true);
+                dragFeedback.setAllowShrinkX(true);
+                dragFeedback.setAllowGrowY(true);
+                dragFeedback.setAllowShrinkY(true);
+                dragFeedback.setScale(true);
+                dragFeedback.setWidth(this. _componentScale);
+                dragFeedback.setHeight(this. _componentScale);
                 dragFeedback.setOpacity(0.5);
                 dragFeedback.setZIndex(100001); //Ridiculous index needed to overlap qx.windows
                 dragFeedback.setLayoutProperties({left: -2000, top: -2000});
@@ -95,7 +103,7 @@ qx.Class.define("cosmosinterface.Application",
                 frame.addListenerOnce('appear', function () {
                     var el = frame.getContentElement().getDomElement();
                     el.id = "menubar";
-                    var left = (($(el).width() / 2) + (w / 2.5)) - wOff;
+                    var left = (($(el).width() / 2) + (w / 3.2)) - wOff;
                     var top = (($(el).height() / 2) + (h / 1.02)) - hOff;
                     frame.setDomPosition(left, top);
                 });
@@ -116,17 +124,26 @@ qx.Class.define("cosmosinterface.Application",
                         var ___this = __this;
                         var window = new qx.ui.window.Window("Components", "img/UI/05_market.png");
                         window.setLayout(new qx.ui.layout.VBox);
-                        window.addListenerOnce('appear', function () {
-                            var el = window.getContentElement().getDomElement();
-                            el.id = "componentWindow";
-                            window.minimize();
-                        });
-                        window.addListenerOnce('appear', function () {
-                            var el = window.getContentElement().getDomElement();
-                            var left = (($(el).width() / 2) + (w / 2)) - wOff;
-                            var top = (($(el).height() / 2) + (h / 4)) - hOff;
-                            window.setDomPosition(left, top);
-                        });
+                        window.addListenerOnce('appear', (function(window, scale) {
+                            return function (e) {
+                                var el = window.getContentElement().getDomElement();
+                                el.id = "componentWindow";
+                                window.minimize();
+
+                                var left = (($(el).width() / 2) + (w / 2)) - wOff;
+                                var top = (($(el).height() / 2) + (h / 4)) - hOff;
+                                window.setDomPosition(left, top);
+
+                                var icon = window.getChildControl("icon");
+                                icon.setAllowGrowX(true);
+                                icon.setAllowShrinkX(true);
+                                icon.setAllowGrowY(true);
+                                icon.setAllowShrinkY(true);
+                                icon.setScale(true);
+                                icon.setWidth(scale);
+                                icon.setHeight(scale);
+                            }
+                        }(window, __this._componentScale)));
                         window.setLayout(new qx.ui.layout.VBox);
                         window.open();
 
@@ -163,6 +180,13 @@ qx.Class.define("cosmosinterface.Application",
                                 column = 0;
                             }
                             var item = new qx.ui.basic.Image(compSources[Math.floor(Math.random() * compSources.length)]);
+                            item.setAllowGrowX(true);
+                            item.setAllowShrinkX(true);
+                            item.setAllowGrowY(true);
+                            item.setAllowShrinkY(true);
+                            item.setScale(true);
+                            item.setWidth(___this. _componentScale);
+                            item.setHeight(___this. _componentScale);
                             item.setDraggable(true);
                             item.addListenerOnce('appear', function() {
                                 item.getContentElement().getDomElement().className = "component";
@@ -218,17 +242,27 @@ qx.Class.define("cosmosinterface.Application",
 
                     var initStationWindow = function () {
                         var window = new qx.ui.window.Window("Stations", "img/UI/02_Stations.png");
-                        window.addListenerOnce('appear', function () {
-                            var el = window.getContentElement().getDomElement();
-                            el.id = "stationWindow";
-                            window.minimize();
-                        });
-                        window.addListenerOnce('appear', function () {
-                            var el = window.getContentElement().getDomElement();
-                            var left = (($(el).width() / 2) + (w / 2)) - wOff;
-                            var top = (($(el).height() / 2) + (h / 4)) - hOff;
-                            window.setDomPosition(left, top);
-                        });
+                        window.addListenerOnce('appear', (function (window, scale) {
+                            return function(e) {
+                                var el = window.getContentElement().getDomElement();
+                                el.id = "stationWindow";
+                                window.minimize();
+
+                                var left = (($(el).width() / 2) + (w / 2)) - wOff;
+                                var top = (($(el).height() / 2) + (h / 4)) - hOff;
+                                window.setDomPosition(left, top);
+
+                                var icon = window.getChildControl("icon");
+                                icon.setAllowGrowX(true);
+                                icon.setAllowShrinkX(true);
+                                icon.setAllowGrowY(true);
+                                icon.setAllowShrinkY(true);
+                                icon.setScale(true);
+                                icon.setWidth(scale);
+                                icon.setHeight(scale);
+                            }
+                        }(window, __this._componentScale)));
+
                         window.setLayout(new qx.ui.layout.VBox);
                         window.open();
 
@@ -331,6 +365,15 @@ qx.Class.define("cosmosinterface.Application",
                 for (var i = 0; i < buttons.length; i++) {
                     var button = buttons[i];
                     button.setOpacity(1);
+                    var icon = button.getChildControl("icon", true);
+                    icon.setAllowGrowX(true);
+                    icon.setAllowShrinkX(true);
+                    icon.setAllowGrowY(true);
+                    icon.setAllowShrinkY(true);
+                    icon.setScale(true);
+                    icon.setWidth(this. _componentScale);
+                    icon.setHeight(this. _componentScale);
+
                     frame.add(button);
                 }
 
