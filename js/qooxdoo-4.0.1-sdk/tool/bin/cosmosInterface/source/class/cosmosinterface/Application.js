@@ -148,11 +148,15 @@ qx.Class.define("cosmosinterface.Application",
                         window.open();
 
 
-                        var grid = new qx.ui.layout.Grid();
+                        var grid = new qx.ui.layout.Grid(5, 5);
                         grid.setColumnFlex(0, 1);
                         grid.setColumnFlex(1, 1);
                         var container = new qx.ui.container.Composite(new qx.ui.layout.Grid);
-                        container.setBackgroundColor('rgba(54, 85, 160, 1)');
+                        container.set({
+                            backgroundColor: 'rgba(54, 85, 160, 1)',
+                            margin: 5
+                        });
+                        container.setDroppable(true);
 
                         var scroll = new qx.ui.container.Scroll(container, {flex: 1});
                         scroll.setScrollbarX('off');
@@ -174,7 +178,6 @@ qx.Class.define("cosmosinterface.Application",
                         var row = 0;
                         var maxColumns = 6;
                         for (var i = 0; i < 30; i ++) {
-                            column ++;
                             if (column >= maxColumns) {
                                 row ++;
                                 column = 0;
@@ -191,6 +194,7 @@ qx.Class.define("cosmosinterface.Application",
                             item.addListenerOnce('appear', function() {
                                 item.getContentElement().getDomElement().className = "component";
                             });
+
                             item.addListener("dragstart", function(e) {
                                 e.addAction("move"); // supported actions are move, copy, and alias
                                 e.addType("component"); // string type -- can be anything
@@ -198,46 +202,68 @@ qx.Class.define("cosmosinterface.Application",
                                 dragFeedback.setSource(e.getDragTarget().getSource());
                                 dragFeedback.setZIndex(e.getDragTarget().getZIndex() + 1000000);
                             });
-                            item.addListener("droprequest", function(e) {
-                                var selection = e.getDragTarget(); // get currently selected item
-                                item.destroy(); // remove item from parent if drop request was granted
-                                e.addData(e.getCurrentType(), selection); // add data to drop event to be used in target
-                                ___this.getWidget('dragFeedback').setDomPosition(-2000, -2000);
-                            });
+
+                            item.addListener("droprequest", (function (scale, item) {
+                                return function(e) {
+                                    var selection = e.getDragTarget(); // get currently selected item
+                                    e.addData(e.getCurrentType(), selection); // add data to drop event to be used in target
+                                    var parent = selection.getLayoutParent();
+
+                                    // leave designated empty space to grid if that's where it's leaving from
+                                    console.log(parent.getContentElement().getDomElement().id);
+                                    if (parent.getContentElement().getDomElement().id == 'componentGrid') {
+                                        var props = selection.getLayoutProperties();
+                                        var row = props.row;
+                                        var column = props.column;
+                                        var emptyWidget = new qx.ui.core.Widget();
+                                        emptyWidget.set({width: scale, height: scale});
+                                        emptyWidget.addListenerOnce('appear', (function (widget) {
+                                            return function(e) {
+                                                var el = widget.getContentElement().getDomElement();
+                                                el.id = "emptyWidget";
+                                            }
+                                        }(emptyWidget)));
+                                        console.log(row, column, "Ahabara");
+                                        parent.add(emptyWidget, {row: row, column: column});
+                                    }
+                                    ___this.getWidget('dragFeedback').setDomPosition(-2000, -2000);
+                                }
+                            }(___this._componentScale, item)));
+
                             item.addListener('dragend', function(e) {
                                 ___this.getWidget('dragFeedback').setDomPosition(-2000, -2000);
                             });
+
                             item.addListener('drag', function(e) {
                                 ___this.getWidget('dragFeedback').setDomPosition(e.getDocumentLeft() + 15,
                                         e.getDocumentTop() + 15);
                             });
+
                             container.add(item, {row: row, column: column});
+                            column ++;
                         }
 
                         container.addListener('appear', function() {
-                            window.set({width: $(container.getContentElement().getDomElement()).width() + 50})
+                            window.set({width: $(container.getContentElement().getDomElement()).width() + 50});
+                            container.getContentElement().getDomElement().id = "componentGrid";
                         });
                         container.addListener('dragover', function(e) {
-                            console.log(row, column, children);
-                            if (e.supportsType("component")) {
-                                var slot = e.getOriginalTarget();
-                                var row = slot.getLayoutProperties().row;
-                                var column = slot.getLayoutProperties().column;
-                                var children = slot.length;
-                                if (children.length > 0) {
-                                    e.preventDefault();
-                                }
+                            if (!e.supportsType("component")) {
+                                e.preventDefault();
                             }
-                            else {e.preventDefault();}
                         });
                         container.addListener('drop', function(e) {
                             var slot = e.getOriginalTarget();
                             var row = slot.getLayoutProperties().row;
                             var column = slot.getLayoutProperties().column;
+                            console.log(slot.getLayoutProperties(), row, column);
                             var item = e.getData("component");
-                            this.add(item, {row: row, column: column});
+                            var targetSlot = container.getLayout().getCellWidget(row, column);
+                            if (targetSlot.getContentElement().getDomElement().id == "emptyWidget") {
+                                targetSlot.destroy();
+                                container.add(item, {row: row, column: column});
+                            }
                         });
-
                     };
 
                     var initStationWindow = function () {
@@ -268,23 +294,33 @@ qx.Class.define("cosmosinterface.Application",
 
                         var container = new qx.ui.container.Composite(new qx.ui.layout.Canvas);
 
+                        container.addListener('appear', (function(container) {
+                            return function(e) {
+                                // TODO: Change width and height to conform to the underlying image; don't have one yet
+                                window.set({
+                                    width: $(container.getContentElement().getDomElement()).width() + 50,
+                                    height: $(container.getContentElement().getDomElement()).height() + 50
+                                });
+                            }
+                        }(container)));
+
                         // Will later use this for slot generation depending on station type
                         var getNewSlot = function() {
-                            var container = new qx.ui.container.Composite(new qx.ui.layout.Dock);
-                            container.setDroppable(true);
-                            container.setBackgroundColor('gray');
-                            container.set({width: 100, height: 100});
+                            var newSlot = new qx.ui.container.Composite(new qx.ui.layout.Dock);
+                            newSlot.setDroppable(true);
+                            newSlot.setBackgroundColor('gray');
+                            newSlot.set({width: 100, height: 100});
 
-                            container.addListener("drop", function(e) {
+                            newSlot.addListener("drop", function(e) {
                                 var item = e.getData("component");
                                 this.add(item);
                             });
 
                             // Disallow all dropped items except components
-                            container.addListener("dragover", function(e) {
+                            newSlot.addListener("dragover", function(e) {
                                 if (e.supportsType("component")) {
                                     var children = [];
-                                    container.addChildrenToQueue(children);
+                                    newSlot.addChildrenToQueue(children);
                                     if (children.length > 0) {
                                         e.preventDefault();
                                     }
@@ -292,12 +328,14 @@ qx.Class.define("cosmosinterface.Application",
                                 else {e.preventDefault();}
                             });
 
-                            return container;
+                            return newSlot;
                         };
 
                         var slot = getNewSlot();
-                        console.log(slot);
                         container.add(slot);
+
+                        var slot2 = getNewSlot();
+                        container.add(slot2, {left: '50%', top: '50%'});
 
                         qx.Class.include(qx.ui.container.Scroll, qx.ui.core.MDragDropScrolling);
                         var scroll = new qx.ui.container.Scroll(container, {flex: 1});
@@ -371,8 +409,8 @@ qx.Class.define("cosmosinterface.Application",
                     icon.setAllowGrowY(true);
                     icon.setAllowShrinkY(true);
                     icon.setScale(true);
-                    icon.setWidth(this. _componentScale);
-                    icon.setHeight(this. _componentScale);
+                    icon.setWidth(this._componentScale);
+                    icon.setHeight(this._componentScale);
 
                     frame.add(button);
                 }
