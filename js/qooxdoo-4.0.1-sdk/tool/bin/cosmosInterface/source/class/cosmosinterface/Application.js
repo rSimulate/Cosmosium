@@ -207,14 +207,12 @@ qx.Class.define("cosmosinterface.Application",
                                 return function(e) {
                                     var selection = e.getDragTarget(); // get currently selected item
                                     e.addData(e.getCurrentType(), selection); // add data to drop event to be used in target
-                                    var parent = selection.getLayoutParent();
 
-                                    // leave designated empty space to grid if that's where it's leaving from
-                                    console.log(parent.getContentElement().getDomElement().id);
+
+                                    // leave an assigned empty space where the widget left from if a grid
+                                    var source = e.getDragTarget();
+                                    var parent = source.getLayoutParent();
                                     if (parent.getContentElement().getDomElement().id == 'componentGrid') {
-                                        var props = selection.getLayoutProperties();
-                                        var row = props.row;
-                                        var column = props.column;
                                         var emptyWidget = new qx.ui.core.Widget();
                                         emptyWidget.set({width: scale, height: scale});
                                         emptyWidget.addListenerOnce('appear', (function (widget) {
@@ -223,9 +221,21 @@ qx.Class.define("cosmosinterface.Application",
                                                 el.id = "emptyWidget";
                                             }
                                         }(emptyWidget)));
-                                        console.log(row, column, "Ahabara");
-                                        parent.add(emptyWidget, {row: row, column: column});
+
+                                        // add a empty widget where it left from
+                                        var props = source.getLayoutProperties();
+                                        var sourceRow = props.row;
+                                        var sourceColumn = props.column;
+                                        // add source slot for potential swap
+                                        e.addType("swap");
+                                        e.addData("swap", {parent: parent, row: sourceRow, column: sourceColumn, widget: emptyWidget});
+
+                                        // replace source with emptyWidget
+                                        parent.remove(source);
+                                        parent.add(emptyWidget, {row: sourceRow, column: sourceColumn});
                                     }
+                                    else {parent.remove(source);}
+
                                     ___this.getWidget('dragFeedback').setDomPosition(-2000, -2000);
                                 }
                             }(___this._componentScale, item)));
@@ -253,15 +263,30 @@ qx.Class.define("cosmosinterface.Application",
                             }
                         });
                         container.addListener('drop', function(e) {
-                            var slot = e.getOriginalTarget();
-                            var row = slot.getLayoutProperties().row;
-                            var column = slot.getLayoutProperties().column;
-                            console.log(slot.getLayoutProperties(), row, column);
+                            // add it to where it's going to
+                            var target = e.getOriginalTarget();
+                            var row = target.getLayoutProperties().row;
+                            var column = target.getLayoutProperties().column;
                             var item = e.getData("component");
+
                             var targetSlot = container.getLayout().getCellWidget(row, column);
                             if (targetSlot.getContentElement().getDomElement().id == "emptyWidget") {
                                 targetSlot.destroy();
                                 container.add(item, {row: row, column: column});
+                            }
+                            // swap places
+                            else if (e.supportsType("swap")){
+                                var swapData = e.getData("swap");
+                                if (swapData != undefined && swapData.hasOwnProperty("parent")) {
+                                    container.remove(targetSlot); // remove target from slot to prepare for swap
+                                    swapData.parent.remove(swapData.widget); // remove whatever is in source slot to prepare for swap
+                                    swapData.parent.add(targetSlot, {row: swapData.row, column: swapData.column});
+                                    container.add(item, {row: row, column: column});
+                                }
+                            }
+                            else {
+                                console.log("Action unsupported at this time");
+                                e.preventDefault();
                             }
                         });
                     };
