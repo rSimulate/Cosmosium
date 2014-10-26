@@ -15,7 +15,6 @@ function RSimulate(opts) {
 
         _this.cosmosRender.orbitCamera(_this.cosmosScene.getSolarCentricObject());
     }
-    console.log("preinit");
     init();
     this.cosmosRender.animate();
 }

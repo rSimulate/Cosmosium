@@ -228,7 +228,8 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         // adjust height
         var height = $(document.body).height() * 0.2;
         var width = $(document.body).width() * 0.5;
-        $('#solarSystem').append(renderer.domElement).css('width', width).css('height', height).css('top', height);
+        renderer.setSize(width, height);
+        $('#solarSystem').append(renderer.domElement);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
 

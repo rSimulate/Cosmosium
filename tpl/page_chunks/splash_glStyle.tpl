@@ -1,18 +1,23 @@
 <style>
     #canvasFlex {
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
+        flex-flow: row wrap;
         justify-content: center;
         align-items: center;
-        align-content: space-between;
     }
     .canvas {
         margin: auto;
     }
 
-    #solarSystem {
-        width: 30%;
-        height: 30%;
+    #probe {
+        order: 1;
     }
+
+    #solarSystem {
+        order: 2;
+    }
+
+    #asteroid {
+         order: 3;
+     }
 </style>
