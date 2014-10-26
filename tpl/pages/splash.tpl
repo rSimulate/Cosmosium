@@ -18,12 +18,16 @@
     <!-- Theme style -->
     <link href="../../css/splash.css" rel="stylesheet" type="text/css"/>
 
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
+
+    %include('tpl/page_chunks/splash_glHead.tpl')
+
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
     <style type="text/css">
         #customBtn {
@@ -59,6 +63,7 @@
             /* Use the Roboto font that is loaded in the <head> */
             font-family: 'Roboto',arial,sans-serif;
         }
+        %include('tpl/page_chunks/splash_glStyle.tpl')
     </style>
 </head>
 <body class="bg-black">
@@ -253,6 +258,7 @@ We intend to do all of the gameplay elements of the game within our open source 
         </p>
     </center>
     %include('tpl/page_chunks/loginBox')
+    %include('tpl/page_chunks/splash_gl')
 
 
 </section>
@@ -260,5 +266,6 @@ We intend to do all of the gameplay elements of the game within our open source 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <!-- Bootstrap -->
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
+%include('tpl/page_chunks/splash_glFoot.tpl')
 </body>
 </html>

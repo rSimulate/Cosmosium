@@ -1,0 +1,1 @@
+<script src="/js/vendor/Detector.js"></script>
