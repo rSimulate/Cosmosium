@@ -7,6 +7,7 @@ CosmosUI = function () {
     var cosmosRender, cosmosScene;
     var camera, farCamera;
     var canvas, renderer;
+    var width, height, aspect;
 
     this.init = function (_cosmosScene, _cosmosRender) {
         cosmosRender = _cosmosRender;
@@ -17,9 +18,9 @@ CosmosUI = function () {
         canvas = $('#solarSystem');
 
         // Configure webGL canvas to conform to parent div
-        var height = $(document.body).height() * 0.2;
-        var width = $(document.body).width() * 0.5;
-        var aspect = width / height;
+        height = $(document.body).height() * 0.2;
+        width = $(document.body).width() * 0.5;
+        aspect = width / height;
         renderer.setSize(width, height);
         camera.aspect = aspect;
         farCamera.aspect = aspect;
@@ -51,8 +52,8 @@ CosmosUI = function () {
         var offsetX = event.offsetX == undefined ? event.layerX : event.offsetX;
         var offsetY = event.offsetY == undefined ? event.layerY : event.offsetY;
 
-        mouse.x = ( offsetX / $(canvas).width() ) * 2 - 1;
-        mouse.y = -( offsetY / $(canvas).height() ) * 2 + 1;
+        mouse.x = (offsetX / width) * 2 - 1;
+        mouse.y = - (offsetY / height) * 2 + 1;
 
         var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
         projector.unprojectVector(vector, camera);
