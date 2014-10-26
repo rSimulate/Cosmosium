@@ -31,6 +31,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     this.getRenderer = function () {return renderer;};
 
     this.getClock = function () {return clock;};
+    this.getJED = function () {return jed;};
 
     // Needs to be a scene object, not a mesh
     this.clearCameraTarget = function () {cameraTarget = undefined;};

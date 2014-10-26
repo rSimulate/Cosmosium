@@ -19,9 +19,20 @@ var CosmosScene = function (cosmosUI) {
     };
 
     function generateBodies() {
-        _this = this;
-        for (var i = 0; i < window.Ephemeris.length; i++) {
-            _this.addPlanet(window.Ephemeris[i]);
+        for (var key in window.Ephemeris) {
+            var body = window.Ephemeris[key];
+            body.model = body.orbit.full_name;
+            body.orbit = new Orbit3D(body.orbit, {
+                color: 0xff0000,
+                display_color: 0xff0000,
+                width: 2,
+                object_size: 1 < 0 ? 50 : 15, //1.5,
+                jed: cosmosRender.getJED(),
+                particle_geometry: null, // will add itself to this geometry
+                name: body.orbit.full_name
+            }, false);
+
+            addPlanet(body);
         }
     }
 
@@ -403,7 +414,7 @@ var CosmosScene = function (cosmosUI) {
         _this.addAsteroid(asteroidOrbit, lod, asteroid.objectId, asteroid.type, asteroid.owner);
     };
 
-    this.addPlanet = function(planet) {
+    function addPlanet (planet) {
         //
         var mesh = undefined;
         var parent = scene;
