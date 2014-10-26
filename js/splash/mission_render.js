@@ -10,7 +10,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     var clock = new THREE.Clock();
     var controls = undefined;
 
-    var renderer = new THREE.WebGLRenderer({ antialias: false });
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
     var canvas, jCanvas, composer;
     var cameraTarget;
     var bokehPass;

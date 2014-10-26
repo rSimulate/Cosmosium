@@ -18,7 +18,6 @@ CosmosUI = function () {
 
         // Configure webGL canvas to conform to parent div
         renderer.setSize(canvas.width(), canvas.height());
-        console.log("rend size", canvas.width(), canvas.height());
         camera.aspect = canvas.width() / canvas.height();
         farCamera.aspect = canvas.width() / canvas.height();
         camera.updateProjectionMatrix();

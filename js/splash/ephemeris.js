@@ -10,7 +10,7 @@
 // scales for adjustment
 var REALNESS = 0;
 function scale(class_scale, real_scale, ideal_scale) {
-    return class_scale * (real_scale * REALNESS + ideal_scale * (1 - REALNESS));
+    return class_scale * (real_scale * REALNESS + ideal_scale * (1.05 - REALNESS));
 }
 
 var PLANET_SIZE = scale(.1, 1, 50); // = earth size in view scene length units
@@ -63,7 +63,7 @@ var MARS_MOON_EXAGGERATION    = scale(ORBIT_DIST,1,MARS_SIZE * 15);
 var JUPITER_MOON_EXAGGERATION = scale(ORBIT_DIST,1,JUPITER_SIZE);
 var SATURN_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, SATURN_SIZE * 0.5);
 var URANUS_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, URANUS_SIZE * 3);
-var NEPTUNE_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, NEPTUNE_SIZE);
+var NEPTUNE_MOON_EXAGGERATION = scale(ORBIT_DIST, 1, NEPTUNE_SIZE * 6);
 
 // ====================================
 
@@ -385,7 +385,7 @@ window.Ephemeris = {
     },
     proteus: {
         orbit: {full_name: 'Proteus',
-            a: 0.000786421621 * URANUS_MOON_EXAGGERATION,
+            a: 0.000786421621 * NEPTUNE_MOON_EXAGGERATION,
             e: 0.0005,
             i: 0.026,
             w: 301.706,
@@ -396,7 +396,7 @@ window.Ephemeris = {
     },
     triton: {
         orbit: {full_name: 'Triton',
-            a: 0.00237169151 * URANUS_MOON_EXAGGERATION,
+            a: 0.00237169151 * NEPTUNE_MOON_EXAGGERATION,
             e: 0.0,
             i: 156.834,
             w: 344.046,
@@ -407,7 +407,7 @@ window.Ephemeris = {
     },
     nereid: {
         orbit: {full_name: 'Nereid',
-            a: 0.0368548026 * URANUS_MOON_EXAGGERATION,
+            a: 0.0368548026 * NEPTUNE_MOON_EXAGGERATION,
             e: 0.7512,
             i: 7.232,
             w: 280.830,
@@ -418,20 +418,21 @@ window.Ephemeris = {
     }
 };
 
-for (var x in Ephemeris) {
-    if (Ephemeris.hasOwnProperty(x)) {
-        Ephemeris[x].epoch = 2451545.0;
-        if (Ephemeris[x].w && Ephemeris[x].om) {
-            Ephemeris[x].w_bar = Ephemeris[x].w + Ephemeris[x].om;
+for (var x in window.Ephemeris) {
+    var body = window.Ephemeris[x];
+    if (body.hasOwnProperty('orbit')) {
+        body.orbit.epoch = 2451545.0;
+        if (body.orbit.w && body.orbit.om) {
+            body.orbit.w_bar = body.orbit.w + body.orbit.om;
         }
-        if (Ephemeris[x].w_bar && Ephemeris[x].L) {
-            Ephemeris[x].ma = Ephemeris[x].L - Ephemeris[x].w_bar;
+        if (body.orbit.w_bar && body.orbit.L) {
+            body.orbit.ma = body.orbit.L - body.orbit.w_bar;
         }
-        if (Ephemeris[x].P && Ephemeris[x].P > 0) {
-            Ephemeris[x].P += 6;
+        if (body.orbit.P && body.orbit.P > 0) {
+            body.orbit.P += 6;
         }
         else {
-            Ephemeris[x].P -= 6;
+            body.orbit.P -= 6;
         }
     }
 }
