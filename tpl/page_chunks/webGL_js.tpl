@@ -13,6 +13,7 @@
 <script src="js/util.js"></script>
 <script src="js/ellipse.js"></script>
 <script src="js/ephemeris.js"></script>
+<script src="/js/vendor/ShaderParticles.min.js"></script>
 
 <script type="text/javascript" src="js/CosmosTools.js"></script>
 <script type="text/javascript" src="js/CosmosUI.js"></script>

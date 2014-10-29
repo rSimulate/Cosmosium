@@ -5,11 +5,12 @@ var CosmosScene = function (cosmosUI) {
     var NUM_BIG_PARTICLES = 500;
     var particle_system_geometry = null;
 
-    var LOD_DIST = {ONE: 300, TWO: 600, THREE: 1000};
+    var LOD_DIST = {ONE: 100, TWO: 300, THREE: 500, MAX: 1700};
     var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh, parent: scene}
     var players = []; // {player: playerName, color: THREE.Color}
     var scene = new THREE.Scene();
     var cosmosRender;
+    var particleGroups = [];
 
     this.init = function(_cosmosRender) {
         cosmosRender = _cosmosRender;
@@ -423,7 +424,6 @@ var CosmosScene = function (cosmosUI) {
     };
 
     this.addNewAsteroid = function(asteroid) {
-
         var geometry = [
             [new THREE.SphereGeometry( 1, 6, 6 ), LOD_DIST.ONE],
             [new THREE.SphereGeometry( 1, 5, 5 ), LOD_DIST.TWO],
@@ -541,9 +541,49 @@ var CosmosScene = function (cosmosUI) {
             lod.addLevel( asteroidMesh, geometry[i][1]);
         }
 
-
+        var particleGroup = generateAsteroidParticleGroup();
+        lod.addLevel(particleGroup.mesh, LOD_DIST.MAX);
 
         _this.addAsteroid(asteroidOrbit, lod, asteroid.objectId, asteroid.type, asteroid.owner);
+    };
+
+    // Create particle group and emitter
+    function generateAsteroidParticleGroup(size) {
+        var particleGroup = new SPE.Group({
+            texture: THREE.ImageUtils.loadTexture('img/user-bg.png'),
+            maxAge: 2
+        });
+
+        var emitter = new SPE.Emitter({
+            type: 'sphere',
+
+            position: new THREE.Vector3(0, 0, 0),
+
+            radius: 2,
+            speed: 2,
+
+            colorStart: new THREE.Color('white'),
+            colorStartSpread: new THREE.Vector3(0.5, 0.5, 0.5),
+            colorEnd: new THREE.Color('white'),
+            sizeStart: 0.7,
+            sizeEnd: 0,
+
+            opacityStart: 0,
+            opacityMiddle: 1,
+            opacityEnd: 0,
+
+            particleCount: 100,
+            angleAlignVelocity: 1
+        });
+
+        particleGroup.addEmitter( emitter );
+        particleGroups.push(particleGroup);
+
+        return particleGroup;
+    }
+
+    this.getParticleGroups = function() {
+        return particleGroups;
     };
 
     this.addPlanet = function(planet) {

@@ -40,9 +40,10 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     this.clearCameraTarget = function () {cameraTarget = undefined;};
 
     this.animate = function () {
+        var dt = clock.getDelta();
         requestAnimationFrame(_this.animate, undefined);
 
-        update(clock.getDelta());
+        update(dt);
         cosmosUI.update();
         _this.orbitCamera();
 
@@ -101,7 +102,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
 
             // find radius for object while accounting for some meshes being actually LOD objects
             var radius;
-            if (cameraTarget.type == 'asteroid') {
+            if (cameraTarget.type == 'asteroid' && !cameraTarget.mesh instanceof THREE.PointCloud) {
                 // multiplying by three to account for perlin noise
                 radius = cameraTarget.mesh.getObjectForDistance(dist).geometry.boundingSphere.radius * 3;
             }
@@ -253,6 +254,14 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         jed += jed_delta * deltaSeconds;
 
         updateBodies(timeAdvanced, deltaSeconds, cosmosScene.getObjects());
+
+        // update all emitters
+        var particleGroups = cosmosScene.getParticleGroups();
+        if (particleGroups.length > 0) {
+            for (var i = 0; i < particleGroups.length; i++) {
+                particleGroups[i].tick(deltaSeconds);
+            }
+        }
 
         _this.orbitCamera();
     }
