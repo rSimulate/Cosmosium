@@ -44,20 +44,6 @@ class Game(object):
         self.eventList = getMockEventList()
         self._epoch = int(rTime())  # real-time game start
 
-        probe2 = {
-            'ma': -2.47311027,
-            'epoch': 2451545.0,
-            'a': 1.00000261,
-            'e': 0.02671123,
-            'i': 0.00001531,
-            'w_bar': 102.93768193,
-            'w': 102.93768193,
-            'L': 100.46457166,
-            'om': 0,
-            'P': 365.256
-        }
-        self.addPlayerObject("Probe", "Magellan", probe2, "PyKEP_test")
-
         self.colors = list()
         self.colors.append({'player': None, 'color': '0xff0000'})
         self.colors.append({'player': None, 'color': '0x00ff00'})
