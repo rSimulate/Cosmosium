@@ -5,9 +5,9 @@
 
 # Server:
 SERVER = 'wsgiref'
-DOMAIN = 'localhost:7099'
-HOST = 'localhost'
-PORT = 7099
+HOST = 'dev.asteroid.ventures'
+PORT = 80
+DOMAIN = 'dev.asteroid.ventures'
 
 # Meta:
 # Note on making it work in localhost:
@@ -18,7 +18,7 @@ PORT = 7099
 # * Don't forget to save the file :)
 BASE_URI = 'http://mydomain.tld'
 GOOGLE_BASE_URI = 'http://localhost' # Google doesn't seem to accept
-                                     # non-working urls, but accepts localhost
+# non-working urls, but accepts localhost
 
 # Facebook:
 FACEBOOK_CLIENT_ID = '545723862164937'
