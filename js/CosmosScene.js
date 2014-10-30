@@ -541,8 +541,12 @@ var CosmosScene = function (cosmosUI) {
             lod.addLevel( asteroidMesh, geometry[i][1]);
         }
 
-        var particleGroup = generateAsteroidParticleGroup(baseAsteroidSize);
-        lod.addLevel(particleGroup.mesh, LOD_DIST.MAX);
+        if (asteroid.orbit.full_name.indexOf('Ceres') <= 0 && asteroid.orbit.full_name.indexOf('Pallas') <= 0 &&
+            asteroid.orbit.full_name.indexOf('Vesta') <= 0 && asteroid.orbit.full_name.indexOf('Euphrosyne') <= 0) {
+
+            var particleGroup = generateAsteroidParticleGroup(baseAsteroidSize);
+            lod.addLevel(particleGroup.mesh, LOD_DIST.MAX);
+        }
 
         _this.addAsteroid(asteroidOrbit, lod, asteroid.objectId, asteroid.type, asteroid.owner);
     };
