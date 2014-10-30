@@ -5,7 +5,7 @@ var CosmosScene = function (cosmosUI) {
     var NUM_BIG_PARTICLES = 500;
     var particle_system_geometry = null;
 
-    var LOD_DIST = {ONE: 100, TWO: 300, THREE: 500, MAX: 2600};
+    var LOD_DIST = {ONE: 100, TWO: 300, THREE: 500, MAX: 1500};
     var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh, parent: scene}
     var players = []; // {player: playerName, color: THREE.Color}
     var scene = new THREE.Scene();
@@ -575,9 +575,9 @@ var CosmosScene = function (cosmosUI) {
             sizeStart: particleSize * 2,
             sizeEnd: 0,
 
-            opacityStart: 0,
+            opacityStart: 1,
             opacityMiddle: 1,
-            opacityEnd: 0,
+            opacityEnd: 0.2,
 
             particleCount: normSize * 100,
             angleAlignVelocity: 1
