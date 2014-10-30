@@ -5,7 +5,7 @@ var CosmosScene = function (cosmosUI) {
     var NUM_BIG_PARTICLES = 500;
     var particle_system_geometry = null;
 
-    var LOD_DIST = {ONE: 100, TWO: 300, THREE: 500, MAX: 1700};
+    var LOD_DIST = {ONE: 100, TWO: 300, THREE: 500, MAX: 2600};
     var objects = []; // {owner: owner, objectId: objectId, type: type, model: model, orbit: orbit, mesh: mesh, parent: scene}
     var players = []; // {player: playerName, color: THREE.Color}
     var scene = new THREE.Scene();
@@ -541,7 +541,7 @@ var CosmosScene = function (cosmosUI) {
             lod.addLevel( asteroidMesh, geometry[i][1]);
         }
 
-        var particleGroup = generateAsteroidParticleGroup();
+        var particleGroup = generateAsteroidParticleGroup(baseAsteroidSize);
         lod.addLevel(particleGroup.mesh, LOD_DIST.MAX);
 
         _this.addAsteroid(asteroidOrbit, lod, asteroid.objectId, asteroid.type, asteroid.owner);
@@ -549,9 +549,16 @@ var CosmosScene = function (cosmosUI) {
 
     // Create particle group and emitter
     function generateAsteroidParticleGroup(size) {
+        var particleCount = 100;
+
+        // scale particle count by the base size of the asteroid
+        var normSize = size / 7;
+        var particleSize = normSize * 3;
+        var radius = particleSize / 2;
+
         var particleGroup = new SPE.Group({
             texture: THREE.ImageUtils.loadTexture('img/user-bg.png'),
-            maxAge: 2
+            maxAge: 5
         });
 
         var emitter = new SPE.Emitter({
@@ -559,20 +566,20 @@ var CosmosScene = function (cosmosUI) {
 
             position: new THREE.Vector3(0, 0, 0),
 
-            radius: 2,
-            speed: 2,
+            radius: radius,
+            speed: particleSize,
 
             colorStart: new THREE.Color('white'),
-            colorStartSpread: new THREE.Vector3(0.5, 0.5, 0.5),
+            colorMiddle: new THREE.Color('white'),
             colorEnd: new THREE.Color('white'),
-            sizeStart: 0.7,
+            sizeStart: particleSize * 2,
             sizeEnd: 0,
 
             opacityStart: 0,
             opacityMiddle: 1,
             opacityEnd: 0,
 
-            particleCount: 100,
+            particleCount: normSize * 100,
             angleAlignVelocity: 1
         });
 
