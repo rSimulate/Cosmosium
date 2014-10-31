@@ -357,7 +357,7 @@ var CosmosScene = function (cosmosUI) {
         loader.load(daePath, function (collada) {
             obj3d = collada.scene;
             if (obj3d != undefined) {
-                obj3d.scale.x = obj3d.scale.y = obj3d.scale.z = 1;
+                obj3d.scale.x = obj3d.scale.y = obj3d.scale.z = 0.05;
                 obj3d.updateMatrix();
                 obj3d.userData = {boundingBox: new THREE.Box3().setFromObject(obj3d)};
 
