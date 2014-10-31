@@ -167,6 +167,26 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     };
 
     function render() {
+        var hexBodies = cosmosScene.getHexBodies();
+        for (var i = 0; i < hexBodies.length; i++) {
+            var body = hexBodies[i];
+            //if (body.showHex) {
+                var lightposition = new THREE.Vector3(0,0,0).sub(body.planet.position).normalize();
+                var cameraHeight = camera.position.clone().sub(body.planet.position).length();
+                var planetInverse = new THREE.Matrix4();
+                planetInverse.getInverse(body.planet.matrixWorld.clone());
+                body.atmosphere.material.uniforms.v3LightPosition.value = lightposition;
+                body.atmosphere.material.uniforms.fCameraHeight.value = cameraHeight;
+                body.atmosphere.material.uniforms.fCameraHeight2.value = cameraHeight * cameraHeight;
+                body.atmosphere.material.uniforms.m4ModelInverse.value = planetInverse;
+                body.planet.material.uniforms.v3CameraPosition.value = camera.position.clone();
+                body.planet.material.uniforms.v3LightPosition.value = lightposition;
+                body.planet.material.uniforms.fCameraHeight.value = cameraHeight;
+                body.planet.material.uniforms.fCameraHeight2.value = cameraHeight * cameraHeight;
+                body.planet.material.uniforms.m4ModelInverse.value = planetInverse;
+            //}
+        }
+
         composer.render(0.1);
     }
 

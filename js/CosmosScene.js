@@ -11,6 +11,7 @@ var CosmosScene = function (cosmosUI) {
     var scene = new THREE.Scene();
     var cosmosRender;
     var particleGroups = [];
+    var hexBodies = [];
 
     this.init = function(_cosmosRender) {
         cosmosRender = _cosmosRender;
@@ -90,6 +91,7 @@ var CosmosScene = function (cosmosUI) {
 
     this.getPlayers = function () {return players;};
     this.getParticleSystemGeometry = function () {return particle_system_geometry;};
+    this.getHexBodies = function () {return hexBodies;};
 
     this.addBody = function( parent, type, orbit, mesh, shouldAlwaysShowEllipse, objectId, model, owner ) {
         shouldAlwaysShowEllipse = typeof shouldAlwaysShowEllipse !== 'undefined' ? shouldAlwaysShowEllipse : true;
@@ -597,30 +599,214 @@ var CosmosScene = function (cosmosUI) {
         return particleGroups;
     };
 
+    function createHexBody(size, diffuseTex, normal) {
+        var vertexSky = $("#vertexSky").text();
+        var fragmentSky = $("#fragmentSky").text();
+        var vertexGround = $("#vertexGround").text();
+        var fragmentGround = $("#fragmentGround").text();
+
+        var diffuse = THREE.ImageUtils.loadTexture(diffuseTex);
+        var diffuseNight = THREE.ImageUtils.loadTexture('img/textures/MARSnight.jpg');
+        var maxAnisotropy = cosmosRender.getRenderer().getMaxAnisotropy();
+
+        diffuse.anisotropy = maxAnisotropy;
+        diffuseNight.anisotropy = maxAnisotropy;
+
+        var radius = size;
+        var atmosphere = {
+            Kr: 0.0025,
+            Km: 0.0010,
+            ESun: 15.0,
+            g: -0.950,
+            innerRadius: size,
+            outerRadius: size * 1.015,
+            wavelength: [0.650, 0.670, 0.670],
+            scaleDepth: 0.25,
+            mieScaleDepth: 0.1
+        };
+
+        var uniforms = {
+            v3CameraPosition: {
+                type: "v3",
+                value: new THREE.Vector3(0, 0, 15)
+            },
+            v3LightPosition: {
+                type: "v3",
+                value: new THREE.Vector3(1e8, 0, 1e8).normalize()
+            },
+            v3InvWavelength: {
+                type: "v3",
+                value: new THREE.Vector3(1 / Math.pow(atmosphere.wavelength[0], 4), 1 / Math.pow(atmosphere.wavelength[1], 4), 1 / Math.pow(atmosphere.wavelength[2], 4))
+            },
+            fCameraHeight: {
+                type: "f",
+                value: 0
+            },
+            fCameraHeight2: {
+                type: "f",
+                value: 0
+            },
+            fInnerRadius: {
+                type: "f",
+                value: atmosphere.innerRadius
+            },
+            fInnerRadius2: {
+                type: "f",
+                value: atmosphere.innerRadius * atmosphere.innerRadius
+            },
+            fOuterRadius: {
+                type: "f",
+                value: atmosphere.outerRadius
+            },
+            fOuterRadius2: {
+                type: "f",
+                value: atmosphere.outerRadius * atmosphere.outerRadius
+            },
+            fKrESun: {
+                type: "f",
+                value: atmosphere.Kr * atmosphere.ESun
+            },
+            fKmESun: {
+                type: "f",
+                value: atmosphere.Km * atmosphere.ESun
+            },
+            fKr4PI: {
+                type: "f",
+                value: atmosphere.Kr * 4.0 * Math.PI
+            },
+            fKm4PI: {
+                type: "f",
+                value: atmosphere.Km * 4.0 * Math.PI
+            },
+            fScale: {
+                type: "f",
+                value: 1 / (atmosphere.outerRadius - atmosphere.innerRadius)
+            },
+            fScaleDepth: {
+                type: "f",
+                value: atmosphere.scaleDepth
+            },
+            fScaleOverScaleDepth: {
+                type: "f",
+                value: 1 / (atmosphere.outerRadius - atmosphere.innerRadius) / atmosphere.scaleDepth
+            },
+            g: {
+                type: "f",
+                value: atmosphere.g
+            },
+            g2: {
+                type: "f",
+                value: atmosphere.g * atmosphere.g
+            },
+            nSamples: {
+                type: "i",
+                value: 3
+            },
+            fSamples: {
+                type: "f",
+                value: 3.0
+            },
+            tDiffuse: {
+                type: "t",
+                value: diffuse
+            },
+            tDiffuseNight: {
+                type: "t",
+                value: diffuseNight
+            },
+            tDisplacement: {
+                type: "t",
+                value: 0
+            },
+            tSkyboxDiffuse: {
+                type: "t",
+                value: 0
+            },
+            fNightScale: {
+                type: "f",
+                value: 1
+            },
+            m4ModelInverse: {
+                type: "m4",
+                value: THREE.Matrix4()
+            }
+        };
+
+        var planetgeometry	= new THREE.SphereGeometry(size, 50, 250);
+        var material = new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: vertexGround,
+            fragmentShader: fragmentGround});
+        var planetmesh	= new THREE.Mesh(planetgeometry, material);
+
+        var cloudgeometry	= new THREE.SphereGeometry(size + 0.02, 50, 50);
+        var cloudmaterial	= new THREE.MeshLambertMaterial({
+            map: THREE.ImageUtils.loadTexture("img/textures/clouds.png"),
+            color: 0x000000,
+            transparent: true,
+            reflectivity: 0.95,
+            opacity: 0.2});
+        var cloudmesh	= new THREE.Mesh(cloudgeometry, cloudmaterial);
+        planetmesh.add(cloudmesh);
+
+        var hexgeometry	= new THREE.IcosahedronGeometry(atmosphere.outerRadius + 0.01, 4);
+        for(var f in hexgeometry.faceVertexUvs[0]){
+            var uvs = hexgeometry.faceVertexUvs[0][f];
+            uvs[0] = new THREE.Vector2(0.20, 0.73);
+            uvs[1] = new THREE.Vector2(0.51, 0.15);
+            uvs[2] = new THREE.Vector2(0.78, 0.70);
+        }
+
+        var material	= new THREE.MeshBasicMaterial({
+            map: THREE.ImageUtils.loadTexture("img/textures/hex03.png"),
+            color: 0xFFFF00,
+            transparent: true,
+            opacity: 0.25
+        });
+        var hexmesh	= new THREE.Mesh(hexgeometry, material);
+        planetmesh.add(hexmesh);
+
+        var atmopheregeometry	= new THREE.SphereGeometry(atmosphere.outerRadius, 50, 50);
+        var atmospherematerial	= new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: vertexSky,
+            fragmentShader: fragmentSky
+        });
+        var vector = new THREE.Vector3(1, 0, 0);
+        var cameraHeight = cosmosRender.getCamera(false).position.length();
+        var atmospheremesh	= new THREE.Mesh(atmopheregeometry, atmospherematerial);
+        atmospheremesh.material.side = THREE.BackSide;
+        atmospheremesh.material.transparent = true;
+        planetmesh.add(atmospheremesh);
+        planetmesh.showHex = true;
+        hexBodies.push({planet: planetmesh, atmosphere: atmospheremesh, hex: hexmesh});
+        return planetmesh;
+    }
+
     this.addPlanet = function(planet) {
         //
         var mesh = undefined;
         var parent = scene;
         if (planet.type == 'planet') {
             if (planet.model == 'Mercury') {
-                mesh = _this.makeBodyMesh(MERCURY_SIZE, 'img/textures/mercury_small.jpg',
+                mesh = createHexBody(MERCURY_SIZE, 'img/textures/mercury_small.jpg',
                     'img/textures/mercury_small_normal.jpg');
             }
             else if (planet.model == 'Venus') {
-                mesh = _this.makeBodyMesh(VENUS_SIZE, 'img/textures/venus_small.jpg', 'img/textures/venus_small_normal.jpg');
+                mesh = createHexBody(VENUS_SIZE, 'img/textures/venus_small.jpg', 'img/textures/venus_small_normal.jpg');
             }
             else if (planet.model == 'Earth') {
-                mesh = _this.makeBodyMesh(EARTH_SIZE, 'img/textures/earth_small.jpg', 'img/textures/earth_small_normal.jpg');
+                mesh = createHexBody(EARTH_SIZE, 'img/textures/earth_small.jpg', 'img/textures/earth_small_normal.jpg');
             }
             else if (planet.model == 'Mars') {
-                mesh = _this.makeBodyMesh(MARS_SIZE, 'img/textures/mars_small.jpg', 'img/textures/mars_small_normal.jpg');
+                mesh = createHexBody(MARS_SIZE, 'img/textures/mars_small.jpg', 'img/textures/mars_small_normal.jpg');
             }
             else if (planet.model == 'Jupiter') {
-                mesh = _this.makeBodyMesh(JUPITER_SIZE, 'img/textures/jupiter_small.jpg',
+                mesh = createHexBody(JUPITER_SIZE, 'img/textures/jupiter_small.jpg',
                     'img/textures/jupiter_small_normal.jpg');
             }
             else if (planet.model == 'Saturn') {
-                mesh = _this.makeBodyMesh(SATURN_SIZE, 'img/textures/saturn_medium.jpg',
+                mesh = createHexBody(SATURN_SIZE, 'img/textures/saturn_medium.jpg',
                     'img/textures/saturn_medium_normal.jpg');
                 var ringMaterial = new THREE.MeshPhongMaterial({
                     ambient		: 0xFFFFFF,
@@ -645,7 +831,7 @@ var CosmosScene = function (cosmosUI) {
                 mesh = new THREE.Mesh(bodyGeometry, meshMaterial);
             }
             else if (planet.model == 'Neptune') {
-                mesh = _this.makeBodyMesh(NEPTUNE_SIZE, 'img/textures/neptune_small.jpg',
+                mesh = createHexBody(NEPTUNE_SIZE, 'img/textures/neptune_small.jpg',
                     'img/textures/neptune_small_normal.jpg');
             }
 
