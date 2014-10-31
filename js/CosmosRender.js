@@ -146,12 +146,22 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     };
 
     this.onWindowResize = function () {
+        var navbarHeight = $('#topNavbar').height();
+        var hDiff = $(window).height() - navbarHeight - 1;
+        var sidebarWidth = $('#left-sidebar').width();
+        var wDiff = $(window).width();// - sidebarWidth;
+        var canvas = $('#canvas');
+        console.log(wDiff, hDiff);
+        canvas.css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
+
         camera.aspect = $(canvas).width() / $(canvas).height();
         farCamera.aspect = $(canvas).width() / $(canvas).height();
         camera.updateProjectionMatrix();
         farCamera.updateProjectionMatrix();
 
-        renderer.setSize($(canvas).width(), $(canvas).height());
+        $(renderer.domElement).css('width', canvas.width()).css('height', canvas.height()).css('top', navbarHeight);
+        renderer.setSize(canvas.width(), canvas.height());
+        composer.setSize(canvas.width(), canvas.height());
 
         render();
     };
@@ -229,9 +239,9 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
 
         // adjust height for navbar and append
         var navbarHeight = $('#topNavbar').height();
-        var hDiff = $(document.body).height() - navbarHeight - 1;
+        var hDiff = $(window).height() - navbarHeight - 1;
         var sidebarWidth = $('#left-sidebar').width();
-        var wDiff = $(document.body).width();// - sidebarWidth;
+        var wDiff = $(window).width();// - sidebarWidth;
         $('#canvas').append(renderer.domElement).css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
 
 
