@@ -151,7 +151,6 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         var sidebarWidth = $('#left-sidebar').width();
         var wDiff = $(window).width();// - sidebarWidth;
         var canvas = $('#canvas');
-        console.log(wDiff, hDiff);
         canvas.css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
 
         camera.aspect = $(canvas).width() / $(canvas).height();
@@ -171,8 +170,9 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         for (var i = 0; i < hexBodies.length; i++) {
             var body = hexBodies[i];
             //if (body.showHex) {
-                var lightposition = new THREE.Vector3(0,0,0).sub(body.planet.position).normalize();
-                var cameraHeight = camera.position.clone().sub(body.planet.position).length();
+                var lightposition = new THREE.Vector3(0,0,0).sub(cosmosScene.getWorldPos(body.planet)).normalize();
+                var cameraHeight = cosmosScene.getWorldPos(camera).clone()
+                                    .sub(cosmosScene.getWorldPos(body.planet)).length();
                 var planetInverse = new THREE.Matrix4();
                 planetInverse.getInverse(body.planet.matrixWorld.clone());
                 body.atmosphere.material.uniforms.v3LightPosition.value = lightposition;
@@ -266,6 +266,7 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
 
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.maxDistance = 16000;
 
         renderer.domElement.addEventListener('mousemove', cosmosUI.onDocumentMouseMove, false);
         renderer.domElement.addEventListener('mousedown', cosmosUI.onDocumentMouseDown, false);
