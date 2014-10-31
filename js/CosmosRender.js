@@ -165,28 +165,29 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         render();
     };
 
-    function render() {
+    this.updateHexBodies = function () {
         var hexBodies = cosmosScene.getHexBodies();
         for (var i = 0; i < hexBodies.length; i++) {
             var body = hexBodies[i];
-            //if (body.showHex) {
-                var lightposition = new THREE.Vector3(0,0,0).sub(cosmosScene.getWorldPos(body.planet)).normalize();
-                var cameraHeight = cosmosScene.getWorldPos(camera).clone()
-                                    .sub(cosmosScene.getWorldPos(body.planet)).length();
-                var planetInverse = new THREE.Matrix4();
-                planetInverse.getInverse(body.planet.matrixWorld.clone());
-                body.atmosphere.material.uniforms.v3LightPosition.value = lightposition;
-                body.atmosphere.material.uniforms.fCameraHeight.value = cameraHeight;
-                body.atmosphere.material.uniforms.fCameraHeight2.value = cameraHeight * cameraHeight;
-                body.atmosphere.material.uniforms.m4ModelInverse.value = planetInverse;
-                body.planet.material.uniforms.v3CameraPosition.value = camera.position.clone();
-                body.planet.material.uniforms.v3LightPosition.value = lightposition;
-                body.planet.material.uniforms.fCameraHeight.value = cameraHeight;
-                body.planet.material.uniforms.fCameraHeight2.value = cameraHeight * cameraHeight;
-                body.planet.material.uniforms.m4ModelInverse.value = planetInverse;
-            //}
+            var lightposition = new THREE.Vector3(0,0,0).sub(cosmosScene.getWorldPos(body.planet)).normalize();
+            var cameraHeight = cosmosScene.getWorldPos(camera).clone()
+                .sub(cosmosScene.getWorldPos(body.planet)).length();
+            var planetInverse = new THREE.Matrix4();
+            planetInverse.getInverse(body.planet.matrixWorld.clone());
+            body.atmosphere.material.uniforms.v3LightPosition.value = lightposition;
+            body.atmosphere.material.uniforms.fCameraHeight.value = cameraHeight;
+            body.atmosphere.material.uniforms.fCameraHeight2.value = cameraHeight * cameraHeight;
+            body.atmosphere.material.uniforms.m4ModelInverse.value = planetInverse;
+            body.planet.material.uniforms.v3CameraPosition.value = cosmosScene.getWorldPos(camera).clone();
+            body.planet.material.uniforms.v3LightPosition.value = lightposition;
+            body.planet.material.uniforms.fCameraHeight.value = cameraHeight;
+            body.planet.material.uniforms.fCameraHeight2.value = cameraHeight * cameraHeight;
+            body.planet.material.uniforms.m4ModelInverse.value = planetInverse;
         }
+    };
 
+    function render() {
+        _this.updateHexBodies();
         composer.render(0.1);
     }
 
@@ -258,12 +259,12 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         composer.addPass(finalPass);
 
         // adjust height for navbar and append
+        var canvas = $('#canvas');
         var navbarHeight = $('#topNavbar').height();
         var hDiff = $(window).height() - navbarHeight - 1;
         var sidebarWidth = $('#left-sidebar').width();
         var wDiff = $(window).width();// - sidebarWidth;
-        $('#canvas').append(renderer.domElement).css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
-
+        canvas.append(renderer.domElement).css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.maxDistance = 16000;
@@ -272,7 +273,6 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         renderer.domElement.addEventListener('mousedown', cosmosUI.onDocumentMouseDown, false);
         renderer.domElement.addEventListener('mouseup', cosmosUI.onDocumentMouseUp, false);
     }
-
 
     function update(deltaSeconds) {
         animateSun();
