@@ -82,14 +82,14 @@ document.getElementById('dash-link').addEventListener('click', function (e){
 document.getElementById('fuelNet-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#surveyEquip'));
+    //switchContent($('#surveyEquip'));
 
 }, false);
 
 document.getElementById('gov-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#surveyEquip'));
+    //switchContent($('#surveyEquip'));
 
 }, false);
 
@@ -104,62 +104,62 @@ document.getElementById('launchpad-link').addEventListener('click', function (e)
 document.getElementById('launchSys-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#surveyEquip'));
+    //switchContent($('#surveyEquip'));
     
 }, false);
 
 document.getElementById('missionControl-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#missionControl'));
+    //switchContent($('#missionControl'));
     
 }, false);
 
 document.getElementById('observatories-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#observatories'));
-    observatoryMap.setSize();
+    //switchContent($('#observatories'));
+    //observatoryMap.setSize();
     
 }, false);
 
 document.getElementById('org-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#surveyEquip'));
+    //switchContent($('#surveyEquip'));
 
 }, false);
 
 document.getElementById('outreach-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#surveyEquip'));
+    //switchContent($('#surveyEquip'));
 
 }, false);
 
 document.getElementById('resMarket-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#surveyEquip'));
+    //switchContent($('#surveyEquip'));
     
 }, false);
 
 document.getElementById('research_spaceIndustry-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#research'));
+    //switchContent($('#research'));
 
 }, false);
 document.getElementById('research_humanHabitation-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#research'));
+    //switchContent($('#research'));
 
 }, false);
 document.getElementById('research_robotics-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#research'));
+    //switchContent($('#research'));
 
 }, false);
 
@@ -168,14 +168,14 @@ document.getElementById('research_robotics-link').addEventListener('click', func
 document.getElementById('spaceTourism-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#surveyEquip'));
+    //switchContent($('#surveyEquip'));
 
 }, false);
 
 document.getElementById('surveyEquip-link').addEventListener('click', function (e){
     e = e || window.event;
 
-    switchContent($('#surveyEquip'));
+    //switchContent($('#surveyEquip'));
 
 }, false);
 
