@@ -51,4 +51,6 @@ function initrSimulate() {
     // refresh webGL
     rSimulate = new RSimulate({});
     ws.send(message('refresh','None'));
+
+    updateSurvey('SolarSystem');
 }

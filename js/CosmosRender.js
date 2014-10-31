@@ -146,17 +146,48 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
     };
 
     this.onWindowResize = function () {
+        var navbarHeight = $('#topNavbar').height();
+        var hDiff = $(window).height() - navbarHeight - 1;
+        var sidebarWidth = $('#left-sidebar').width();
+        var wDiff = $(window).width();// - sidebarWidth;
+        var canvas = $('#canvas');
+        canvas.css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
+
         camera.aspect = $(canvas).width() / $(canvas).height();
         farCamera.aspect = $(canvas).width() / $(canvas).height();
         camera.updateProjectionMatrix();
         farCamera.updateProjectionMatrix();
 
-        renderer.setSize($(canvas).width(), $(canvas).height());
+        $(renderer.domElement).css('width', canvas.width()).css('height', canvas.height()).css('top', navbarHeight);
+        renderer.setSize(canvas.width(), canvas.height());
+        composer.setSize(canvas.width(), canvas.height());
 
         render();
     };
 
+    this.updateHexBodies = function () {
+        var hexBodies = cosmosScene.getHexBodies();
+        for (var i = 0; i < hexBodies.length; i++) {
+            var body = hexBodies[i];
+            var lightposition = new THREE.Vector3(0,0,0).sub(cosmosScene.getWorldPos(body.planet)).normalize();
+            var cameraHeight = cosmosScene.getWorldPos(camera).clone()
+                .sub(cosmosScene.getWorldPos(body.planet)).length();
+            var planetInverse = new THREE.Matrix4();
+            planetInverse.getInverse(body.planet.matrixWorld.clone());
+            body.atmosphere.material.uniforms.v3LightPosition.value = lightposition;
+            body.atmosphere.material.uniforms.fCameraHeight.value = cameraHeight;
+            body.atmosphere.material.uniforms.fCameraHeight2.value = cameraHeight * cameraHeight;
+            body.atmosphere.material.uniforms.m4ModelInverse.value = planetInverse;
+            body.planet.material.uniforms.v3CameraPosition.value = cosmosScene.getWorldPos(camera).clone();
+            body.planet.material.uniforms.v3LightPosition.value = lightposition;
+            body.planet.material.uniforms.fCameraHeight.value = cameraHeight;
+            body.planet.material.uniforms.fCameraHeight2.value = cameraHeight * cameraHeight;
+            body.planet.material.uniforms.m4ModelInverse.value = planetInverse;
+        }
+    };
+
     function render() {
+        _this.updateHexBodies();
         composer.render(0.1);
     }
 
@@ -228,20 +259,20 @@ var CosmosRender = function (cosmosScene, cosmosUI) {
         composer.addPass(finalPass);
 
         // adjust height for navbar and append
+        var canvas = $('#canvas');
         var navbarHeight = $('#topNavbar').height();
-        var hDiff = $(document.body).height() - navbarHeight - 1;
+        var hDiff = $(window).height() - navbarHeight - 1;
         var sidebarWidth = $('#left-sidebar').width();
-        var wDiff = $(document.body).width();// - sidebarWidth;
-        $('#canvas').append(renderer.domElement).css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
-
+        var wDiff = $(window).width();// - sidebarWidth;
+        canvas.append(renderer.domElement).css('width', wDiff).css('height', hDiff).css('top', navbarHeight);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.maxDistance = 16000;
 
         renderer.domElement.addEventListener('mousemove', cosmosUI.onDocumentMouseMove, false);
         renderer.domElement.addEventListener('mousedown', cosmosUI.onDocumentMouseDown, false);
         renderer.domElement.addEventListener('mouseup', cosmosUI.onDocumentMouseUp, false);
     }
-
 
     function update(deltaSeconds) {
         animateSun();
