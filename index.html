@@ -1,0 +1,343 @@
+<!-- PARAMS:            
+    gameList
+        -->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Asteroid.Ventures | Welcome</title>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <!-- bootstrap 3.0.2 -->
+    <link href="../../css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <!-- font Awesome -->
+    <link href="../../css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <!-- ion icons -->
+    <link href="../../css/ionicons.min.css" rel="stylesheet" type="text/css"/>
+    <!-- Theme style -->
+    <link href="../../css/splash.css" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        #customBtn {
+            display: inline-block;
+            background: #dd4b39;
+            color: white;
+            width: 165px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+        #customBtn:hover {
+            background: #e74b37;
+            cursor: hand;
+        }
+        span.label {
+            font-weight: bold;
+        }
+        span.icon {
+            background: url('http://google-developers.appspot.com/+/images/branding/btn_red_32.png') transparent 5px 50% no-repeat;
+            display: inline-block;
+            vertical-align: middle;
+            width: 35px;
+            height: 35px;
+            border-right: #bb3f30 1px solid;
+        }
+        span.buttonText {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 35px;
+            padding-right: 35px;
+            font-size: 14px;
+            font-weight: bold;
+            /* Use the Roboto font that is loaded in the <head> */
+            font-family: 'Roboto',arial,sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-black">
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div align="center">
+        <h1>
+            The Cosmosium Engine
+
+        </h1>
+
+        <h3>A game engine... IN SPACE!</h3>
+    </div>
+</section>
+<section class="content">
+
+    <span class="full-opacity">
+        <div class="row">
+
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-blue">
+                    <div class="inner">
+                        <h3>Facebook</h3>
+
+                        <p>
+                            Like us on Facebook!
+                        </p>
+                    </div>
+                    <div class="icon">
+                        <span class="white-icons">
+                        <i class="ion ion-social-facebook"></i>
+                        </span>
+                    </div>
+                    <a class="small-box-footer" href="https://www.facebook.com/asteroid.ventures">Follow us here <i
+                                class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-green">
+                    <div class="inner">
+                        <h3>Github</h3>
+
+                        <p>
+                            Commit to Cosmosium!
+                        </p>
+                    </div>
+                    <div class="icon">
+                        <span class="white-icons">
+                        <i class="ion ion-social-github"></i>
+                        </span>
+                    </div>
+                    <a class="small-box-footer" href="https://github.com/rSimulate/Cosmosium">Fork us here <i
+                                class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-red">
+                    <div class="inner">
+                        <h3>Reddit</h3>
+
+                        <p>
+                            Discuss your strategy!
+                        </p>
+                    </div>
+                    <div class="icon">
+                        <span class="white-icons">
+                        <i class="ion ion-social-reddit-outline"></i>
+                        </span>
+                    </div>
+                    <a class="small-box-footer" href="http://www.reddit.com/r/AsteroidVentures/">Subscribe here <i
+                                class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-purple">
+                    <div class="inner">
+                        <h3>Email</h3>
+
+                        <p>
+                            Do you have questions?
+                        </p>
+                    </div>
+                    <div class="icon">
+                        <span class="white-icons">
+                        <i class="ion ion-android-send"></i>
+                        </span>
+                    </div>
+                    <a class="small-box-footer" href="mailto:iontom@gmail.com">E-mail here <i
+                                class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </span>
+
+
+</section>
+<section class="content-footer">
+    <div align="center">
+        <h2>
+            Play with a demo of the Alpha version Today!
+        </h2>
+        <p>
+            (First be sure you have a webGL capable device.)
+        </p>
+    </div>
+
+    <div row>
+        <div class="col-md-4">
+            <div class="form-box" id="demo-login-box">
+                <div class="header">Play Alpha Demo Now</div>
+                <div class="body bg-gray">
+                    <span class="splash-body">
+                        Choose your player:
+                        <ul>
+                            <li>
+                                <form action="/loggin" method="post">
+                                    <a href="javascript:;" onclick="parentNode.submit();">Edwin Hubble</a>
+                                    <input type="hidden" name="userid" value="Edwin_Hubble"/>
+                                    <input type="hidden" name="password" value="redshift"/>
+                                    <input type="hidden" name="remember_me" value=false/>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="/loggin" method="post">
+                                    <a href="javascript:;" onclick="parentNode.submit();">Johannes Kepler</a>
+                                    <input type="hidden" name="userid" value="Johannes_Kepler"/>
+                                    <input type="hidden" name="password" value="telescopy"/>
+                                    <input type="hidden" name="remember_me" value=false/>
+                                </form>
+                            </li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-box" id="social-login-box">
+            <div class="header">Social Login
+            </div>
+            <div class="body bg-gray">
+                <span>
+                    <meta name="google-signin-clientid" content="739869424938-1b0ilms09aal314r795lgptr6oq2e4ag.apps.googleusercontent.com" />
+                    <meta name="google-signing-secret" content ="bTnUJ1Zljv3FxUUkT1hNj6n-" />
+                    <meta name="google-signin-scope" content="https://www.googleapis.com/auth/plus.login" />
+                    <meta name="google-signin-requestvisibleactions" content="http://schema.org/AddAction" />
+                    <meta name="google-signin-cookiepolicy" content="single_host_origin" />
+                    <script type="text/javascript">
+                        (function() {
+                            var po = document.createElement('script');
+                            po.type = 'text/javascript'; po.async = true;
+                            po.src = 'https://apis.google.com/js/client:plusone.js?onload=render';
+                            var s = document.getElementsByTagName('script')[0];
+                            s.parentNode.insertBefore(po, s);
+                        })();
+
+                        /* Executed when the APIs finish loading */
+                        function render() {
+                            // Additional params including the callback, the rest of the params will
+                            // come from the page-level configuration.
+                            var additionalParams = {
+                                'callback': signinCallback
+                            };
+
+                            // Attach a click listener to a button to trigger the flow.
+                            var signinButton = document.getElementById('signinButton');
+                            signinButton.addEventListener('click', function() {
+                                gapi.auth.signIn(additionalParams); // Will use page level configuration
+                            });
+                        }
+
+                        function signinCallback(authResult) {
+                            if (authResult['status']['signed_in']) {
+                                var method = "post";
+
+                                var form = document.createElement("form");
+                                form.setAttribute("type", 'hidden');
+                                form.setAttribute("method", method);
+                                form.setAttribute("action", '/success?target=/play');
+
+                                var hiddenField = document.createElement("input");
+                                hiddenField.setAttribute("type", 'text');
+                                hiddenField.setAttribute('name', 'token');
+                                hiddenField.setAttribute("value", authResult['access_token']);
+                                form.appendChild(hiddenField);
+                                document.body.appendChild(form);
+                                console.log(form);
+                                form.submit();
+                            } else {
+                                // Update the app to reflect a signed out user
+                                // Possible error values:
+                                //   "user_signed_out" - User is signed-out
+                                //   "access_denied" - User denied access to your app
+                                //   "immediate_failed" - Could not automatically log in the user
+                                console.log('Sign-in state: ' + authResult['error']);
+                            }
+                        }
+                    </script>
+                    <div id="gSignInWrapper" style="width: 100%; text-align: center">
+                        <button id="signinButton" style="border: none !important; background: transparent; display: inline-block">
+                            <div id="customBtn" class="customGPlusSignIn">
+                                <span class="icon"></span>
+                                <span class="buttonText">Google</span>
+                            </div>
+                        </button>
+                    </div>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-box" id="login-box">
+            <div class="header">User Login:
+            </div>
+            <form action="/loggin" method="post">
+                <div class="body bg-gray">
+                    <div class="form-group">
+                        <input type="text" name="userid" class="form-control" placeholder="User ID"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control" placeholder="Password"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" name="remember_me"/> <span class="splash-body"> Remember me</span>
+                    </div>
+                </div>
+                <div class="footer">
+                    <button type="submit" class="btn bg-olive btn-block">Log In</button>
+                    <!--
+                    <p><a href="/recoverAccount">I forgot my password</a></p>
+                    <a href="/register" class="text-center">Register a new membership</a>
+                    -->
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-box" id="signup-box">
+            <div class="header">Beta Sign Up:
+            </div>
+            <form action="/signup" method="post">
+                <div class="body bg-gray">
+                    <div class="form-group">
+                        <input type="text" name="userid" class="form-control" placeholder="User ID"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control" placeholder="Password"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="repeat_password" class="form-control" placeholder="Repeat Password"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="org" class="form-control" placeholder="Your Orginization"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="quote" class="form-control" placeholder="Your Space Motto"/>
+                    </div>
+                </div>
+                <div class="footer">
+                    <button type="submit" class="btn bg-olive btn-block">Sign me up</button>
+                    <!--
+                    <p><a href="/recoverAccount">I forgot my password</a></p>
+                    <a href="/register" class="text-center">Register a new membership</a>
+                    -->
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+</section>
+<!-- jQuery 2.0.2 -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
+</body>
+</html>

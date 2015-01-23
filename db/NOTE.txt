@@ -1,7 +1,0 @@
-db were generate using asterank using the following queires
-
-kuiper-belt : http://www.asterank.com/api/asterank?query={%22a%22:{%22$gt%22:40}}&limit=100
-
-NEOs : http://www.asterank.com/api/asterank?query={%22neo%22:%22Y%22}&limit=100
-
-MainBelt : http://www.asterank.com/api/asterank?query={%22neo%22:%22N%22}&limit=100
