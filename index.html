@@ -216,7 +216,7 @@
                                         var form = document.createElement("form");
                                         form.setAttribute("type", 'hidden');
                                         form.setAttribute("method", method);
-                                        form.setAttribute("action", '/success?target=/play');
+                                        form.setAttribute("action", 'http://play.asteroid.ventures/success?target=http://play.asteroid.ventures/play');
 
                                         var hiddenField = document.createElement("input");
                                         hiddenField.setAttribute("type", 'text');
@@ -256,7 +256,7 @@
                             Choose your player:
                             <ul>
                                 <li>
-                                    <form action="/loggin" method="post">
+                                    <form action="http://play.asteroid.ventures/loggin" method="post">
                                         <a href="javascript:;" onclick="parentNode.submit();">Edwin Hubble</a>
                                         <input type="hidden" name="userid" value="Edwin_Hubble"/>
                                         <input type="hidden" name="password" value="redshift"/>
@@ -264,7 +264,7 @@
                                     </form>
                                 </li>
                                 <li>
-                                    <form action="/loggin" method="post">
+                                    <form action="http://play.asteroid.ventures/loggin" method="post">
                                         <a href="javascript:;" onclick="parentNode.submit();">Johannes Kepler</a>
                                         <input type="hidden" name="userid" value="Johannes_Kepler"/>
                                         <input type="hidden" name="password" value="telescopy"/>
@@ -280,7 +280,7 @@
                 <div class="form-box" id="login-box">
                     <div class="header">User Login:
                     </div>
-                    <form action="/loggin" method="post">
+                    <form action="http://play.asteroid.ventures/loggin" method="post">
                         <div class="body bg-gray">
                             <div class="form-group">
                                 <input type="text" name="userid" class="form-control" placeholder="User ID"/>
@@ -295,8 +295,8 @@
                         <div class="footer">
                             <button type="submit" class="btn bg-olive btn-block">Log In</button>
                             <!--
-                            <p><a href="/recoverAccount">I forgot my password</a></p>
-                            <a href="/register" class="text-center">Register a new membership</a>
+                            <p><a href="http://play.asteroid.ventures/recoverAccount">I forgot my password</a></p>
+                            <a href="http://play.asteroid.ventures/register" class="text-center">Register a new membership</a>
                             -->
                         </div>
                     </form>
@@ -306,7 +306,7 @@
                 <div class="form-box" id="signup-box">
                     <div class="header">Beta Sign Up:
                     </div>
-                    <form action="/signup" method="post">
+                    <form action="http://play.asteroid.ventures/signup" method="post">
                         <div class="body bg-gray">
                             <div class="form-group">
                                 <input type="text" name="userid" class="form-control" placeholder="User ID"/>
@@ -327,8 +327,8 @@
                         <div class="footer">
                             <button type="submit" class="btn bg-olive btn-block">Sign me up</button>
                             <!--
-                            <p><a href="/recoverAccount">I forgot my password</a></p>
-                            <a href="/register" class="text-center">Register a new membership</a>
+                            <p><a href="http://play.asteroid.ventures/recoverAccount">I forgot my password</a></p>
+                            <a href="http://play.asteroid.ventures/register" class="text-center">Register a new membership</a>
                             -->
                         </div>
                     </form>
