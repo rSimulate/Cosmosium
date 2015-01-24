@@ -3416,6 +3416,9 @@ fieldset[disabled] .btn-vk.active {
 .white-icons{
   color: #FFFFFF;
 }
-.full-opacity{
-  opacity: 1.0;
+.darkened{
+  background-color: rgba(0,0,0,0.7);
+}
+.lightened{
+  background-color: rgba(255,255,255,0.4);
 }
