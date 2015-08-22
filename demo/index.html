@@ -39,20 +39,6 @@
 <![endif]-->
 <!-- END FRAME SETUP -->
 
-<!--
-% chunks.bg_music.loadRand()
-<script type='text/javascript'>var audioAttrib = "{{chunks.bg_music.attrib}}"</script>
-<audio id="background_audio"
-% if config.music:
-autoplay="true">
-% else:
-autoplay="false">
-% end
-<source src="{{chunks.bg_music.link}}" />
-</audio>
--->
-
-
 <!-- websocket connection -->
 <script type='text/javascript' src='/js/objectDB.js'></script>
 <script type='text/javascript' src='/js/wsMessageParser.js'></script>
@@ -972,9 +958,6 @@ autoplay="false">
 <!--
 <script src="js/AdminLTE/dashboard.js" type="text/javascript"></script>
 -->
-
-<!-- for toggling music play -->
-<script src="../js/bg_music_toggle.js" type="text/javascript"></script>
 
 <!-- for updating the resource display -->
 <script src="demo/resourceUpdate.js" type="text/javascript" onload="setInterval(updateAll,1000)"></script>

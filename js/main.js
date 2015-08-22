@@ -37,9 +37,7 @@ document.addEventListener('click', function(event) {
   }
 }, false);
 
-var rSimulate = new RSimulate({});
-
-console.log('test!');
+var rSimulate;
 
 $(document).ready(function(){
     $("#body-info-container").hide();
