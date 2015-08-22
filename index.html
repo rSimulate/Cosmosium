@@ -1,10 +1,10 @@
-<!-- PARAMS:            
+<!-- PARAMS:
     gameList
         -->
 
 
 <!DOCTYPE html>
-<html>
+<html ng-app="cosmosium">
 <head>
     <meta charset="UTF-8">
     <title>Asteroid.Ventures | Welcome</title>
@@ -60,8 +60,16 @@
             font-family: 'Roboto',arial,sans-serif;
         }
     </style>
+
+    <!-- === JS libs === -->
+    <!-- angular core -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+    <!-- app modules -->
+    <script type="text/javascript" src="directives/login/login-box-directives.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+
 </head>
-<body class="bg-black">
+<body class="bg-black" ng-controller="indexController as indexCtrl">
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
@@ -252,8 +260,8 @@ We intend to do all of the gameplay elements of the game within our open source 
             (First be sure you have a webGL capable device.)
         </p>
     </center>
-    %include('tpl/page_chunks/loginBox')
 
+    <login-box></login-box>
 
 </section>
 <!-- jQuery 2.0.2 -->
