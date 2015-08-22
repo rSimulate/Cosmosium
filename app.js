@@ -3,7 +3,7 @@
  */
 
 (function() {
-    var app = angular.module('cosmosium', ["login-box-directives", "cosmosium-frames"]);
+    var app = angular.module('cosmosium', ["login-box-directives", "cosmosium-frames", "game-directives"]);
 
     app.controller('indexController', function(){
 

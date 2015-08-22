@@ -225,6 +225,7 @@
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
 <!-- app modules -->
 <script type="text/javascript" src="directives/login/login-box-directives.js"></script>
+<script type="text/javascript" src="directives/gameModules/game-directives.js"></script>
 <script type="text/javascript" src="directives/frames/cosmosium-frames.js"></script>
 <script type="text/javascript" src="app.js"></script>
 
@@ -851,7 +852,7 @@
     <div id="canvas">
         <!-- Page Header and Resource Bar -->
         <div id="resource-bar" class="content-header skin-black" >
-            % include('tpl/page_chunks/resourcebar')
+            <resource-bar></resource-bar>
         </div>
         <!-- Dash -->
         % include('tpl/content/dash')
