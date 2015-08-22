@@ -3,7 +3,7 @@
  */
 
 (function() {
-    var app = angular.module('cosmosium', ["login-box-directives", "webgl-directives", "cosmosium-frames"]);
+    var app = angular.module('cosmosium', ["login-box-directives", "cosmosium-frames"]);
 
     app.controller('indexController', function(){
 
