@@ -14,7 +14,15 @@
     app.directive("leftFrame", function() {
         return {
             restrict: 'E',
-            templateUrl: "directives/frames/left-frame.html"
+            templateUrl: "directives/frames/left-frame.html",
+            controller: ['$scope', function ($scope) {
+
+                // init:
+
+                /* Sidebar tree view */
+                $(".sidebar .treeview").tree();
+
+            }]
         };
     });
 })();

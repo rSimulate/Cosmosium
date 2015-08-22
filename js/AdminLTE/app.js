@@ -88,9 +88,6 @@ $(function() {
         box.slideUp();
     });
 
-    /* Sidebar tree view */
-    $(".sidebar .treeview").tree();
-
     /* 
      * Make sure that the sidebar is streched full height
      * ---------------------------------------------

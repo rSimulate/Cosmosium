@@ -11,38 +11,43 @@ function updateSurvey(newSurvey) {
     }
 }
 
-document.getElementById('systemView-NEOs-link').addEventListener('click', function (e){
-    e = e || window.event;
+$(document).ready(function() {
 
-    switchContent();
 
-    updateSurvey('NEO');
+    document.getElementById('systemView-NEOs-link').addEventListener('click', function (e) {
+        e = e || window.event;
 
-}, false);
+        switchContent();
 
-document.getElementById('systemView-MainBelt-link').addEventListener('click', function (e){
-    e = e || window.event;
+        updateSurvey('NEO');
 
-    switchContent();
+    }, false);
 
-    updateSurvey('MainBelt');
+    document.getElementById('systemView-MainBelt-link').addEventListener('click', function (e) {
+        e = e || window.event;
 
-}, false);
+        switchContent();
 
-document.getElementById('systemView-trojan-link').addEventListener('click', function (e){
-    e = e || window.event;
+        updateSurvey('MainBelt');
 
-    switchContent();
+    }, false);
 
-    updateSurvey('SolarSystem');
+    document.getElementById('systemView-trojan-link').addEventListener('click', function (e) {
+        e = e || window.event;
 
-}, false);
+        switchContent();
 
-document.getElementById('systemView-PHO-link').addEventListener('click', function (e){
-    e = e || window.event;
+        updateSurvey('SolarSystem');
 
-    switchContent();
+    }, false);
 
-    updateSurvey('KuiperBelt');
+    document.getElementById('systemView-PHO-link').addEventListener('click', function (e) {
+        e = e || window.event;
 
-}, false);
+        switchContent();
+
+        updateSurvey('KuiperBelt');
+
+    }, false);
+
+});
