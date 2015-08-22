@@ -11,5 +11,6 @@
 
     app.controller('demoController', function($scope){
 
+        //initrSimulate();
     });
 })();

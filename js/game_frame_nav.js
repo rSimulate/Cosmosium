@@ -55,6 +55,10 @@ var observatoryMap = new jvm.WorldMap({
 
 
 function switchContent(content) {
+    if (rSimulate == undefined){
+        initrSimulate();
+    }
+
     openContent.hide();
     rSimulate.cosmosRender.enableControls();
     if (content != undefined) {

@@ -10,4 +10,18 @@
             templateUrl: "directives/gameModules/resource-bar.html"
         };
     });
+
+    app.directive("dashboard", function() {
+        return {
+            restrict: 'E',
+            templateUrl: "directives/gameModules/dash.html"
+        };
+    });
+
+    app.directive("bodyInfo", function() {
+        return {
+            restrict: 'E',
+            templateUrl: "directives/gameModules/body-info.html"
+        };
+    });
 })();
