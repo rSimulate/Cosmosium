@@ -3,7 +3,7 @@
  */
 
 (function(){
-    var app = angular.module('login-box-directives', []);
+    var app = angular.module('cosmosium-frames', []);
 
     app.directive("topFrame", function() {
         return {

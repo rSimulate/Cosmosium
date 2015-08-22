@@ -3,13 +3,13 @@
  */
 
 (function() {
-    var app = angular.module('cosmosium', ["login-box-directives"]);
+    var app = angular.module('cosmosium', ["login-box-directives", "webgl-directives", "cosmosium-frames"]);
 
     app.controller('indexController', function(){
 
     });
 
-    app.controller('mainAppCtrl', function($scope){
+    app.controller('demoController', function($scope){
 
     });
 })();

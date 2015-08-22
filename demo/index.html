@@ -238,12 +238,14 @@ autoplay="false">
 <!-- angular core -->
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
 <!-- app modules -->
+<script type="text/javascript" src="directives/login/login-box-directives.js"></script>
+<script type="text/javascript" src="directives/webGL/webGL-directives.js"></script>
 <script type="text/javascript" src="directives/frames/cosmosium-frames.js"></script>
 <script type="text/javascript" src="app.js"></script>
 
 
 </head>
-<body style='background-color: black'>
+<body style='background-color: black' ng-controller="demoController as demoCtrl">
 <!-- top navigation bar -->
 <top-frame></top-frame>
 
@@ -256,7 +258,7 @@ autoplay="false">
 
 
     <!-- webGL Content -->
-    % include('tpl/page_chunks/webGL_shaders')
+    <shaders></shaders>
     <div id="canvas">
         <!-- Page Header and Resource Bar -->
         <div id="resource-bar" class="content-header skin-black" >
@@ -300,7 +302,7 @@ autoplay="false">
         % include('tpl/page_chunks/body-info')
 
     </div>
-    % include('tpl/page_chunks/webGL_js')
+    <main-scene></main-scene>
 </aside><!-- /.right-side -->
 
 
