@@ -6,20 +6,14 @@
                 Choose your player:
                     <ul>
                         <li>
-                            <form action="/loggin" method="post">
-                                <a href="javascript:;" onclick="parentNode.submit();">Edwin Hubble</a>
-                                <input type="hidden" name="userid" value="Edwin_Hubble"/>
-                                <input type="hidden" name="password" value="redshift"/>
-                                <input type="hidden" name="remember_me" value=false/>
-                            </form>
+                            <a class="btn-primary" href="/demo?uid=Edwin_Hubble">
+                                Edwin Hubble
+                            </a>
                         </li>
                         <li>
-                            <form action="/loggin" method="post">
-                                <a href="javascript:;" onclick="parentNode.submit();">Johannes Kepler</a>
-                                <input type="hidden" name="userid" value="Johannes_Kepler"/>
-                                <input type="hidden" name="password" value="telescopy"/>
-                                <input type="hidden" name="remember_me" value=false/>
-                            </form>
+                            <a class="btn-primary" href="/demo?uid=Johannes_Kepler">
+                                Johannes Kepler
+                            </a>
                         </li>
                         <!--
                         % for demoID in demoIDs:
