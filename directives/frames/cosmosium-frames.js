@@ -11,4 +11,10 @@
             templateUrl: "directives/frames/top-frame.html"
         };
     });
+    app.directive("leftFrame", function() {
+        return {
+            restrict: 'E',
+            templateUrl: "directives/frames/left-frame.html"
+        };
+    });
 })();
