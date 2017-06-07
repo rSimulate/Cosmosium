@@ -25,7 +25,7 @@ def getTraj_simple(start_planet, arrive_planet, tlaunch, tarrive, N):
 
 	'''
     import numpy as np
-    from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, planet_ss, lambert_problem, propagate_lagrangian, fb_vel
+    from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, planet, lambert_problem, propagate_lagrangian, fb_vel
 
     # Create PyKEP epoch objects and calculate flight time
     t1 = epoch(tlaunch)
@@ -35,8 +35,8 @@ def getTraj_simple(start_planet, arrive_planet, tlaunch, tarrive, N):
     rev=0 #number of revolutions before intercept
 
 
-    OBJ1 = planet_ss(start_planet)
-    OBJ2 = planet_ss(arrive_planet)  # Calculate location of objects in flight path
+    OBJ1 = planet.jpl_lp(start_planet)
+    OBJ2 = planet.jpl_lp(arrive_planet)  # Calculate location of objects in flight path
     r1, v1 = OBJ1.eph(t1)
     r2, v2 = OBJ2.eph(t2)
 
@@ -70,8 +70,7 @@ def getTraj_simple(start_planet, arrive_planet, tlaunch, tarrive, N):
     vin=l.get_v1()[rev]
     vout=l.get_v2()[rev]
 
-    dV=fb_vel(vin,vout,planet_ss(arrive_planet))
+    dV=fb_vel(vin,vout,planet.jpl_lp(arrive_planet))
     #dV=np.sqrt( np.square(vout[0])+np.square(vout[1])+np.square(vout[2]))-np.sqrt( np.square(vin[0])+np.square(vin[1])+np.square(vin[2]))
 
     return dV
-

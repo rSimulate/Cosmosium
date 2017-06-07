@@ -1,8 +1,8 @@
 __author__ = 'martin'
 
 import numpy as np
-from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, planet_ss, lambert_problem, propagate_lagrangian, \
-    planet_mpcorb, planet
+from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, lambert_problem, propagate_lagrangian, \
+    planet
 from py.jdutil import *
 from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, planet, lambert_problem, propagate_lagrangian
 from py.jdutil import jd_to_mjd
@@ -14,8 +14,8 @@ def planet_planet(start_planet, arrive_planet, tlaunch, tarrive, rev, N):
     t2 = epoch(tarrive)
     dt = (tarrive - tlaunch) * DAY2SEC
 
-    OBJ1 = planet_ss(start_planet)
-    OBJ2 = planet_ss(arrive_planet)  # Calculate location of objects in flight path
+    OBJ1 = planet.jpl_lp(start_planet)
+    OBJ2 = planet.jpl_lp(arrive_planet)  # Calculate location of objects in flight path
     r1, v1 = OBJ1.eph(t1)
     r2, v2 = OBJ2.eph(t2)
 
@@ -49,7 +49,7 @@ def planet_planet(start_planet, arrive_planet, tlaunch, tarrive, rev, N):
     vin = l.get_v1()[rev]
     vout = l.get_v2()[rev]
 
-    #dV=fb_vel(vin,vout,planet_ss(arrive_planet))
+    #dV=fb_vel(vin,vout,planet.jpl_lp(arrive_planet))
     #dV=np.sqrt( np.square(vin[0]/vout[0])+np.square(vin[1]/vout[1])+np.square(vin[2]/vout[2]))
 
     #dV=np.sqrt( np.square(vin[0]-v1[0])+np.square(v1[1]-vin[1])+np.square(v1[2]-vin[2]))
@@ -88,7 +88,7 @@ def planet_asteroid(start_planet, target_name, tlaunch, tarrive, rev, N):
     sr = r * 1.1
 
     OBJ2 = planet(ep, (a, e, i, om, w, ma), MU_SUN, as_mu, r, sr)
-    OBJ1 = planet_ss(start_planet)  # Calculate location of objects in flight path
+    OBJ1 = planet.jpl_lp(start_planet)  # Calculate location of objects in flight path
     r1, v1 = OBJ1.eph(t1)
     r2, v2 = OBJ2.eph(t2)
 
@@ -122,7 +122,7 @@ def planet_asteroid(start_planet, target_name, tlaunch, tarrive, rev, N):
     vin = l.get_v1()[rev]
     vout = l.get_v2()[rev]
 
-    #dV=fb_vel(vin,vout,planet_ss(arrive_planet))
+    #dV=fb_vel(vin,vout,planet.jpl_lp(arrive_planet))
     #dV=np.sqrt( np.square(vin[0]/vout[0])+np.square(vin[1]/vout[1])+np.square(vin[2]/vout[2]))
 
     #dV=np.sqrt( np.square(vin[0]-v1[0])+np.square(v1[1]-vin[1])+np.square(v1[2]-vin[2]))

@@ -8,7 +8,7 @@ __author__ = 'martin'
 
 
 from lib.traj.C3 import planet_asteroid,planet_planet
-from PyKEP import epoch, DAY2SEC, planet_ss, AU, MU_SUN, lambert_problem, planet
+from PyKEP import epoch, DAY2SEC, AU, MU_SUN, lambert_problem, planet
 import AsteroidDB
 import numpy as np
 import matplotlib.pyplot as plt

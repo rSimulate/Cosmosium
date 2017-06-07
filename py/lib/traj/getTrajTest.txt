@@ -5,12 +5,12 @@ from getTraj import *
 
 #Earth:
 epch1 = 2451545.0
-a1  = 1.0000026099999997 
-e1  = 0.016711230000000001 
-i1  = -1.5310000000000001e-05 
-om1 = 0 
-w1  = 102.93768193 
-ma1 = 357.52688972999999 
+a1  = 1.0000026099999997
+e1  = 0.016711230000000001
+i1  = -1.5310000000000001e-05
+om1 = 0
+w1  = 102.93768193
+ma1 = 357.52688972999999
 mass1 = 5.97219e24
 r1 = 6378000
 sr1 = 1.1 * r1
@@ -41,10 +41,10 @@ N = 1000
 #   Calculate trajectory directly from PyKEP to compare   #
 ###########################################################
 import numpy as np
-from PyKEP import planet_ss, epoch, DAY2SEC, lambert_problem, MU_SUN, AU, propagate_lagrangian
+from PyKEP import planet, epoch, DAY2SEC, lambert_problem, MU_SUN, AU, propagate_lagrangian
 
-earth=planet_ss('earth')
-mars=planet_ss('mars')
+earth=planet.jpl_lp('earth')
+mars=planet.jpl_lp('mars')
 
 t1=epoch(tlaunch,epoch.epoch_type.JD)
 t2=epoch(tarrive,epoch.epoch_type.JD)
@@ -60,7 +60,7 @@ v = l.get_v1()[0]
 mu = l.get_mu()
 
 dtn = dt / (N - 1)
-	
+
 x = np.array([0.0] * N)
 y = np.array([0.0] * N)
 z = np.array([0.0] * N)
@@ -76,5 +76,3 @@ from numpy import linalg as LA
 LA.norm(x_-x) / LA.norm(x) * 100
 LA.norm(y_-y) / LA.norm(y) * 100
 LA.norm(z_-z) / LA.norm(z) * 100
-
-
