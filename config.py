@@ -21,13 +21,13 @@ GOOGLE_BASE_URI = 'http://localhost' # Google doesn't seem to accept
                                      # non-working urls, but accepts localhost
 
 # Facebook:
-FACEBOOK_CLIENT_ID = '545723862164937'
-FACEBOOK_CLIENT_SECRET = '5407608c6e9d10b297ba77a4de18f75f'
+FACEBOOK_CLIENT_ID = 'NULL'
+FACEBOOK_CLIENT_SECRET = 'NULL'
 
 # Twitter:
-TWITTER_CLIENT_ID = '07gvoVMGyyul4m5bKkJuOA'
-TWITTER_CLIENT_SECRET = 'PUOGZog1IhxsOQVojrwVgjHgSlHaVRibcpVsP8Axk0'
+TWITTER_CLIENT_ID = 'NULL'
+TWITTER_CLIENT_SECRET = 'NULL'
 
 # Google:
-GOOGLE_CLIENT_ID = '739869424938-1b0ilms09aal314r795lgptr6oq2e4ag.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = 'bTnUJ1Zljv3FxUUkT1hNj6n-'
+GOOGLE_CLIENT_ID = 'NULL'
+GOOGLE_CLIENT_SECRET = 'NULL'
