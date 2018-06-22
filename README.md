@@ -11,7 +11,6 @@ asteroid-claiming game view based on REAL asteroid data from [a scientific datab
 A user dashboard for the first prototype of the [Asteroid Ventures](http://asteroid.ventures) 4x RTS.
 ![the dashboard](http://i.imgur.com/JKkkpUp.png)
 
-###[View a live demo on our test server now](http://rsimulate.github.io/Cosmosium/) 
 
 #### Want to join our dev team? ####
 Check out the [installation instructions](https://github.com/rSimulate/Cosmosium/blob/master/INSTALL.md) to get your own cosmosium server going and we'll gladly accept your pull requests.
