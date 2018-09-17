@@ -29,7 +29,7 @@ elif platform.system() == 'Linux':
         version = check_output([PIP, "--version"])
         if "(python 2" not in version:
             PIP = 'pip2'
-        except OSError:
+    except OSError:
             PIP = 'pip2'
 elif platform.system() == 'Darwin':
     PY  = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
