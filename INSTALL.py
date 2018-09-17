@@ -8,6 +8,7 @@ NOTE: this is NOT a setup.py script to be used with disutils, and it might not b
 __author__ = 'rSimulate'
 
 import sys
+from subprocess import call, check_output  # for sys commands
 
 # check python version
 version_info = sys.version_info
@@ -24,6 +25,12 @@ if platform.system() == 'Windows':
 elif platform.system() == 'Linux':
     PY  = 'python'
     PIP = 'pip'
+    try:
+        version = check_output([PIP, "--version"])
+        if "(python 2" not in version:
+            PIP = 'pip2'
+        except OSError:
+            PIP = 'pip2'
 elif platform.system() == 'Darwin':
     PY  = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\python.exe'
     PIP = 'C:\Python' + str(version_info.major) + str(version_info.minor) + '\Scripts\pip.exe'
@@ -35,8 +42,6 @@ else:
 
 PIP_LIBS = ['GitPython', 'bottle', 'rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet',
             'numpy', 'jdcal', 'pycrypto', 'simplejson']
-
-from subprocess import call  # for sys commands
 
 try:
     call([PIP, 'install'] + PIP_LIBS)
