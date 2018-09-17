@@ -33,7 +33,7 @@ else:
 # TODO: check for pip, else: if windows: d/l and run get_pip.py, elif ubuntu: `apt-get pip`
 # install other dependencies using pip
 
-PIP_LIBS = ['GitPython==0.3.2.RC1', 'bottle', 'rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet',
+PIP_LIBS = ['GitPython', 'bottle', 'rauth', 'requests', 'pymongo', 'gevent', 'gevent-websocket', 'greenlet',
             'numpy', 'jdcal', 'pycrypto', 'simplejson']
 
 from subprocess import call  # for sys commands
