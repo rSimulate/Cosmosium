@@ -1,10 +1,10 @@
 __author__ = 'martin'
 
 import numpy as np
-from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, lambert_problem, propagate_lagrangian, \
+from pykep import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, lambert_problem, propagate_lagrangian, \
     planet
 from py.jdutil import *
-from PyKEP import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, planet, lambert_problem, propagate_lagrangian
+from pykep import epoch, DAY2SEC, SEC2DAY, AU, DEG2RAD, MU_SUN, planet, lambert_problem, propagate_lagrangian
 from py.jdutil import jd_to_mjd
 
 
